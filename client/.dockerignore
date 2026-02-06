@@ -1,0 +1,13 @@
+node_modules
+build
+dist
+
+.git
+
+.env
+.env.*
+
+coverage
+
+Dockerfile
+docker-compose.yml
