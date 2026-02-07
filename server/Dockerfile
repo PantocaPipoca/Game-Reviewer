@@ -2,16 +2,20 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# install dependecies
+# Install dependencies
 COPY package*.json ./
 RUN npm install
 
-# copy project files
-COPY . .
+# Copy Prisma schema first
+COPY prisma ./prisma
 
-# generate prisma client
-#RUN npx prisma generate
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Copy rest of project files
+COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+# Updated CMD to run migrations then start server
+CMD npx prisma migrate deploy && npm run dev

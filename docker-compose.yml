@@ -1,5 +1,4 @@
 services:
-
   postgres:
     image: postgres:16-alpine
     container_name: gr_postgres_db
@@ -12,24 +11,37 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   server:
     build: ./server
     container_name: gr_server
+    env_file:
+      - .env
     ports:
       - "3000:3000"
+      - "5555:5555"
     depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./server:/app
+      - /app/node_modules
 
   client:
     build: ./client
-    container_name: gr_clients
+    container_name: gr_client
     ports:
       - "5173:5173"
     depends_on:
       - server
+    volumes:
+      - ./client:/app
+      - /app/node_modules
 
 volumes:
   postgres_data:
