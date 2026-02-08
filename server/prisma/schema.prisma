@@ -5,20 +5,90 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
-  //url      = env("DATABASE_URL")
+    provider = "postgresql"
+    //url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    accountName  String   @id
+    passwordHash String
+    userData     Json // displayed name, gender, private account, idk
+    email        String   @unique
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    reviews   Review[]
+    following Follower[] @relation("Follows")
+    followers Follower[] @relation("Followed")
+    comments  Comment[]
+    likes     Like[]
+}
+
+model Game {
+    gameName String @id
+    metadata Json // tags, average time to complete, idk
+
+    reviews Review[]
+}
+
+model Review {
+    reviewer  String
+    reviewed  String
+    text      String
+    score     Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user User @relation(fields: [reviewer], references: [accountName])
+    game Game @relation(fields: [reviewed], references: [gameName])
+
+    comments Comment[]
+    likes    Like[]
+
+    @@id([reviewer, reviewed])
+}
+
+model Follower {
+    follows   String
+    followed  String
+    accepted  Boolean
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    followsUser  User @relation("Follows", fields: [follows], references: [accountName])
+    followedUser User @relation("Followed", fields: [followed], references: [accountName])
+
+    @@id([follows, followed])
+}
+
+model Comment {
+    id          BigInt   @id @default(autoincrement()) // prisma forces primary key to exist
+    commentator String
+    reviewer    String
+    reviewed    String
+    text        String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    review Review @relation(fields: [reviewer, reviewed], references: [reviewer, reviewed])
+    user   User   @relation(fields: [commentator], references: [accountName])
+}
+
+model Like {
+    liker     String
+    reviewer  String
+    reviewed  String
+    value     Boolean
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    review Review @relation(fields: [reviewer, reviewed], references: [reviewer, reviewed])
+    user   User   @relation(fields: [liker], references: [accountName])
+
+    @@id([liker, reviewer, reviewed])
 }
