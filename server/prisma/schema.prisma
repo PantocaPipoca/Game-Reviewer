@@ -51,6 +51,9 @@ model Review {
     likes    Like[]
 
     @@id([reviewer, reviewed])
+    @@index([reviewer])
+    @@index([reviewed])
+    @@index([createdAt])
 }
 
 model Follower {
@@ -63,6 +66,7 @@ model Follower {
     followedUser User @relation("Followed", fields: [followed], references: [accountName])
 
     @@id([follows, followed])
+    @@index([followed])
 }
 
 model Comment {
@@ -76,6 +80,9 @@ model Comment {
 
     review Review @relation(fields: [reviewer, reviewed], references: [reviewer, reviewed])
     user   User   @relation(fields: [commentator], references: [accountName])
+
+    @@index([reviewer, reviewed])
+    @@index([commentator])
 }
 
 model Like {
@@ -90,4 +97,6 @@ model Like {
     user   User   @relation(fields: [liker], references: [accountName])
 
     @@id([liker, reviewer, reviewed])
+    @@index([reviewer, reviewed])
+    @@index([liker])
 }
