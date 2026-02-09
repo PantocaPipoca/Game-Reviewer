@@ -1,24 +1,14 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "User" (
+    "accountName" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "userData" JSONB NOT NULL,
+    "email" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-  - The primary key for the `User` table will be changed. If it partially fails, the table could be left without primary key constraint.
-  - You are about to drop the column `id` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `name` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `password` on the `User` table. All the data in the column will be lost.
-  - Added the required column `accountName` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `passwordHash` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `userData` to the `User` table without a default value. This is not possible if the table is not empty.
-
-*/
--- AlterTable
-ALTER TABLE "User" DROP CONSTRAINT "User_pkey",
-DROP COLUMN "id",
-DROP COLUMN "name",
-DROP COLUMN "password",
-ADD COLUMN     "accountName" TEXT NOT NULL,
-ADD COLUMN     "passwordHash" TEXT NOT NULL,
-ADD COLUMN     "userData" JSONB NOT NULL,
-ADD CONSTRAINT "User_pkey" PRIMARY KEY ("accountName");
+    CONSTRAINT "User_pkey" PRIMARY KEY ("accountName")
+);
 
 -- CreateTable
 CREATE TABLE "Game" (
@@ -74,6 +64,33 @@ CREATE TABLE "Like" (
 
     CONSTRAINT "Like_pkey" PRIMARY KEY ("liker","reviewer","reviewed")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE INDEX "Review_reviewer_idx" ON "Review"("reviewer");
+
+-- CreateIndex
+CREATE INDEX "Review_reviewed_idx" ON "Review"("reviewed");
+
+-- CreateIndex
+CREATE INDEX "Review_createdAt_idx" ON "Review"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "Follower_followed_idx" ON "Follower"("followed");
+
+-- CreateIndex
+CREATE INDEX "Comment_reviewer_reviewed_idx" ON "Comment"("reviewer", "reviewed");
+
+-- CreateIndex
+CREATE INDEX "Comment_commentator_idx" ON "Comment"("commentator");
+
+-- CreateIndex
+CREATE INDEX "Like_reviewer_reviewed_idx" ON "Like"("reviewer", "reviewed");
+
+-- CreateIndex
+CREATE INDEX "Like_liker_idx" ON "Like"("liker");
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_reviewer_fkey" FOREIGN KEY ("reviewer") REFERENCES "User"("accountName") ON DELETE RESTRICT ON UPDATE CASCADE;
