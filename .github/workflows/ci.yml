@@ -16,6 +16,9 @@ jobs:
       run:
         working-directory: server
 
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +29,7 @@ jobs:
           cache-dependency-path: server/package-lock.json
 
       - run: npm ci
+      - run: npx prisma generate
       - run: npm run build --if-present
       - run: npm test
 
