@@ -1,7 +1,7 @@
 import {Router} from "express"
 import accRoutes from "./AccountRoutes.js"
 import folRoutes from "./FollowerRoutes.js"
-import gameRoutes from "./GameRoutes.js"
+import gameRoutes from "./gameRoutes.js"
 import revRoutes from "./ReviewRoutes.js"
 
 // Router object
