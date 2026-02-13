@@ -2,7 +2,7 @@ import {Router} from "express"
 import {AccountController} from "../controllers/AccountController"
 
 // Router object
-const router = Router()
+const router: Router = Router()
 
 /**
  * POST /api/register
@@ -22,10 +22,10 @@ const router = Router()
  *      409 CONFLICT, if the user name provided already exists
  *      500 INTERNAL SERVER ERROR, if the account could not be created
  */
-router.post('/api/register', AccountController.register)
+router.post('/api/register', AccountController.Register)
 
 /**
- * POST /api/login
+ * GET /api/login
  * Logs in an existing account
  * Body:
  *      accountName: string
@@ -38,7 +38,7 @@ router.post('/api/register', AccountController.register)
  *      404 NOT FOUND, if the provided user name doesn't exist
  *      403 FORBIDDEN, if the provided password is incorrect
  */
-router.post('/api/login', AccountController.login)
+router.get('/api/login', AccountController.Login)
 
 /**
  * GET /api/me
@@ -49,7 +49,7 @@ router.post('/api/login', AccountController.login)
  *      {accountName, userData}
  *      401 NOT AUTHORIZED, if no account is logged in
  */
-router.get('/api/me', AccountController.getCurrentUser)
+router.get('/api/me', AccountController.GetCurrentUser)
 
 /**
  * PUT /api/updacc
@@ -68,7 +68,7 @@ router.get('/api/me', AccountController.getCurrentUser)
  *      404 NOT FOUND, if the provided account's name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be updated
  */
-router.put('/api/updacc', AccountController.alter)
+router.put('/api/updacc', AccountController.Alter)
 
 /**
  * DELETE /api/remacc
@@ -82,6 +82,6 @@ router.put('/api/updacc', AccountController.alter)
  *      404 NOT FOUND, if provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be deleted
  */
-router.delete('/api/remacc', AccountController.remove)
+router.delete('/api/remacc', AccountController.Remove)
 
 export default router

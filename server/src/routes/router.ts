@@ -1,14 +1,14 @@
 import {Router} from "express"
-import accRoutes from "./accRoutes.js"
-import folRoutes from "./folRoutes.js"
-import gameRoutes from "./gameRoutes.js"
-import revRoutes from "./revRoutes.js"
+import accRoutes from "./AccountRoutes.js"
+import folRoutes from "./FollowerRoutes.js"
+import gameRoutes from "./GameRoutes.js"
+import revRoutes from "./ReviewRoutes.js"
 
 // Router object
-const router = Router()
+const router: Router = Router()
 
 router.use('/account', accRoutes)
-router.use('/folowers', folRoutes)
+router.use('/followers', folRoutes)
 router.use('/game', gameRoutes)
 router.use('/review', revRoutes)
 

@@ -1,11 +1,14 @@
 import {Request, Response} from "express"
-import {asyncHandler, makeSuccess} from "../utils/utils"
-import {GameService} from "../services/GameService"
+import {AsyncHandler, MakeSuccess} from "../utils/Utils"
 import {StatusCodes} from "http-status-codes"
+import {ERR_GAME_MISSING_NAME} from "../utils/UsualErrorMessage"
+import {GameService} from "../services/GameService"
 
 export class GameController {
-    static find_game = asyncHandler(async (req: Request, res: Response) => {
-        const result = await GameService.find_game(req.body)
-        return makeSuccess(res, StatusCodes.OK, result)
+    static FindGame = AsyncHandler(async (req: Request, res: Response) => {
+        const {gameName}    = req.body
+        if (!gameName) ERR_GAME_MISSING_NAME.Throw()
+        const result: any   = await GameService.FindGame(gameName)
+        return MakeSuccess(res, StatusCodes.OK, result)
     })
 }

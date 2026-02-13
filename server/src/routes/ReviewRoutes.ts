@@ -2,7 +2,7 @@ import {Router} from "express"
 import {ReviewController} from "../controllers/ReviewController"
 
 // Router object
-const router = Router()
+const router: Router = Router()
 
 /**
  * GET /api/viewrev
@@ -18,7 +18,7 @@ const router = Router()
  *      404 NOT FOUND, if the provided game name doesn't exist
  *      404 NOT FOUND, if the user didn't review the game
  */
-router.get('/api/viewrev', ReviewController.find_review)
+router.get('/api/viewrev', ReviewController.FindReview)
 
 /**
  * POST /api/newrev
@@ -38,7 +38,7 @@ router.get('/api/viewrev', ReviewController.find_review)
  *      409 CONFLICT, if the user already reviewed the game
  *      500 INTERNAL SERVER ERROR, if the review couldn't be publised
  */
-router.post('/api/newrev', ReviewController.publish_review)
+router.post('/api/newrev', ReviewController.PublishReview)
 
 /**
  * PUT /api/updrev
@@ -58,7 +58,7 @@ router.post('/api/newrev', ReviewController.publish_review)
  *      404 NOT FOUND, if the user didn't review the game
  *      500 INTERNAL SERVER ERROR, if the review couldn't be updated
  */
-router.put('/api/updrev', ReviewController.alter_review)
+router.put('/api/updrev', ReviewController.AlterReview)
 
 /**
  * DELETE /api/remrev
@@ -75,6 +75,6 @@ router.put('/api/updrev', ReviewController.alter_review)
  *      404 NOT FOUND, if the user didn't review the game
  *      500 INTERNAL SERVER ERROR, if the review couldn't be removed
  */
-router.delete('/api/remrev', ReviewController.remove_review)
+router.delete('/api/remrev', ReviewController.RemoveReview)
 
 export default router

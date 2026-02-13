@@ -1,73 +1,36 @@
 import {prisma} from "../prisma"
-import {LoginType, RegisterType, UserType} from "../types/Types"
-import {StatusCodes} from "http-status-codes"
+import {UserType} from "../types/Types"
+import {ERR_ACC_BAD_PASS, ERR_ACC_DUPLICATE, ERR_ACC_ISE_DEL, ERR_ACC_ISE_NEW,
+    ERR_ACC_ISE_UPD, ERR_ACC_NOTEXISTS} from "../utils/UsualErrorMessage"
 import bcrypt from "bcrypt"
-import {internalServerError} from "../utils/utils"
 
-// REGEX that tests whether an email is valid
-const email_regex: RegExp = /^[a-zA-Z0-9]+@[a-zA-Z0-9_.+-]+\.[a-zA-Z0-9_.+-]+$/
-
-// Error messages
-const err_acc_missing_name: string          = "No user name provided"
-const err_acc_missing_disp: string          = "No display name provided"
-const err_acc_missing_pass: string          = "No password provided"
-const err_acc_missing_email: string         = "No email provided"
-const err_acc_short_name: string            = "User name too short"
-const err_acc_short_pass: string            = "Password too short"
-const err_acc_bad_email: string             = "Email provided is invalid"
-const err_acc_new_duplicate_name: string    = "Name is already used"
-const err_acc_nonexistent: string           = "User doesn't exist"
-const err_acc_bad_pass: string              = "Wrong password"
-const err_acc_ise_new: string               = "ISE: Create account"
-const err_acc_ise_upd: string               = "ISE: Update account"
-const err_acc_ise_del: string               = "ISE: Delete account"
+// Finds a user by name
+async function FetchUser(accountName: string): Promise<UserType> {
+    return await prisma.user.findUnique({where: {accountName}})
+}
 
 export class AccountService {
-    static async register(data: RegisterType) {
-        const {accountName, displayName, password, email} = data
-        if (!accountName)               throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_missing_name}
-        if (!displayName)               throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_missing_disp}
-        if (!password)                  throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_missing_pass}
-        if (!email)                     throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_missing_email}
-        if (accountName.length < 3)     throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_short_name}
-        if (password.length < 8)        throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_short_pass}
-        if (!email_regex.test(email))   throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_bad_email}
-
-        if (await prisma.user.findUnique({where: {accountName}}))
-            throw {statusCode: StatusCodes.CONFLICT, message: err_acc_new_duplicate_name}   
+    static async RegisterUser(accountName: string, displayName: string, password: string, email: string): Promise<UserType> {
+        if (await FetchUser(accountName)) ERR_ACC_DUPLICATE.Throw()
 
         const passwordHash: string  = await bcrypt.hash(password, 10)
         const time: Date            = new Date(Date.now())
         const user: UserType        = {accountName, passwordHash, email, createdAt: time, updatedAt: time, userData: {displayName}}
 
-        if (!(await prisma.user.create({data: user})))
-            internalServerError(err_acc_ise_new)
-
+        if (!(await prisma.user.create({data: user}))) ERR_ACC_ISE_NEW.Throw()
         return user
     }
 
-    static async login(data: LoginType) {
-        const {accountName, password} = data
-        if (!accountName)   throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_missing_name}
-        if (!password)      throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_missing_pass}
-
-        const user: UserType = await prisma.user.findUnique({where: {accountName}})
-        if (!user) throw {statusCode: StatusCodes.NOT_FOUND, message: err_acc_nonexistent}
-
-        if (!(await bcrypt.compare(password, user.passwordHash)))
-            throw {statusCode: StatusCodes.FORBIDDEN, message: err_acc_bad_pass}
-
+    static async LoginUser(accountName: string, password: string): Promise<UserType> {
+        const user: UserType = await FetchUser(accountName)
+        if (!user)                                                  ERR_ACC_NOTEXISTS.Throw()
+        if (!(await bcrypt.compare(password, user.passwordHash)))   ERR_ACC_BAD_PASS.Throw()
         return user
     }
 
-    static async alter(data: RegisterType) {
-        const {accountName, displayName, password, email} = data
-        if (!accountName)                       throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_missing_name}
-        if (password! && password.length < 8)   throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_short_pass}
-        if (email! && !email_regex.test(email)) throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_bad_email}
-
-        const user: UserType = await prisma.user.findUnique({where: {accountName}})
-        if (!user) throw {statusCode: StatusCodes.NOT_FOUND, message: err_acc_nonexistent}
+    static async AlterUser(accountName: string, displayName?: string, password?: string, email?: string): Promise<UserType> {
+        const user: UserType = await FetchUser(accountName)
+        if (!user) ERR_ACC_NOTEXISTS.Throw()
 
         if (displayName!)   user.userData.displayName = displayName
         if (password!)      user.passwordHash = await bcrypt.hash(password, 10)
@@ -84,21 +47,14 @@ export class AccountService {
                     displayName: user.userData.displayName
                 }
             }
-        }))) internalServerError(err_acc_ise_upd)
-        
+        }))) ERR_ACC_ISE_UPD.Throw()
         return user
     }
 
-    static async remove(data: UserType) {
-        const {accountName} = data
-        if (!accountName) throw {statusCode: StatusCodes.BAD_REQUEST, message: err_acc_missing_name}
-
-        const user = await prisma.user.findUnique({where: {accountName}})
-        if (!user) throw {statusCode: StatusCodes.NOT_FOUND, message: err_acc_nonexistent}
-
-        if (!(await prisma.user.delete({where: {accountName}})))
-            internalServerError(err_acc_ise_del)
-
+    static async RemoveUser(accountName: string): Promise<UserType> {
+        const user: UserType = await FetchUser(accountName)
+        if (!user)                                                  ERR_ACC_NOTEXISTS.Throw()
+        if (!(await prisma.user.delete({where: {accountName}})))    ERR_ACC_ISE_DEL.Throw()
         return user
     }
 }

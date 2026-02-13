@@ -2,7 +2,7 @@ import {Router} from "express"
 import {FollowerController} from "../controllers/FollowerController"
 
 // Router object
-const router = Router()
+const router: Router = Router()
 
 /**
  * POST /api/newfol
@@ -18,7 +18,7 @@ const router = Router()
  *      409 CONFLICT, if the first user already requested to follow the second
  *      500 INTERNAL SERVER ERROR, if the request couldn't be made
  */
-router.post('/api/newfol', FollowerController.request_follower)
+router.post('/api/newfol', FollowerController.RequestFollower)
 
 /**
  * PUT /api/accfol
@@ -35,7 +35,7 @@ router.post('/api/newfol', FollowerController.request_follower)
  *      409 CONFLICT, if the second user already accepted the request
  *      500 INTERNAL SERVER ERROR, if the request couldn't be accepted
  */
-router.put('/api/accfol', FollowerController.accept_follower)
+router.put('/api/accfol', FollowerController.AcceptFollower)
 
 /**
  * DELETE /api/remfol
@@ -51,6 +51,6 @@ router.put('/api/accfol', FollowerController.accept_follower)
  *      409 CONFLICT, if the first user name doesn't follow the second yet
  *      500 INTERNAL SERVER ERROR, if the follower couldn't be removed
  */
-router.delete('/api/remfol', FollowerController.remove_follower)
+router.delete('/api/remfol', FollowerController.RemoveFollower)
 
 export default router

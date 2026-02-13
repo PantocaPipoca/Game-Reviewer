@@ -1,15 +1,3 @@
-export interface RegisterType {
-    accountName: string;
-    displayName: string;
-    password: string;
-    email: string;
-}
-
-export interface LoginType {
-    accountName: string;
-    password: string;
-}
-
 export interface UserType {
     accountName: string;
     passwordHash: string;
