@@ -1,24 +1,8 @@
-import {Router} from "express"
-import {ReviewController} from "../controllers/ReviewController"
+import {Router} from "express";
+import {ReviewController} from "../controllers/ReviewController";
 
 // Router object
-const router: Router = Router()
-
-/**
- * GET /api/viewrev
- * Finds a user's review on a game
- * Body:
- *      reviewer: string
- *      reviewed: string
- * Response:
- *      200 OK
- *      {reviewer, reviewed, text, score, createdAt, updatedAt}
- *      400 BAD REQUEST, if any of the required fields is missing
- *      404 NOT FOUND, if the provided user name doesn't exist
- *      404 NOT FOUND, if the provided game name doesn't exist
- *      404 NOT FOUND, if the user didn't review the game
- */
-router.get('/api/viewrev', ReviewController.FindReview)
+const router: Router = Router();
 
 /**
  * POST /api/newrev
@@ -38,7 +22,23 @@ router.get('/api/viewrev', ReviewController.FindReview)
  *      409 CONFLICT, if the user already reviewed the game
  *      500 INTERNAL SERVER ERROR, if the review couldn't be publised
  */
-router.post('/api/newrev', ReviewController.PublishReview)
+router.post('/:reviewer/:reviewed', ReviewController.PublishReview);
+
+/**
+ * GET /api/viewrev
+ * Finds a user's review on a game
+ * Body:
+ *      reviewer: string
+ *      reviewed: string
+ * Response:
+ *      200 OK
+ *      {reviewer, reviewed, text, score, createdAt, updatedAt}
+ *      400 BAD REQUEST, if any of the required fields is missing
+ *      404 NOT FOUND, if the provided user name doesn't exist
+ *      404 NOT FOUND, if the provided game name doesn't exist
+ *      404 NOT FOUND, if the user didn't review the game
+ */
+router.get('/:reviewer/:reviewed', ReviewController.FindReview);
 
 /**
  * PUT /api/updrev
@@ -58,7 +58,7 @@ router.post('/api/newrev', ReviewController.PublishReview)
  *      404 NOT FOUND, if the user didn't review the game
  *      500 INTERNAL SERVER ERROR, if the review couldn't be updated
  */
-router.put('/api/updrev', ReviewController.AlterReview)
+router.put('/:reviewer/:reviewed', ReviewController.AlterReview);
 
 /**
  * DELETE /api/remrev
@@ -75,6 +75,34 @@ router.put('/api/updrev', ReviewController.AlterReview)
  *      404 NOT FOUND, if the user didn't review the game
  *      500 INTERNAL SERVER ERROR, if the review couldn't be removed
  */
-router.delete('/api/remrev', ReviewController.RemoveReview)
+router.delete('/:reviewer/:reviewed', ReviewController.RemoveReview);
 
-export default router
+
+// ===================== COMMENTS =====================
+
+router.get('/:reviewer/:reviewed/comments', ReviewController.GetComments);
+
+router.post('/:reviewer/:reviewed/comments', ReviewController.AddComment);
+
+router.put('/:reviewer/:reviewed/comments', ReviewController.EditComment);
+
+router.delete('/:reviewer/:reviewed/comments', ReviewController.RemoveComment);
+
+
+// ===================== LIKES =====================
+
+router.get('/:reviewer/:reviewed/likes', ReviewController.GetLikes);
+
+router.post('/:reviewer/:reviewed/likes', ReviewController.AddLike);
+
+router.delete('/:reviewer/:reviewed/likes', ReviewController.RemoveLike);
+
+// ===================== DISLIKES =====================
+
+router.get('/:reviewer/:reviewed/dislikes', ReviewController.GetDislikes);
+
+router.post('/:reviewer/:reviewed/dislikes', ReviewController.AddDislike);
+
+router.delete('/:reviewer/:reviewed/dislikes', ReviewController.RemoveDislike);
+
+export default router;

@@ -1,11 +1,15 @@
 import {Router} from "express"
 import {AccountController} from "../controllers/AccountController"
+import { ReviewController } from "../controllers/ReviewController";
 
 // Router object
-const router: Router = Router()
+const router: Router = Router();
+
+
+// ===================== AUTHENTICATION =====================
 
 /**
- * POST /api/register
+ * POST /api/users
  * Registers a new account
  * Body:
  *      accountName: string
@@ -22,7 +26,7 @@ const router: Router = Router()
  *      409 CONFLICT, if the user name provided already exists
  *      500 INTERNAL SERVER ERROR, if the account could not be created
  */
-router.post('/api/register', AccountController.Register)
+router.post('/', AccountController.Register);
 
 /**
  * GET /api/login
@@ -38,10 +42,13 @@ router.post('/api/register', AccountController.Register)
  *      404 NOT FOUND, if the provided user name doesn't exist
  *      403 FORBIDDEN, if the provided password is incorrect
  */
-router.get('/api/login', AccountController.Login)
+router.get('/login', AccountController.Login);
+
+
+// ===================== USER MANAGEMENT =====================
 
 /**
- * GET /api/me
+ * GET /api/users/me
  * Gets the currently logged in account
  * (Empty body)
  * Response:
@@ -49,10 +56,10 @@ router.get('/api/login', AccountController.Login)
  *      {accountName, userData}
  *      401 NOT AUTHORIZED, if no account is logged in
  */
-router.get('/api/me', AccountController.GetCurrentUser)
+router.get('/me', AccountController.GetCurrentUser);
 
 /**
- * PUT /api/updacc
+ * PUT /api/user/:username
  * Alters account details in an existing account
  * Body:
  *      accountName: string
@@ -68,10 +75,10 @@ router.get('/api/me', AccountController.GetCurrentUser)
  *      404 NOT FOUND, if the provided account's name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be updated
  */
-router.put('/api/updacc', AccountController.Alter)
+router.put('/:username', AccountController.Alter);
 
 /**
- * DELETE /api/remacc
+ * DELETE /api/users/:username
  * Deletes an existing account
  * Body:
  *      accountName: string
@@ -82,6 +89,53 @@ router.put('/api/updacc', AccountController.Alter)
  *      404 NOT FOUND, if provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be deleted
  */
-router.delete('/api/remacc', AccountController.Remove)
+router.delete('/:username', AccountController.Remove);
 
-export default router
+/**
+ * GET /api/users/:username/reviews
+ * Gets the reviews of a user
+ * Body:
+ *      (empty body)
+ * Response:
+ *      200 OK
+ *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
+ *      404 NOT FOUND, if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ */
+router.get('/:username/reviews', ReviewController.getReviewsByUser);
+
+
+// ===================== SEARCH USERS =====================
+
+/**
+ * GET /api/user/:username
+ * Finds an account by its name
+ * Body:
+ *      accountName: string
+ *      displayName: string
+ *      password: string
+ *      email: string
+ * Response:
+ *      202 ACCEPTED
+ *      {accountName, passwordHash, email, createdAt, updatedAt, userData}
+ *      400 BAD REQUEST, if the account's name is missing
+ *      400 BAD REQUEST, if the password (if provided) is shorter than 8 characters
+ *      400 BAD REQUEST, if the email (if provided) is invalid
+ *      404 NOT FOUND, if the provided account's name doesn't exist
+ *      500 INTERNAL SERVER ERROR, if the account could not be updated
+ */
+router.get('/:username', AccountController.FindByUsername);
+
+/**
+ * GET /api/users
+ * Get viewable (public & followed) users
+ * (Empty body)
+ * Response:
+ *     200 OK
+ *     [{accountName, email, createdAt, updatedAt, userData}, ...]
+ *     500 INTERNAL SERVER ERROR, if the accounts could not be retrieved
+ */
+router.get('/', AccountController.GetUsers);
+
+
+export default router;

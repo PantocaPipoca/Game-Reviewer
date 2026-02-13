@@ -5,7 +5,20 @@ import {FollowerController} from "../controllers/FollowerController"
 const router: Router = Router()
 
 /**
- * POST /api/newfol
+ * GET /api/users/:accountName/followers
+ * Gets the followers of an account
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{follows, followed}]
+ *      404 NOT FOUND, if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR, if the followers couldn't be retrieved
+ */
+router.get('/', FollowerController.GetFollowers);
+
+
+/**
+ * POST /api/users/:accountName/followers
  * Makes a follower request to an account
  * Body:
  *      follows: string
@@ -18,10 +31,10 @@ const router: Router = Router()
  *      409 CONFLICT, if the first user already requested to follow the second
  *      500 INTERNAL SERVER ERROR, if the request couldn't be made
  */
-router.post('/api/newfol', FollowerController.RequestFollower)
+router.post('/', FollowerController.RequestFollower);
 
 /**
- * PUT /api/accfol
+ * PUT /api/users/:accountName/followers/:followerName
  * Accepts a follower request to an account
  * Body:
  *      follows: string
@@ -35,10 +48,10 @@ router.post('/api/newfol', FollowerController.RequestFollower)
  *      409 CONFLICT, if the second user already accepted the request
  *      500 INTERNAL SERVER ERROR, if the request couldn't be accepted
  */
-router.put('/api/accfol', FollowerController.AcceptFollower)
+router.put('/:followerName', FollowerController.AcceptFollower);
 
 /**
- * DELETE /api/remfol
+ * DELETE /api/users/:accountName/followers/:followerName
  * Removes a follower to an account
  * Body:
  *      follows: string
@@ -51,6 +64,6 @@ router.put('/api/accfol', FollowerController.AcceptFollower)
  *      409 CONFLICT, if the first user name doesn't follow the second yet
  *      500 INTERNAL SERVER ERROR, if the follower couldn't be removed
  */
-router.delete('/api/remfol', FollowerController.RemoveFollower)
+router.delete('/:followerName', FollowerController.RemoveFollower);
 
-export default router
+export default router;

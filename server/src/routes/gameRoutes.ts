@@ -1,20 +1,61 @@
 import {Router} from "express";
 import {GameController} from "../controllers/GameController";
+import { ReviewController } from "../controllers/ReviewController";
 
 // Router object
-const router: Router = Router()
+const router: Router = Router();
 
 /**
- * GET /api/game
- * Finds a game by name
+ * GET /games
+ * Search games using query params
+ * Example:
+ *      /games?name=elden
+ *      /games?tag=rpg
+ *      /games?name=elden&tag=rpg
  * Body:
- *      gameName: string
+ *     (Empty body)
+ * Response:
+ *      200 OK, Returns a list of games matching the query parameters
+ *      400 BAD REQUEST, if any of the query parameters is invalid
+ *      500 INTERNAL SERVER ERROR, if the filters couldn't be retrieved
+ */
+router.get('/', GameController.searchGames);
+
+/**
+ * GET /games/popular
+ * Returns popular games ordered by score or review count
+ * Body:
+ *      (Empty body)
+ * Response:
+ *      200 OK
+ *      [{gameName, metadata}]
+ *      500 INTERNAL SERVER ERROR, if the games couldn't be retrieved
+ */
+router.get('/popular', GameController.getPopularGames);
+
+/**
+ * GET /api/games/:gameID
+ * Finds a game by ID
+ * Body:
+ *      gameID: string
  * Response:
  *      200 OK
  *      {gameName, metadata}
- *      400 BAD REQUEST, if gameName field is missing
+ *      400 BAD REQUEST, if gameID field is missing
  *      404 NOT FOUND, if the provided game doesn't exist
  */
-router.get('/api/game', GameController.FindGame)
+router.get('/:gameID', GameController.FindGame);
 
-export default router
+/** GET /api/games/:gameName/reviews
+ * Gets the reviews of a game
+ * Body:
+ *      (empty body)
+ * Response:
+ *      200 OK
+ *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
+ *      404 NOT FOUND, if the provided game name doesn't exist
+ *     500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ */
+router.get('/:gameName/reviews', ReviewController.getReviewsByGame);
+
+export default router;

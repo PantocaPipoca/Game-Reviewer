@@ -1,15 +1,17 @@
-import {Router} from "express"
-import accRoutes from "./AccountRoutes.js"
-import folRoutes from "./FollowerRoutes.js"
-import gameRoutes from "./gameRoutes.js"
-import revRoutes from "./ReviewRoutes.js"
+import {Router} from "express";
+import accRoutes from "./AccountRoutes.js";
+import gameRoutes from "./gameRoutes.js";
+import revRoutes from "./ReviewRoutes.js";
 
-// Router object
-const router: Router = Router()
+const router: Router = Router();
 
-router.use('/account', accRoutes)
-router.use('/followers', folRoutes)
-router.use('/game', gameRoutes)
-router.use('/review', revRoutes)
+// Game routes
+router.use('/games', gameRoutes);
 
-export default router
+// User routes
+router.use('/users', accRoutes);
+
+// Review routes (single review resource)
+router.use('/reviews', revRoutes);
+
+export default router;
