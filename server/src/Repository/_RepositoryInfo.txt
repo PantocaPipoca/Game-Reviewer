@@ -1,6 +1,6 @@
 Cada ficheiro *Repository.ts contêm funções que realizam todas as queries possíveis de fazer à tabela correspondente
 
-Cada ficheiro exporta o tipo correspondente à sua tabela
+Cada ficheiro exporta os tipos correspondentes à sua tabela
 
 
 
@@ -10,15 +10,16 @@ Todos os Select's recebem a chave primária e devolvem a entrada correspondente
 Todos os Insert's recebem valores para todos os campos da tablela e criam uma entrada com esses valores
 
 
-Todos os Update's recebem valores para todos os campos da tablela e atualizam a entrada correspondente, para não alterar campos utilizar os valores obtidos no Select
+Todos os Update's recebem valores para todos os campos da tablela e atualizam a entrada correspondente, 
+para não alterar campos utilizar os valores obtidos no Select
 
 
 Todos os delete's recebem a chave primária e apagam a entrada correspondente
 
 
 
-Os ficheiros possuem queries adicionais para obter várias entradas segundo um filtro personalizável ou não
+Os ficheiros possuem queries adicionais para obter várias entradas segundo um filtro específico da query
 
-O formato do filtro e exportado e explicado em cada ficheiro
+O formato do filtro e explicado em cada ficheiro
 
-Essas queries ou não recebem nada ou recebem a costumização do filtro e retornam um array do tipo correspondente ao ficheiro
+Essas queries retornam um array do tipo correspondente
