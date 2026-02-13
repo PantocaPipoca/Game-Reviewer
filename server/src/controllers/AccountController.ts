@@ -1,5 +1,5 @@
 import {Request, Response} from "express"
-import {AsyncHandler, MakeSuccess} from "../utils/Utils"
+import {AsyncHandler, MakeSuccess} from "../utils/utils"
 import {StatusCodes} from "http-status-codes"
 import {ERR_ACC_BAD_EMAIL, ERR_ACC_MISSING_DISP, ERR_ACC_MISSING_EMAIL, ERR_ACC_MISSING_NAME, ERR_ACC_MISSING_PASS,
     ERR_ACC_SHORT_NAME, ERR_ACC_SHORT_PASS} from "../utils/UsualErrorMessage"

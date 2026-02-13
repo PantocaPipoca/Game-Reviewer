@@ -1,5 +1,5 @@
 import {Request, Response} from "express"
-import {AsyncHandler, MakeSuccess} from "../utils/Utils"
+import {AsyncHandler, MakeSuccess} from "../utils/utils"
 import {StatusCodes} from "http-status-codes"
 import {ERR_ACC_MISSING_NAME, ERR_GAME_MISSING_NAME, ERR_REV_BAD_SCORE, ERR_REV_MISSING_SCORE, ERR_REV_MISSING_TEXT} from "../utils/UsualErrorMessage"
 import {ReviewService} from "../services/ReviewService"

@@ -1,5 +1,5 @@
 import {Request, Response} from "express"
-import {AsyncHandler, MakeSuccess} from "../utils/Utils"
+import {AsyncHandler, MakeSuccess} from "../utils/utils"
 import {StatusCodes} from "http-status-codes"
 import {ERR_FOL_MISSING_NAME1, ERR_FOL_MISSING_NAME2} from "../utils/UsualErrorMessage"
 import {FollowerService} from "../services/FollowerService"
