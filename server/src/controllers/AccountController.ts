@@ -50,4 +50,10 @@ export class AccountController {
     static GetCurrentUser: any = AsyncHandler(async (_: Request, res: Response) => {
         return MakeSuccess(res, StatusCodes.OK, {})
     })
+
+    static FindByUsername: any = AsyncHandler(async (req: Request, res: Response) => {
+    });
+
+    static GetUsers: any = AsyncHandler(async (req: Request, res: Response) => {
+    });
 }

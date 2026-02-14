@@ -6,9 +6,17 @@ import {GameService} from "../services/GameService"
 
 export class GameController {
     static FindGame = AsyncHandler(async (req: Request, res: Response) => {
-        const {gameName}    = req.body
-        if (!gameName) ERR_GAME_MISSING_NAME.Throw()
-        const result: any   = await GameService.FindGame(gameName)
-        return MakeSuccess(res, StatusCodes.OK, result)
-    })
+        const {gameName}    = req.body;
+        if (!gameName) ERR_GAME_MISSING_NAME.Throw();
+        const result: any   = await GameService.FindGame(gameName);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+
+    static getPopularGames = AsyncHandler(async (req: Request, res: Response) => {
+    
+    });
+
+    static searchGames = AsyncHandler(async (req: Request, res: Response) => {
+    
+    });
 }

@@ -20,20 +20,23 @@ function ExtractUserNames(req: Request): FollowerPrimaryKey {
 
 export class FollowerController {
     static RequestFollower = AsyncHandler(async (req: Request, res: Response) => {
-        const pair: FollowerPrimaryKey  = ExtractUserNames(req)
-        const result: any               = await FollowerService.RequestFollower(pair.follows, pair.followed)
-        return MakeSuccess(res, StatusCodes.CREATED, result)
-    })
+        const pair: FollowerPrimaryKey  = ExtractUserNames(req);
+        const result: any               = await FollowerService.RequestFollower(pair.follows, pair.followed);
+        return MakeSuccess(res, StatusCodes.CREATED, result);
+    });
 
     static AcceptFollower = AsyncHandler(async (req: Request, res: Response) => {
-        const pair: FollowerPrimaryKey  = ExtractUserNames(req)
-        const result: any               = await FollowerService.AcceptFollower(pair.follows, pair.followed)
-        return MakeSuccess(res, StatusCodes.ACCEPTED, result)
-    })
+        const pair: FollowerPrimaryKey  = ExtractUserNames(req);
+        const result: any               = await FollowerService.AcceptFollower(pair.follows, pair.followed);
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    });
 
     static RemoveFollower = AsyncHandler(async (req: Request, res: Response) => {
-        const pair: FollowerPrimaryKey  = ExtractUserNames(req)
-        const result: any               = await FollowerService.RemoveFollower(pair.follows, pair.followed)
-        return MakeSuccess(res, StatusCodes.ACCEPTED, result)
-    })
+        const pair: FollowerPrimaryKey  = ExtractUserNames(req);
+        const result: any               = await FollowerService.RemoveFollower(pair.follows, pair.followed);
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    });
+
+    static GetFollowers = AsyncHandler(async (req: Request, res: Response) => {
+    });
 }
