@@ -1,18 +1,19 @@
 import { prisma } from "../prisma";
 import type { Game } from "../generated/prisma/client";
-export { Game };
+export type { Game };
+
+export type gamePK = number;
 
 export type game = {
+    gameID: gamePK;
     gameName: string;
     metadata: any;
 }
 
-export type gamePK = string;
-
 // select game
 export function SelectGame(gamePK: gamePK): Promise<Game | null> {
     return prisma.game.findUnique({
-        where: { gameName: gamePK }
+        where: { gameID: gamePK }
     });
 }
 
@@ -26,7 +27,7 @@ export function InsertGame(game: game): Promise<Game> {
 // update game DONT CALL THIS ON CODE ACCESSIBLE FROM AN ENDPOINT!!!
 export function UpdateGame(game: game): Promise<Game> {
     return prisma.game.update({
-        where: { gameName: game.gameName },
+        where: { gameID: game.gameID },
         data: { metadata: game.metadata }
     });
 }
@@ -34,7 +35,7 @@ export function UpdateGame(game: game): Promise<Game> {
 // delete game DONT CALL THIS ON CODE ACCESSIBLE FROM AN ENDPOINT!!!
 export function DeleteGame(gamePK: gamePK): Promise<Game> {
     return prisma.game.delete({
-        where: { gameName: gamePK }
+        where: { gameID: gamePK }
     });
 }
 

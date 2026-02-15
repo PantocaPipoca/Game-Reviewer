@@ -1,17 +1,19 @@
 import { prisma } from "../prisma";
 import type { Review } from "../generated/prisma/client";
-export { Review };
-
-export type review = {
-    reviewer: string;
-    reviewed: string;
-    text: string;
-    score: number;
-}
+import type { gamePK } from "./GameRepository";
+import type { userPK } from "./UserRepository";
+export type { Review };
 
 export type reviewPK = {
-    reviewer: string;
-    reviewed: string;
+    reviewer: userPK;
+    reviewed: gamePK;
+}
+
+export type review = {
+    reviewer: userPK;
+    reviewed: gamePK;
+    text: string;
+    score: number;
 }
 
 // select review
@@ -53,14 +55,14 @@ export function DeleteReview(reviewPK: reviewPK): Promise<Review> {
 
 
 // select all reviews of a game
-export function SelectAllReviewsOfGame(gamePK: string): Promise<Review[]> {
+export function SelectAllReviewsOfGame(gamePK: gamePK): Promise<Review[]> {
     return prisma.review.findMany({
         where: { reviewed: gamePK }
     });
 }
 
-// select all reviews of a user
-export function SelectAllReviewsOfUser(userPK: string): Promise<Review[]> {
+// select all reviews by a user
+export function SelectAllReviewsOfUser(userPK: userPK): Promise<Review[]> {
     return prisma.review.findMany({
         where: { reviewer: userPK }
     });

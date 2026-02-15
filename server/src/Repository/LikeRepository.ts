@@ -1,20 +1,22 @@
 import { prisma } from "../prisma";
 import type { Like } from "../generated/prisma/client";
 import type { reviewPK } from "./ReviewRepository";
-export { Like };
+import type { userPK } from "./UserRepository";
+import type { gamePK } from "./GameRepository";
+export type { Like };
 
+export type likePK = {
+    liker: userPK;
+    reviewer: userPK;
+    reviewed: gamePK;
+}
 export type like = {
-    liker: string;
-    reviewer: string;
-    reviewed: string;
+    liker: userPK;
+    reviewer: userPK;
+    reviewed: gamePK;
     value: boolean;
 }
 
-export type likePK = {
-    liker: string;
-    reviewer: string;
-    reviewed: string;
-}
 
 // select like
 export function SelectLike(likePK: likePK): Promise<Like | null> {
@@ -57,16 +59,14 @@ export function DeleteLike(likePK: likePK): Promise<Like> {
 export function CountLikesOrDislikesOfReview(reviewPK: reviewPK, toCount: boolean): Promise<Number> {
     return prisma.like.count({
         where: {
-            AND: [
-                { review: reviewPK },
-                { value: toCount }
-            ]
+            review: reviewPK,
+            value: toCount
         }
     });
 }
 
 // select all likes of a user
-export function SelectAllLikesOfUser(userPK: string): Promise<Like[]> {
+export function SelectAllLikesOfUser(userPK: userPK): Promise<Like[]> {
     return prisma.like.findMany({
         where: { liker: userPK }
     });
