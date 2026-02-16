@@ -1,5 +1,5 @@
 import {StatusCodes} from "http-status-codes"
-import {SelectFollower, InsertFollower, UpdateFollower, DeleteFollower, SelectAllFollowersOfUser, SelectAllFollowedbyUser} from "../Repository/FollowerRepository"
+import {SelectFollower, InsertFollower, UpdateFollower, DeleteFollower, SelectAllFollowersOfUser, SelectAllFollowedByUser} from "../Repository/FollowerRepository"
 import {FetchUser, CanViewUser} from "./AccountService"
 import {FollowerResponse, UserData} from "../types/Types"
 import {AppError} from "../utils/ErrorHandler"
@@ -176,7 +176,7 @@ export class FollowerService {
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION)
         }
 
-        const following = await SelectAllFollowedbyUser(accountName)
+        const following = await SelectAllFollowedByUser(accountName)
 
         // only return accepted follows
         const acceptedFollowing = following.filter(f => f.accepted)

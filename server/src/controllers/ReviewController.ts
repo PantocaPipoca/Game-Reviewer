@@ -1,7 +1,6 @@
 import {Request, Response} from "express"
-import {AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
+import {AsyncHandler, MakeSuccess, AppError} from "../utils/ErrorHandler"
 import {StatusCodes} from "http-status-codes"
-import {ERR_ACC_MISSING_NAME, ERR_GAME_MISSING_NAME, ERR_REV_BAD_SCORE, ERR_REV_MISSING_SCORE, ERR_REV_MISSING_TEXT} from "../utils/ErrorMessage"
 import {ReviewService} from "../services/ReviewService"
 
 // Throws if score is invalid
@@ -11,7 +10,7 @@ function CheckScore(score: any): void {
 }
 
 export class ReviewController {
-    static FindReview = AsyncHandler(async (req: Request, res: Response) => {
+    static GetReview = AsyncHandler(async (req: Request, res: Response) => {
         const {reviewer, reviewed} = req.body;
         if (!reviewer)  ERR_ACC_MISSING_NAME.Throw();
         if (!reviewed)  ERR_GAME_MISSING_NAME.Throw();
@@ -47,60 +46,16 @@ export class ReviewController {
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 
-    static getReviewsByGame = AsyncHandler(async (req: Request, res: Response) => {
-    
+    static GetReviewsByGame = AsyncHandler(async (req: Request, res: Response) => {
+        
     });
 
-    static getReviewsByUser = AsyncHandler(async (req: Request, res: Response) => {
+    static GetReviewsByUser = AsyncHandler(async (req: Request, res: Response) => {
             
     });
 
-
-    // ===================== COMMENTS =====================
-
-    static GetComments = AsyncHandler(async (req: Request, res: Response) => {
-    
-    });
-
-    static AddComment = AsyncHandler(async (req: Request, res: Response) => {
-    
-    });
-
-    static EditComment = AsyncHandler(async (req: Request, res: Response) => {
-    
-    });
-
-    static RemoveComment = AsyncHandler(async (req: Request, res: Response) => {
-    
-    });
-
-
-    // ===================== LIKES =====================
-
-    static GetLikes = AsyncHandler(async (req: Request, res: Response) => {
-    
-    });
-
-    static AddLike = AsyncHandler(async (req: Request, res: Response) => {
-    
-    });
-
-    static RemoveLike = AsyncHandler(async (req: Request, res: Response) => {
-    
-    });
-
-
-    // ===================== DISLIKES =====================
-
-    static GetDislikes = AsyncHandler(async (req: Request, res: Response) => {
-    
-    });
-
-    static AddDislike = AsyncHandler(async (req: Request, res: Response) => {
-    
-    });
-
-    static RemoveDislike = AsyncHandler(async (req: Request, res: Response) => {
-    
+    // TODO LATER
+    static GetRecentReviews = AsyncHandler(async (req: Request, res: Response) => {
+        
     });
 }

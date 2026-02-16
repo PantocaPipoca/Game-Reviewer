@@ -139,11 +139,11 @@ export class AccountService {
 
     /**
      * Gets the currently authenticated user's data
-     * @param username - username of the currently authenticated user (from JWT)
+     * @param currentUser - username of the currently authenticated user (from JWT)
      * @returns User object
      */
-    static async GetCurrentUser(username: string): Promise<UserResponse> {
-        const user: User = await FetchUser(username);
+    static async GetCurrentUser(currentUser: string): Promise<UserResponse> {
+        const user: User = await FetchUser(currentUser);
 
         return {
             accountName: user.accountName,
@@ -157,17 +157,13 @@ export class AccountService {
     /**
      * Updates user account information
      * @param currentUser - username of the currently authenticated user (from JWT)
-     * @param accountName - username to update
      * @param password - new password (optional)
      * @param email - new email (optional)
      * @param userData - partial user data updates (optional)
      * @returns updated user data
      */
-    static async AlterUser(currentUser: string, username: string, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserResponse> {
-        if (currentUser !== username) {
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
-        }
-        const user = await FetchUser(username)
+    static async AlterUser(currentUser: string, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserResponse> {
+        const user = await FetchUser(currentUser)
 
         const passwordHash = password 
             ? await bcrypt.hash(password, SALT_ROUNDS) 
@@ -182,7 +178,7 @@ export class AccountService {
             ...userData  // only override provided fields
         }
 
-        const updated: User = await UpdateUser({accountName: username, passwordHash, userData: updatedUserData, email: updatedEmail})
+        const updated: User = await UpdateUser({accountName: currentUser, passwordHash, userData: updatedUserData, email: updatedEmail})
 
         return {
             accountName: updated.accountName,
@@ -196,15 +192,10 @@ export class AccountService {
     /**
      * Deletes a user by username
      * @param currentUser - username of the currently authenticated user (from JWT)
-     * @param username - username of the account to delete
      * @returns the deleted user's data
      */
-    static async RemoveUser(currentUser: string, username: string): Promise<UserResponse> {
-        if (currentUser !== username) {
-            throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
-        }
-
-        const deletedUser = await DeleteUser(username);
+    static async RemoveUser(currentUser: string): Promise<UserResponse> {
+        const deletedUser = await DeleteUser(currentUser);
 
         return {
             accountName: deletedUser.accountName,

@@ -62,7 +62,7 @@ router.get('/login', AccountController.Login);
 router.get('/me', auth, AccountController.GetCurrentUser);
 
 /**
- * PUT /api/users/:username
+ * PUT /api/users/me
  * Alters account details in an existing account
  * Body:
  *      accountName: string
@@ -78,10 +78,10 @@ router.get('/me', auth, AccountController.GetCurrentUser);
  *      404 NOT FOUND, if the provided account's name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be updated
  */
-router.put('/:username', auth, AccountController.Alter);
+router.put('/me', auth, AccountController.Alter);
 
 /**
- * DELETE /api/users/:username
+ * DELETE /api/users/me
  * Deletes an existing account
  * Body:
  *      accountName: string
@@ -92,21 +92,7 @@ router.put('/:username', auth, AccountController.Alter);
  *      404 NOT FOUND, if provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be deleted
  */
-router.delete('/:username', auth,AccountController.Remove);
-
-/**
- * GET /api/users/:username/reviews
- * Gets the reviews of a user
- * Body:
- *      (empty body)
- * Response:
- *      200 OK
- *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
- *      404 NOT FOUND, if the provided user name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
- */
-router.get('/:username/reviews', optionalAuth, ReviewController.getReviewsByUser);
-
+router.delete('/me', auth,AccountController.Remove);
 
 
 // ===================== SEARCH USERS =====================
@@ -159,5 +145,22 @@ router.use('/:username/followers', FollowerRoutes);
  *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
  */
 router.get('/:username/following', optionalAuth, FollowerController.GetFollowingByUser);
+
+
+// ===================== REVIEWS =====================
+
+/**
+ * GET /api/users/:username/reviews
+ * Gets the reviews of a user
+ * Body:
+ *      (empty body)
+ * Response:
+ *      200 OK
+ *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
+ *      404 NOT FOUND, if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ */
+router.get('/:username/reviews', optionalAuth, ReviewController.getReviewsByUser);
+
 
 export default router;

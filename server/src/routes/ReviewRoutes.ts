@@ -20,7 +20,7 @@ const router: Router = Router();
  *      404 NOT FOUND, if the provided game name doesn't exist
  *      404 NOT FOUND, if the user didn't review the game
  */
-router.get('/:reviewer/:reviewed', ReviewController.FindReview);
+router.get('/:reviewer/:reviewed', ReviewController.GetReview);
 
 /**
  * POST /api/reviews/:reviewer/:reviewed

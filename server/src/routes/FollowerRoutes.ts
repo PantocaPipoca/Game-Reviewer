@@ -4,22 +4,11 @@ import { auth, optionalAuth } from "../utils/auth";
 
 const router: Router = Router()
 
-/**
- * GET /api/users/:accountName/followers
- * Gets the followers of an account
- * (Empty body)
- * Response:
- *      200 OK
- *      [{follows, followed}]
- *      404 NOT FOUND, if the provided user name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the followers couldn't be retrieved
- */
-router.get('/', optionalAuth, FollowerController.GetFollowers);
 
 // Get Following is in AccountRoutes since it has a different endpoint
 
 /**
- * POST /api/users/:accountName/followers
+ * POST /api/users/:accountName/followers/:followerName
  * Makes a follower request to an account
  * Body:
  *      follows: string
@@ -66,5 +55,30 @@ router.put('/:followerName', auth, FollowerController.AcceptFollower);
  *      500 INTERNAL SERVER ERROR, if the follower couldn't be removed
  */
 router.delete('/:followerName', auth, FollowerController.RemoveFollower);
+
+/**
+ * GET /api/users/:accountName/followers
+ * Gets the followers of an account
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{follows, followed}]
+ *      404 NOT FOUND, if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR, if the followers couldn't be retrieved
+ */
+router.get('/', optionalAuth, FollowerController.GetFollowers);
+
+/**
+ * GET /api/users/:username/followers/pending
+ * Gets the users followed by a user, if it's private only returns followed users if the current user follows it
+ * Body:
+ *      (empty body)
+ * Response:
+ *      200 OK
+ *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
+ *      404 NOT FOUND, if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ */
+router.get('/pending', optionalAuth, FollowerController.GetPendingRequests);
 
 export default router;

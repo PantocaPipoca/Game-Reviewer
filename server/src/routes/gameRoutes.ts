@@ -6,6 +6,19 @@ import { ReviewController } from "../controllers/ReviewController";
 const router: Router = Router();
 
 /**
+ * GET /api/games/:gameID
+ * Finds a game by ID
+ * Body:
+ *      gameID: string
+ * Response:
+ *      200 OK
+ *      {gameName, metadata}
+ *      400 BAD REQUEST, if gameID field is missing
+ *      404 NOT FOUND, if the provided game doesn't exist
+ */
+router.get('/:gameID', GameController.GetGameById);
+
+/**
  * GET /games
  * Search games using query params
  * Example:
@@ -19,7 +32,7 @@ const router: Router = Router();
  *      400 BAD REQUEST, if any of the query parameters is invalid
  *      500 INTERNAL SERVER ERROR, if the filters couldn't be retrieved
  */
-router.get('/', GameController.searchGames);
+router.get('/', GameController.SearchGames);
 
 /**
  * GET /games/popular
@@ -31,22 +44,9 @@ router.get('/', GameController.searchGames);
  *      [{gameName, metadata}]
  *      500 INTERNAL SERVER ERROR, if the games couldn't be retrieved
  */
-router.get('/popular', GameController.getPopularGames);
+router.get('/popular', GameController.GetPopularGames);
 
-/**
- * GET /api/games/:gameID
- * Finds a game by ID
- * Body:
- *      gameID: string
- * Response:
- *      200 OK
- *      {gameName, metadata}
- *      400 BAD REQUEST, if gameID field is missing
- *      404 NOT FOUND, if the provided game doesn't exist
- */
-router.get('/:gameID', GameController.FindGame);
-
-/** GET /api/games/:gameName/reviews
+/** GET /api/games/:gameID/reviews
  * Gets the reviews of a game
  * Body:
  *      (empty body)
@@ -56,6 +56,6 @@ router.get('/:gameID', GameController.FindGame);
  *      404 NOT FOUND, if the provided game name doesn't exist
  *     500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
  */
-router.get('/:gameName/reviews', ReviewController.getReviewsByGame);
+router.get('/:gameID/reviews', ReviewController.GetReviewsByGame);
 
 export default router;
