@@ -30,7 +30,8 @@ model User {
 }
 
 model Game {
-    gameName String @id
+    gameID   Int    @id
+    gameName String
     metadata Json // tags, average time to complete, idk
 
     reviews Review[]
@@ -38,14 +39,14 @@ model Game {
 
 model Review {
     reviewer  String
-    reviewed  String
+    reviewed  Int
     text      String
     score     Int
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     user User @relation(fields: [reviewer], references: [accountName])
-    game Game @relation(fields: [reviewed], references: [gameName])
+    game Game @relation(fields: [reviewed], references: [gameID])
 
     comments Comment[]
     likes    Like[]
@@ -74,7 +75,7 @@ model Comment {
     id          BigInt   @id @default(autoincrement()) // prisma forces primary key to exist
     commentator String
     reviewer    String
-    reviewed    String
+    reviewed    Int
     text        String
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
@@ -89,7 +90,7 @@ model Comment {
 model Like {
     liker     String
     reviewer  String
-    reviewed  String
+    reviewed  Int
     value     Boolean
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

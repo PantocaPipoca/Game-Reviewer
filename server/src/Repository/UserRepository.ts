@@ -1,15 +1,15 @@
 import { prisma } from "../prisma";
 import type { User } from "../generated/prisma/client";
-export { User };
+export type { User };
+
+export type userPK = string;
 
 export type user = {
-    accountName: string;
+    accountName: userPK;
     passwordHash: string;
     userData: any;
     email: string;
 }
-
-export type userPK = string;
 
 // select user
 export function SelectUser(userPK: userPK): Promise<User | null> {
