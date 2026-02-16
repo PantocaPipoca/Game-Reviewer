@@ -1,11 +1,29 @@
 import {Router} from "express";
 import {ReviewController} from "../controllers/ReviewController";
+import commentRoutes from "./commentRoutes";
+import likeRoutes from "./likeRoutes";
 
 // Router object
 const router: Router = Router();
 
 /**
- * POST /api/newrev
+ * GET /api/reviewer/:reviewer/:reviewed
+ * Finds a user's review on a game
+ * Body:
+ *      reviewer: string
+ *      reviewed: string
+ * Response:
+ *      200 OK
+ *      {reviewer, reviewed, text, score, createdAt, updatedAt}
+ *      400 BAD REQUEST, if any of the required fields is missing
+ *      404 NOT FOUND, if the provided user name doesn't exist
+ *      404 NOT FOUND, if the provided game name doesn't exist
+ *      404 NOT FOUND, if the user didn't review the game
+ */
+router.get('/:reviewer/:reviewed', ReviewController.FindReview);
+
+/**
+ * POST /api/reviews/:reviewer/:reviewed
  * Publishes a new review
  * Body:
  *      reviewer: string
@@ -25,23 +43,7 @@ const router: Router = Router();
 router.post('/:reviewer/:reviewed', ReviewController.PublishReview);
 
 /**
- * GET /api/viewrev
- * Finds a user's review on a game
- * Body:
- *      reviewer: string
- *      reviewed: string
- * Response:
- *      200 OK
- *      {reviewer, reviewed, text, score, createdAt, updatedAt}
- *      400 BAD REQUEST, if any of the required fields is missing
- *      404 NOT FOUND, if the provided user name doesn't exist
- *      404 NOT FOUND, if the provided game name doesn't exist
- *      404 NOT FOUND, if the user didn't review the game
- */
-router.get('/:reviewer/:reviewed', ReviewController.FindReview);
-
-/**
- * PUT /api/updrev
+ * PUT /api/reviews/:reviewer/:reviewed
  * Updates a user's review
  * Body:
  *      reviewer: string
@@ -61,7 +63,7 @@ router.get('/:reviewer/:reviewed', ReviewController.FindReview);
 router.put('/:reviewer/:reviewed', ReviewController.AlterReview);
 
 /**
- * DELETE /api/remrev
+ * DELETE /api/reviews/:reviewer/:reviewed
  * Removes a user's review
  * Body:
  *      reviewer: string
@@ -80,29 +82,13 @@ router.delete('/:reviewer/:reviewed', ReviewController.RemoveReview);
 
 // ===================== COMMENTS =====================
 
-router.get('/:reviewer/:reviewed/comments', ReviewController.GetComments);
-
-router.post('/:reviewer/:reviewed/comments', ReviewController.AddComment);
-
-router.put('/:reviewer/:reviewed/comments', ReviewController.EditComment);
-
-router.delete('/:reviewer/:reviewed/comments', ReviewController.RemoveComment);
+router.use('/:reviewer/:reviewed/comments', commentRoutes);
 
 
-// ===================== LIKES =====================
+// ===================== REACTIONS (LIKES/DISLIKES) =====================
 
-router.get('/:reviewer/:reviewed/likes', ReviewController.GetLikes);
 
-router.post('/:reviewer/:reviewed/likes', ReviewController.AddLike);
+router.use('/:reviewer/:reviewed/', likeRoutes);
 
-router.delete('/:reviewer/:reviewed/likes', ReviewController.RemoveLike);
-
-// ===================== DISLIKES =====================
-
-router.get('/:reviewer/:reviewed/dislikes', ReviewController.GetDislikes);
-
-router.post('/:reviewer/:reviewed/dislikes', ReviewController.AddDislike);
-
-router.delete('/:reviewer/:reviewed/dislikes', ReviewController.RemoveDislike);
 
 export default router;

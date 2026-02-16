@@ -11,7 +11,7 @@ router.use('/games', gameRoutes);
 // User routes
 router.use('/users', accRoutes);
 
-// Review routes (single review resource)
+// Review routes
 router.use('/reviews', revRoutes);
 
 export default router;

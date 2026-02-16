@@ -1,7 +1,7 @@
 import {Router} from "express"
 import {FollowerController} from "../controllers/FollowerController"
+import { auth, optionalAuth } from "../utils/auth";
 
-// Router object
 const router: Router = Router()
 
 /**
@@ -14,8 +14,9 @@ const router: Router = Router()
  *      404 NOT FOUND, if the provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the followers couldn't be retrieved
  */
-router.get('/', FollowerController.GetFollowers);
+router.get('/', optionalAuth, FollowerController.GetFollowers);
 
+// Get Following is in AccountRoutes since it has a different endpoint
 
 /**
  * POST /api/users/:accountName/followers
@@ -31,7 +32,7 @@ router.get('/', FollowerController.GetFollowers);
  *      409 CONFLICT, if the first user already requested to follow the second
  *      500 INTERNAL SERVER ERROR, if the request couldn't be made
  */
-router.post('/', FollowerController.RequestFollower);
+router.post('/', auth, FollowerController.RequestFollower);
 
 /**
  * PUT /api/users/:accountName/followers/:followerName
@@ -48,7 +49,7 @@ router.post('/', FollowerController.RequestFollower);
  *      409 CONFLICT, if the second user already accepted the request
  *      500 INTERNAL SERVER ERROR, if the request couldn't be accepted
  */
-router.put('/:followerName', FollowerController.AcceptFollower);
+router.put('/:followerName', auth, FollowerController.AcceptFollower);
 
 /**
  * DELETE /api/users/:accountName/followers/:followerName
@@ -64,6 +65,6 @@ router.put('/:followerName', FollowerController.AcceptFollower);
  *      409 CONFLICT, if the first user name doesn't follow the second yet
  *      500 INTERNAL SERVER ERROR, if the follower couldn't be removed
  */
-router.delete('/:followerName', FollowerController.RemoveFollower);
+router.delete('/:followerName', auth, FollowerController.RemoveFollower);
 
 export default router;

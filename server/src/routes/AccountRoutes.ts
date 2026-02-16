@@ -1,6 +1,9 @@
 import {Router} from "express"
 import {AccountController} from "../controllers/AccountController"
 import { ReviewController } from "../controllers/ReviewController";
+import { optionalAuth, auth } from "../utils/auth";
+import { FollowerController } from "../controllers/FollowerController";
+import FollowerRoutes from "./FollowerRoutes";
 
 // Router object
 const router: Router = Router();
@@ -56,10 +59,10 @@ router.get('/login', AccountController.Login);
  *      {accountName, userData}
  *      401 NOT AUTHORIZED, if no account is logged in
  */
-router.get('/me', AccountController.GetCurrentUser);
+router.get('/me', auth, AccountController.GetCurrentUser);
 
 /**
- * PUT /api/user/:username
+ * PUT /api/users/:username
  * Alters account details in an existing account
  * Body:
  *      accountName: string
@@ -75,7 +78,7 @@ router.get('/me', AccountController.GetCurrentUser);
  *      404 NOT FOUND, if the provided account's name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be updated
  */
-router.put('/:username', AccountController.Alter);
+router.put('/:username', auth, AccountController.Alter);
 
 /**
  * DELETE /api/users/:username
@@ -89,7 +92,7 @@ router.put('/:username', AccountController.Alter);
  *      404 NOT FOUND, if provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be deleted
  */
-router.delete('/:username', AccountController.Remove);
+router.delete('/:username', auth,AccountController.Remove);
 
 /**
  * GET /api/users/:username/reviews
@@ -102,14 +105,16 @@ router.delete('/:username', AccountController.Remove);
  *      404 NOT FOUND, if the provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
  */
-router.get('/:username/reviews', ReviewController.getReviewsByUser);
+router.get('/:username/reviews', optionalAuth, ReviewController.getReviewsByUser);
+
 
 
 // ===================== SEARCH USERS =====================
 
 /**
- * GET /api/user/:username
+ * GET /api/users/:username
  * Finds an account by its name
+ * The account has to be public or in case of private the current authenticated user has to follow it
  * Body:
  *      accountName: string
  *      displayName: string
@@ -124,7 +129,7 @@ router.get('/:username/reviews', ReviewController.getReviewsByUser);
  *      404 NOT FOUND, if the provided account's name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be updated
  */
-router.get('/:username', AccountController.FindByUsername);
+router.get('/:username', optionalAuth, AccountController.FindByUsername);
 
 /**
  * GET /api/users
@@ -135,7 +140,24 @@ router.get('/:username', AccountController.FindByUsername);
  *     [{accountName, email, createdAt, updatedAt, userData}, ...]
  *     500 INTERNAL SERVER ERROR, if the accounts could not be retrieved
  */
-router.get('/', AccountController.GetUsers);
+router.get('/', optionalAuth, AccountController.GetUsers);
 
+
+// ===================== FOLLOWERS =====================
+
+router.use('/:username/followers', FollowerRoutes);
+
+/**
+ * GET /api/users/:username/following
+ * Gets the users followed by a user, if it's private only returns followed users if the current user follows it
+ * Body:
+ *      (empty body)
+ * Response:
+ *      200 OK
+ *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
+ *      404 NOT FOUND, if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ */
+router.get('/:username/following', optionalAuth, FollowerController.getFollowingByUser);
 
 export default router;
