@@ -1,17 +1,18 @@
 import { prisma } from "../prisma";
 import type { Comment } from "../generated/prisma/client";
-import { reviewPK } from "./ReviewRepository";
-import { userPK } from "./UserRepository";
-export { Comment };
-
-export type comment = {
-    commentator: string;
-    reviewer: string;
-    reviewed: string;
-    text: string;
-}
+import type { reviewPK } from "./ReviewRepository";
+import type { userPK } from "./UserRepository";
+import type { gamePK } from "./GameRepository";
+export type { Comment };
 
 export type commentPK = bigint
+
+export type comment = {
+    commentator: userPK;
+    reviewer: userPK;
+    reviewed: gamePK;
+    text: string;
+}
 
 // select comment
 export function SelectComment(commentPK: commentPK): Promise<Comment | null> {
@@ -61,10 +62,8 @@ export function SelectCommentsOfSameUser(userPK: userPK): Promise<Comment[]> {
 export function SelectCommentsOfSameReviewAndUser(reviewPK: reviewPK, userPK: userPK): Promise<Comment[]> {
     return prisma.comment.findMany({
         where: {
-            AND: [
-                { review: reviewPK },
-                { commentator: userPK }
-            ]
+            review: reviewPK,
+            commentator: userPK
         }
     });
 }

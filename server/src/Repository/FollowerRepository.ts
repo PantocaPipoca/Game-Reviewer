@@ -1,10 +1,11 @@
 import { prisma } from "../prisma";
 import type { Follower } from "../generated/prisma/client";
-export { Follower };
+import type { userPK } from "./UserRepository";
+export type { Follower };
 
 export type follower = {
-    follows: string;
-    followed: string;
+    follows: userPK;
+    followed: userPK;
     accepted: boolean;
 }
 
@@ -51,13 +52,39 @@ export function DeleteFollower(follower: follower): Promise<Follower> {
 // select all followers of a user
 export function SelectAllFollowersOfUser(userPK: string): Promise<Follower[]> {
     return prisma.follower.findMany({
-        where: { followed: userPK }
+        where: {
+            followed: userPK,
+            accepted: true
+        }
     });
 }
 
 // select all followed by a user
-export function SelectAllFollowedbyUser(userPK: string): Promise<Follower[]> {
+export function SelectAllFollowedByUser(userPK: string): Promise<Follower[]> {
     return prisma.follower.findMany({
-        where: { follows: userPK }
+        where: {
+            follows: userPK,
+            accepted: true
+        }
+    });
+}
+
+// select all follow requests from a user
+export function SelectAllRequestsFromUser(userPK: string): Promise<Follower[]> {
+    return prisma.follower.findMany({
+        where: {
+            follows: userPK,
+            accepted: false
+        }
+    });
+}
+
+// select all follow requests to a user
+export function SelectAllRequestsToUser(userPK: string): Promise<Follower[]> {
+    return prisma.follower.findMany({
+        where: {
+            followed: userPK,
+            accepted: false
+        }
     });
 }
