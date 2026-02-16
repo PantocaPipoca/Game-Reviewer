@@ -1,7 +1,7 @@
 import {Request, Response} from "express"
-import {AsyncHandler, MakeSuccess} from "../utils/utils"
+import {AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
 import {StatusCodes} from "http-status-codes"
-import {ERR_GAME_MISSING_NAME} from "../utils/UsualErrorMessage"
+import {ERR_GAME_MISSING_NAME} from "../utils/ErrorMessage"
 import {GameService} from "../services/GameService"
 
 export class GameController {

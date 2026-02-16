@@ -158,6 +158,6 @@ router.use('/:username/followers', FollowerRoutes);
  *      404 NOT FOUND, if the provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
  */
-router.get('/:username/following', optionalAuth, FollowerController.getFollowingByUser);
+router.get('/:username/following', optionalAuth, FollowerController.GetFollowingByUser);
 
 export default router;

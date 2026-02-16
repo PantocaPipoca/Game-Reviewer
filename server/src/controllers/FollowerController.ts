@@ -1,7 +1,7 @@
 import {Request, Response} from "express"
-import {AsyncHandler, MakeSuccess} from "../utils/utils"
+import {AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
 import {StatusCodes} from "http-status-codes"
-import {ERR_FOL_MISSING_NAME1, ERR_FOL_MISSING_NAME2} from "../utils/UsualErrorMessage"
+import {ERR_FOL_MISSING_NAME1, ERR_FOL_MISSING_NAME2} from "../utils/ErrorMessage"
 import {FollowerService} from "../services/FollowerService"
 
 // Primary key for a follower
@@ -38,5 +38,8 @@ export class FollowerController {
     });
 
     static GetFollowers = AsyncHandler(async (req: Request, res: Response) => {
+    });
+
+    static GetFollowingByUser = AsyncHandler(async (req: Request, res: Response) => {
     });
 }

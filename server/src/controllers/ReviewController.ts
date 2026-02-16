@@ -1,7 +1,7 @@
 import {Request, Response} from "express"
-import {AsyncHandler, MakeSuccess} from "../utils/utils"
+import {AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
 import {StatusCodes} from "http-status-codes"
-import {ERR_ACC_MISSING_NAME, ERR_GAME_MISSING_NAME, ERR_REV_BAD_SCORE, ERR_REV_MISSING_SCORE, ERR_REV_MISSING_TEXT} from "../utils/UsualErrorMessage"
+import {ERR_ACC_MISSING_NAME, ERR_GAME_MISSING_NAME, ERR_REV_BAD_SCORE, ERR_REV_MISSING_SCORE, ERR_REV_MISSING_TEXT} from "../utils/ErrorMessage"
 import {ReviewService} from "../services/ReviewService"
 
 // Throws if score is invalid
