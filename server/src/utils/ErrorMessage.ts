@@ -24,6 +24,8 @@ export const UNAUTHORIZED_ACTION = "Not authorized to perform this action"
 export const ACCOUNT_NOT_FOUND = "User name doesn't exist"
 export const GAME_NOT_FOUND = "Game doesn't exist"
 export const REVIEW_NOT_FOUND = "User has not reviewed the game"
+export const COMMENT_NOT_FOUND = "Comment doesn't exist"
+export const REACTION_NOT_FOUND = "Reaction not found"
 
 // ========== CONFLICT ERRORS (409) ==========
 export const ACCOUNT_ALREADY_EXISTS = "User name is already used"

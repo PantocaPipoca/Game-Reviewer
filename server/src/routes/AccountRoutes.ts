@@ -117,6 +117,7 @@ router.delete('/me', auth,AccountController.Remove);
  */
 router.get('/:username', optionalAuth, AccountController.FindByUsername);
 
+
 /**
  * GET /api/users
  * Get viewable (public & followed) users
@@ -126,8 +127,7 @@ router.get('/:username', optionalAuth, AccountController.FindByUsername);
  *     [{accountName, email, createdAt, updatedAt, userData}, ...]
  *     500 INTERNAL SERVER ERROR, if the accounts could not be retrieved
  */
-router.get('/', optionalAuth, AccountController.GetUsers);
-
+//router.get('/', optionalAuth, AccountController.GetUsers);
 
 // ===================== FOLLOWERS =====================
 
@@ -160,7 +160,7 @@ router.get('/:username/following', optionalAuth, FollowerController.GetFollowing
  *      404 NOT FOUND, if the provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
  */
-router.get('/:username/reviews', optionalAuth, ReviewController.getReviewsByUser);
+router.get('/:username/reviews', optionalAuth, ReviewController.GetReviewsByUser);
 
 
 export default router;

@@ -21,7 +21,7 @@ export type AuthResponse =
 
 export type ReviewResponse = {
     reviewer: string;
-    reviewed: string;
+    reviewed: number;
     text: string;
     score: number;
     createdAt: Date;
@@ -38,10 +38,10 @@ export type FollowerResponse = {
 }
 
 export type CommentResponse = {
-    id: string;
+    id: bigint;
     commentator: string;
     reviewer: string;
-    reviewed: string;
+    reviewed: number;
     text: string;
     createdAt: Date;
     updatedAt: Date;
@@ -50,9 +50,14 @@ export type CommentResponse = {
 export type LikeResponse = {
     liker: string;
     reviewer: string;
-    reviewed: string;
+    reviewed: number;
     value: boolean;
     createdAt: Date;
+}
+
+export type ReactionResponse = {
+    likes: number;
+    dislikes: number;
 }
 
 export type GameResponse = {

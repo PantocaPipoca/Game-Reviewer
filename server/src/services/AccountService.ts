@@ -211,12 +211,12 @@ export class AccountService {
 
     /**
      * Gets a user by username
-     * @param accountName - username to find
+     * @param username - username to find
      * @param currentUser - username of the currently authenticated user (optional)
      * @returns User object
      */
-    static async FindByUsername(accountName: string, currentUser?: string): Promise<UserResponse | null> {
-        const user = await FetchUser(accountName);
+    static async FindByUsername(username: string, currentUser?: string): Promise<UserResponse | null> {
+        const user = await FetchUser(username);
         
         // check if currentUser can view this profile
         const canView = await CanViewUser(user.accountName, currentUser);
