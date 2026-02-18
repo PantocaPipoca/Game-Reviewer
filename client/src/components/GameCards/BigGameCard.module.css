@@ -27,16 +27,6 @@
     height: 70px;
 }
 
-.Name {
-    font-weight: var(--font-weight-regular);
-    font-size: 24px;
-}
-
-.Label {
-    font-weight: var(--font-weight-regular);
-}
-
 .Value {
-    font-weight: var(--font-weight-regular);
     color: var(--cyan);
 }

@@ -1,0 +1,4 @@
+.bar {
+    background-color: var(--secondaryPanel);
+    border: 3px solid var(--border)
+}

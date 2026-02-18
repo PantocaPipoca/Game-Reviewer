@@ -1,0 +1,10 @@
+.Button {
+    width: fit-content;
+    height: fit-content;
+    padding: 10px 10px;
+    border-radius: 0px;
+    background-color: var(--button);
+    border-color: var(--border);
+    color: var(--mainText)
+
+}

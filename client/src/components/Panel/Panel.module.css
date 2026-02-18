@@ -1,5 +1,23 @@
-.Panel {
+.mainPanel {
+    background-color: var(--mainPanel);
+    border: 3px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    height: fit-content;
+}
+
+.secondaryPanel {
     background-color: var(--secondaryPanel);
+    border: 3px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    height: fit-content;
+}
+
+.terciaryPanel {
+    background-color: var(--terciaryPanel);
     border: 3px solid var(--border);
     display: flex;
     flex-direction: column;
