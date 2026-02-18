@@ -1,32 +1,23 @@
 import { prisma } from "../prisma";
-import type { User } from "../generated/prisma/client";
-export type { User };
+import { UserFull, UserShort, UserPK } from "../types/Types";
 
-export type userPK = string;
-
-export type user = {
-    accountName: userPK;
-    passwordHash: string;
-    userData: any;
-    email: string;
-}
 
 // select user
-export function SelectUser(userPK: userPK): Promise<User | null> {
+export function SelectUser(userPK: UserPK): Promise<UserFull | null> {
     return prisma.user.findUnique({
         where: { accountName: userPK }
     });
 }
 
 // insert user
-export function InsertUser(user: user): Promise<User> {
+export function InsertUser(user: UserShort): Promise<UserFull> {
     return prisma.user.create({
         data: user
     });
 }
 
 // update user
-export function UpdateUser(user: user): Promise<User> {
+export function UpdateUser(user: UserShort): Promise<UserFull> {
     return prisma.user.update({
         where: { accountName: user.accountName },
         data: {
@@ -38,7 +29,7 @@ export function UpdateUser(user: user): Promise<User> {
 }
 
 // delete user
-export function DeleteUser(userPK: userPK): Promise<User> {
+export function DeleteUser(userPK: UserPK): Promise<UserFull> {
     return prisma.user.delete({
         where: { accountName: userPK }
     });
@@ -49,7 +40,7 @@ export function DeleteUser(userPK: userPK): Promise<User> {
 
 // select users of similar name
 // all results will contain nameFilter in the accountName
-export function SelectUsersOfSimilarName(nameFilter: string): Promise<User[]> {
+export function SelectUsersOfSimilarName(nameFilter: string): Promise<UserFull[]> {
     return prisma.user.findMany({
         where: {
             accountName: {

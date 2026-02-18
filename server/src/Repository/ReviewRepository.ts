@@ -1,38 +1,24 @@
 import { prisma } from "../prisma";
-import type { Review } from "../generated/prisma/client";
-import type { gamePK } from "./GameRepository";
-import type { userPK } from "./UserRepository";
-export type { Review };
+import { ReviewFull, ReviewShort, ReviewPK, GamePK, UserPK } from "../types/Types";
 
-export type reviewPK = {
-    reviewer: userPK;
-    reviewed: gamePK;
-}
-
-export type review = {
-    reviewer: userPK;
-    reviewed: gamePK;
-    text: string;
-    score: number;
-}
 
 // select review
-export function SelectReview(reviewPK: reviewPK): Promise<Review | null> {
+export function SelectReview(reviewPK: ReviewPK): Promise<ReviewFull | null> {
     return prisma.review.findUnique({
         where: { reviewer_reviewed: reviewPK }
     });
 }
 
 // insert review
-export function InsertReview(review: review): Promise<Review> {
+export function InsertReview(review: ReviewShort): Promise<ReviewFull> {
     return prisma.review.create({
         data: review
     });
 }
 
 // update review
-export function UpdateReview(review: review): Promise<Review> {
-    const reviewPK: reviewPK = {
+export function UpdateReview(review: ReviewShort): Promise<ReviewFull> {
+    const reviewPK: ReviewPK = {
         reviewer: review.reviewer,
         reviewed: review.reviewed
     }
@@ -46,7 +32,7 @@ export function UpdateReview(review: review): Promise<Review> {
 }
 
 // delete review
-export function DeleteReview(reviewPK: reviewPK): Promise<Review> {
+export function DeleteReview(reviewPK: ReviewPK): Promise<ReviewFull> {
     return prisma.review.delete({
         where: { reviewer_reviewed: reviewPK }
     });
@@ -55,14 +41,14 @@ export function DeleteReview(reviewPK: reviewPK): Promise<Review> {
 
 
 // select all reviews of a game
-export function SelectAllReviewsOfGame(gamePK: gamePK): Promise<Review[]> {
+export function SelectAllReviewsOfGame(gamePK: GamePK): Promise<ReviewFull[]> {
     return prisma.review.findMany({
         where: { reviewed: gamePK }
     });
 }
 
 // select all reviews by a user
-export function SelectAllReviewsOfUser(userPK: userPK): Promise<Review[]> {
+export function SelectAllReviewsOfUser(userPK: UserPK): Promise<ReviewFull[]> {
     return prisma.review.findMany({
         where: { reviewer: userPK }
     });
