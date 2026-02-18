@@ -1,0 +1,22 @@
+.Cover {
+    margin: 10px;
+    margin-bottom: 0px;
+    border: 1px solid var(--border);
+}
+
+.Name {
+    margin-top: 5px;
+    text-align: center;
+}
+
+.Rating {
+    margin: 0 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 12px;
+}
+
+.Star {
+    max-width: 20px;
+}

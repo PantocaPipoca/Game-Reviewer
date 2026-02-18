@@ -1,0 +1,42 @@
+.KeyArt {
+    width: 486px;
+    height: 273px;
+}
+
+.Details {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    margin: 0px 15px;
+    display: flex;
+    flex-direction: column;
+    width: 293px;
+    height: 273px;
+}
+
+.Collage {
+    justify-content: space-between;
+    align-content: space-between;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+.Image {
+    margin: 10px 0;
+    width: 124px;
+    height: 70px;
+}
+
+.Name {
+    font-weight: var(--font-weight-regular);
+    font-size: 24px;
+}
+
+.Label {
+    font-weight: var(--font-weight-regular);
+}
+
+.Value {
+    font-weight: var(--font-weight-regular);
+    color: var(--cyan);
+}
