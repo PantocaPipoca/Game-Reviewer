@@ -1,40 +1,24 @@
 import { prisma } from "../prisma";
-import type { Like } from "../generated/prisma/client";
-import type { reviewPK } from "./ReviewRepository";
-import type { userPK } from "./UserRepository";
-import type { gamePK } from "./GameRepository";
-export type { Like };
-
-export type likePK = {
-    liker: userPK;
-    reviewer: userPK;
-    reviewed: gamePK;
-}
-export type like = {
-    liker: userPK;
-    reviewer: userPK;
-    reviewed: gamePK;
-    value: boolean;
-}
+import { LikeFull, LikeShort, LikePK, ReviewPK, UserPK } from "../types/Types";
 
 
 // select like
-export function SelectLike(likePK: likePK): Promise<Like | null> {
+export function SelectLike(likePK: LikePK): Promise<LikeFull | null> {
     return prisma.like.findUnique({
         where: { liker_reviewer_reviewed: likePK }
     });
 }
 
 // insert like
-export function InsertLike(like: like): Promise<Like> {
+export function InsertLike(like: LikeShort): Promise<LikeFull> {
     return prisma.like.create({
         data: like
     });
 }
 
 // update like (change like/dislike)
-export function UpdateLike(like: like): Promise<Like> {
-    const likePK: likePK = {
+export function UpdateLike(like: LikeShort): Promise<LikeFull> {
+    const likePK: LikePK = {
         liker: like.liker,
         reviewer: like.reviewer,
         reviewed: like.reviewed
@@ -46,7 +30,7 @@ export function UpdateLike(like: like): Promise<Like> {
 }
 
 // delete like
-export function DeleteLike(likePK: likePK): Promise<Like> {
+export function DeleteLike(likePK: LikePK): Promise<LikeFull> {
     return prisma.like.delete({
         where: { liker_reviewer_reviewed: likePK }
     });
@@ -56,7 +40,7 @@ export function DeleteLike(likePK: likePK): Promise<Like> {
 
 // count all likes or dislikes of a review
 // set toCount to true to count likes and to false to count dislikes
-export function CountLikesOrDislikesOfReview(reviewPK: reviewPK, toCount: boolean): Promise<Number> {
+export function CountLikesOrDislikesOfReview(reviewPK: ReviewPK, toCount: boolean): Promise<Number> {
     return prisma.like.count({
         where: {
             review: reviewPK,
@@ -66,7 +50,7 @@ export function CountLikesOrDislikesOfReview(reviewPK: reviewPK, toCount: boolea
 }
 
 // select all likes of a user
-export function SelectAllLikesOfUser(userPK: userPK): Promise<Like[]> {
+export function SelectAllLikesOfUser(userPK: UserPK): Promise<LikeFull[]> {
     return prisma.like.findMany({
         where: { liker: userPK }
     });

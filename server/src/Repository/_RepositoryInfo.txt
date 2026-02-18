@@ -1,6 +1,6 @@
 Cada ficheiro *Repository.ts contêm funções que realizam todas as queries possíveis de fazer à tabela correspondente
 
-Cada ficheiro exporta os tipos correspondentes à sua tabela
+os tipos correspondentes à sua tabela estão exportados no ficheiro types/Types.ts
 
 
 
@@ -20,6 +20,6 @@ Todos os delete's recebem a chave primária e apagam a entrada correspondente
 
 Os ficheiros possuem queries adicionais para obter várias entradas segundo um filtro específico da query
 
-O formato do filtro e explicado em cada ficheiro
+O formato do filtro e explicado em cada função
 
 Essas queries retornam um array do tipo correspondente

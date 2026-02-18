@@ -1,35 +1,23 @@
 import { prisma } from "../prisma";
-import type { Comment } from "../generated/prisma/client";
-import type { reviewPK } from "./ReviewRepository";
-import type { userPK } from "./UserRepository";
-import type { gamePK } from "./GameRepository";
-export type { Comment };
+import { CommentFull, CommentShort, CommentPK, ReviewPK, UserPK } from "../types/Types";
 
-export type commentPK = bigint
-
-export type comment = {
-    commentator: userPK;
-    reviewer: userPK;
-    reviewed: gamePK;
-    text: string;
-}
 
 // select comment
-export function SelectComment(commentPK: commentPK): Promise<Comment | null> {
+export function SelectComment(commentPK: CommentPK): Promise<CommentFull | null> {
     return prisma.comment.findUnique({
         where: { id: commentPK }
     });
 }
 
 // insert comment
-export function InsertComment(comment: comment): Promise<Comment> {
+export function InsertComment(comment: CommentShort): Promise<CommentFull> {
     return prisma.comment.create({
         data: comment
     });
 }
 
 // update comment
-export function UpdateComment(commentPK: commentPK, newText: string): Promise<Comment> {
+export function UpdateComment(commentPK: CommentPK, newText: string): Promise<CommentFull> {
     return prisma.comment.update({
         where: { id: commentPK },
         data: { text: newText }
@@ -37,7 +25,7 @@ export function UpdateComment(commentPK: commentPK, newText: string): Promise<Co
 }
 
 // delete comment
-export function DeleteComment(commentPK: commentPK): Promise<Comment> {
+export function DeleteComment(commentPK: CommentPK): Promise<CommentFull> {
     return prisma.comment.delete({
         where: { id: commentPK }
     });
@@ -46,20 +34,20 @@ export function DeleteComment(commentPK: commentPK): Promise<Comment> {
 
 
 // select all comments of a review
-export function SelectCommentsOfSameReview(reviewPK: reviewPK): Promise<Comment[]> {
+export function SelectCommentsOfSameReview(reviewPK: ReviewPK): Promise<CommentFull[]> {
     return prisma.comment.findMany({
         where: { review: reviewPK }
     });
 }
 
 // select all comments of a user
-export function SelectCommentsOfSameUser(userPK: userPK): Promise<Comment[]> {
+export function SelectCommentsOfSameUser(userPK: UserPK): Promise<CommentFull[]> {
     return prisma.comment.findMany({
         where: { commentator: userPK }
     });
 }
 
-export function SelectCommentsOfSameReviewAndUser(reviewPK: reviewPK, userPK: userPK): Promise<Comment[]> {
+export function SelectCommentsOfSameReviewAndUser(reviewPK: ReviewPK, userPK: UserPK): Promise<CommentFull[]> {
     return prisma.comment.findMany({
         where: {
             review: reviewPK,
