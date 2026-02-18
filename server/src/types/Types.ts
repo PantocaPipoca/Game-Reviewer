@@ -1,4 +1,7 @@
 import type { Prisma, User, Game, Review, Like, Comment, Follower } from "../generated/prisma/client";
+
+
+// User Types
 export type UserData = {
     displayName: string;
     isPrivate: boolean;
@@ -7,17 +10,26 @@ export type UserData = {
     // other fields can be added here
 }
 
-
-    
 export type UserFull = User;
 
-export type UserShort = Omit<Omit<UserFull, "createdAt">, "updatedAt"> & {
+export type UserShort = Omit<UserFull, "createdAt" | "updatedAt"> & {
     userData: Prisma.InputJsonValue
+};
+
+export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "userData"> & {
+    userData: UserData
 };
 
 export type UserPK = string;
 
+export type AuthResponse = 
+    UserPublic & 
+    {
+        token: string;
+    }
 
+
+// Game Types
 
 export type GameFull = Game;
 
@@ -40,6 +52,8 @@ export type ReviewPK = {
 
 
 
+// Reaction Types
+
 export type LikeFull = Like;
 
 export type LikeShort = Omit<Omit<LikeFull, "createdAt">, "updatedAt">;
@@ -52,6 +66,8 @@ export type LikePK = {
 
 
 
+// Comment Types
+
 export type CommentFull = Comment;
 
 export type CommentShort = Omit<Omit<Omit<CommentFull, "createdAt">, "updatedAt">, "id">;
@@ -59,6 +75,7 @@ export type CommentShort = Omit<Omit<Omit<CommentFull, "createdAt">, "updatedAt"
 export type CommentPK = bigint;
 
 
+// Follower Types
 
 export type FollowerFull = Follower;
 
@@ -68,64 +85,3 @@ export type FollowerPK = {
     follows: string;
     followed: string;
 };
-
-
-
-export interface UserResponse {
-    accountName: string;
-    email: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userData: any;
-}
-
-export type AuthResponse = 
-    UserResponse & {
-        token: string;
-    }
-
-export type ReviewResponse = {
-    reviewer: string;
-    reviewed: number;
-    text: string;
-    score: number;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-
-export type FollowerResponse = {
-    follows: string;
-    followed: string;
-    accepted: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-export type CommentResponse = {
-    id: bigint;
-    commentator: string;
-    reviewer: string;
-    reviewed: number;
-    text: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-export type LikeResponse = {
-    liker: string;
-    reviewer: string;
-    reviewed: number;
-    value: boolean;
-    createdAt: Date;
-}
-
-export type ReactionResponse = {
-    likes: number;
-    dislikes: number;
-}
-
-export type GameResponse = {
-    id: number;
-    metadata: any;  // define a metadata type later maybe
-}

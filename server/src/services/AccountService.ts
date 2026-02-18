@@ -4,19 +4,20 @@ import { StatusCodes } from "http-status-codes"
 import * as ErrorMessage from "../utils/ErrorMessage";
 import { AppError } from "../utils/ErrorHandler"
 import {generateToken} from "../utils/auth"
-import {SelectUser, InsertUser, UpdateUser, DeleteUser, SelectUsersOfSimilarName, User} from "../Repository/UserRepository"
+import {SelectUser, InsertUser, UpdateUser, DeleteUser, SelectUsersOfSimilarName} from "../Repository/UserRepository"
 import { SelectFollower } from "../Repository/FollowerRepository"
-import {UserData, AuthResponse, UserResponse} from "../types/Types"
+import {UserData, UserFull, UserPK, AuthResponse, UserShort, UserPublic} from "../types/Types"
+import { Prisma } from "../generated/prisma/browser";
 
 const SALT_ROUNDS = 10; // number of iterations for bcrypt hashing
 
 /**
  * Fetches a user by username and throws an error if the user doesn't exist
- * @param accountName - username of the user to fetch
+ * @param username - username of the user to fetch
  * @returns User object if found, null otherwise
  */
-export async function FetchUser(accountName: string): Promise<User> {
-    const user : User | null = await SelectUser(accountName);
+export async function FetchUser(username: UserPK): Promise<UserFull> {
+    const user : UserFull | null = await SelectUser(username);
     if (!user) {
         throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
     }
@@ -29,8 +30,8 @@ export async function FetchUser(accountName: string): Promise<User> {
  * @param currentUser - the user requesting (undefined if not authenticated) - confirmed by auth middleware
  * @returns true if user can view, false otherwise
  */
-export async function CanViewUser(targetUser: string, currentUser?: string): Promise<boolean> {
-    const user = await FetchUser(targetUser);
+export async function CanViewUser(targetUser: UserPK, currentUser?: UserPK): Promise<boolean> {
+    const user: UserFull = await FetchUser(targetUser);
     const userData: UserData = user.userData as UserData;
     
     if (!userData.isPrivate) {
@@ -63,18 +64,17 @@ export class AccountService {
     /**
      * Creates a new user account with the provided information, 
      * hashes the password, and generates a JWT token for authentication
-     * @param accountName - username of the new account
+     * @param username - username of the new account
      * @param displayName - display name for the user profile
      * @param password - plaintext password to be hashed and stored
      * @param email - email address of the user
      * @returns AuthResponse object with token and user data
      */
-    static async RegisterUser(accountName: string, displayName: string, password: string, email: string): Promise<AuthResponse> {
+    static async RegisterUser(username: UserPK, displayName: string, password: string, email: string): Promise<AuthResponse> {
         // Check if username is being used
-        const existingUser: User | null = await SelectUser(accountName);
-        if (existingUser) {
+        const existingUser: UserFull | null = await SelectUser(username);
+        if (existingUser)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
-        }
 
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
@@ -83,11 +83,11 @@ export class AccountService {
             displayName: displayName,
             isPrivate: false, // default to public account
             gender: null,
-            bio: null 
+            bio: null
         };
 
         const newUser = await InsertUser({
-            accountName,
+            accountName: username,
             passwordHash,
             userData,
             email
@@ -98,8 +98,7 @@ export class AccountService {
 
         return {
             accountName: newUser.accountName,
-            email: newUser.email,
-            userData: newUser.userData,
+            userData: newUser.userData as UserData,
             createdAt: newUser.createdAt,
             updatedAt: newUser.updatedAt,
             token
@@ -108,26 +107,25 @@ export class AccountService {
 
     /**
      * Login user by verifying password and generating JWT token
-     * @param accountName - username of the account to login
+     * @param username - username of the account to login
      * @param password - plaintext password to verify against stored hash
      * @returns AuthResponse object with token and user data
      */
-    static async LoginUser(accountName: string, password: string): Promise<AuthResponse> {
-        const user: User = await FetchUser(accountName)
+    static async LoginUser(username: UserPK, password: string): Promise<AuthResponse> {
+        const user: UserFull = await FetchUser(username)
 
         // Verify password
-        const isValid = await bcrypt.compare(password, user.passwordHash)
+        const isValid: boolean = await bcrypt.compare(password, user.passwordHash)
         if (!isValid) {
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.PASSWORD_INCORRECT);
         }
 
         // Generate JWT token
-        const token = generateToken(user.accountName, user.email);
+        const token: string = generateToken(user.accountName, user.email);
 
         return {
             accountName: user.accountName,
-            email: user.email,
-            userData: user.userData,
+            userData: user.userData as UserData,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
             token
@@ -142,13 +140,12 @@ export class AccountService {
      * @param currentUser - username of the currently authenticated user (from JWT)
      * @returns User object
      */
-    static async GetCurrentUser(currentUser: string): Promise<UserResponse> {
-        const user: User = await FetchUser(currentUser);
+    static async GetCurrentUser(currentUser: UserPK): Promise<UserPublic> {
+        const user: UserFull = await FetchUser(currentUser);
 
         return {
             accountName: user.accountName,
-            email: user.email,
-            userData: user.userData,
+            userData: user.userData as UserData,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt
         };
@@ -162,28 +159,27 @@ export class AccountService {
      * @param userData - partial user data updates (optional)
      * @returns updated user data
      */
-    static async AlterUser(currentUser: string, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserResponse> {
-        const user = await FetchUser(currentUser)
+    static async AlterUser(currentUser: UserPK, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
+        const user: UserFull = await FetchUser(currentUser);
 
-        const passwordHash = password 
+        const passwordHash = password
             ? await bcrypt.hash(password, SALT_ROUNDS) 
-            : user.passwordHash
+            : user.passwordHash;
 
-        const updatedEmail = email ?? user.email
+        const updatedEmail: string = email ?? user.email;
 
         // merge current user data with provided user data updates
-        const currentUserData = user.userData as UserData
+        const currentUserData: UserData = user.userData as UserData;
         const updatedUserData: UserData = {
             ...currentUserData,
             ...userData  // only override provided fields
-        }
+        };
 
-        const updated: User = await UpdateUser({accountName: currentUser, passwordHash, userData: updatedUserData, email: updatedEmail})
+        const updated: UserFull = await UpdateUser({accountName: currentUser, passwordHash, userData: updatedUserData, email: updatedEmail})
 
         return {
             accountName: updated.accountName,
-            email: updated.email,
-            userData: updated.userData,
+            userData: updated.userData as UserData,
             createdAt: updated.createdAt,
             updatedAt: updated.updatedAt
         }
@@ -194,13 +190,12 @@ export class AccountService {
      * @param currentUser - username of the currently authenticated user (from JWT)
      * @returns the deleted user's data
      */
-    static async RemoveUser(currentUser: string): Promise<UserResponse> {
-        const deletedUser = await DeleteUser(currentUser);
+    static async RemoveUser(currentUser: UserPK): Promise<UserPublic> {
+        const deletedUser: UserFull = await DeleteUser(currentUser);
 
         return {
             accountName: deletedUser.accountName,
-            email: deletedUser.email,
-            userData: deletedUser.userData,
+            userData: deletedUser.userData as UserData,
             createdAt: deletedUser.createdAt,
             updatedAt: deletedUser.updatedAt
         };
@@ -215,19 +210,17 @@ export class AccountService {
      * @param currentUser - username of the currently authenticated user (optional)
      * @returns User object
      */
-    static async FindByUsername(username: string, currentUser?: string): Promise<UserResponse | null> {
-        const user = await FetchUser(username);
+    static async FindByUsername(username: UserPK, currentUser?: UserPK): Promise<UserPublic | null> {
+        const user: UserFull = await FetchUser(username);
         
         // check if currentUser can view this profile
-        const canView = await CanViewUser(user.accountName, currentUser);
-        if (!canView) {
+        const canView: boolean = await CanViewUser(user.accountName, currentUser);
+        if (!canView)
             return null;
-        }
 
         return {
             accountName: user.accountName,
-            email: user.email,
-            userData: user.userData,
+            userData: user.userData as UserData,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt
         };
@@ -239,18 +232,17 @@ export class AccountService {
      * @param nameFilter - search string
      * @param currentUser - authenticated user making the request (optional)
      */
-    static async SearchUsersByName(nameFilter: string, currentUser?: string): Promise<UserResponse[]> {
-        const users = await SelectUsersOfSimilarName(nameFilter);
+    static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<UserPublic[]> {
+        const users: UserFull[] = await SelectUsersOfSimilarName(nameFilter);
         
-        const visibleUsers: UserResponse[] = [];
-        
-        for (const user of users) {
+        const visibleUsers: UserPublic[] = [];
+
+        for (const user of users){
             const canView = await CanViewUser(user.accountName, currentUser);
             if (canView) {
                 visibleUsers.push({
                     accountName: user.accountName,
-                    email: user.email,
-                    userData: user.userData,
+                    userData: user.userData as UserData,
                     createdAt: user.createdAt,
                     updatedAt: user.updatedAt
                 });

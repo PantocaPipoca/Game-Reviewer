@@ -1,5 +1,5 @@
 import {Router} from "express"
-import { ReviewController } from "../controllers/ReviewController";
+import { CommentController } from "../controllers/CommentController";
 import { optionalAuth, auth } from "../utils/auth";
 
 const router: Router = Router();
@@ -10,7 +10,7 @@ const router: Router = Router();
  * (Empty body)
  * Response: TODO
  */
-router.get('/', ReviewController.GetComments);
+router.get('/', CommentController.GetComments);
 
 /**
  * POST /api/reviews/:reviewer/:reviewed/comments
@@ -23,7 +23,7 @@ router.get('/', ReviewController.GetComments);
  * Response:
  *      201 CREATED
  */
-router.post('/', ReviewController.AddComment);
+router.post('/', CommentController.AddComment);
 
 /**
  * PUT /api/reviews/:reviewer/:reviewed/comments
@@ -36,7 +36,7 @@ router.post('/', ReviewController.AddComment);
  * Response:
  *      202 ACCEPTED
  */
-router.put('/', ReviewController.EditComment);
+router.put('/', CommentController.EditComment);
  
 /**
  * DELETE /api/reviews/:reviewer/:reviewed/comments
@@ -48,6 +48,6 @@ router.put('/', ReviewController.EditComment);
  * Response:
  *      202 ACCEPTED
  */
-router.delete('/', ReviewController.RemoveComment);
+router.delete('/', CommentController.RemoveComment);
 
 export default router;

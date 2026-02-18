@@ -1,14 +1,14 @@
 import {StatusCodes} from "http-status-codes"
 import {SelectFollower, InsertFollower, UpdateFollower, DeleteFollower, SelectAllFollowersOfUser, SelectAllFollowedByUser} from "../Repository/FollowerRepository"
 import {FetchUser, CanViewUser} from "./AccountService"
-import {FollowerResponse, UserData} from "../types/Types"
+import {FollowerFull, UserData, UserPK} from "../types/Types"
 import {AppError} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 
 // checks if both exist, throwing an exception if any dont exist
-async function CheckBothUsers(user1: string, user2: string): Promise<void> {
-    const userOne = await FetchUser(user1)
-    const userTwo = await FetchUser(user2)
+async function CheckBothUsers(user1: UserPK, user2: UserPK): Promise<void> {
+    const userOne = await FetchUser(user1);
+    const userTwo = await FetchUser(user2);
 }
 
 export class FollowerService {
@@ -19,31 +19,28 @@ export class FollowerService {
      * @param followed - Username of the user to be followed
      * @returns Created follower object
      */
-    static async RequestFollower(currentUser: string, follows: string, followed: string): Promise<FollowerResponse> {
-        // user auth verification
-        if (currentUser !== follows) {
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION)
-        }
+    static async RequestFollower(currentUser: UserPK, follows: UserPK, followed: UserPK): Promise<FollowerFull> {
+        if (currentUser !== follows)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        await CheckBothUsers(follows, followed)
+        await CheckBothUsers(follows, followed);
 
         // check if request already exists
-        const existingRequest = await SelectFollower({follows, followed})
-        if (existingRequest) {
-            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_REQUEST_EXISTS)
-        }
+        const existingRequest = await SelectFollower({follows, followed});
+        if (existingRequest)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_REQUEST_EXISTS);
 
         // get the followed users privacy setting
-        const followedUser = await FetchUser(followed)
-        const userData: UserData = followedUser.userData as UserData
-        const isPrivate = userData?.isPrivate || false
+        const followedUser = await FetchUser(followed);
+        const userData: UserData = followedUser.userData as UserData;
+        const isPrivate = userData?.isPrivate || false;
 
         // create follower request (accept auto for public accounts)
         const follower = await InsertFollower({
             follows,
             followed,
             accepted: !isPrivate
-        })
+        });
 
         return {
             follows: follower.follows,
@@ -51,7 +48,7 @@ export class FollowerService {
             accepted: follower.accepted,
             createdAt: follower.createdAt,
             updatedAt: follower.updatedAt
-        }
+        };
     }
 
     /**
@@ -61,30 +58,27 @@ export class FollowerService {
      * @param followed - username of the followed user
      * @returns updated follower object
      */
-    static async AcceptFollower(currentUser: string, follows: string, followed: string): Promise<FollowerResponse> {
+    static async AcceptFollower(currentUser: UserPK, follows: UserPK, followed: UserPK): Promise<FollowerFull> {
         // user auth verification
-        if (currentUser !== followed) {
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION)
-        }
+        if (currentUser !== followed)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        await CheckBothUsers(follows, followed)
+        await CheckBothUsers(follows, followed);
 
         // check if request exists
-        const existingRequest = await SelectFollower({follows, followed})
-        if (!existingRequest) {
-            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOW_REQUEST_NOT_FOUND)
-        }
+        const existingRequest: FollowerFull | null = await SelectFollower({follows, followed});
+        if (!existingRequest)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOW_REQUEST_NOT_FOUND);
 
         // check if already accepted
-        if (existingRequest.accepted) {
-            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_ALREADY_ACCEPTED)
-        }
+        if (existingRequest.accepted)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_ALREADY_ACCEPTED);
 
-        const updatedFollower = await UpdateFollower({
+        const updatedFollower: FollowerFull = await UpdateFollower({
             follows,
             followed,
             accepted: true
-        })
+        });
 
         return {
             follows: updatedFollower.follows,
@@ -92,7 +86,7 @@ export class FollowerService {
             accepted: updatedFollower.accepted,
             createdAt: updatedFollower.createdAt,
             updatedAt: updatedFollower.updatedAt
-        }
+        };
     }
 
     /**
@@ -102,24 +96,22 @@ export class FollowerService {
      * @param followed - Username of the followed user
      * @returns Deleted follower object
      */
-    static async RemoveFollower(currentUser: string, follows: string, followed: string): Promise<any> {
+    static async RemoveFollower(currentUser: UserPK, follows: UserPK, followed: UserPK): Promise<FollowerFull> {
         // user auth verification
-        if (currentUser !== follows && currentUser !== followed) {
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION)
-        }
+        if (currentUser !== follows && currentUser !== followed)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        await CheckBothUsers(follows, followed)
+        await CheckBothUsers(follows, followed);
 
-        const existingRequest = await SelectFollower({follows, followed})
-        if (!existingRequest) {
-            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOWER_NOT_FOUND)
-        }
+        const existingRequest: FollowerFull | null = await SelectFollower({follows, followed});
+        if (!existingRequest)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOWER_NOT_FOUND);
 
-        const deletedFollower = await DeleteFollower({
+        const deletedFollower: FollowerFull = await DeleteFollower({
             follows,
             followed,
             accepted: existingRequest.accepted
-        })
+        });
 
         return {
             follows: deletedFollower.follows,
@@ -127,29 +119,27 @@ export class FollowerService {
             accepted: deletedFollower.accepted,
             createdAt: deletedFollower.createdAt,
             updatedAt: deletedFollower.updatedAt
-        }
+        };
     }
 
     /**
      * Gets all followers of a user
-     * @param accountName - username to get followers
+     * @param username - username to get followers
      * @param currentUser - authenticated username (if authenticated)
      * @returns Array of follower objects
             */
-    static async GetFollowers(accountName: string, currentUser?: string): Promise<any[]> {
-        // Verify user exists
-        await FetchUser(accountName)
+    static async GetFollowers(username: UserPK, currentUser?: UserPK): Promise<FollowerFull[]> {
+        await FetchUser(username)
 
-        // Check if currentUser can view followers list
-        const canView = await CanViewUser(accountName, currentUser)
-        if (!canView) {
+        // check if currentUser can view followers list
+        const canView: boolean = await CanViewUser(username, currentUser);
+        if (!canView)
             return [] // return empty list if not authorized to view
-        }
 
-        const followers = await SelectAllFollowersOfUser(accountName)
+        const followers: FollowerFull[] = await SelectAllFollowersOfUser(username);
 
         // ONLY return accepted followers
-        const acceptedFollowers = followers.filter(f => f.accepted)
+        const acceptedFollowers: FollowerFull[] = followers.filter(f => f.accepted);
 
         return acceptedFollowers.map(follower => ({
             follows: follower.follows,
@@ -157,29 +147,28 @@ export class FollowerService {
             accepted: follower.accepted,
             createdAt: follower.createdAt,
             updatedAt: follower.updatedAt
-        }))
+        }));
     }
 
     /**
      * Gets all users that a user is following
-     * @param accountName - username to get following
+     * @param username - username to get following
      * @param currentUser - authenticated username (if authenticated)
      * @returns Array of follower objects
      * @throws ERR_ACC_NOTEXISTS if user doesn't exist
      */
-    static async GetFollowing(accountName: string, currentUser?: string): Promise<any[]> {
-        await FetchUser(accountName)
+    static async GetFollowing(username: UserPK, currentUser?: UserPK): Promise<FollowerFull[]> {
+        await FetchUser(username);
 
         // check if currentUser can view following list
-        const canView = await CanViewUser(accountName, currentUser)
-        if (!canView) {
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION)
-        }
+        const canView: boolean = await CanViewUser(username, currentUser);
+        if (!canView)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        const following = await SelectAllFollowedByUser(accountName)
+        const following: FollowerFull[] = await SelectAllFollowedByUser(username);
 
         // only return accepted follows
-        const acceptedFollowing = following.filter(f => f.accepted)
+        const acceptedFollowing: FollowerFull[] = following.filter(f => f.accepted);
 
         return acceptedFollowing.map(follower => ({
             follows: follower.follows,
@@ -187,25 +176,20 @@ export class FollowerService {
             accepted: follower.accepted,
             createdAt: follower.createdAt,
             updatedAt: follower.updatedAt
-        }))
+        }));
     }
 
     /**
      * Gets pending follow requests for a user (for private accounts)
-     * @param accountName - Username to get pending requests for
+     * @param username - Username to get pending requests for
      * @param currentUser - authenticated username (if authenticated)
      * @returns Array of pending follower objects
      */
-    static async GetPendingRequests(accountName: string, currentUser?: string): Promise<any[]> {
-        // only the owner can see pending requests
-        if (currentUser !== accountName) {
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION)
-        }
+    static async GetPendingRequests(currentUser: UserPK): Promise<FollowerFull[]> {
+        await FetchUser(currentUser);
 
-        await FetchUser(accountName)
-
-        const followers = await SelectAllFollowersOfUser(accountName)
-        const pendingRequests = followers.filter(f => !f.accepted)
+        const followers: FollowerFull[] = await SelectAllFollowersOfUser(currentUser);
+        const pendingRequests: FollowerFull[] = followers.filter(f => !f.accepted);
 
         return pendingRequests.map(follower => ({
             follows: follower.follows,
@@ -213,6 +197,6 @@ export class FollowerService {
             accepted: follower.accepted,
             createdAt: follower.createdAt,
             updatedAt: follower.updatedAt
-        }))
+        }));
     }
 }

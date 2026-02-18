@@ -2,16 +2,16 @@ import {StatusCodes} from "http-status-codes"
 import {AppError} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import { SelectReview } from "../Repository/ReviewRepository"
-import { Comment, DeleteComment, InsertComment, SelectComment, SelectCommentsOfSameReview, UpdateComment } from "../Repository/CommentRepository"
-import { CommentResponse } from "../types/Types"
+import { DeleteComment, InsertComment, SelectComment, SelectCommentsOfSameReview, UpdateComment } from "../Repository/CommentRepository"
+import { CommentFull, CommentPK, ReviewFull } from "../types/Types"
 
 export class CommentService {
-    static async GetComments(reviewer: string, gameID: number): Promise<CommentResponse[]> {
-        const review = await SelectReview({reviewer, reviewed: gameID})
+    static async GetComments(reviewer: string, gameID: number): Promise<CommentFull[]> {
+        const review: ReviewFull | null = await SelectReview({reviewer, reviewed: gameID});
         if (!review)
-            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
-        const comments = await SelectCommentsOfSameReview({reviewer, reviewed: gameID})
+        const comments: CommentFull[] = await SelectCommentsOfSameReview({reviewer, reviewed: gameID});
 
         return comments.map(comment => ({
             id: comment.id,
@@ -21,16 +21,16 @@ export class CommentService {
             text: comment.text,
             createdAt: comment.createdAt,
             updatedAt: comment.updatedAt
-        }))
+        }));
     }
 
-    static async PublishComment(currentUser: string, reviewer: string, gameID: number, text: string): Promise<CommentResponse> {
+    static async PublishComment(currentUser: string, reviewer: string, gameID: number, text: string): Promise<CommentFull> {
         // check if review exists
-        const review = await SelectReview({reviewer, reviewed: gameID});
+        const review: ReviewFull | null = await SelectReview({reviewer, reviewed: gameID});
         if (!review)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
-        const comment = await InsertComment({
+        const comment: CommentFull = await InsertComment({
             commentator: currentUser,
             reviewer,
             reviewed: gameID,
@@ -48,8 +48,8 @@ export class CommentService {
         };
     }
 
-    static async EditComment(currentUser: string, commentID: bigint, text: string): Promise<CommentResponse> {
-        const comment = await SelectComment(commentID);
+    static async EditComment(currentUser: string, commentID: CommentPK, text: string): Promise<CommentFull> {
+        const comment: CommentFull | null = await SelectComment(commentID);
         if (!comment)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.COMMENT_NOT_FOUND);
 
@@ -66,19 +66,19 @@ export class CommentService {
             text: updated.text,
             createdAt: updated.createdAt,
             updatedAt: updated.updatedAt
-        }
+        };
     }
 
-    static async RemoveComment(currentUser: string, commentID: bigint): Promise<CommentResponse> {
-        const comment = await SelectComment(commentID);
+    static async RemoveComment(currentUser: string, commentID: CommentPK): Promise<CommentFull> {
+        const comment: CommentFull | null = await SelectComment(commentID);
         if (!comment)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.COMMENT_NOT_FOUND);
 
-        // Authorization: only comment author can delete
+        // only comment author can delete
         if (comment.commentator !== currentUser)
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        const deleted = await DeleteComment(commentID)
+        const deleted: CommentFull = await DeleteComment(commentID);
 
         return {
             id: deleted.id,
@@ -88,8 +88,6 @@ export class CommentService {
             text: deleted.text,
             createdAt: deleted.createdAt,
             updatedAt: deleted.updatedAt
-        }
+        };
     }
-
-    // shoule we create a get comment by user ?
 }

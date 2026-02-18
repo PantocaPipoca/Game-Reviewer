@@ -1,7 +1,7 @@
 import {Router} from "express";
 import {ReviewController} from "../controllers/ReviewController";
-import commentRoutes from "./commentRoutes";
-import likeRoutes from "./likeRoutes";
+import commentRoutes from "./CommentRoutes";
+import likeRoutes from "./LikeRoutes";
 
 // Router object
 const router: Router = Router();

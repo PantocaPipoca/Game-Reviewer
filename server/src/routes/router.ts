@@ -1,6 +1,6 @@
 import {Router} from "express";
 import accRoutes from "./AccountRoutes.js";
-import gameRoutes from "./gameRoutes.js";
+import gameRoutes from "./GameRoutes.js";
 import revRoutes from "./ReviewRoutes.js";
 
 const router: Router = Router();
