@@ -6,9 +6,9 @@ const app = express()
 // Middleware
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
-app.use('/', router)
+app.use('/api', router)
 
 // Health check
-app.get('/health', (_, res) => res.json({status: 'ok'}))
+app.get('/health', (_, res) => res.json({status: 'ok', message: "Game Reviewer API"}))
 
 export default app

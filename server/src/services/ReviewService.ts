@@ -1,58 +1,158 @@
-import {prisma} from "../prisma"
-import {ReviewType} from "../types/Types"
-import {ERR_ACC_NOTEXISTS, ERR_GAME_NOTEXISTS, ERR_REV_DUPLICATE, ERR_REV_ISE_DEL, ERR_REV_ISE_NEW, ERR_REV_ISE_UPD, ERR_REV_NOTEXISTS} from "../utils/UsualErrorMessage"
+import { StatusCodes } from "http-status-codes"
+import { AppError } from "../utils/ErrorHandler"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import {GameFull, GamePK, ReviewFull, UserPK} from "../types/Types"
+import { FetchUser, CanViewUser } from "./AccountService"
+import { SelectGame } from "../Repository/GameRepository"
+import { DeleteReview, InsertReview, SelectAllReviewsOfGame, SelectAllReviewsOfUser, SelectReview, UpdateReview } from "../Repository/ReviewRepository"
 
-// Throws if either the user or the game don't exist
-async function CheckUserAndGame(accountName: string, gameName: string): Promise<void> {
-    if (!(await prisma.user.findUnique({where: {accountName}})))
-        ERR_ACC_NOTEXISTS.Throw()
-    if (!(await prisma.game.findUnique({where: {gameName}})))
-        ERR_GAME_NOTEXISTS.Throw()
+
+// Throws if the user or the game dont exist
+async function CheckUserAndGame(username: string, gameID: number): Promise<void> {
+    const user = await FetchUser(username);  // throws if not found
+    const game = await SelectGame(gameID);
+    if (!game)
+        throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
 }
 
-// Finds a review given a user and a game
-async function FetchReview(accountName: string, gameName: string): Promise<ReviewType> {
-    return await prisma.review.findUnique({where: {reviewer: accountName, reviewed: gameName}})
-}
 
 export class ReviewService {
-    static async FindReview(accountName: string, gameName: string): Promise<ReviewType> {
-        CheckUserAndGame(accountName, gameName)
-        const review: ReviewType = await FetchReview(accountName, gameName)
-        if (!review) ERR_REV_NOTEXISTS.Throw()
-        return review
+    static async FindReview(reviewer: UserPK, reviewed: GamePK, currentUser?: UserPK): Promise<ReviewFull> {
+        await CheckUserAndGame(reviewer, reviewed);
+
+        const review = await SelectReview({reviewer, reviewed});
+        if(!review)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        // check privacy settings
+        const canView: boolean = await CanViewUser(reviewer, currentUser);
+        if(!canView)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        return {
+            reviewer: review.reviewer,
+            reviewed: review.reviewed,
+            text: review.text,
+            score: review.score,
+            createdAt: review.createdAt,
+            updatedAt: review.updatedAt
+        }
     }
 
-    static async PublishReview(accountName: string, gameName: string, text: string, score: number): Promise<ReviewType> {
-        CheckUserAndGame(accountName, gameName)
-        if (await FetchReview(accountName, gameName)) ERR_REV_DUPLICATE.Throw()
-        const time: Date            = new Date(Date.now())
-        const review: ReviewType    = {reviewer: accountName, reviewed: gameName, text, score, createdAt: time, updatedAt: time}
-        if (!(await prisma.review.create({data: review}))) ERR_REV_ISE_NEW.Throw()
-        return review
+    static async PublishReview(currentUser: UserPK, gameID: GamePK, text: string, score: number): Promise<ReviewFull> {
+        await CheckUserAndGame(currentUser, gameID);
+
+        // Check if review already exists
+        const existing: ReviewFull | null = await SelectReview({reviewer: currentUser, reviewed: gameID});
+        if(existing)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.REVIEW_ALREADY_EXISTS);
+
+        const review: ReviewFull = await InsertReview({
+            reviewer: currentUser,
+            reviewed: gameID,
+            text,
+            score
+        });
+
+        return {
+            reviewer: review.reviewer,
+            reviewed: review.reviewed,
+            text: review.text,
+            score: review.score,
+            createdAt: review.createdAt,
+            updatedAt: review.updatedAt
+        };
     }
 
-    static async AlterReview(accountName: string, gameName: string, text?: string, score?: number): Promise<ReviewType> {
-        CheckUserAndGame(accountName, gameName)
-        const review: ReviewType = await FetchReview(accountName, gameName)
-        if (!review) ERR_REV_NOTEXISTS.Throw()
-        
-        if (text!)  review.text = text
-        if (score!) review.score = score
-        review.updatedAt = new Date(Date.now())
-        
-        if (!(await prisma.review.update({
-            where: {reviewer: accountName, reviewed: gameName},
-            data: {text: review.text, score: review.score}
-        }))) ERR_REV_ISE_UPD.Throw()
-        return review
+    static async UpdateReview(currentUser: UserPK, gameID: GamePK, text?: string, score?: number): Promise<ReviewFull> {
+        await CheckUserAndGame(currentUser, gameID);
+
+        const existing = await SelectReview({reviewer: currentUser, reviewed: gameID});
+        if(!existing)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        const updated = await UpdateReview({
+            reviewer: currentUser,
+            reviewed: gameID,
+            text: text ?? existing.text,
+            score: score ?? existing.score
+        });
+
+        return {
+            reviewer: updated.reviewer,
+            reviewed: updated.reviewed,
+            text: updated.text,
+            score: updated.score,
+            createdAt: updated.createdAt,
+            updatedAt: updated.updatedAt
+        };
     }
 
-    static async RemoveReview(accountName: string, gameName: string): Promise<ReviewType> {
-        CheckUserAndGame(accountName, gameName)
-        const review: ReviewType = await FetchReview(accountName, gameName)
-        if (!review)                                                                                ERR_REV_NOTEXISTS.Throw()
-        if (!(await prisma.review.delete({where: {reviewer: accountName, reviewed: gameName}})))    ERR_REV_ISE_DEL.Throw()
-        return review
+    static async RemoveReview(currentUser: UserPK, gameID: GamePK): Promise<ReviewFull> {
+        await CheckUserAndGame(currentUser, gameID);
+
+        const existing: ReviewFull | null = await SelectReview({reviewer: currentUser, reviewed: gameID});
+        if(!existing)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        const deleted: ReviewFull = await DeleteReview({reviewer: currentUser, reviewed: gameID});
+
+        return {
+            reviewer: deleted.reviewer,
+            reviewed: deleted.reviewed,
+            text: deleted.text,
+            score: deleted.score,
+            createdAt: deleted.createdAt,
+            updatedAt: deleted.updatedAt
+        };
+    }
+
+    static async GetReviewsByGame(gameID: GamePK, currentUser?: UserPK): Promise<ReviewFull[]> {
+        const game: GameFull | null = await SelectGame(gameID);
+        if(!game)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
+
+        const reviews: ReviewFull[] = await SelectAllReviewsOfGame(gameID);
+
+        // filter based on privacy
+        const visibleReviews: ReviewFull[] = [];
+        for (const review of reviews){
+            const canView: boolean = await CanViewUser(review.reviewer, currentUser);
+            if (canView) {
+                visibleReviews.push({
+                    reviewer: review.reviewer,
+                    reviewed: review.reviewed,
+                    text: review.text,
+                    score: review.score,
+                    createdAt: review.createdAt,
+                    updatedAt: review.updatedAt
+                })
+            }
+        }
+
+        return visibleReviews;
+    }
+
+    static async GetReviewsByUser(username: UserPK, currentUser?: UserPK): Promise<ReviewFull[]> {
+        await FetchUser(username);
+
+        const canView = await CanViewUser(username, currentUser);
+        if (!canView)
+            return [];  // return empty if not authorized to view
+
+        const reviews = await SelectAllReviewsOfUser(username);
+
+        return reviews.map(review => ({
+            reviewer: review.reviewer,
+            reviewed: review.reviewed,
+            text: review.text,
+            score: review.score,
+            createdAt: review.createdAt,
+            updatedAt: review.updatedAt
+        }));
+    }
+
+    // TODO Later
+    static async GetRecentReviews(gameID: GamePK): Promise<void> {
     }
 }

@@ -1,15 +1,35 @@
 import type { Prisma, User, Game, Review, Like, Comment, Follower } from "../generated/prisma/client";
 
 
+// User Types
+export type UserData = {
+    displayName: string;
+    isPrivate: boolean;
+    gender: string | null;
+    bio: string | null;
+    // other fields can be added here
+}
+
 export type UserFull = User;
 
-export type UserShort = Omit<Omit<UserFull, "createdAt">, "updatedAt"> & {
+export type UserShort = Omit<UserFull, "createdAt" | "updatedAt"> & {
     userData: Prisma.InputJsonValue
+};
+
+export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "userData"> & {
+    userData: UserData
 };
 
 export type UserPK = string;
 
+export type AuthResponse = 
+    UserPublic & 
+    {
+        token: string;
+    }
 
+
+// Game Types
 
 export type GameFull = Game;
 
@@ -32,6 +52,8 @@ export type ReviewPK = {
 
 
 
+// Reaction Types
+
 export type LikeFull = Like;
 
 export type LikeShort = Omit<Omit<LikeFull, "createdAt">, "updatedAt">;
@@ -44,6 +66,8 @@ export type LikePK = {
 
 
 
+// Comment Types
+
 export type CommentFull = Comment;
 
 export type CommentShort = Omit<Omit<Omit<CommentFull, "createdAt">, "updatedAt">, "id">;
@@ -51,6 +75,7 @@ export type CommentShort = Omit<Omit<Omit<CommentFull, "createdAt">, "updatedAt"
 export type CommentPK = bigint;
 
 
+// Follower Types
 
 export type FollowerFull = Follower;
 
@@ -60,36 +85,3 @@ export type FollowerPK = {
     follows: string;
     followed: string;
 };
-
-
-
-export interface UserType {
-    accountName: string;
-    passwordHash: string;
-    email: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userData: any;
-}
-
-export interface FollowerType {
-    follows: string;
-    followed: string;
-    createdAt: Date;
-    acceptedAt: Date;
-    accepted: boolean;
-}
-
-export interface GameType {
-    gameName: string;
-    metadata: any;
-}
-
-export interface ReviewType {
-    reviewer: string;
-    reviewed: string;
-    text: string;
-    score: number;
-    createdAt: Date;
-    updatedAt: Date;
-}

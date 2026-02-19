@@ -1,11 +1,13 @@
-import {Router} from "express"
-import {ReviewController} from "../controllers/ReviewController"
+import {Router} from "express";
+import {ReviewController} from "../controllers/ReviewController";
+import commentRoutes from "./CommentRoutes";
+import likeRoutes from "./LikeRoutes";
 
 // Router object
-const router: Router = Router()
+const router: Router = Router();
 
 /**
- * GET /api/viewrev
+ * GET /api/reviewer/:reviewer/:reviewed
  * Finds a user's review on a game
  * Body:
  *      reviewer: string
@@ -18,10 +20,10 @@ const router: Router = Router()
  *      404 NOT FOUND, if the provided game name doesn't exist
  *      404 NOT FOUND, if the user didn't review the game
  */
-router.get('/api/viewrev', ReviewController.FindReview)
+router.get('/:reviewer/:reviewed', ReviewController.GetReview);
 
 /**
- * POST /api/newrev
+ * POST /api/reviews/:reviewer/:reviewed
  * Publishes a new review
  * Body:
  *      reviewer: string
@@ -38,10 +40,10 @@ router.get('/api/viewrev', ReviewController.FindReview)
  *      409 CONFLICT, if the user already reviewed the game
  *      500 INTERNAL SERVER ERROR, if the review couldn't be publised
  */
-router.post('/api/newrev', ReviewController.PublishReview)
+router.post('/:reviewer/:reviewed', ReviewController.PublishReview);
 
 /**
- * PUT /api/updrev
+ * PUT /api/reviews/:reviewer/:reviewed
  * Updates a user's review
  * Body:
  *      reviewer: string
@@ -58,10 +60,10 @@ router.post('/api/newrev', ReviewController.PublishReview)
  *      404 NOT FOUND, if the user didn't review the game
  *      500 INTERNAL SERVER ERROR, if the review couldn't be updated
  */
-router.put('/api/updrev', ReviewController.AlterReview)
+router.put('/:reviewer/:reviewed', ReviewController.AlterReview);
 
 /**
- * DELETE /api/remrev
+ * DELETE /api/reviews/:reviewer/:reviewed
  * Removes a user's review
  * Body:
  *      reviewer: string
@@ -75,6 +77,18 @@ router.put('/api/updrev', ReviewController.AlterReview)
  *      404 NOT FOUND, if the user didn't review the game
  *      500 INTERNAL SERVER ERROR, if the review couldn't be removed
  */
-router.delete('/api/remrev', ReviewController.RemoveReview)
+router.delete('/:reviewer/:reviewed', ReviewController.RemoveReview);
 
-export default router
+
+// ===================== COMMENTS =====================
+
+router.use('/:reviewer/:reviewed/comments', commentRoutes);
+
+
+// ===================== REACTIONS (LIKES/DISLIKES) =====================
+
+
+router.use('/:reviewer/:reviewed/', likeRoutes);
+
+
+export default router;

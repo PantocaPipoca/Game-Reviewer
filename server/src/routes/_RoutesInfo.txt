@@ -1,0 +1,62 @@
+# ACCOUNT / USER ENDPOINTS
+
+- [ ] POST   /api/users/register
+- [ ] POST   /api/users/login
+- [ ] GET    /api/users/me
+- [ ] PUT    /api/users/me
+- [ ] DELETE /api/users/me
+- [ ] GET    /api/users/:username
+
+- [ ] GET    /api/users/search?name=...
+
+
+# FOLLOWER ENDPOINTS
+
+- [ ] GET    /api/users/:username/followers
+- [ ] POST   /api/users/:username/followers/:followerName
+- [ ] PUT    /api/users/:username/followers/:followerName
+- [ ] DELETE /api/users/:username/followers/:followerName
+- [ ] GET    /api/users/:username/following
+- [ ] GET    /api/users/:username/followers/pending
+
+
+# GAME ENDPOINTS
+
+- [ ] GET    /api/games/:gameID
+- [ ] GET    /api/games/search?name=...&tag=...
+- [ ] GET    /api/games/popular?orderBy=...&limit=...
+
+- [ ] GET    /api/games/:gameName/stats
+
+
+# REVIEW ENDPOINTS
+
+- [ ] GET    /api/reviews/:reviewer/:reviewed
+- [ ] POST   /api/reviews/:reviewer/:reviewed
+- [ ] PUT    /api/reviews/:reviewer/:reviewed
+- [ ] DELETE /api/reviews/:reviewer/:reviewed
+- [ ] GET    /api/games/:gameName/reviews
+- [ ] GET    /api/users/:username/reviews
+
+- [ ] GET    /api/reviews/recent
+
+
+# COMMENT ENDPOINTS
+
+- [ ] GET    /api/reviews/:reviewer/:reviewed/comments
+- [ ] POST  /api/reviews/:reviewer/:reviewed/comments
+- [ ] PUT    /api/reviews/:reviewer/:reviewed/comments
+- [ ] DELETE /api/reviews/:reviewer/:reviewed/comments - (how to know which comment to delete - body?)
+
+
+# LIKE / DISLIKE ENDPOINTS
+
+- [ ] GET    /api/reviews/:reviewer/:gameName/likes
+- [ ] GET    /api/reviews/:reviewer/:gameName/dislikes
+- [ ] POST   /api/reviews/:reviewer/:reviewed/likes
+- [ ] POST   /api/reviews/:reviewer/:reviewed/dislikes
+- [ ] DELETE /api/reviews/:reviewer/:reviewed/likes
+- [ ] DELETE /api/reviews/:reviewer/:reviewed/dislikes
+
+- [ ] GET    /api/users/:username/likes
+- [ ] GET    /api/users/:username/dislikes

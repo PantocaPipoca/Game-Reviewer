@@ -40,7 +40,7 @@ export function DeleteLike(likePK: LikePK): Promise<LikeFull> {
 
 // count all likes or dislikes of a review
 // set toCount to true to count likes and to false to count dislikes
-export function CountLikesOrDislikesOfReview(reviewPK: ReviewPK, toCount: boolean): Promise<Number> {
+export function CountLikesOrDislikesOfReview(reviewPK: ReviewPK, toCount: boolean): Promise<number> {
     return prisma.like.count({
         where: {
             review: reviewPK,
