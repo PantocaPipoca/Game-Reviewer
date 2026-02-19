@@ -3,6 +3,7 @@
 :root {
     --background: #0b0b0b;
     --mainText: #e6e6e6;
+    --reverseText: #0b0b0b;
     --cyan: #00e5ff;
     --pink: #ff2e88;
     --green: #7cff00;
@@ -13,7 +14,8 @@
     --mainPanel: #161616;
     --secondaryPanel: #121212;
     --terciaryPanel: #0f0f0f;
-    --button: #8C8C8C80;
+    --button: #8c8c8c80;
+    --transparent: #00000000;
 
     --weightLight: 300;
     --weightRegular: 400;

@@ -1,0 +1,8 @@
+.search {
+    background-color: var(--terciaryPanel);
+    border: 1px solid var(--separator);
+    width: 100%;
+    padding: 8px 10px;
+    margin: 0 46px;
+    gap: 8px;
+}

@@ -3,14 +3,15 @@ import styles from "./Panel.module.css";
 
 type PanelProps = {
     children?: ReactNode;
+    className?: string;
     direction?: "column" | "row";
     type: "main" | "secondary" | "terciary";
 };
 
-function Panel({ children, direction = "column", type }: PanelProps) {
+function Panel({ children, direction = "column", type, className }: PanelProps) {
     type += "Panel";
     return (
-        <div className={styles[`${type}`]} style={{ flexDirection: direction }}>
+        <div className={`${styles[type]} ${className}`} style={{ flexDirection: direction }}>
             {children}
         </div>
     );

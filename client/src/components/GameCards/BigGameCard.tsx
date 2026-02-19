@@ -1,7 +1,7 @@
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
 import style from "./BigGameCard.module.css";
-import Button from "../Button/Button";
+import Button from "../Buttons/Button";
 
 function BigGameCard() {
     return (
