@@ -1,14 +1,14 @@
 import {StatusCodes} from "http-status-codes"
 import {SelectFollower, InsertFollower, UpdateFollower, DeleteFollower, SelectAllFollowersOfUser, SelectAllFollowedByUser} from "../Repository/FollowerRepository"
 import {FetchUser, CanViewUser} from "./AccountService"
-import {FollowerFull, UserData, UserPK} from "../types/Types"
+import {FollowerFull, UserData, UserFull, UserPK} from "../types/Types"
 import {AppError} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 
 // checks if both exist, throwing an exception if any dont exist
 async function CheckBothUsers(user1: UserPK, user2: UserPK): Promise<void> {
-    const userOne = await FetchUser(user1);
-    const userTwo = await FetchUser(user2);
+    await FetchUser(user1);
+    await FetchUser(user2);
 }
 
 export class FollowerService {
@@ -28,12 +28,12 @@ export class FollowerService {
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_REQUEST_EXISTS);
 
         // get the followed users privacy setting
-        const followedUser = await FetchUser(followed);
+        const followedUser: UserFull = await FetchUser(followed);
         const userData: UserData = followedUser.userData as UserData;
-        const isPrivate = userData?.isPrivate || false;
+        const isPrivate: boolean = userData?.isPrivate || false;
 
         // create follower request (accept auto for public accounts)
-        const follower = await InsertFollower({
+        const follower: FollowerFull = await InsertFollower({
             follows: currentUser,
             followed,
             accepted: !isPrivate
@@ -45,7 +45,7 @@ export class FollowerService {
             accepted: follower.accepted,
             createdAt: follower.createdAt,
             updatedAt: follower.updatedAt
-        };
+        } as FollowerFull;
     }
 
     /**
@@ -79,7 +79,7 @@ export class FollowerService {
             accepted: updatedFollower.accepted,
             createdAt: updatedFollower.createdAt,
             updatedAt: updatedFollower.updatedAt
-        };
+        } as FollowerFull;
     }
 
     /**
@@ -111,7 +111,7 @@ export class FollowerService {
             accepted: deletedFollower.accepted,
             createdAt: deletedFollower.createdAt,
             updatedAt: deletedFollower.updatedAt
-        };
+        } as FollowerFull;
     }
 
     /**
@@ -124,8 +124,7 @@ export class FollowerService {
         await FetchUser(username)
 
         // check if currentUser can view followers list
-        const canView: boolean = await CanViewUser(username, currentUser);
-        if (!canView)
+        if (!(await CanViewUser(username, currentUser)))
             return [] // return empty list if not authorized to view
 
         const followers: FollowerFull[] = await SelectAllFollowersOfUser(username);
@@ -139,7 +138,7 @@ export class FollowerService {
             accepted: follower.accepted,
             createdAt: follower.createdAt,
             updatedAt: follower.updatedAt
-        }));
+        })) as FollowerFull[];
     }
 
     /**
@@ -153,9 +152,8 @@ export class FollowerService {
         await FetchUser(username);
 
         // check if currentUser can view following list
-        const canView: boolean = await CanViewUser(username, currentUser);
-        if (!canView)
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+        if (!(await CanViewUser(username, currentUser)))
+            return [] // return empty list if not authorized to view
 
         const following: FollowerFull[] = await SelectAllFollowedByUser(username);
 
@@ -168,7 +166,7 @@ export class FollowerService {
             accepted: follower.accepted,
             createdAt: follower.createdAt,
             updatedAt: follower.updatedAt
-        }));
+        })) as FollowerFull[];
     }
 
     /**
@@ -189,6 +187,6 @@ export class FollowerService {
             accepted: follower.accepted,
             createdAt: follower.createdAt,
             updatedAt: follower.updatedAt
-        }));
+        })) as FollowerFull[];
     }
 }

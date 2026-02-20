@@ -18,10 +18,12 @@ export class GameService {
         }
     }
 
-    static async searchGames(name?: string, tag?: string): Promise<void> {
+    static async SearchGames(name?: string, tag?: string): Promise<GameFull[]> {
+        return [] // TODO
     }
 
-    static async getPopularGames(): Promise<void> {
+    static async GetPopularGames(): Promise<GameFull[]> {
+        return [] // TODO
     }
 
 

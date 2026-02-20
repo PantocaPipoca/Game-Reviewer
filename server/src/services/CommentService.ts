@@ -21,7 +21,7 @@ export class CommentService {
             text: comment.text,
             createdAt: comment.createdAt,
             updatedAt: comment.updatedAt
-        }));
+        })) as CommentFull[];
     }
 
     static async PublishComment(currentUser: string, reviewer: string, gameID: number, text: string): Promise<CommentFull> {
@@ -45,7 +45,7 @@ export class CommentService {
             text: comment.text,
             createdAt: comment.createdAt,
             updatedAt: comment.updatedAt
-        };
+        } as CommentFull;
     }
 
     static async EditComment(currentUser: string, commentID: CommentPK, text: string): Promise<CommentFull> {
@@ -66,7 +66,7 @@ export class CommentService {
             text: updated.text,
             createdAt: updated.createdAt,
             updatedAt: updated.updatedAt
-        };
+        } as CommentFull;
     }
 
     static async RemoveComment(currentUser: string, commentID: CommentPK): Promise<CommentFull> {
@@ -88,6 +88,6 @@ export class CommentService {
             text: deleted.text,
             createdAt: deleted.createdAt,
             updatedAt: deleted.updatedAt
-        };
+        } as CommentFull;
     }
 }

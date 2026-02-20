@@ -9,9 +9,9 @@ import { DeleteReview, InsertReview, SelectAllReviewsOfGame, SelectAllReviewsOfU
 
 // Throws if the user or the game dont exist
 async function CheckUserAndGame(username: string, gameID: number): Promise<void> {
-    const user = await FetchUser(username);  // throws if not found
-    const game = await SelectGame(gameID);
-    if (!game)
+    if (!(await FetchUser(username)))
+        throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
+    if (!(await SelectGame(gameID)))
         throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
 }
 
@@ -25,8 +25,7 @@ export class ReviewService {
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
         // check privacy settings
-        const canView: boolean = await CanViewUser(reviewer, currentUser);
-        if(!canView)
+        if(!(await CanViewUser(reviewer, currentUser)))
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
         return {
@@ -36,15 +35,14 @@ export class ReviewService {
             score: review.score,
             createdAt: review.createdAt,
             updatedAt: review.updatedAt
-        }
+        } as ReviewFull;
     }
 
     static async PublishReview(currentUser: UserPK, gameID: GamePK, text: string, score: number): Promise<ReviewFull> {
         await CheckUserAndGame(currentUser, gameID);
 
         // Check if review already exists
-        const existing: ReviewFull | null = await SelectReview({reviewer: currentUser, reviewed: gameID});
-        if(existing)
+        if(await SelectReview({reviewer: currentUser, reviewed: gameID}))
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.REVIEW_ALREADY_EXISTS);
 
         const review: ReviewFull = await InsertReview({
@@ -61,7 +59,7 @@ export class ReviewService {
             score: review.score,
             createdAt: review.createdAt,
             updatedAt: review.updatedAt
-        };
+        } as ReviewFull;
     }
 
     static async UpdateReview(currentUser: UserPK, gameID: GamePK, text?: string, score?: number): Promise<ReviewFull> {
@@ -91,8 +89,7 @@ export class ReviewService {
     static async RemoveReview(currentUser: UserPK, gameID: GamePK): Promise<ReviewFull> {
         await CheckUserAndGame(currentUser, gameID);
 
-        const existing: ReviewFull | null = await SelectReview({reviewer: currentUser, reviewed: gameID});
-        if(!existing)
+        if(!(await SelectReview({reviewer: currentUser, reviewed: gameID})))
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
         const deleted: ReviewFull = await DeleteReview({reviewer: currentUser, reviewed: gameID});
@@ -136,8 +133,7 @@ export class ReviewService {
     static async GetReviewsByUser(username: UserPK, currentUser?: UserPK): Promise<ReviewFull[]> {
         await FetchUser(username);
 
-        const canView = await CanViewUser(username, currentUser);
-        if (!canView)
+        if (!(await CanViewUser(username, currentUser)))
             return [];  // return empty if not authorized to view
 
         const reviews = await SelectAllReviewsOfUser(username);

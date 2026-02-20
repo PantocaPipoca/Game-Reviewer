@@ -18,9 +18,7 @@ const SALT_ROUNDS = 10; // number of iterations for bcrypt hashing
  */
 export async function FetchUser(username: UserPK): Promise<UserFull> {
     const user : UserFull | null = await SelectUser(username);
-    if (!user) {
-        throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
-    }
+    if (!user) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
     return user;
 }
 
@@ -102,7 +100,7 @@ export class AccountService {
             createdAt: newUser.createdAt,
             updatedAt: newUser.updatedAt,
             token
-        };
+        } as AuthResponse;
     }
 
     /**
@@ -129,7 +127,7 @@ export class AccountService {
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
             token
-        };
+        } as AuthResponse;
     }
 
     
@@ -148,7 +146,7 @@ export class AccountService {
             userData: user.userData as UserData,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt
-        };
+        } as UserPublic;
     }
 
     /**
@@ -182,7 +180,7 @@ export class AccountService {
             userData: updated.userData as UserData,
             createdAt: updated.createdAt,
             updatedAt: updated.updatedAt
-        }
+        } as UserPublic;
     }
 
     /**
@@ -199,7 +197,7 @@ export class AccountService {
             userData: deletedUser.userData as UserData,
             createdAt: deletedUser.createdAt,
             updatedAt: deletedUser.updatedAt
-        };
+        } as UserPublic;
     }
 
 
@@ -224,7 +222,7 @@ export class AccountService {
             userData: user.userData as UserData,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt
-        };
+        } as UserPublic;
     }
 
     /**
