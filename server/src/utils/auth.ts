@@ -20,7 +20,7 @@ export interface AuthRequest extends Request {
 
 // narrow type to string instead of string | undefined
 const JWT_SECRET = process.env["JWT_SECRET"] ?? (() => { 
-    throw new Error("JWT_SECRET must be set") 
+    throw new Error("JWT_SECRET must be set")
 })();
 
 const JWT_EXPIRES_IN: string = process.env["JWT_EXPIRES_IN"] || "7d";
@@ -33,9 +33,9 @@ const JWT_EXPIRES_IN: string = process.env["JWT_EXPIRES_IN"] || "7d";
  * @param email email of the user
  * @returns  the generated JWT token
  */
-export function generateToken(username: string, email: string): string {
+export function generateToken(username: string): string {
     return jwt.sign(
-        {username, email}, 
+        {username},
         JWT_SECRET, 
         { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions // type assertion to satisfy TS
     );

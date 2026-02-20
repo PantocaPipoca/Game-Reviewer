@@ -19,14 +19,11 @@ export class FollowerService {
      * @param followed - Username of the user to be followed
      * @returns Created follower object
      */
-    static async RequestFollower(currentUser: UserPK, follows: UserPK, followed: UserPK): Promise<FollowerFull> {
-        if (currentUser !== follows)
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
-
-        await CheckBothUsers(follows, followed);
+    static async RequestFollower(currentUser: UserPK, followed: UserPK): Promise<FollowerFull> {
+        await CheckBothUsers(currentUser, followed);
 
         // check if request already exists
-        const existingRequest = await SelectFollower({follows, followed});
+        const existingRequest = await SelectFollower({follows: currentUser, followed});
         if (existingRequest)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_REQUEST_EXISTS);
 
@@ -37,7 +34,7 @@ export class FollowerService {
 
         // create follower request (accept auto for public accounts)
         const follower = await InsertFollower({
-            follows,
+            follows: currentUser,
             followed,
             accepted: !isPrivate
         });
@@ -58,15 +55,11 @@ export class FollowerService {
      * @param followed - username of the followed user
      * @returns updated follower object
      */
-    static async AcceptFollower(currentUser: UserPK, follows: UserPK, followed: UserPK): Promise<FollowerFull> {
-        // user auth verification
-        if (currentUser !== followed)
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
-
-        await CheckBothUsers(follows, followed);
+    static async AcceptFollower(currentUser: UserPK, follows: UserPK): Promise<FollowerFull> {
+        await CheckBothUsers(follows, currentUser);
 
         // check if request exists
-        const existingRequest: FollowerFull | null = await SelectFollower({follows, followed});
+        const existingRequest: FollowerFull | null = await SelectFollower({follows, followed: currentUser});
         if (!existingRequest)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOW_REQUEST_NOT_FOUND);
 
@@ -76,7 +69,7 @@ export class FollowerService {
 
         const updatedFollower: FollowerFull = await UpdateFollower({
             follows,
-            followed,
+            followed: currentUser,
             accepted: true
         });
 
@@ -97,7 +90,6 @@ export class FollowerService {
      * @returns Deleted follower object
      */
     static async RemoveFollower(currentUser: UserPK, follows: UserPK, followed: UserPK): Promise<FollowerFull> {
-        // user auth verification
         if (currentUser !== follows && currentUser !== followed)
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 

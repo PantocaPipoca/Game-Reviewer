@@ -86,7 +86,7 @@ export class AccountService {
             bio: null
         };
 
-        const newUser = await InsertUser({
+        const newUser: UserFull = await InsertUser({
             accountName: username,
             passwordHash,
             userData,
@@ -94,7 +94,7 @@ export class AccountService {
         });
 
         // generate JWT token
-        const token = generateToken(newUser.accountName, newUser.email); 
+        const token: string = generateToken(newUser.accountName); 
 
         return {
             accountName: newUser.accountName,
@@ -121,7 +121,7 @@ export class AccountService {
         }
 
         // Generate JWT token
-        const token: string = generateToken(user.accountName, user.email);
+        const token: string = generateToken(user.accountName);
 
         return {
             accountName: user.accountName,
@@ -191,7 +191,8 @@ export class AccountService {
      * @returns the deleted user's data
      */
     static async RemoveUser(currentUser: UserPK): Promise<UserPublic> {
-        const deletedUser: UserFull = await DeleteUser(currentUser);
+        const user: UserFull = await FetchUser(currentUser);
+        const deletedUser: UserFull = await DeleteUser(user.accountName);
 
         return {
             accountName: deletedUser.accountName,
