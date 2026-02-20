@@ -2,21 +2,33 @@ import { prisma } from "../prisma";
 import { LikeFull, LikeShort, LikePK, ReviewPK, UserPK } from "../types/Types";
 
 
-// select like
+/**
+ * @description Selects a Like from the database
+ * @param likePK primary key of Like
+ * @returns a promise of the table entry which contains the given primary key, if nothing is found the promise resolves to null
+ */
 export function SelectLike(likePK: LikePK): Promise<LikeFull | null> {
     return prisma.like.findUnique({
         where: { liker_reviewer_reviewed: likePK }
     });
 }
 
-// insert like
+/**
+ * @description Inserts a Like in the database
+ * @param like json with all fields of Like that need to be manually set
+ * @returns a promise of the table entry which contains the full inserted Like
+ */
 export function InsertLike(like: LikeShort): Promise<LikeFull> {
     return prisma.like.create({
         data: like
     });
 }
 
-// update like (change like/dislike)
+/**
+ * @description Updates a Like in the database with the primary key given in game, with the rest of the values given
+ * @param like json with all fields of Like that need to be manually set
+ * @returns a promise of the updated table entry of the Like with the corresponding primary key
+ */
 export function UpdateLike(like: LikeShort): Promise<LikeFull> {
     const likePK: LikePK = {
         liker: like.liker,
@@ -29,7 +41,11 @@ export function UpdateLike(like: LikeShort): Promise<LikeFull> {
     });
 }
 
-// delete like
+/**
+ * @description Deletes a Like from the database
+ * @param likePK primary key of Like
+ * @returns a promise of the deleted entry
+ */
 export function DeleteLike(likePK: LikePK): Promise<LikeFull> {
     return prisma.like.delete({
         where: { liker_reviewer_reviewed: likePK }
@@ -38,8 +54,12 @@ export function DeleteLike(likePK: LikePK): Promise<LikeFull> {
 
 
 
-// count all likes or dislikes of a review
-// set toCount to true to count likes and to false to count dislikes
+/**
+ * @description returns the amount of likes or dislikes in a Review
+ * @param reviewPK primary key of the Review which we want to count the likes or dislikes
+ * @param toCount if true counts the likes, if false counts the dislikes
+ * @returns a promise of the number of likes or dislikes
+ */
 export function CountLikesOrDislikesOfReview(reviewPK: ReviewPK, toCount: boolean): Promise<number> {
     return prisma.like.count({
         where: {
@@ -49,7 +69,11 @@ export function CountLikesOrDislikesOfReview(reviewPK: ReviewPK, toCount: boolea
     });
 }
 
-// select all likes of a user
+/**
+ * @description Selects all likes or dislikes of a User, may be useful debug info
+ * @param userPK primary key of the User which we want to get the likes or dislikes
+ * @returns a promise of the array of likes or dislikes of that User
+ */
 export function SelectAllLikesOfUser(userPK: UserPK): Promise<LikeFull[]> {
     return prisma.like.findMany({
         where: { liker: userPK }
