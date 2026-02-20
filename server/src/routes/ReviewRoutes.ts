@@ -1,7 +1,7 @@
 import {Router} from "express";
 import {ReviewController} from "../controllers/ReviewController";
-import commentRoutes from "./CommentRoutes";
-import likeRoutes from "./LikeRoutes";
+import CommentRoutes from "./CommentRoutes";
+import LikeRoutes from "./LikeRoutes";
 
 // Router object
 const router: Router = Router();
@@ -82,13 +82,13 @@ router.delete('/:reviewer/:reviewed', ReviewController.RemoveReview);
 
 // ===================== COMMENTS =====================
 
-router.use('/:reviewer/:reviewed/comments', commentRoutes);
+router.use('/:reviewer/:reviewed/comments', CommentRoutes);
 
 
 // ===================== REACTIONS (LIKES/DISLIKES) =====================
 
 
-router.use('/:reviewer/:reviewed/', likeRoutes);
+router.use('/:reviewer/:reviewed/', LikeRoutes);
 
 
 export default router;
