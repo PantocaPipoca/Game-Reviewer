@@ -87,3 +87,16 @@ export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunctio
     
     next()
 }
+
+/**
+ * Gets the optional current user in a Request object.
+ * @param req Request object, may have currentUser variable
+ * @returns the username of the currentUser if it exists, undefined otherwise
+ */
+export function CurrentOptionalUser(req: AuthRequest): string | undefined {
+    try {
+        return req.currentUser?.username
+    } catch (_) {
+        return undefined
+    }
+}
