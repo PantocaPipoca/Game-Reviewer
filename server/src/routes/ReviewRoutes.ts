@@ -7,11 +7,10 @@ import LikeRoutes from "./LikeRoutes";
 const router: Router = Router();
 
 /**
- * GET /api/reviewer/:reviewer/:reviewed
+ * GET /api/reviews/:reviewer/:reviewed
  * Finds a user's review on a game
  * Body:
- *      reviewer: string
- *      reviewed: string
+ *      (empty body)
  * Response:
  *      200 OK
  *      {reviewer, reviewed, text, score, createdAt, updatedAt}
@@ -26,8 +25,6 @@ router.get('/:reviewer/:reviewed', ReviewController.GetReview);
  * POST /api/reviews/:reviewer/:reviewed
  * Publishes a new review
  * Body:
- *      reviewer: string
- *      reviewed: string
  *      text: string
  *      score: int4
  * Response:
@@ -46,8 +43,6 @@ router.post('/:reviewer/:reviewed', ReviewController.PublishReview);
  * PUT /api/reviews/:reviewer/:reviewed
  * Updates a user's review
  * Body:
- *      reviewer: string
- *      reviewed: string
  *      text: string
  *      score: int4
  * Response:
@@ -66,8 +61,7 @@ router.put('/:reviewer/:reviewed', ReviewController.AlterReview);
  * DELETE /api/reviews/:reviewer/:reviewed
  * Removes a user's review
  * Body:
- *      reviewer: string
- *      reviewed: string
+ *      (empty body)
  * Response:
  *      202 ACCEPTED
  *      {reviewer, reviewed, text, score, createdAt, updatedAt}

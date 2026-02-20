@@ -1,6 +1,5 @@
 import {Router} from "express"
 import { LikeController } from "../controllers/LikeController";
-import { optionalAuth, auth } from "../utils/auth";
 
 
 const router: Router = Router();

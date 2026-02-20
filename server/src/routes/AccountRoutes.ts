@@ -32,7 +32,7 @@ const router: Router = Router();
 router.post('/', AccountController.Register);
 
 /**
- * GET /api/login
+ * GET /api/users/login
  * Logs in an existing account
  * Body:
  *      accountName: string
@@ -92,7 +92,7 @@ router.put('/me', auth, AccountController.Alter);
  *      404 NOT FOUND, if provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR, if the account could not be deleted
  */
-router.delete('/me', auth,AccountController.Remove);
+router.delete('/me', auth, AccountController.Remove);
 
 
 // ===================== SEARCH USERS =====================
@@ -116,18 +116,6 @@ router.delete('/me', auth,AccountController.Remove);
  *      500 INTERNAL SERVER ERROR, if the account could not be updated
  */
 router.get('/:username', optionalAuth, AccountController.FindByUsername);
-
-
-/**
- * GET /api/users
- * Get viewable (public & followed) users
- * (Empty body)
- * Response:
- *     200 OK
- *     [{accountName, email, createdAt, updatedAt, userData}, ...]
- *     500 INTERNAL SERVER ERROR, if the accounts could not be retrieved
- */
-//router.get('/', optionalAuth, AccountController.GetUsers);
 
 // ===================== FOLLOWERS =====================
 

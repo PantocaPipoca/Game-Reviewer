@@ -8,11 +8,10 @@ const router: Router = Router()
 // Get Following is in AccountRoutes since it has a different endpoint
 
 /**
- * POST /api/users/:accountName/followers/:followerName
+ * POST /api/users/:username/followers/:followerName
  * Makes a follower request to an account
  * Body:
- *      follows: string
- *      followed: string
+ *      (empty body)
  * Response:
  *      201 CREATED
  *      {follows, followed, createdAt}
@@ -21,14 +20,13 @@ const router: Router = Router()
  *      409 CONFLICT, if the first user already requested to follow the second
  *      500 INTERNAL SERVER ERROR, if the request couldn't be made
  */
-router.post('/', auth, FollowerController.RequestFollower);
+router.post('/:followerName', auth, FollowerController.RequestFollower);
 
 /**
- * PUT /api/users/:accountName/followers/:followerName
+ * PUT /api/users/:username/followers/:followerName
  * Accepts a follower request to an account
  * Body:
- *      follows: string
- *      followed: string
+ *      (empty body)
  * Response:
  *      202 ACCEPTED
  *      {follows, followed, createdAt, acceptedAt}
@@ -41,11 +39,10 @@ router.post('/', auth, FollowerController.RequestFollower);
 router.put('/:followerName', auth, FollowerController.AcceptFollower);
 
 /**
- * DELETE /api/users/:accountName/followers/:followerName
+ * DELETE /api/users/:username/followers/:followerName
  * Removes a follower to an account
  * Body:
- *      follows: string
- *      followed: string
+ *      (empty body)
  * Response:
  *      202 ACCEPTED
  *      {follows, followed}
@@ -57,9 +54,10 @@ router.put('/:followerName', auth, FollowerController.AcceptFollower);
 router.delete('/:followerName', auth, FollowerController.RemoveFollower);
 
 /**
- * GET /api/users/:accountName/followers
+ * GET /api/users/:username/followers
  * Gets the followers of an account
- * (Empty body)
+ * Body:
+ *      (empty body)
  * Response:
  *      200 OK
  *      [{follows, followed}]
@@ -75,9 +73,9 @@ router.get('/', optionalAuth, FollowerController.GetFollowers);
  *      (empty body)
  * Response:
  *      200 OK
- *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
+ *      [{follows, followed}]
  *      404 NOT FOUND, if the provided user name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ *      500 INTERNAL SERVER ERROR, if the followers couldn't be retrieved
  */
 router.get('/pending', optionalAuth, FollowerController.GetPendingRequests);
 

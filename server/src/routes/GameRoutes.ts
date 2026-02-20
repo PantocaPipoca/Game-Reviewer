@@ -19,7 +19,7 @@ const router: Router = Router();
 router.get('/:gameID', GameController.GetGameById);
 
 /**
- * GET /games
+ * GET /api/games
  * Search games using query params
  * Example:
  *      /games?name=elden
@@ -35,7 +35,7 @@ router.get('/:gameID', GameController.GetGameById);
 router.get('/', GameController.SearchGames);
 
 /**
- * GET /games/popular
+ * GET /api/games/popular
  * Returns popular games ordered by score or review count
  * Body:
  *      (Empty body)
