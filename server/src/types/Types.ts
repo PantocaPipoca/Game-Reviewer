@@ -39,11 +39,11 @@ export type GameShort = GameFull & {
 
 export type GamePK = number;
 
-
+// Review Types
 
 export type ReviewFull = Review;
 
-export type ReviewShort = Omit<Omit<ReviewFull, "createdAt">, "updatedAt">;
+export type ReviewShort = Omit<ReviewFull, "createdAt" | "updatedAt">;
 
 export type ReviewPK = {
     reviewer: UserPK;
@@ -56,7 +56,7 @@ export type ReviewPK = {
 
 export type LikeFull = Like;
 
-export type LikeShort = Omit<Omit<LikeFull, "createdAt">, "updatedAt">;
+export type LikeShort = Omit<LikeFull, "createdAt" | "updatedAt">;
 
 export type LikePK = {
     liker: UserPK
@@ -70,7 +70,7 @@ export type LikePK = {
 
 export type CommentFull = Comment;
 
-export type CommentShort = Omit<Omit<Omit<CommentFull, "createdAt">, "updatedAt">, "id">;
+export type CommentShort = Omit<CommentFull, "createdAt" | "updatedAt" | "id">;
 
 export type CommentPK = bigint;
 
@@ -79,7 +79,7 @@ export type CommentPK = bigint;
 
 export type FollowerFull = Follower;
 
-export type FollowerShort = Omit<Omit<FollowerFull, "createdAt">, "updatedAt">;
+export type FollowerShort = Omit<FollowerFull, "createdAt" | "updatedAt">;
 
 export type FollowerPK = {
     follows: string;
