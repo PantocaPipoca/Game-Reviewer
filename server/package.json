@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
-    "pretest": "dotenv -e .env.test -- npx prisma migrate deploy",
-    "test": "dotenv -e .env.test -- jest --runInBand"
+    "pretest": "npx dotenv-cli -e .env.test -- npx prisma migrate deploy",
+    "test": "npx dotenv-cli -e .env.test -- node --experimental-vm-modules node_modules/.bin/jest --runInBand"
   },
   "jest": {
     "preset": "ts-jest",
