@@ -2,10 +2,8 @@ import {Request, Response, NextFunction} from "express"
 import jwt from "jsonwebtoken"
 import {StatusCodes} from "http-status-codes"
 import dotenv from "dotenv"
-import path from "path"
 
-// Load environment variables from .env file
-dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
+dotenv.config();
 
 // JWT payload structure (data stored in token)
 export type JwtPayload = {
