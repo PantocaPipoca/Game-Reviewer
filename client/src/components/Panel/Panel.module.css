@@ -3,8 +3,10 @@
     border: 3px solid var(--border);
     display: flex;
     flex-direction: column;
+    align-items: center;
     width: fit-content;
     height: fit-content;
+    padding: 25px 50px;
 }
 
 .secondaryPanel {

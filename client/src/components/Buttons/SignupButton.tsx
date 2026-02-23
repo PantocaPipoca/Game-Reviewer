@@ -2,12 +2,12 @@ import Button from "./Button";
 import Text from "../Text/Text";
 import style from "./Buttons.module.css";
 
-function LoginButton() {
+function SignupButton() {
     return (
-        <Button className={style.login}>
-            <Text>LOGIN</Text>
+        <Button className={style.signup}>
+            <Text>SIGN UP</Text>
         </Button>
     );
 }
 
-export default LoginButton;
+export default SignupButton;

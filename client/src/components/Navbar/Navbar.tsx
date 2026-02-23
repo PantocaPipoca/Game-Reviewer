@@ -1,5 +1,6 @@
 import Button from "../Buttons/Button";
 import LoginButton from "../Buttons/LoginButton";
+import SignupButton from "../Buttons/SignupButton";
 import Search from "../Search/Search";
 import Text from "../Text/Text";
 import style from "./Navbar.module.css";
@@ -7,13 +8,11 @@ import style from "./Navbar.module.css";
 function Navbar() {
     return (
         <div className={style.bar}>
-            <Text variant="h1" color="var(--green)">
+            <Text variant="logo" color="var(--green)">
                 Game_Reviewer+
             </Text>
             <Search />
-            <Button color="var(--transparent)">
-                <Text color="var(--mainText)"> SIGNUP</Text>
-            </Button>
+            <SignupButton />
             <LoginButton />
         </div>
     );

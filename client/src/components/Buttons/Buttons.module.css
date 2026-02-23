@@ -10,5 +10,12 @@
 .login {
     padding: 0.8em 1.7em;
     background-color: var(--green);
+    color: var(--reverseText);
+}
+
+.signup {
+    white-space: nowrap;
+    padding: 0.8em 1.7em;
+    background-color: var(--transparent);
     color: var(--mainText);
 }

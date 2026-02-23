@@ -54,7 +54,13 @@
     font-weight: var(--weightRegular);
 }
 
+.logo {
+    font-size: 36px;
+    font-weight: var(--weightMedium);
+    text-transform: uppercase;
+}
+
 hr {
     border: none;
-    border-top: 1.5px solid var(--separator);
+    border-top: 3px solid var(--separator);
 }

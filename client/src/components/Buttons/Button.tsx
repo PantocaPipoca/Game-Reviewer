@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import style from "./Buttons.module.css";
-import type { CssVar } from "../../types/types";
+import type { CssVar } from "../../Types/types";
 
 type ButtonTypes = {
     children?: ReactNode;

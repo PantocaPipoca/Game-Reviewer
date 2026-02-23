@@ -1,16 +1,17 @@
-import type { ReactNode } from "react";
-import type { CssVar } from "../../types/types";
+import type { CSSProperties, ReactNode } from "react";
+import type { CssVar } from "../../Types/types";
 
 type TextProps = {
     children: ReactNode;
-    variant?: "h1" | "h2" | "h3" | "body" | "small";
+    variant?: "h1" | "h2" | "h3" | "body" | "small" | "logo";
     className?: string;
     color?: CssVar;
+    style?: CSSProperties;
 };
 
-function Text({ children, variant = "body", className = "", color }: TextProps) {
+function Text({ children, variant = "body", className = "", color, style }: TextProps) {
     return (
-        <span className={`${variant} ${className}`} style={{ color: color }}>
+        <span className={`${variant} ${className}`} style={{ color, ...style }}>
             {children}
         </span>
     );

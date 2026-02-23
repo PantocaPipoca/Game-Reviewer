@@ -1,16 +1,7 @@
-import GameCard from "./components/GameCards/GameCard";
-import BigGameCard from "./components/GameCards/BigGameCard";
-import Navbar from "./components/Navbar/Navbar";
+import MainPage from "./Pages/MainPage";
 
 function App() {
-    return (
-        <>
-            <Navbar />
-            <BigGameCard />
-            <hr />
-            <GameCard />
-        </>
-    );
+    return <MainPage />;
 }
 
 export default App;
