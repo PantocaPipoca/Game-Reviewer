@@ -17,7 +17,8 @@ datasource db {
 model User {
     accountName  String   @id
     passwordHash String
-    userData     Json // displayed name, gender, private account, idk
+    userData     Json // defined in Types.ts
+    isPrivate    Boolean  @default(false)
     email        String   @unique
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
