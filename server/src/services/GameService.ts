@@ -5,6 +5,11 @@ import * as ErrorMessage from "../utils/ErrorMessage"
 import { StatusCodes } from "http-status-codes"
 
 export class GameService {
+    /**
+     * Gets a game by it's primary key
+     * @param gameId - the game id
+     * @returns Game Information
+     */
     static async GetGameById(gameId: GamePK): Promise<GameFull> {
         const game: GameFull | null = await GameRepository.SelectGame(gameId)
         
@@ -18,8 +23,15 @@ export class GameService {
         }
     }
 
+    /**
+     * Searches for games by name and/or other atributes
+     * @param name 
+     * @param tag 
+     */
     static async searchGames(name?: string, tag?: string): Promise<void> {
     }
+
+    // WIP
 
     static async getPopularGames(): Promise<void> {
     }
@@ -27,4 +39,6 @@ export class GameService {
 
     static async GetGameStats(gameId: GamePK): Promise<void> {
     }
+
+    // needs a endpoint "get x games"
 }

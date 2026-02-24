@@ -1,31 +1,32 @@
 import { StatusCodes } from "http-status-codes"
 import { AppError } from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import {GameFull, GamePK, ReviewFull, UserPK} from "../types/Types"
-import { FetchUser, CanViewUser } from "./AccountService"
+import {GameFull, GamePK, ReviewFull, UserPK, UserPublic} from "../types/Types"
+import { FetchFullUser, CanViewUser, FetchUser } from "./AccountService"
 import { SelectGame } from "../Repository/GameRepository"
 import { DeleteReview, InsertReview, SelectAllReviewsOfGame, SelectAllReviewsOfUser, SelectReview, UpdateReview } from "../Repository/ReviewRepository"
 
 
 // Throws if the user or the game dont exist
-async function CheckUserAndGame(username: string, gameID: number): Promise<void> {
-    const user = await FetchUser(username);  // throws if not found
+async function FetchGame(gameID: number): Promise<GameFull> {
     const game = await SelectGame(gameID);
     if (!game)
         throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
+    return game;
 }
 
 
 export class ReviewService {
     static async FindReview(reviewer: UserPK, reviewed: GamePK, currentUser?: UserPK): Promise<ReviewFull> {
-        await CheckUserAndGame(reviewer, reviewed);
+        const user : UserPublic = await FetchUser(reviewer);
+        await FetchGame(reviewed);
 
         const review = await SelectReview({reviewer, reviewed});
         if(!review)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
         // check privacy settings
-        const canView: boolean = await CanViewUser(reviewer, currentUser);
+        const canView: boolean = await CanViewUser(user, currentUser);
         if(!canView)
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
@@ -40,9 +41,10 @@ export class ReviewService {
     }
 
     static async PublishReview(currentUser: UserPK, gameID: GamePK, text: string, score: number): Promise<ReviewFull> {
-        await CheckUserAndGame(currentUser, gameID);
+        await FetchUser(currentUser);
+        await FetchGame(gameID);
 
-        // Check if review already exists
+        // check if review already exists
         const existing: ReviewFull | null = await SelectReview({reviewer: currentUser, reviewed: gameID});
         if(existing)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.REVIEW_ALREADY_EXISTS);
@@ -54,18 +56,12 @@ export class ReviewService {
             score
         });
 
-        return {
-            reviewer: review.reviewer,
-            reviewed: review.reviewed,
-            text: review.text,
-            score: review.score,
-            createdAt: review.createdAt,
-            updatedAt: review.updatedAt
-        };
+        return review;
     }
 
     static async UpdateReview(currentUser: UserPK, gameID: GamePK, text?: string, score?: number): Promise<ReviewFull> {
-        await CheckUserAndGame(currentUser, gameID);
+        await FetchUser(currentUser);
+        await FetchGame(gameID);
 
         const existing = await SelectReview({reviewer: currentUser, reviewed: gameID});
         if(!existing)
@@ -78,18 +74,12 @@ export class ReviewService {
             score: score ?? existing.score
         });
 
-        return {
-            reviewer: updated.reviewer,
-            reviewed: updated.reviewed,
-            text: updated.text,
-            score: updated.score,
-            createdAt: updated.createdAt,
-            updatedAt: updated.updatedAt
-        };
+        return updated;
     }
 
     static async RemoveReview(currentUser: UserPK, gameID: GamePK): Promise<ReviewFull> {
-        await CheckUserAndGame(currentUser, gameID);
+        await FetchUser(currentUser);
+        await FetchGame(gameID);
 
         const existing: ReviewFull | null = await SelectReview({reviewer: currentUser, reviewed: gameID});
         if(!existing)
@@ -97,14 +87,7 @@ export class ReviewService {
 
         const deleted: ReviewFull = await DeleteReview({reviewer: currentUser, reviewed: gameID});
 
-        return {
-            reviewer: deleted.reviewer,
-            reviewed: deleted.reviewed,
-            text: deleted.text,
-            score: deleted.score,
-            createdAt: deleted.createdAt,
-            updatedAt: deleted.updatedAt
-        };
+        return deleted;
     }
 
     static async GetReviewsByGame(gameID: GamePK, currentUser?: UserPK): Promise<ReviewFull[]> {
@@ -117,7 +100,8 @@ export class ReviewService {
         // filter based on privacy
         const visibleReviews: ReviewFull[] = [];
         for (const review of reviews){
-            const canView: boolean = await CanViewUser(review.reviewer, currentUser);
+            const user: UserPublic = await FetchUser(review.reviewer);
+            const canView: boolean = await CanViewUser(user, currentUser);
             if (canView) {
                 visibleReviews.push({
                     reviewer: review.reviewer,
@@ -134,9 +118,9 @@ export class ReviewService {
     }
 
     static async GetReviewsByUser(username: UserPK, currentUser?: UserPK): Promise<ReviewFull[]> {
-        await FetchUser(username);
+        const user: UserPublic = await FetchUser(username);
 
-        const canView = await CanViewUser(username, currentUser);
+        const canView = await CanViewUser(user, currentUser);
         if (!canView)
             return [];  // return empty if not authorized to view
 

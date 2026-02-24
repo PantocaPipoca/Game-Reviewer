@@ -1,26 +1,21 @@
 import {StatusCodes} from "http-status-codes"
 import {SelectFollower, InsertFollower, UpdateFollower, DeleteFollower, SelectAllFollowersOfUser, SelectAllFollowedByUser} from "../Repository/FollowerRepository"
-import {FetchUser, CanViewUser} from "./AccountService"
-import {FollowerFull, UserData, UserPK} from "../types/Types"
+import {FetchFullUser, CanViewUser, FetchUser} from "./AccountService"
+import {FollowerFull, FollowerShort, UserData, UserPK, UserPublic} from "../types/Types"
 import {AppError} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 
-// checks if both exist, throwing an exception if any dont exist
-async function CheckBothUsers(user1: UserPK, user2: UserPK): Promise<void> {
-    const userOne = await FetchUser(user1);
-    const userTwo = await FetchUser(user2);
-}
-
 export class FollowerService {
+
     /**
      * Creates a follow request from one user to another
-     * @param currentUser - Username of the user making the request (should match follows)
-     * @param follows - Username of the user requesting to follow
-     * @param followed - Username of the user to be followed
-     * @returns Created follower object
+     * @param currentUser - username of the user making the request (the one who follows)
+     * @param followed - username of the user to be followed
+     * @returns Created follower relation object
      */
     static async RequestFollower(currentUser: UserPK, followed: UserPK): Promise<FollowerFull> {
-        await CheckBothUsers(currentUser, followed);
+        await FetchUser(currentUser);
+        const followedUser: UserPublic = await FetchUser(followed);
 
         // check if request already exists
         const existingRequest = await SelectFollower({follows: currentUser, followed});
@@ -28,24 +23,16 @@ export class FollowerService {
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_REQUEST_EXISTS);
 
         // get the followed users privacy setting
-        const followedUser = await FetchUser(followed);
-        const userData: UserData = followedUser.userData as UserData;
-        const isPrivate = userData?.isPrivate || false;
+        const isPrivate: boolean = followedUser.isPrivate;
 
         // create follower request (accept auto for public accounts)
-        const follower = await InsertFollower({
+        const follower: FollowerFull = await InsertFollower({
             follows: currentUser,
             followed,
             accepted: !isPrivate
         });
 
-        return {
-            follows: follower.follows,
-            followed: follower.followed,
-            accepted: follower.accepted,
-            createdAt: follower.createdAt,
-            updatedAt: follower.updatedAt
-        };
+        return follower;
     }
 
     /**
@@ -53,10 +40,11 @@ export class FollowerService {
      * @param currentUser - user authenticated
      * @param follows - username of the follower
      * @param followed - username of the followed user
-     * @returns updated follower object
+     * @returns updated follower relation object
      */
     static async AcceptFollower(currentUser: UserPK, follows: UserPK): Promise<FollowerFull> {
-        await CheckBothUsers(follows, currentUser);
+        await FetchFullUser(currentUser);
+        await FetchFullUser(follows);
 
         // check if request exists
         const existingRequest: FollowerFull | null = await SelectFollower({follows, followed: currentUser});
@@ -85,15 +73,16 @@ export class FollowerService {
     /**
      * Removes a follower relationship
      * @param currentUser - currentUser
-     * @param follows - Username of the follower
-     * @param followed - Username of the followed user
-     * @returns Deleted follower object
+     * @param follows - username of the follower
+     * @param followed - username of the followed user
+     * @returns Deleted follower relation object
      */
     static async RemoveFollower(currentUser: UserPK, follows: UserPK, followed: UserPK): Promise<FollowerFull> {
+        await FetchFullUser(follows);
+        await FetchFullUser(followed);
+
         if (currentUser !== follows && currentUser !== followed)
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
-
-        await CheckBothUsers(follows, followed);
 
         const existingRequest: FollowerFull | null = await SelectFollower({follows, followed});
         if (!existingRequest)
@@ -102,7 +91,6 @@ export class FollowerService {
         const deletedFollower: FollowerFull = await DeleteFollower({
             follows,
             followed,
-            accepted: existingRequest.accepted
         });
 
         return {
@@ -117,14 +105,14 @@ export class FollowerService {
     /**
      * Gets all followers of a user
      * @param username - username to get followers
-     * @param currentUser - authenticated username (if authenticated)
+     * @param currentUser - authenticated user (if authenticated)
      * @returns Array of follower objects
-            */
+     */
     static async GetFollowers(username: UserPK, currentUser?: UserPK): Promise<FollowerFull[]> {
-        await FetchUser(username)
+        const user: UserPublic = await FetchUser(username);
 
         // check if currentUser can view followers list
-        const canView: boolean = await CanViewUser(username, currentUser);
+        const canView: boolean = await CanViewUser(user, currentUser);
         if (!canView)
             return [] // return empty list if not authorized to view
 
@@ -147,13 +135,12 @@ export class FollowerService {
      * @param username - username to get following
      * @param currentUser - authenticated username (if authenticated)
      * @returns Array of follower objects
-     * @throws ERR_ACC_NOTEXISTS if user doesn't exist
      */
     static async GetFollowing(username: UserPK, currentUser?: UserPK): Promise<FollowerFull[]> {
-        await FetchUser(username);
-
+        const user: UserPublic =await FetchUser(username);
+        
         // check if currentUser can view following list
-        const canView: boolean = await CanViewUser(username, currentUser);
+        const canView: boolean = await CanViewUser(user, currentUser);
         if (!canView)
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 

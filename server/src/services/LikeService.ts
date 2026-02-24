@@ -4,7 +4,7 @@ import * as ErrorMessage from "../utils/ErrorMessage"
 import { GamePK, LikeFull, LikeShort, ReviewFull, UserPK } from "../types/Types";
 import { SelectReview } from "../Repository/ReviewRepository"
 import { CountLikesOrDislikesOfReview, DeleteLike, InsertLike, SelectLike, UpdateLike } from "../Repository/LikeRepository";
-import { FetchUser } from "./AccountService";
+import { FetchFullUser } from "./AccountService";
 
 type ReactionResponse = {
     likes: number,
@@ -12,6 +12,13 @@ type ReactionResponse = {
 }
 
 export class LikeService {
+
+    /**
+     * Get reactions of a review 
+     * @param reviewer 
+     * @param gameID 
+     * @returns 
+     */
     static async GetReactionsByReview(reviewer: UserPK, gameID: GamePK): Promise<ReactionResponse> {
         const review: ReviewFull | null = await SelectReview({reviewer, reviewed: gameID});
         if (!review)
@@ -28,7 +35,7 @@ export class LikeService {
 
     // reaction is true for like and false for dislike
     static async ReactReview(currentUser: UserPK, reviewer: UserPK, gameID: GamePK, reaction: boolean): Promise<LikeShort> {
-        await FetchUser(currentUser);
+        await FetchFullUser(currentUser);
 
         const review: ReviewFull | null = await SelectReview({reviewer, reviewed: gameID});
         if (!review)
