@@ -2,6 +2,8 @@
     margin: 10px;
     margin-bottom: 0px;
     border: 1px solid var(--border);
+    width: 132px;
+    aspect-ratio: 3 / 4;
 }
 
 .Name {

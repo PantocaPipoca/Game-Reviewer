@@ -1,14 +1,14 @@
 import type { ReactNode } from "react";
 import style from "./Buttons.module.css";
-import type { CssVar } from "../../Types/types";
+import type { CssVar } from "../../Types/Types";
 
-type ButtonTypes = {
+type ButtonProps = {
     children?: ReactNode;
     className?: string;
     color?: CssVar;
 };
 
-function Button({ children, color, className = "" }: ButtonTypes) {
+function Button({ children, color, className = "" }: ButtonProps) {
     return (
         <div className={`${style.button} ${className}`} style={{ backgroundColor: color }}>
             {children}

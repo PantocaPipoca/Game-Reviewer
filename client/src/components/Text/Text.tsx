@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { CssVar } from "../../Types/types";
+import type { CssVar } from "../../Types/Types";
 
 type TextProps = {
     children: ReactNode;

@@ -2,22 +2,26 @@ import style from "./Card.module.css";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
 
-function GameCard() {
+export type GameCardProps = {
+    name?: string;
+    rating?: number;
+    cover?: string;
+};
+
+function GameCard({
+    name = "$$$$$$$$$$$$",
+    rating = 0.0,
+    cover = "https://vglist.co/assets/no-cover-5b40e3b1.png",
+}: GameCardProps) {
     return (
         <Panel type="secondary">
-            <img
-                className={style.Cover}
-                src="https://upload.wikimedia.org/wikipedia/en/3/35/ObsCureII_cover.jpg"
-            />
+            <img className={style.Cover} src={cover} />
             <div className={style.Name}>
-                <Text variant="body">Obscure II</Text>
+                <Text variant="body">{name}</Text>
             </div>
             <div className={style.Rating}>
-                <img
-                    className={style.Star}
-                    src="https://cdn-icons-png.flaticon.com/512/541/541415.png"
-                />
-                <Text variant="small">4.2</Text>
+                <img className={style.Star} src="https://cdn-icons-png.flaticon.com/512/541/541415.png" />
+                <Text variant="small">{rating}</Text>
             </div>
         </Panel>
     );
