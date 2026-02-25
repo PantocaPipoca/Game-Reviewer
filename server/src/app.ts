@@ -9,6 +9,6 @@ app.use(express.urlencoded({extended: true}))
 app.use('/api', router)
 
 // Health check
-app.get('/health', (_, res) => res.json({status: 'ok', message: "Game Reviewer API"}))
+app.get('/api/health', (_, res) => res.json({status: 'ok', message: "Game Reviewer API"}))
 
 export default app

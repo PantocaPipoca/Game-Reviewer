@@ -1,10 +1,10 @@
 import type { Prisma, User, Game, Review, Like, Comment, Follower } from "../generated/prisma/client";
 
 
-// User Types
+// ===================== User Types =====================
+
 export type UserData = {
     displayName: string;
-    isPrivate: boolean;
     gender: string | null;
     bio: string | null;
     // other fields can be added here
@@ -12,12 +12,13 @@ export type UserData = {
 
 export type UserFull = User;
 
-export type UserShort = Omit<UserFull, "createdAt" | "updatedAt"> & {
+export type UserShort = Omit<UserFull, "createdAt" | "updatedAt" | "userData"> & {
     userData: Prisma.InputJsonValue
 };
 
-export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "userData"> & {
-    userData: UserData
+export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "updatedAt" | "createdAt" | "userData"> & {
+    userData: UserData | null,
+    createdAt: Date | null  
 };
 
 export type UserPK = string;
@@ -29,7 +30,7 @@ export type AuthResponse =
     }
 
 
-// Game Types
+// ========================== Game Types =====================
 
 export type GameFull = Game;
 
@@ -52,7 +53,7 @@ export type ReviewPK = {
 
 
 
-// Reaction Types
+// ===================== Reaction Types =====================
 
 export type LikeFull = Like;
 
@@ -66,7 +67,7 @@ export type LikePK = {
 
 
 
-// Comment Types
+// ===================== Comment Types =====================
 
 export type CommentFull = Comment;
 
@@ -75,7 +76,7 @@ export type CommentShort = Omit<CommentFull, "createdAt" | "updatedAt" | "id">;
 export type CommentPK = bigint;
 
 
-// Follower Types
+// ===================== Follower Types =====================
 
 export type FollowerFull = Follower;
 
