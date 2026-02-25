@@ -16,15 +16,15 @@ export type UserShort = Omit<UserFull, "createdAt" | "updatedAt" | "userData"> &
     userData: Prisma.InputJsonValue
 };
 
-export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "updatedAt" | "createdAt" | "userData"> & {
+export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "createdAt" | "updatedAt" | "userData"> & {
     userData: UserData | null,
-    createdAt: Date | null  
+    createdAt: Date | null
 };
 
 export type UserPK = string;
 
-export type AuthResponse = 
-    UserPublic & 
+export type AuthResponse =
+    UserPublic &
     {
         token: string;
     }
@@ -34,7 +34,7 @@ export type AuthResponse =
 
 export type GameFull = Game;
 
-export type GameShort = GameFull & {
+export type GameShort = Omit<GameFull, "metadata"> & {
     metadata: Prisma.InputJsonValue
 };
 
@@ -44,7 +44,7 @@ export type GamePK = number;
 
 export type ReviewFull = Review;
 
-export type ReviewShort = Omit<Omit<ReviewFull, "createdAt">, "updatedAt">;
+export type ReviewShort = Omit<ReviewFull, "createdAt" | "updatedAt">;
 
 export type ReviewPK = {
     reviewer: UserPK;
@@ -57,7 +57,7 @@ export type ReviewPK = {
 
 export type LikeFull = Like;
 
-export type LikeShort = Omit<Omit<LikeFull, "createdAt">, "updatedAt">;
+export type LikeShort = Omit<LikeFull, "createdAt" | "updatedAt">;
 
 export type LikePK = {
     liker: UserPK
@@ -71,7 +71,7 @@ export type LikePK = {
 
 export type CommentFull = Comment;
 
-export type CommentShort = Omit<Omit<Omit<CommentFull, "createdAt">, "updatedAt">, "id">;
+export type CommentShort = Omit<CommentFull, "createdAt" | "updatedAt" | "id">;
 
 export type CommentPK = bigint;
 
@@ -80,7 +80,7 @@ export type CommentPK = bigint;
 
 export type FollowerFull = Follower;
 
-export type FollowerShort = Omit<Omit<FollowerFull, "createdAt">, "updatedAt">;
+export type FollowerShort = Omit<FollowerFull, "createdAt" | "updatedAt">;
 
 export type FollowerPK = {
     follows: string;

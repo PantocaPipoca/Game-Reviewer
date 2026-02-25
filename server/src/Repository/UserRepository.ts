@@ -36,6 +36,7 @@ export class UserRepository {
             data: {
                 passwordHash: user.passwordHash,
                 userData: user.userData,
+                isPrivate: user.isPrivate,
                 email: user.email,
             }
         });
