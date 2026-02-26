@@ -1,0 +1,28 @@
+.mainPanel {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--borderWidth) * -1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacingSmall);
+}
+
+.seeMore {
+    text-decoration: none;
+}
+
+.seeMore:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--pink);
+    text-decoration-style: solid;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.cardRow {
+    display: flex;
+    gap: var(--spacingSmall);
+}

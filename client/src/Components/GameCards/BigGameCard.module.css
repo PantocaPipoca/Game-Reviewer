@@ -1,0 +1,54 @@
+.Frame {
+    position: relative;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.NavButtonLeft,
+.NavButtonRight {
+    position: absolute;
+    top: 50%;
+}
+
+.NavButtonLeft {
+    left: 0px;
+    transform: translate(-100%, -50%);
+}
+
+.NavButtonRight {
+    right: 0px;
+    transform: translate(100%, -50%);
+}
+
+.KeyArt {
+    width: 500px;
+    aspect-ratio: 16 / 9;
+    display: block;
+}
+
+.Details {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    align-self: stretch;
+}
+
+.Collage {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacingSmall);
+    margin-top: 6px;
+}
+
+.Image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.Value {
+    color: var(--cyan);
+}

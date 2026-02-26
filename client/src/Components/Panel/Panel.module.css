@@ -1,0 +1,36 @@
+.mainPanel {
+    background-color: var(--mainPanel);
+    border: var(--borderWidth) solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+    height: fit-content;
+    padding: 25px 50px;
+}
+
+.secondaryPanel {
+    background-color: var(--secondaryPanel);
+    border: var(--borderWidth) solid var(--border);
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    height: fit-content;
+}
+
+.terciaryPanel {
+    background-color: var(--terciaryPanel);
+    border: var(--borderWidth) solid var(--border);
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    height: fit-content;
+}
+
+.interactive:hover {
+    border-color: var(--cyan);
+}
+
+.interactive:active {
+    border-color: var(--pink);
+}
