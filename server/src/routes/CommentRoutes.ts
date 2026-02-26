@@ -6,9 +6,12 @@ const router: Router = Router();
 /**
  * GET /api/reviews/:reviewer/:reviewed/comments
  * Gets the comments of a review
- * Body:
- *      (empty body)
- * Response: TODO
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{reviewer, reviewed, id, commentator, text, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      404 NOT FOUND               if the user didn't review the game
  */
 router.get('/', CommentController.GetComments);
 
@@ -20,6 +23,9 @@ router.get('/', CommentController.GetComments);
  *      text: string
  * Response:
  *      201 CREATED
+ *      {reviewer, reviewed, id, commentator, text, createdAt, updatedAt}
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      404 NOT FOUND               if the user didn't review the game
  */
 router.post('/', CommentController.AddComment);
 
@@ -31,6 +37,9 @@ router.post('/', CommentController.AddComment);
  *      text: string
  * Response:
  *      202 ACCEPTED
+ *      {reviewer, reviewed, id, commentator, text, createdAt, updatedAt}
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      404 NOT FOUND               if the user didn't review the game
  */
 router.put('/', CommentController.EditComment);
  
@@ -41,6 +50,9 @@ router.put('/', CommentController.EditComment);
  *      commenter: string
  * Response:
  *      202 ACCEPTED
+ *      {reviewer, reviewed, id, commentator, text, createdAt, updatedAt}
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      404 NOT FOUND               if the user didn't review the game
  */
 router.delete('/', CommentController.RemoveComment);
 

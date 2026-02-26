@@ -8,13 +8,12 @@ const router: Router = Router();
 /**
  * GET /api/games/:gameID
  * Finds a game by ID
- * Body:
- *      gameID: string
+ * (Empty body)
  * Response:
  *      200 OK
- *      {gameName, metadata}
- *      400 BAD REQUEST, if gameID field is missing
- *      404 NOT FOUND, if the provided game doesn't exist
+ *      {gameID, gameName, metadata}
+ *      400 BAD REQUEST     if gameID field is missing or is invalid
+ *      404 NOT FOUND       if the provided game doesn't exist
  */
 router.get('/:gameID', GameController.GetGameById);
 
@@ -25,36 +24,35 @@ router.get('/:gameID', GameController.GetGameById);
  *      /games?name=elden
  *      /games?tag=rpg
  *      /games?name=elden&tag=rpg
- * Body:
- *     (Empty body)
+ * (Empty body)
  * Response:
- *      200 OK, Returns a list of games matching the query parameters
- *      400 BAD REQUEST, if any of the query parameters is invalid
- *      500 INTERNAL SERVER ERROR, if the filters couldn't be retrieved
+ *      200 OK
+ *      [{gameID, gameName, metadata}]
+ *      400 BAD REQUEST             if any of the query parameters is invalid
+ *      500 INTERNAL SERVER ERROR   if the filters couldn't be retrieved
  */
 router.get('/', GameController.SearchGames);
 
 /**
  * GET /api/games/popular
  * Returns popular games ordered by score or review count
- * Body:
- *      (Empty body)
+ * (Empty body)
  * Response:
  *      200 OK
  *      [{gameName, metadata}]
- *      500 INTERNAL SERVER ERROR, if the games couldn't be retrieved
+ *      500 INTERNAL SERVER ERROR   if the games couldn't be retrieved
  */
 router.get('/popular', GameController.GetPopularGames);
 
-/** GET /api/games/:gameID/reviews
+/**
+ * GET /api/games/:gameID/reviews
  * Gets the reviews of a game
- * Body:
- *      (empty body)
+ * (Empty body)
  * Response:
  *      200 OK
  *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
- *      404 NOT FOUND, if the provided game name doesn't exist
- *     500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ *      404 NOT FOUND               if the provided game name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the reviews couldn't be retrieved
  */
 router.get('/:gameID/reviews', ReviewController.GetReviewsByGame);
 

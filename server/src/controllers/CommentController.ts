@@ -1,19 +1,26 @@
 import {Request, Response} from "express"
 import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
-import * as ErrorMessage from "../utils/ErrorMessage"
 import {StatusCodes} from "http-status-codes"
 import { ExtractReviewPK, ReviewPrimaryKey } from "./ReviewController";
 import { CommentService } from "../services/CommentService";
-import { CommentPK } from '../types/Types';
 
 export class CommentController {
-    static GetComments = AsyncHandler(async (req: Request, res: Response) => {
+
+    /**
+     * Gets the comments of a review
+     * Used by GET /api/reviews/:reviewer/:reviewed/comments
+     */
+    static GetComments: any = AsyncHandler(async (req: Request, res: Response) => {
         const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req)
         const result: any = await CommentService.GetComments(reviewer, reviewed)
         return MakeSuccess(res, StatusCodes.OK, result)
     });
 
-    static AddComment = AsyncHandler(async (req: Request, res: Response) => {
+    /**
+     * Adds a comment to a review
+     * Used by POST /api/reviews/:reviewer/:reviewed/comments
+     */
+    static AddComment: any = AsyncHandler(async (req: Request, res: Response) => {
         const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req)
         const {commenter, text} = req.body
         if (!commenter || !text)
@@ -22,7 +29,11 @@ export class CommentController {
         return MakeSuccess(res, StatusCodes.CREATED, result)
     });
 
-    static EditComment = AsyncHandler(async (req: Request, res: Response) => {
+    /**
+     * Edits a comment to a review
+     * Used by PUT /api/reviews/:reviewer/:reviewed/comments/:id
+     */
+    static EditComment: any = AsyncHandler(async (req: Request, res: Response) => {
         const commentID: string | string[] | undefined = req.params['id']
         if (!commentID || typeof commentID !== 'string')
             throw new AppError(StatusCodes.BAD_REQUEST, "")
@@ -38,7 +49,11 @@ export class CommentController {
         }
     });
 
-    static RemoveComment = AsyncHandler(async (req: Request, res: Response) => {
+    /**
+     * Deletes a comment to a review
+     * Used by DELETE /api/reviews/:reviewer/:reviewed/comments/:id
+     */
+    static RemoveComment: any = AsyncHandler(async (req: Request, res: Response) => {
         const commentID: string | string[] | undefined = req.params['id']
         if (!commentID || typeof commentID !== 'string')
             throw new AppError(StatusCodes.BAD_REQUEST, "")

@@ -7,7 +7,7 @@ import { AuthResponse, UserPublic } from "../types/Types"
 import { AuthRequest, JwtPayload } from "../utils/auth"
 
 // REGEX that tests whether an email is valid
-const email_regex: RegExp = /^[a-zA-Z0-9]+@[a-zA-Z0-9_.+-]+\.[a-zA-Z0-9_.+-]+$/;
+const email_regex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export class AccountController {
 
@@ -60,20 +60,19 @@ export class AccountController {
      */
     static GetCurrentUser: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const user: JwtPayload | undefined = req.currentUser;
-        if (!user) throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+        if (!user) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
         
         const result: UserPublic = await AccountService.GetCurrentUser(user.username);
         return MakeSuccess(res, StatusCodes.OK, result);
     })
     
-
     /**
      * Changes a user information
      * Used by PUT /api/users/me
      * Requires previous authentication
      */
     static Alter: any = AsyncHandler(async (req: Request, res: Response) => {
-        const {accountName, displayName, password, email} = req.body;
+        const {accountName, isPrivate, password, email, userData} = req.body;
         if (!accountName)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
         if (password! && password.length < 8)
@@ -81,7 +80,7 @@ export class AccountController {
         if (email! && !email_regex.test(email))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
-        const result: UserPublic = await AccountService.AlterUser(accountName, displayName, password, email);
+        const result: UserPublic = await AccountService.AlterUser(accountName, isPrivate, password, email, userData);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     })
 
@@ -104,23 +103,30 @@ export class AccountController {
      * Used by GET /api/users/:username
      * (optional authentication)
      */
-    static FindByUsername: any = AsyncHandler(async (req: Request, res: Response) => {
+    static FindByUsername: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const username: string | string[] | undefined = req.params['username'];
+        const currentUser: string | undefined = req.currentUser?.username;
         if (!username || typeof username !== 'string')
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
 
-        const result: any = await AccountService.FindByUsername(username);
-        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+        const result: UserPublic = await AccountService.FindByUsername(username, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
     });
     
 
-
-    // TODO Later
     /**
      * Searches users by username
      * Used by GET /api/users/search?query=...
      * (optional authentication)
      */
-    static Search: any = AsyncHandler(async (req: Request, res: Response) => {
+    static Search: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        // TODO
+        const filter: any = req.query['query'];
+        if (typeof filter !== 'string')
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION)
+
+        const currentUser: string | undefined = req.currentUser?.username;
+        const result: UserPublic[] = await AccountService.SearchUsersByName(filter, currentUser)
+        return MakeSuccess(res, StatusCodes.OK, result)
     });
 }
