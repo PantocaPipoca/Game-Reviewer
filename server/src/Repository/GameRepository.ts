@@ -1,7 +1,7 @@
 import { prisma } from "../prisma";
 import { GameFull, GameShort, GamePK } from "../types/Types";
 
-export class FollowerRepository {
+export class GameRepository {
 
     /**
      * @description Selects a Game from the database
