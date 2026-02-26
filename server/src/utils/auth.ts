@@ -17,7 +17,7 @@ export interface AuthRequest extends Request {
 }
 
 // narrow type to string instead of string | undefined
-const JWT_SECRET = process.env["JWT_SECRET"] ?? (() => { 
+const JWT_SECRET: string = process.env["JWT_SECRET"] ?? (() => { 
     throw new Error("JWT_SECRET must be set")
 })();
 
@@ -49,7 +49,7 @@ export function generateToken(username: string): string {
  * @returns    void (sends response if auth fails, otherwise calls next())
  */
 export function auth(req: AuthRequest, res: Response, next: NextFunction): void {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const token: string | undefined = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
         res.status(StatusCodes.FORBIDDEN).json({error: "Token required"});
@@ -75,7 +75,7 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction): void 
  * @returns    void (always calls next(), never sends response)
  */
 export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction): void {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const token: string | undefined = req.headers.authorization?.replace('Bearer ', '');
     
     if (token) {
         try {
@@ -84,4 +84,17 @@ export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunctio
     }
     
     next()
+}
+
+/**
+ * Gets the optional current user in a Request object.
+ * @param req Request object, may have currentUser variable
+ * @returns the username of the currentUser if it exists, undefined otherwise
+ */
+export function CurrentOptionalUser(req: AuthRequest): string | undefined {
+    try {
+        return req.currentUser?.username
+    } catch (_) {
+        return undefined
+    }
 }

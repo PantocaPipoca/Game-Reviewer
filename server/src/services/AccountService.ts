@@ -121,7 +121,7 @@ export class AccountService {
             userData: newUser.userData as UserData,
             createdAt: newUser.createdAt,
             token
-        };
+        } as AuthResponse;
     }
 
     /**
@@ -147,7 +147,7 @@ export class AccountService {
             userData: user.userData as UserData,
             createdAt: user.createdAt,
             token
-        };
+        } as AuthResponse;
     }
 
     

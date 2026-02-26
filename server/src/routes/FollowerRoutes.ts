@@ -8,76 +8,74 @@ const router: Router = Router()
 // Get Following is in AccountRoutes since it has a different endpoint
 
 /**
- * POST /api/users/:accountName/followers/:followerName
+ * POST /api/users/:username/followers/:followerName
  * Makes a follower request to an account
- * Body:
- *      follows: string
- *      followed: string
+ * (Empty body)
  * Response:
  *      201 CREATED
- *      {follows, followed, createdAt}
- *      400 BAD REQUEST, if any of the required fields is missing
- *      404 NOT FOUND, if any of the provided user names don't exist
- *      409 CONFLICT, if the first user already requested to follow the second
- *      500 INTERNAL SERVER ERROR, if the request couldn't be made
+ *      {follows, followed, accepted, createdAt, updatedAt}
+ *      400 BAD REQUEST             if either user name or followerName are missing
+ *      403 FORBIDDEN               if no account is logged in
+ *      404 NOT FOUND               if any of the provided user names don't exist
+ *      409 CONFLICT                if the first user already requested to follow the second
+ *      500 INTERNAL SERVER ERROR   if the request couldn't be made
  */
-router.post('/', auth, FollowerController.RequestFollower);
+router.post('/:followerName', auth, FollowerController.RequestFollower);
 
 /**
- * PUT /api/users/:accountName/followers/:followerName
+ * PUT /api/users/:username/followers/:followerName
  * Accepts a follower request to an account
- * Body:
- *      follows: string
- *      followed: string
+ * (Empty body)
  * Response:
  *      202 ACCEPTED
- *      {follows, followed, createdAt, acceptedAt}
- *      400 BAD REQUEST, if any of the required fields is missing
- *      404 NOT FOUND, if any of the provided user names don't exist
- *      409 CONFLICT, if the first user didn't request to follow the second
- *      409 CONFLICT, if the second user already accepted the request
- *      500 INTERNAL SERVER ERROR, if the request couldn't be accepted
+ *      {follows, followed, accepted, createdAt, updatedAt}
+ *      400 BAD REQUEST             if either user name or followerName are missing
+ *      403 FORBIDDEN               if no account is logged in
+ *      404 NOT FOUND               if any of the provided user names don't exist
+ *      404 NOT FOUND               if the first user didn't request to follow the second
+ *      409 CONFLICT                if the second user already accepted the request
+ *      500 INTERNAL SERVER ERROR   if the request couldn't be accepted
  */
 router.put('/:followerName', auth, FollowerController.AcceptFollower);
 
 /**
- * DELETE /api/users/:accountName/followers/:followerName
+ * DELETE /api/users/:username/followers/:followerName
  * Removes a follower to an account
- * Body:
- *      follows: string
- *      followed: string
+ * (Empty body)
  * Response:
  *      202 ACCEPTED
- *      {follows, followed}
- *      400 BAD REQUEST, if any of the required fields is missing
- *      404 NOT FOUND, if any of the provided user names don't exist
- *      409 CONFLICT, if the first user name doesn't follow the second yet
- *      500 INTERNAL SERVER ERROR, if the follower couldn't be removed
+ *      {follows, followed, accepted, createdAt, updatedAt}
+ *      400 BAD REQUEST             if either user name or followerName are missing
+ *      403 FORBIDDEN               if no account is logged in
+ *      404 NOT FOUND               if any of the provided user names don't exist
+ *      404 NOT FOUND               if the first user name doesn't follow the second yet
+ *      500 INTERNAL SERVER ERROR   if the follower couldn't be removed
  */
 router.delete('/:followerName', auth, FollowerController.RemoveFollower);
 
 /**
- * GET /api/users/:accountName/followers
+ * GET /api/users/:username/followers
  * Gets the followers of an account
  * (Empty body)
  * Response:
  *      200 OK
- *      [{follows, followed}]
- *      404 NOT FOUND, if the provided user name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the followers couldn't be retrieved
+ *      [{follows, followed, accepted, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if no user name was provided
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the followers couldn't be retrieved
  */
 router.get('/', optionalAuth, FollowerController.GetFollowers);
 
 /**
  * GET /api/users/:username/followers/pending
- * Gets the users followed by a user, if it's private only returns followed users if the current user follows it
- * Body:
- *      (empty body)
+ * Gets the pending follower requests for a user
+ * (Empty body)
  * Response:
  *      200 OK
- *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
- *      404 NOT FOUND, if the provided user name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ *      [{follows, followed, accepted, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if no user name was provided
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the followers couldn't be retrieved
  */
 router.get('/pending', optionalAuth, FollowerController.GetPendingRequests);
 

@@ -8,7 +8,6 @@ import FollowerRoutes from "./FollowerRoutes";
 // Router object
 const router: Router = Router();
 
-
 // ===================== AUTHENTICATION =====================
 
 /**
@@ -21,29 +20,28 @@ const router: Router = Router();
  *      email: string
  * Response:
  *      201 CREATED
- *      {accountName, passwordHash, email, createdAt, updatedAt, userData}
- *      400 BAD REQUEST, if any of the required fields is missing
- *      400 BAD REQUEST, if the account name is shorter than 3 characters
- *      400 BAD REQUEST, if the password is shorter than 8 characters
- *      400 BAD REQUEST, if the email provided is invalid
- *      409 CONFLICT, if the user name provided already exists
- *      500 INTERNAL SERVER ERROR, if the account could not be created
+ *      {accountName, isPrivate, userData, createdAt, token}
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      400 BAD REQUEST             if the account name is shorter than 3 characters
+ *      400 BAD REQUEST             if the password is shorter than 8 characters
+ *      400 BAD REQUEST             if the email provided is invalid
+ *      409 CONFLICT                if the user name provided already exists
+ *      500 INTERNAL SERVER ERROR   if the account could not be created
  */
 router.post('/', AccountController.Register);
 
 /**
- * GET /api/login
+ * GET /api/users/login
  * Logs in an existing account
  * Body:
  *      accountName: string
- *      displayName: string
  *      password: string
  * Response:
  *      200 OK
- *      {accountName, userData}
- *      400 BAD REQUEST, if any of the required fields is missing
- *      404 NOT FOUND, if the provided user name doesn't exist
- *      403 FORBIDDEN, if the provided password is incorrect
+ *      {accountName, isPrivate, userData, createdAt, token}
+ *      400 BAD REQUEST     if any of the required fields is missing
+ *      404 NOT FOUND       if the provided user name doesn't exist
+ *      403 FORBIDDEN       if the provided password is incorrect
  */
 router.get('/login', AccountController.Login);
 
@@ -56,8 +54,9 @@ router.get('/login', AccountController.Login);
  * (Empty body)
  * Response:
  *      200 OK
- *      {accountName, userData}
- *      401 NOT AUTHORIZED, if no account is logged in
+ *      {accountName, isPrivate, userData, createdAt}
+ *      401 UNAUTHORIZED    if no account is logged in
+ *      404 NOT FOUND       if the username logged in doesn't exist
  */
 router.get('/me', auth, AccountController.GetCurrentUser);
 
@@ -66,17 +65,18 @@ router.get('/me', auth, AccountController.GetCurrentUser);
  * Alters account details in an existing account
  * Body:
  *      accountName: string
- *      displayName: string
- *      password: string
- *      email: string
+ *      isPrivate?: boolean
+ *      password?: string
+ *      email?: string
+ *      userData?: JSON
  * Response:
  *      202 ACCEPTED
- *      {accountName, passwordHash, email, createdAt, updatedAt, userData}
- *      400 BAD REQUEST, if the account's name is missing
- *      400 BAD REQUEST, if the password (if provided) is shorter than 8 characters
- *      400 BAD REQUEST, if the email (if provided) is invalid
- *      404 NOT FOUND, if the provided account's name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the account could not be updated
+ *      {accountName, isPrivate, userData, createdAt}
+ *      400 BAD REQUEST             if the account's name is missing
+ *      400 BAD REQUEST             if the password (if provided) is shorter than 8 characters
+ *      400 BAD REQUEST             if the email (if provided) is invalid
+ *      404 NOT FOUND               if the provided account's name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the account could not be updated
  */
 router.put('/me', auth, AccountController.Alter);
 
@@ -87,12 +87,12 @@ router.put('/me', auth, AccountController.Alter);
  *      accountName: string
  * Response:
  *      202 ACCEPTED
- *      {accountName, passwordHash, email, createdAt, updatedAt, userData}
- *      400 BAD REQUEST, if the accountName field is missing
- *      404 NOT FOUND, if provided user name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the account could not be deleted
+ *      {accountName, isPrivate, userData, createdAt}
+ *      400 BAD REQUEST             if the accountName field is missing
+ *      404 NOT FOUND               if provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the account could not be deleted
  */
-router.delete('/me', auth,AccountController.Remove);
+router.delete('/me', auth, AccountController.Remove);
 
 
 // ===================== SEARCH USERS =====================
@@ -100,34 +100,29 @@ router.delete('/me', auth,AccountController.Remove);
 /**
  * GET /api/users/:username
  * Finds an account by its name
- * The account has to be public or in case of private the current authenticated user has to follow it
+ * The account has to be public or in case of private the current authenticated user has to follow it,
+ * otherwise only the account's name and its privacy settings are shown
  * Body:
  *      accountName: string
- *      displayName: string
- *      password: string
- *      email: string
  * Response:
- *      202 ACCEPTED
- *      {accountName, passwordHash, email, createdAt, updatedAt, userData}
- *      400 BAD REQUEST, if the account's name is missing
- *      400 BAD REQUEST, if the password (if provided) is shorter than 8 characters
- *      400 BAD REQUEST, if the email (if provided) is invalid
- *      404 NOT FOUND, if the provided account's name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the account could not be updated
+ *      200 OK
+ *      {accountName, isPrivate, userData, createdAt}
+ *      400 BAD REQUEST             if the account's name is missing
+ *      404 NOT FOUND               if the provided account's name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the account could not be updated
  */
 router.get('/:username', optionalAuth, AccountController.FindByUsername);
 
-
 /**
- * GET /api/users
- * Get viewable (public & followed) users
+ * GET /api/users/search?query=...
+ * Finds accounts by a likely match
  * (Empty body)
  * Response:
- *     200 OK
- *     [{accountName, email, createdAt, updatedAt, userData}, ...]
- *     500 INTERNAL SERVER ERROR, if the accounts could not be retrieved
+ *      200 OK
+ *      [{accountName, isPrivate, userData, createdAt}]
+ *      400 BAD REQUEST     if the query is invalid or empty
  */
-//router.get('/', optionalAuth, AccountController.GetUsers);
+router.get('/search', optionalAuth, AccountController.Search)
 
 // ===================== FOLLOWERS =====================
 
@@ -136,13 +131,13 @@ router.use('/:username/followers', FollowerRoutes);
 /**
  * GET /api/users/:username/following
  * Gets the users followed by a user, if it's private only returns followed users if the current user follows it
- * Body:
- *      (empty body)
+ * (Empty body)
  * Response:
  *      200 OK
- *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
- *      404 NOT FOUND, if the provided user name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ *      [{follows, followed, accepted, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if no user name was provided
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the reviews couldn't be retrieved
  */
 router.get('/:username/following', optionalAuth, FollowerController.GetFollowingByUser);
 
@@ -152,15 +147,14 @@ router.get('/:username/following', optionalAuth, FollowerController.GetFollowing
 /**
  * GET /api/users/:username/reviews
  * Gets the reviews of a user
- * Body:
- *      (empty body)
+ * (Empty body)
  * Response:
  *      200 OK
  *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
- *      404 NOT FOUND, if the provided user name doesn't exist
- *      500 INTERNAL SERVER ERROR, if the reviews couldn't be retrieved
+ *      400 BAD REQUEST             if no user name was provided
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the reviews couldn't be retrieved
  */
 router.get('/:username/reviews', optionalAuth, ReviewController.GetReviewsByUser);
-
 
 export default router;

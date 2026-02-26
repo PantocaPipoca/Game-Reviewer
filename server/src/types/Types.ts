@@ -40,7 +40,7 @@ export type GameShort = Omit<GameFull, "metadata"> & {
 
 export type GamePK = number;
 
-
+// Review Types
 
 export type ReviewFull = Review;
 

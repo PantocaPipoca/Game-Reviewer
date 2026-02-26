@@ -7,7 +7,7 @@ export class AppError extends Error {
     }
 }
 
-export const AsyncHandler = (fn: Function) => {
+export const AsyncHandler: any = (fn: Function) => {
     return (req: Request, res: Response, next: NextFunction) => 
         Promise.resolve(fn(req, res, next)).catch(next)
 }

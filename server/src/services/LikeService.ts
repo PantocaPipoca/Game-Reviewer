@@ -30,7 +30,7 @@ export class LikeService {
         return {
             likes,
             dislikes,
-        };
+        } as ReactionResponse;
     }
 
     // reaction is true for like and false for dislike
@@ -67,7 +67,7 @@ export class LikeService {
             reviewer: like.reviewer,
             reviewed: like.reviewed,
             value: like.value,
-        };
+        } as LikeShort;
     }
 
     static async RemoveReactionFromReview(currentUser: UserPK, reviewer: UserPK, gameID: GamePK): Promise<LikeShort> {
@@ -89,7 +89,7 @@ export class LikeService {
             reviewer: deleted.reviewer,
             reviewed: deleted.reviewed,
             value: deleted.value,
-        };
+        } as LikeShort;
     }
 
     // TODO Later

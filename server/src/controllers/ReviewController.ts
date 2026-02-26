@@ -2,48 +2,107 @@ import {Request, Response} from "express"
 import {AsyncHandler, MakeSuccess, AppError} from "../utils/ErrorHandler"
 import {StatusCodes} from "http-status-codes"
 import {ReviewService} from "../services/ReviewService"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import { toValidGameID } from "./GameController"
+import { AuthRequest } from "../utils/auth"
+import { ReviewFull } from "../types/Types"
+
+export interface ReviewPrimaryKey {
+    reviewer: string;
+    reviewed: number;
+}
+
+// Extracts reviewer and reviewed fields from Request object
+export function ExtractReviewPK(req: Request): ReviewPrimaryKey {
+    const reviewer: string | string[] | undefined = req.params['reviewer'];
+    if (!reviewer || typeof reviewer !== 'string')
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+    const reviewed: number = toValidGameID(req.params['reviewed'])
+    return {reviewer, reviewed} as ReviewPrimaryKey;
+}
 
 // Throws if score is invalid
-function CheckScore(score: any): void {
+function CheckScore(score?: any): number {
+    if (!score)
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_SCORE_REQUIRED)
+    if (typeof score !== 'number' || score < 0 || score > 10)
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_SCORE_INVALID)
+    return score
 }
 
 export class ReviewController {
-    static GetReview = AsyncHandler(async (req: Request, res: Response) => {
-        const {reviewer, reviewed} = req.body;
-        const result: any = await ReviewService.FindReview(reviewer, reviewed);
+    /**
+     * Finds a user's review on a game
+     * Usde by GET /api/reviews/:reviewer/:reviewed
+     */
+    static GetReview: any = AsyncHandler(async (req: Request, res: Response) => {
+        const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
+        const result: ReviewFull = await ReviewService.FindReview(reviewer, reviewed);
         return MakeSuccess(res, StatusCodes.OK, result);
     });
 
-    static PublishReview = AsyncHandler(async (req: Request, res: Response) => {
-        const {reviewer, reviewed, text, score} = req.body;
-        CheckScore(score);
-        const result: any = await ReviewService.PublishReview(reviewer, reviewed, text, score);
+    /**
+     * Publishes a new review
+     * Used by POST /api/reviews/:reviewer/:reviewed
+     */
+    static PublishReview: any = AsyncHandler(async (req: Request, res: Response) => {
+        const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
+        const {text, score} = req.body;
+        if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_REQUIRED);
+
+        const result: ReviewFull = await ReviewService.PublishReview(reviewer, reviewed, text, CheckScore(score));
         return MakeSuccess(res, StatusCodes.CREATED, result);
     });
 
-    static AlterReview = AsyncHandler(async (req: Request, res: Response) => {
-        const {reviewer, reviewed, text, score} = req.body;
-        if (score!)     CheckScore(score);
-        const result: any = await ReviewService.UpdateReview(reviewer, reviewed, text, score);
+    /**
+     * Updates a user's review
+     * Used by PUT /api/reviews/:reviewer/:reviewed
+     */
+    static AlterReview: any = AsyncHandler(async (req: Request, res: Response) => {
+        const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
+        const {text, score} = req.body;
+        let _score: number = score
+        if (score!) _score = CheckScore(score);
+
+        const result: ReviewFull = await ReviewService.UpdateReview(reviewer, reviewed, text, _score);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     })
 
-    static RemoveReview = AsyncHandler(async (req: Request, res: Response) => {
-        const {reviewer, reviewed} = req.body;
-        const result: any = await ReviewService.RemoveReview(reviewer, reviewed);
+    /**
+     * Removes a user's review
+     * Used by DELETE /api/reviews/:reviewer/:reviewed
+     */
+    static RemoveReview: any = AsyncHandler(async (req: Request, res: Response) => {
+        const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
+        const result: ReviewFull = await ReviewService.RemoveReview(reviewer, reviewed);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 
-    static GetReviewsByGame = AsyncHandler(async (req: Request, res: Response) => {
-        
+    /**
+     * Gets the reviews of a game
+     * Used by GET /api/games/:gameID/reviews
+     */
+    static GetReviewsByGame: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const gameID: number = toValidGameID(req.params['gameID']);
+        const currentUser: string | undefined = req.currentUser?.username;
+        const result: ReviewFull[] = await ReviewService.GetReviewsByGame(gameID, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
     });
 
-    static GetReviewsByUser = AsyncHandler(async (req: Request, res: Response) => {
-            
+    /**
+     * Gets the reviews of a user
+     * Used by GET /api/users/:username/reviews
+     */
+    static GetReviewsByUser: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const username: string | string[] | undefined = req.params['username'];
+        const currentUser: string | undefined = req.currentUser?.username;
+        if (!username || typeof username !== 'string')
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+
+        const result: ReviewFull[] = await ReviewService.GetReviewsByUser(username, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
     });
 
     // TODO LATER
-    static GetRecentReviews = AsyncHandler(async (req: Request, res: Response) => {
-        
-    });
+    static GetRecentReviews: any = AsyncHandler(async (_: Request, res: Response) => {});
 }
