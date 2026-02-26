@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Navbar from "../Components/Navbar/Navbar";
 import BigGameCard from "../Components/GameCards/BigGameCard";
 import GameCard, { type GameCardProps } from "../Components/GameCards/GameCard";
@@ -106,43 +107,47 @@ const friendRecomended: GameCardProps[] = [
     },
 ];
 
+function Section({ title, href, children }: { title: string; href: string; children: ReactNode }) {
+    return (
+        <div>
+            <div className={style.header}>
+                <Text>{title}</Text>
+                <a href={href} className={style.seeMore}>
+                    <Text color="var(--pink)">{`> `}See More</Text>
+                </a>
+            </div>
+            {children}
+        </div>
+    );
+}
+
+function CardRow({ games }: { games: GameCardProps[] }) {
+    return (
+        <div className={style.cardRow}>
+            {games.slice(0, 5).map((game) => (
+                <GameCard name={game.name} rating={game.rating} cover={game.cover} />
+            ))}
+        </div>
+    );
+}
+
 function MainPage() {
     return (
         <div>
             <Navbar />
             <div className={style.mainPanel}>
                 <Panel type="main">
-                    <div>
-                        <div className={style.header}>
-                            <Text>Popular Games</Text>
-                            <Text>{`> `}See More</Text>
-                        </div>
+                    <Section title="Popular Games" href="#">
                         <BigGameCard />
-                    </div>
+                    </Section>
                     <hr />
-                    <div>
-                        <div className={style.header}>
-                            <Text>Recomended to you</Text>
-                            <Text>{`> `}See More</Text>
-                        </div>
-                        <div style={{ display: "flex", gap: "8px" }}>
-                            {recomended.map((game) => (
-                                <GameCard name={game.name} rating={game.rating} cover={game.cover} />
-                            ))}
-                        </div>
-                    </div>
+                    <Section title="Recomended to you" href="#">
+                        <CardRow games={recomended} />
+                    </Section>
                     <hr />
-                    <div>
-                        <div className={style.header}>
-                            <Text>Popular with your friends</Text>
-                            <Text>{`> `}See More</Text>
-                        </div>
-                        <div style={{ display: "flex", gap: "8px" }}>
-                            {friendRecomended.map((game) => (
-                                <GameCard name={game.name} rating={game.rating} cover={game.cover} />
-                            ))}
-                        </div>
-                    </div>
+                    <Section title="Popular with your friends" href="#">
+                        <CardRow games={friendRecomended} />
+                    </Section>
                 </Panel>
             </div>
         </div>

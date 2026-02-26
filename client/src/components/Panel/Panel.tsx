@@ -6,12 +6,16 @@ type PanelProps = {
     className?: string;
     direction?: "column" | "row";
     type: "main" | "secondary" | "terciary";
+    interactive?: boolean;
 };
 
-function Panel({ children, direction = "column", type, className }: PanelProps) {
+function Panel({ children, direction = "column", type, className, interactive = false }: PanelProps) {
     type += "Panel";
     return (
-        <div className={`${styles[type]} ${className}`} style={{ flexDirection: direction }}>
+        <div
+            className={`${styles[type]} ${interactive ? styles.interactive : ""} ${className}`}
+            style={{ flexDirection: direction }}
+        >
             {children}
         </div>
     );

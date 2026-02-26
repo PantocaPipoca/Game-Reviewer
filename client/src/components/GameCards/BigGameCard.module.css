@@ -1,6 +1,7 @@
 .Frame {
     position: relative;
     width: fit-content;
+    cursor: pointer;
 }
 
 .NavButtonLeft,
@@ -10,12 +11,12 @@
 }
 
 .NavButtonLeft {
-    left: 3px;
+    left: 0px;
     transform: translate(-100%, -50%);
 }
 
 .NavButtonRight {
-    right: 3px;
+    right: 0px;
     transform: translate(100%, -50%);
 }
 
@@ -38,7 +39,7 @@
 .Collage {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: var(--spacingSmall);
     margin-top: 6px;
 }
 

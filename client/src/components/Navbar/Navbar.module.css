@@ -1,6 +1,6 @@
 .bar {
     background-color: var(--secondaryPanel);
-    border: 3px solid var(--border);
+    border: var(--borderWidth) solid var(--border);
     min-height: 82px;
     display: flex;
     align-items: center;

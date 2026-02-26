@@ -14,7 +14,7 @@ function GameCard({
     cover = "https://vglist.co/assets/no-cover-5b40e3b1.png",
 }: GameCardProps) {
     return (
-        <Panel type="secondary">
+        <Panel type="secondary" interactive>
             <img className={style.Cover} src={cover} />
             <div className={style.Name}>
                 <Text variant="body">{name}</Text>

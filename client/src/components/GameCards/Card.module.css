@@ -4,6 +4,7 @@
     border: 1px solid var(--border);
     width: 132px;
     aspect-ratio: 3 / 4;
+    cursor: pointer;
 }
 
 .Name {
@@ -16,7 +17,9 @@
     margin-bottom: 10px;
     display: flex;
     flex-direction: row-reverse;
+    align-items: end;
     font-size: 12px;
+    gap: 4px;
 }
 
 .Star {

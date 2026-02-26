@@ -23,6 +23,9 @@
     --weightSemiBold: 600;
     --weightBold: 700;
 
+    --borderWidth: 3px;
+    --spacingSmall: 8px;
+
     font-family: "IBM Plex Mono";
     font-weight: var(--weightRegular);
     color: var(--mainText);

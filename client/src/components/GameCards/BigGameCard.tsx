@@ -9,7 +9,7 @@ function BigGameCard() {
             <div className={style.NavButtonLeft}>
                 <Button>{"<"}</Button>
             </div>
-            <Panel type="secondary" direction="row">
+            <Panel type="secondary" direction="row" interactive>
                 <img
                     src="https://www.gamespot.com/a/uploads/screen_kubrick/1556/15568848/3344763-7693939071-da3dd1bae53674882038f46b61fbf726"
                     className={style.KeyArt}

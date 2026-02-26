@@ -10,9 +10,9 @@ type ButtonProps = {
 
 function Button({ children, color, className = "" }: ButtonProps) {
     return (
-        <div className={`${style.button} ${className}`} style={{ backgroundColor: color }}>
+        <button className={`${style.button} ${className}`} style={{ backgroundColor: color }}>
             {children}
-        </div>
+        </button>
     );
 }
 

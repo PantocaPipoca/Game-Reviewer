@@ -1,6 +1,6 @@
 .mainPanel {
     background-color: var(--mainPanel);
-    border: 3px solid var(--border);
+    border: var(--borderWidth) solid var(--border);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -11,7 +11,7 @@
 
 .secondaryPanel {
     background-color: var(--secondaryPanel);
-    border: 3px solid var(--border);
+    border: var(--borderWidth) solid var(--border);
     display: flex;
     flex-direction: column;
     width: fit-content;
@@ -20,9 +20,17 @@
 
 .terciaryPanel {
     background-color: var(--terciaryPanel);
-    border: 3px solid var(--border);
+    border: var(--borderWidth) solid var(--border);
     display: flex;
     flex-direction: column;
     width: fit-content;
     height: fit-content;
+}
+
+.interactive:hover {
+    border-color: var(--cyan);
+}
+
+.interactive:active {
+    border-color: var(--pink);
 }

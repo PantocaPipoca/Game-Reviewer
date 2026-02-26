@@ -1,4 +1,3 @@
-import Button from "../Buttons/Button";
 import LoginButton from "../Buttons/LoginButton";
 import SignupButton from "../Buttons/SignupButton";
 import Search from "../Search/Search";
