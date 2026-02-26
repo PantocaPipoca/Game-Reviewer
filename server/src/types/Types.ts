@@ -16,15 +16,15 @@ export type UserShort = Omit<UserFull, "createdAt" | "updatedAt" | "userData"> &
     userData: Prisma.InputJsonValue
 };
 
-export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "updatedAt" | "createdAt" | "userData"> & {
+export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "createdAt" | "updatedAt" | "userData"> & {
     userData: UserData | null,
-    createdAt: Date | null  
+    createdAt: Date | null
 };
 
 export type UserPK = string;
 
-export type AuthResponse = 
-    UserPublic & 
+export type AuthResponse =
+    UserPublic &
     {
         token: string;
     }
@@ -34,7 +34,7 @@ export type AuthResponse =
 
 export type GameFull = Game;
 
-export type GameShort = GameFull & {
+export type GameShort = Omit<GameFull, "metadata"> & {
     metadata: Prisma.InputJsonValue
 };
 

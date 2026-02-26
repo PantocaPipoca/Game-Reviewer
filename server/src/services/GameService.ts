@@ -1,8 +1,8 @@
-import { GameFull, GamePK } from "../types/Types"
-import * as GameRepository from "../Repository/GameRepository"
 import { AppError } from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import { StatusCodes } from "http-status-codes"
+import { GameFull, GamePK } from "../types/Types"
+import { GameRepository } from "../Repository/GameRepository"
 
 export class GameService {
     /**

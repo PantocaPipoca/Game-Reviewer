@@ -2,12 +2,28 @@ import bcrypt from "bcrypt"
 import { StatusCodes } from "http-status-codes"
 import * as ErrorMessage from "../utils/ErrorMessage";
 import { AppError } from "../utils/ErrorHandler"
-import {generateToken} from "../utils/auth"
-import {SelectUser, InsertUser, UpdateUser, DeleteUser, SelectUsersOfSimilarName} from "../Repository/UserRepository"
+import { generateToken } from "../utils/auth"
+import { UserRepository } from "../Repository/UserRepository"
 import {UserData, UserFull, UserPK, AuthResponse, UserPublic} from "../types/Types"
-import { SelectFollower } from "../Repository/FollowerRepository"
+import { FollowerRepository } from "../Repository/FollowerRepository"
 
 const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
+
+
+/**
+ * Gets a user full object by username and throws an error if the user doesn't exist
+ * @param username - username of the user to fetch
+ * @returns Full User object if found
+ * @throws AppError if the user doesn't exist (HTTP 404)
+*/
+export async function FetchFullUser(username: UserPK): Promise<UserFull> {
+    const user : UserFull | null = await UserRepository.SelectUser(username);
+    
+    if (!user)
+        throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
+    
+    return user;
+}
 
 /**
  * Gets a user public object by username (only public fields)
@@ -16,36 +32,13 @@ const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
  * @throws AppError if the user doesn't exist (HTTP 404)
  * 
  */
-export async function FetchUser(username: UserPK): Promise<UserPublic> {
-    const user : UserFull | null = await SelectUser(username);
+export async function FetchPublicUser(username: UserPK): Promise<UserPublic> {
+    const user: UserFull = await FetchFullUser(username);
 
-    if (!user)
-        throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
-
-    return {
-        accountName: user.accountName,
-        isPrivate: user.isPrivate,
-        userData: user.userData as UserData,
-        createdAt: user.createdAt,
-    };
+    return UserFullToPublic(user);
 }
 
-/**
- * Gets a user full object by username and throws an error if the user doesn't exist
- * @param username - username of the user to fetch
- * @returns Full User object if found
- * @throws AppError if the user doesn't exist (HTTP 404)
- */
-export async function FetchFullUser(username: UserPK): Promise<UserFull> {
-    const user : UserFull | null = await SelectUser(username);
-
-    if (!user)
-        throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
-
-    return user;
-}
-
-export async function FullUserToPublic(user: UserFull): Promise<UserPublic> {
+export async function UserFullToPublic(user: UserFull): Promise<UserPublic> {
     return {
         accountName: user.accountName,
         isPrivate: user.isPrivate,
@@ -75,7 +68,7 @@ export async function CanViewUser(targetUser: UserPublic, currentUser?: UserPK):
         return true;
     
     // check if currentUser follows targetUser
-    const followRelation = await SelectFollower({
+    const followRelation = await FollowerRepository.SelectFollower({
         follows: currentUser,
         followed: targetUser.accountName
     });
@@ -98,7 +91,7 @@ export class AccountService {
      */
     static async RegisterUser(username: UserPK, displayName: string, password: string, email: string): Promise<AuthResponse> {
         // Check if username is being used
-        const existingUser: UserFull | null = await SelectUser(username);
+        const existingUser: UserFull | null = await UserRepository.SelectUser(username);
         if (existingUser)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
 
@@ -111,7 +104,7 @@ export class AccountService {
             bio: null
         };
 
-        const newUser: UserFull = await InsertUser({
+        const newUser: UserFull = await UserRepository.InsertUser({
             accountName: username,
             isPrivate: false, // default to public account
             passwordHash,
@@ -168,12 +161,7 @@ export class AccountService {
     static async GetCurrentUser(currentUser: UserPK): Promise<UserPublic> {
         const user: UserFull = await FetchFullUser(currentUser);
 
-        return {
-            accountName: user.accountName,
-            isPrivate: user.isPrivate,
-            userData: user.userData as UserData,
-            createdAt: user.createdAt,
-        };
+        return UserFullToPublic(user);
     }
 
     /**
@@ -200,7 +188,7 @@ export class AccountService {
             ...userData  // only override provided fields
         };
 
-        const updated: UserFull = await UpdateUser({
+        const updated: UserFull = await UserRepository.UpdateUser({
             accountName: currentUser, 
             isPrivate: user.isPrivate,
             passwordHash, 
@@ -208,12 +196,7 @@ export class AccountService {
             email: updatedEmail
         });
 
-        return {
-            accountName: updated.accountName,
-            isPrivate: updated.isPrivate,
-            userData: updated.userData as UserData,
-            createdAt: updated.createdAt,
-        }
+        return UserFullToPublic(updated);
     }
 
     /**
@@ -223,14 +206,9 @@ export class AccountService {
      */
     static async RemoveUser(currentUser: UserPK): Promise<UserPublic> {
         const user: UserFull = await FetchFullUser(currentUser);
-        const deletedUser: UserFull = await DeleteUser(user.accountName);
+        const deletedUser: UserFull = await UserRepository.DeleteUser(user.accountName);
 
-        return {
-            accountName: deletedUser.accountName,
-            isPrivate: deletedUser.isPrivate,
-            userData: deletedUser.userData as UserData,
-            createdAt: deletedUser.createdAt,
-        };
+        return UserFullToPublic(deletedUser);
     }
 
 
@@ -243,7 +221,7 @@ export class AccountService {
      * @returns Full Public user object if is visible (public or followed), if it's not visible returns only the username
      */
     static async FindByUsername(username: UserPK, currentUser?: UserPK): Promise<UserPublic> {
-        const user: UserPublic = await FetchUser(username);
+        const user: UserPublic = await FetchPublicUser(username);
         
         // check if currentUser can view this profile
         const canView: boolean = await CanViewUser(user, currentUser);
@@ -265,7 +243,7 @@ export class AccountService {
      * @param currentUser - authenticated user making the request (optional)
      */
     static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<UserPublic[]> {
-        const users: UserPublic[] = await SelectUsersOfSimilarName(nameFilter) as UserPublic[];
+        const users: UserPublic[] = await UserRepository.SelectUsersOfSimilarName(nameFilter) as UserPublic[];
         
         const usersInfo: UserPublic[] = [];
 
