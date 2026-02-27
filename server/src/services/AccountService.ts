@@ -172,7 +172,7 @@ export class AccountService {
      * @param userData - partial user data updates (optional)
      * @returns updated user data
      */
-    static async AlterUser(currentUser: UserPK, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
+    static async AlterUser(currentUser: UserPK, isPrivate?: boolean, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
         const user: UserFull = await FetchFullUser(currentUser);
 
         const passwordHash = password
@@ -190,7 +190,7 @@ export class AccountService {
 
         const updated: UserFull = await UserRepository.UpdateUser({
             accountName: currentUser, 
-            isPrivate: user.isPrivate,
+            isPrivate: isPrivate ?? user.isPrivate,
             passwordHash, 
             userData: updatedUserData, 
             email: updatedEmail

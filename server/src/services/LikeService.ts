@@ -6,7 +6,7 @@ import { FetchFullUser } from "./AccountService";
 import { ReviewRepository } from "../Repository/ReviewRepository"
 import { LikeRepository } from "../Repository/LikeRepository";
 
-type ReactionResponse = {
+export type ReactionResponse = {
     likes: number,
     dislikes: number,
 }
