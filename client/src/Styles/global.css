@@ -63,6 +63,10 @@
     text-transform: uppercase;
 }
 
+input {
+    font-family: inherit;
+}
+
 hr {
     border: none;
     border-top: 3px solid var(--separator);
