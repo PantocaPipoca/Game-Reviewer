@@ -66,6 +66,11 @@ export type LikePK = {
 };
 
 
+export type ReactionResponse = {
+    likes: number,
+    dislikes: number,
+};
+
 
 // ===================== Comment Types =====================
 

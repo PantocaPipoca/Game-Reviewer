@@ -1,7 +1,10 @@
 import {Router} from "express"
 import { CommentController } from "../controllers/CommentController";
+import { auth, optionalAuth } from "../utils/auth";
 
 const router: Router = Router();
+
+// ===================== MANAGE COMMENTS =====================
 
 /**
  * GET /api/reviews/:reviewer/:reviewed/comments
@@ -13,13 +16,12 @@ const router: Router = Router();
  *      400 BAD REQUEST             if any of the required fields is missing
  *      404 NOT FOUND               if the user didn't review the game
  */
-router.get('/', CommentController.GetComments);
+router.get('/', optionalAuth, CommentController.GetComments);
 
 /**
  * POST /api/reviews/:reviewer/:reviewed/comments
  * Adds a comment to a review
  * Body:
- *      commenter: string
  *      text: string
  * Response:
  *      201 CREATED
@@ -27,13 +29,14 @@ router.get('/', CommentController.GetComments);
  *      400 BAD REQUEST             if any of the required fields is missing
  *      404 NOT FOUND               if the user didn't review the game
  */
-router.post('/', CommentController.AddComment);
+router.post('/', auth, CommentController.AddComment);
+
+// ===================== COMMENTS BY ID =====================
 
 /**
  * PUT /api/reviews/:reviewer/:reviewed/comments/:id
  * Edits a comment to a review
  * Body:
- *      commenter: string
  *      text: string
  * Response:
  *      202 ACCEPTED
@@ -41,19 +44,19 @@ router.post('/', CommentController.AddComment);
  *      400 BAD REQUEST             if any of the required fields is missing
  *      404 NOT FOUND               if the user didn't review the game
  */
-router.put('/', CommentController.EditComment);
+router.put('/:id', auth, CommentController.EditComment);
  
 /**
  * DELETE /api/reviews/:reviewer/:reviewed/comments/:id
  * Deletes a comment to a review
  * Body:
- *      commenter: string
+ *      (Empty body)
  * Response:
  *      202 ACCEPTED
  *      {reviewer, reviewed, id, commentator, text, createdAt, updatedAt}
  *      400 BAD REQUEST             if any of the required fields is missing
  *      404 NOT FOUND               if the user didn't review the game
  */
-router.delete('/', CommentController.RemoveComment);
+router.delete('/:id', auth, CommentController.RemoveComment);
 
 export default router;

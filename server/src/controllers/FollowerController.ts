@@ -4,59 +4,63 @@ import {StatusCodes} from "http-status-codes"
 import {FollowerService} from "../services/FollowerService"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import { FollowerFull } from "../types/Types"
-import { AuthRequest, CurrentOptionalUser } from "../utils/auth"
+import { AuthRequest, ExtractLoggedUser } from "../utils/auth"
+
+function ExtractUsername(req: AuthRequest): string {
+    const username = req.params['username'];
+    if (!username || typeof username !== 'string') throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+    return username;
+}
 
 export class FollowerController {
     /**
      * Makes a follower request to an account
-     * Used by POST /api/users/:username/followers/:followerName
+     * Used by POST /api/users/:username/followers/
      */
     static RequestFollower: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const followed: string | string[] | undefined  = req.params['followerName'];
-        if (!followed || typeof followed !== 'string')
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        const currentUser: string = ExtractLoggedUser(req);
+        const username: string = ExtractUsername(req);
 
-        const currentUser: string | undefined = req.currentUser?.username;
-        if (currentUser == undefined)
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.FOLLOW_REQUEST_CREATE_FAILED);
-        
-        const result: FollowerFull = await FollowerService.RequestFollower(currentUser, followed);
+        const result = await FollowerService.RequestFollower(currentUser, username);
         return MakeSuccess(res, StatusCodes.CREATED, result);
     });
 
     /**
-     * Accepts a follower request to an account
-     * Used by PUT /api/users/:username/followers/:followerName
+     * Removes a follower request to an account
+     * Used by DELETE /api/users/:username/followers/
      */
-    static AcceptFollower: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const follows: string | string[] | undefined = req.params['followerName'];
-        if (!follows || typeof follows !== 'string')
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+    static UnfollowUser = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+        const username: string = ExtractUsername(req);
 
-        const currentUser: string | undefined   = req.currentUser?.username;
-        if (currentUser == undefined)
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.FOLLOW_REQUEST_ACCEPT_FAILED);
+        // remove relation: follows=currentUser, followed=username
+        const result = await FollowerService.RemoveFollower(currentUser, currentUser, username);
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    }); 
 
-        const result: FollowerFull = await FollowerService.AcceptFollower(currentUser, follows);
+    /**
+     * Accepts a follower request to an account
+     * Used by PUT /api/users/me/followers/requests/to/:username
+     */
+    static AcceptFollowerRequest: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser : string = ExtractLoggedUser(req);
+        const username: string = ExtractUsername(req);
+        
+        const result = await FollowerService.AcceptFollower(currentUser, username);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 
     /**
      * Removes a follower to an account
-     * Used by DELETE /api/users/:username/followers/:followerName
+     * Used by DELETE /api/users/me/followers/requests/to/:username
      */
-    static RemoveFollower: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const follows: string | string[] | undefined = req.params['username'];
-        const followed: string | string[] | undefined = req.params['followerName'];
-        if (!follows || !followed || typeof follows !== 'string' || typeof followed !== 'string')
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
-
-        const currentUser: string | undefined = req.currentUser?.username;
-        if (currentUser == undefined)
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.FOLLOWER_DELETE_FAILED);
+    static RejectFollowerRequest: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser : string = ExtractLoggedUser(req);
+        const username: string = ExtractUsername(req);
         
-        const result: FollowerFull = await FollowerService.RemoveFollower(currentUser, follows, followed);
-        return MakeSuccess(res, StatusCodes.ACCEPTED, result)
+        // delete relation: follows=username, followed=currentUser (pending request)
+        const result = await FollowerService.RemoveFollower(currentUser, username, currentUser, false);
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 
     /**
@@ -64,11 +68,10 @@ export class FollowerController {
      * Used by GET /api/users/:username/followers
      */
     static GetFollowers: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const username: string | string[] | undefined = req.params['username']
-        if (!username || typeof username !== 'string')
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        const currentUser: string | undefined = req.currentUser?.username;
+        const username: string = ExtractUsername(req);
         
-        const result: FollowerFull[] = await FollowerService.GetFollowers(username, CurrentOptionalUser(req))
+        const result: FollowerFull[] = await FollowerService.GetFollowers(username, currentUser)
         return MakeSuccess(res, StatusCodes.OK, result)
     });
 
@@ -77,24 +80,30 @@ export class FollowerController {
      * Used by GET /api/users/:username/following
      */
     static GetFollowingByUser: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const username: string | string[] | undefined = req.params['username']
-        if (!username || typeof username !== 'string')
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED)
+        const currentUser: string | undefined = req.currentUser?.username;
+        const username: string = ExtractUsername(req);
 
-        const result: FollowerFull[] = await FollowerService.GetFollowing(username, CurrentOptionalUser(req))
+        const result: FollowerFull[] = await FollowerService.GetFollowing(username, currentUser);
         return MakeSuccess(res, StatusCodes.OK, result)
     });
 
     /**
      * Gets the pending follower requests for a user
-     * Used by GET /api/users/:username/followers/pending
+     * Used by GET /api/users/me/followers/requests/to
      */
-    static GetPendingRequests: any = AsyncHandler(async (req: Request, res: Response) => {
-        const username: string | string[] | undefined = req.params['username']
-        if (!username || typeof username !== 'string')
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
-        
-        const result: FollowerFull[] = await FollowerService.GetPendingRequests(username)
-        return MakeSuccess(res, StatusCodes.OK, result)
+    static GetPendingRequestsToUser = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser = ExtractLoggedUser(req);
+        const result = await FollowerService.GetPendingRequestsToUser(currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+
+    /**
+     * Gets the pending follower requests for a user
+     * Used by GET /api/users/me/followers/requests/from
+     */
+    static GetPendingRequestsFromUser = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser = ExtractLoggedUser(req);
+        const result = await FollowerService.GetPendingRequestsFromUser(currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
     });
 }

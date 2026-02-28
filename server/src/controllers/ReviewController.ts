@@ -4,7 +4,7 @@ import {StatusCodes} from "http-status-codes"
 import {ReviewService} from "../services/ReviewService"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import { toValidGameID } from "./GameController"
-import { AuthRequest } from "../utils/auth"
+import { AuthRequest, ExtractLoggedUser } from "../utils/auth"
 import { ReviewFull } from "../types/Types"
 
 export interface ReviewPrimaryKey {
@@ -23,7 +23,7 @@ export function ExtractReviewPK(req: Request): ReviewPrimaryKey {
 
 // Throws if score is invalid
 function CheckScore(score?: any): number {
-    if (!score)
+    if (score === undefined || score === null)
         throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_SCORE_REQUIRED)
     if (typeof score !== 'number' || score < 0 || score > 10)
         throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_SCORE_INVALID)
@@ -35,9 +35,10 @@ export class ReviewController {
      * Finds a user's review on a game
      * Usde by GET /api/reviews/:reviewer/:reviewed
      */
-    static GetReview: any = AsyncHandler(async (req: Request, res: Response) => {
+    static GetReview: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string | undefined = req.currentUser?.username;
         const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
-        const result: ReviewFull = await ReviewService.FindReview(reviewer, reviewed);
+        const result: ReviewFull = await ReviewService.FindReview(reviewer, reviewed, currentUser);
         return MakeSuccess(res, StatusCodes.OK, result);
     });
 
@@ -45,12 +46,14 @@ export class ReviewController {
      * Publishes a new review
      * Used by POST /api/reviews/:reviewer/:reviewed
      */
-    static PublishReview: any = AsyncHandler(async (req: Request, res: Response) => {
+    static PublishReview: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
         const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
         const {text, score} = req.body;
         if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_REQUIRED);
 
-        const result: ReviewFull = await ReviewService.PublishReview(reviewer, reviewed, text, CheckScore(score));
+        const result: ReviewFull = await ReviewService.PublishReview(currentUser, reviewed, text, CheckScore(score));
         return MakeSuccess(res, StatusCodes.CREATED, result);
     });
 
@@ -58,13 +61,13 @@ export class ReviewController {
      * Updates a user's review
      * Used by PUT /api/reviews/:reviewer/:reviewed
      */
-    static AlterReview: any = AsyncHandler(async (req: Request, res: Response) => {
+    static AlterReview: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
         const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
         const {text, score} = req.body;
-        let _score: number = score
-        if (score!) _score = CheckScore(score);
 
-        const result: ReviewFull = await ReviewService.UpdateReview(reviewer, reviewed, text, _score);
+        const result: ReviewFull = await ReviewService.UpdateReview(currentUser, reviewed, text, CheckScore(score));
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     })
 
@@ -72,9 +75,11 @@ export class ReviewController {
      * Removes a user's review
      * Used by DELETE /api/reviews/:reviewer/:reviewed
      */
-    static RemoveReview: any = AsyncHandler(async (req: Request, res: Response) => {
+    static RemoveReview: any = AsyncHandler(async (req: AuthRequest  , res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
         const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
-        const result: ReviewFull = await ReviewService.RemoveReview(reviewer, reviewed);
+        const result: ReviewFull = await ReviewService.RemoveReview(currentUser, reviewed);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 

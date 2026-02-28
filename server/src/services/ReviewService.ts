@@ -93,7 +93,7 @@ export class ReviewService {
         // filter based on privacy
         const visibleReviews: ReviewFull[] = [];
         for (const review of reviews){
-            const user: UserPublic = await FetchPublicUser(review.reviewer);
+            const user: UserPublic = await FetchPublicUser(review.reviewer); // This will hurt in performance
             const canView: boolean = await CanViewUser(user, currentUser);
             if (canView) {
                 visibleReviews.push({

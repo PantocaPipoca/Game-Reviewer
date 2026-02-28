@@ -4,6 +4,7 @@ import * as ErrorMessage from "../utils/ErrorMessage"
 import { ReviewRepository } from "../Repository/ReviewRepository"
 import { CommentRepository } from "../Repository/CommentRepository"
 import { CommentFull, CommentPK, GamePK, ReviewFull, UserPK } from "../types/Types"
+import { CanViewUser, FetchPublicUser } from "./AccountService"
 
 export class CommentService {
 
@@ -13,14 +14,16 @@ export class CommentService {
      * @param gameID - the game id of the review
      * @returns a promise that resolves to an array of comments
      */
-    static async GetComments(reviewer: UserPK, gameID: GamePK): Promise<CommentFull[]> {
-        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer, reviewed: gameID});
-        if (!review)
-            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+    static async GetComments(reviewer: UserPK, gameID: GamePK, currentUser?: UserPK): Promise<CommentFull[]> {
+        const review: ReviewFull | null = await ReviewRepository.SelectReview({ reviewer, reviewed: gameID });
+        if (!review) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
-        const comments: CommentFull[] = await CommentRepository.SelectCommentsOfSameReview({reviewer, reviewed: gameID});
+        const reviewerUser = await FetchPublicUser(reviewer);
+        const canView = await CanViewUser(reviewerUser, currentUser);
+        if (!canView) 
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        return comments;
+        return await CommentRepository.SelectCommentsOfSameReview({ reviewer, reviewed: gameID });
     }
 
     /**
