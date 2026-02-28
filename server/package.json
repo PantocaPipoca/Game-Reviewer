@@ -7,14 +7,15 @@
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "pretest": "npx dotenv-cli -e .env.test -- npx prisma migrate deploy",
-    "test": "npx dotenv-cli -e .env.test -- node --experimental-vm-modules node_modules/.bin/jest --runInBand"
+    "test": "npx dotenv-cli -e .env.test -- cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "jest": {
-    "preset": "ts-jest",
     "testEnvironment": "node",
-    "testMatch": [
-      "**/tests/**/*.test.ts"
-    ]
+    "testMatch": ["**/tests/**/*.test.ts"],
+    "transform": {
+      "^.+\\.ts$": ["ts-jest", { "useESM": true }]
+    },
+    "extensionsToTreatAsEsm": [".ts"]
   },
   "keywords": [],
   "author": "",
@@ -28,6 +29,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.3.0",
     "dotenv-cli": "^11.0.0",
+    "jest": "^30.2.0",
     "nodemon": "^3.1.13",
     "prisma": "^7.3.0",
     "ts-jest": "^29.4.6",

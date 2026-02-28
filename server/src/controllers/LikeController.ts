@@ -1,12 +1,10 @@
 import {Request, Response} from "express"
 import {AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
-import { LikeShort, ReviewPK } from "../types/Types";
-import { LikeService, ReactionResponse } from "../services/LikeService";
+import { LikeShort, ReviewPK, ReactionResponse } from "../types/Types";
+import { LikeService } from "../services/LikeService";
 import { ExtractReviewPK } from "./ReviewController";
 import { StatusCodes } from "http-status-codes";
-import { AuthRequest, JwtPayload } from "../utils/auth";
-import { AppError } from "../utils/ErrorHandler";
-import * as ErrorMessage from "../utils/ErrorMessage";
+import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth";
 
 /**
  * Counts the amount of likes or dislikes of a review
@@ -31,11 +29,10 @@ async function CountReactions(req: Request, res: Response, reaction: boolean): P
  * @throws AppError if there is no such game, user or review
  */
 async function PushReaction(req: AuthRequest, res: Response, reaction: boolean): Promise<Response> {
-    const user: JwtPayload | undefined = req.currentUser;
-    if (!user)
-        throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
+    const currentUser: string = ExtractLoggedUser(req);
+    
     const {reviewer, reviewed}: ReviewPK = ExtractReviewPK(req);
-    const result: LikeShort = await LikeService.ReactReview(user.username, reviewer, reviewed, reaction);
+    const result: LikeShort = await LikeService.ReactReview(currentUser, reviewer, reviewed, reaction);
     return MakeSuccess(res, StatusCodes.ACCEPTED, result);
 }
 
@@ -89,11 +86,9 @@ export class LikeController {
      * Used by DELETE /api/reviews/:reviewer/:reviewed/reacts
      */
     static RemoveReactions: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const user: JwtPayload | undefined = req.currentUser;
-        if (!user)
-            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
+        const currentUser: string = ExtractLoggedUser(req);
         const {reviewer, reviewed}: ReviewPK = ExtractReviewPK(req);
-        const result: LikeShort = await LikeService.RemoveReactionFromReview(user.username, reviewer, reviewed);
+        const result: LikeShort = await LikeService.RemoveReactionFromReview(currentUser, reviewer, reviewed);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 }

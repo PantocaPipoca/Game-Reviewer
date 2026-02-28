@@ -3,17 +3,18 @@ import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import {StatusCodes} from "http-status-codes"
 import {AccountService} from "../services/AccountService"
-import { AuthResponse, UserPublic } from "../types/Types"
-import { AuthRequest, JwtPayload } from "../utils/auth"
+import { AuthResponse, UserPK, UserPublic } from "../types/Types"
+import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth"
 
 // REGEX that tests whether an email is valid
 const email_regex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 
 export class AccountController {
 
     /**
      * Registers a new user
-     * Used by POST /api/users/register
+     * Used by POST /api/users/
      * Does not require previous authentication
      */
     static Register: any = AsyncHandler(async (req: Request, res: Response) => {
@@ -59,10 +60,9 @@ export class AccountController {
      * Requires previous authentication
      */
     static GetCurrentUser: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const user: JwtPayload | undefined = req.currentUser;
-        if (!user) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
+        const currentUser: string = ExtractLoggedUser(req);
         
-        const result: UserPublic = await AccountService.GetCurrentUser(user.username);
+        const result: UserPublic = await AccountService.GetCurrentUser(currentUser);
         return MakeSuccess(res, StatusCodes.OK, result);
     })
     
@@ -71,16 +71,16 @@ export class AccountController {
      * Used by PUT /api/users/me
      * Requires previous authentication
      */
-    static Alter: any = AsyncHandler(async (req: Request, res: Response) => {
-        const {accountName, isPrivate, password, email, userData} = req.body;
-        if (!accountName)
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+    static Alter: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
+        const {isPrivate, password, email, userData} = req.body;
         if (password! && password.length < 8)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
         if (email! && !email_regex.test(email))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
-        const result: UserPublic = await AccountService.AlterUser(accountName, isPrivate, password, email, userData);
+        const result: UserPublic = await AccountService.AlterUser(currentUser, isPrivate, password, email, userData);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     })
 
@@ -89,12 +89,10 @@ export class AccountController {
      * Used by DELETE /api/users/me
      * Requires previous authentication
      */
-    static Remove: any = AsyncHandler(async (req: Request, res: Response) => {
-        const {accountName} = req.body;
-        if (!accountName)
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+    static Remove: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
 
-        const result: UserPublic = await AccountService.RemoveUser(accountName);
+        const result: UserPublic = await AccountService.RemoveUser(currentUser);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     })
 
@@ -104,8 +102,9 @@ export class AccountController {
      * (optional authentication)
      */
     static FindByUsername: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const username: string | string[] | undefined = req.params['username'];
         const currentUser: string | undefined = req.currentUser?.username;
+        
+        const username: string | string[] | undefined = req.params['username'];
         if (!username || typeof username !== 'string')
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
 
@@ -120,7 +119,6 @@ export class AccountController {
      * (optional authentication)
      */
     static Search: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        // TODO
         const filter: any = req.query['query'];
         if (typeof filter !== 'string')
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION)

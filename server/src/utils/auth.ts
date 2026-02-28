@@ -3,12 +3,15 @@ import jwt from "jsonwebtoken"
 import {StatusCodes} from "http-status-codes"
 import dotenv from "dotenv"
 
+import { AppError } from "./ErrorHandler";
+import { UserPK } from "../types/Types";
+import * as ErrorMessage from "./ErrorMessage";
+
 dotenv.config();
 
 // JWT payload structure (data stored in token)
 export type JwtPayload = {
     username: string;
-    email: string;
 }
 
 // Extended Request type with optional user info from JWT
@@ -52,7 +55,7 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction): void 
     const token: string | undefined = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
-        res.status(StatusCodes.FORBIDDEN).json({error: "Token required"});
+        res.status(StatusCodes.UNAUTHORIZED).json({error: "Token required"});
         return;
     }
 
@@ -86,15 +89,8 @@ export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunctio
     next()
 }
 
-/**
- * Gets the optional current user in a Request object.
- * @param req Request object, may have currentUser variable
- * @returns the username of the currentUser if it exists, undefined otherwise
- */
-export function CurrentOptionalUser(req: AuthRequest): string | undefined {
-    try {
-        return req.currentUser?.username
-    } catch (_) {
-        return undefined
-    }
+export function ExtractLoggedUser(req: AuthRequest): UserPK {
+    const currentUser: string | undefined = req.currentUser?.username;
+    if (!currentUser) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
+    return currentUser;
 }

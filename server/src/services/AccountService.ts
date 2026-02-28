@@ -38,7 +38,7 @@ export async function FetchPublicUser(username: UserPK): Promise<UserPublic> {
     return UserFullToPublic(user);
 }
 
-export async function UserFullToPublic(user: UserFull): Promise<UserPublic> {
+export function UserFullToPublic(user: UserFull): UserPublic {
     return {
         accountName: user.accountName,
         isPrivate: user.isPrivate,
@@ -243,7 +243,8 @@ export class AccountService {
      * @param currentUser - authenticated user making the request (optional)
      */
     static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<UserPublic[]> {
-        const users: UserPublic[] = await UserRepository.SelectUsersOfSimilarName(nameFilter) as UserPublic[];
+        const usersFull: UserFull[] = await UserRepository.SelectUsersOfSimilarName(nameFilter);
+        const users: UserPublic[] = usersFull.map(user => UserFullToPublic(user));
         
         const usersInfo: UserPublic[] = [];
 

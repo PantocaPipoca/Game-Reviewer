@@ -69,7 +69,8 @@ router.get('/dislikes', LikeController.GetDislikes);
  */
 router.post('/dislikes', auth, LikeController.AddDislike);
 
-// ===================== INDEPENDENT =====================
+
+// ===================== BOTH =====================
 
 /**
  * DELETE /api/reviews/:reviewer/:reviewed/reacts
@@ -84,7 +85,7 @@ router.post('/dislikes', auth, LikeController.AddDislike);
  *      404 NOT FOUND       if the provided game name doesn't exist
  *      404 NOT FOUND       if the user didn't review the game
  */
-router.delete('/reacts', LikeController.RemoveReactions);
+router.delete('/reacts', auth, LikeController.RemoveReactions);
 
 
 export default router;

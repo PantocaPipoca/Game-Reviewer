@@ -16,6 +16,10 @@ export const REVIEW_TEXT_REQUIRED: string   = "Missing critique provided field"
 export const REVIEW_SCORE_REQUIRED: string  = "Missing score field"
 export const REVIEW_SCORE_INVALID: string   = "Invalid score field"
 
+export const COMMENT_TEXT_REQUIRED: string  = "Missing comment provided field"
+export const COMMENT_ID_REQUIRED: string    = "Missing comment ID field"
+export const COMMENT_ID_INVALID: string    = "Invalid comment ID field"
+
 // ========== AUTHENTICATION ERRORS (403) ==========
 export const PASSWORD_INCORRECT: string     = "Wrong password"
 export const UNAUTHORIZED_ACTION: string    = "Not authorized to perform this action"
@@ -33,6 +37,7 @@ export const FOLLOW_REQUEST_EXISTS: string      = "User already requested to fol
 export const FOLLOW_REQUEST_NOT_FOUND: string   = "User didn't request to follow user"
 export const FOLLOW_ALREADY_ACCEPTED: string    = "User already accepted follower request"
 export const FOLLOWER_NOT_FOUND: string         = "User doesn't follow user yet"
+export const CANNOT_FOLLOW_YOURSELF: string     = "You can't follow yourself"
 export const REVIEW_ALREADY_EXISTS: string      = "User already has reviewed the game"
 
 // ========== SERVER ERRORS (500) ==========

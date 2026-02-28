@@ -14,8 +14,10 @@ export class FollowerService {
      * @returns Created follower relation object
      */
     static async RequestFollower(currentUser: UserPK, followed: UserPK): Promise<FollowerFull> {
-        await FetchPublicUser(currentUser);
         const followedUser: UserPublic = await FetchPublicUser(followed);
+
+        if(currentUser === followed)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.CANNOT_FOLLOW_YOURSELF);
 
         // check if request already exists
         const existingRequest: FollowerFull | null = await FollowerRepository.SelectFollower({follows: currentUser, followed});
@@ -69,25 +71,30 @@ export class FollowerService {
      * @param currentUser - currentUser
      * @param follows - username of the follower
      * @param followed - username of the followed user
+     * @param expectedAccepted - expected accepted status - true is for removing followers, false is for declining follow requests, undefined either
      * @returns Deleted follower relation object
      */
-    static async RemoveFollower(currentUser: UserPK, follows: UserPK, followed: UserPK): Promise<FollowerFull> {
+    // FollowerService.ts
+    static async RemoveFollower(currentUser: UserPK, follows: UserPK, followed: UserPK, expectedAccepted?: boolean): Promise<FollowerFull> {
         await FetchFullUser(follows);
         await FetchFullUser(followed);
 
         if (currentUser !== follows && currentUser !== followed)
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        const existingRequest: FollowerFull | null = await FollowerRepository.SelectFollower({follows, followed});
-        if (!existingRequest)
+        const existing: FollowerFull | null = await FollowerRepository.SelectFollower({ follows, followed });
+
+        if (!existing)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOWER_NOT_FOUND);
 
-        const deletedFollower: FollowerFull = await FollowerRepository.DeleteFollower({
-            follows,
-            followed,
-        });
+        if (expectedAccepted !== undefined && existing.accepted !== expectedAccepted) {
+            throw new AppError(
+                StatusCodes.NOT_FOUND,
+                expectedAccepted ? ErrorMessage.FOLLOWER_NOT_FOUND : ErrorMessage.FOLLOW_REQUEST_NOT_FOUND
+            );
+        }
 
-        return deletedFollower;
+        return await FollowerRepository.DeleteFollower({ follows, followed });
     }
 
     /**
@@ -106,10 +113,7 @@ export class FollowerService {
 
         const followers: FollowerFull[] = await FollowerRepository.SelectAllFollowersOfUser(username);
 
-        // ONLY return accepted followers
-        const acceptedFollowers: FollowerFull[] = followers.filter(f => f.accepted);
-
-        return acceptedFollowers;
+        return followers;
     }
 
     /**
@@ -128,24 +132,32 @@ export class FollowerService {
 
         const following: FollowerFull[] = await FollowerRepository.SelectAllFollowedByUser(username);
 
-        // only return accepted follows
-        const acceptedFollowing: FollowerFull[] = following.filter(f => f.accepted);
-
-        return acceptedFollowing;
+        return following;
     }
 
     /**
-     * Gets pending follow requests for a user (for private accounts)
-     * @param username - Username to get pending requests for
-     * @param currentUser - authenticated username (if authenticated)
+     * Gets pending follow requests to a user (for private accounts) - must be logged in
+     * @param currentUser - Username to get pending follow requests to
      * @returns Array of pending follower objects
      */
-    static async GetPendingRequests(currentUser: UserPK): Promise<FollowerFull[]> {
+    static async GetPendingRequestsToUser(currentUser: UserPK): Promise<FollowerFull[]> {
         await FetchPublicUser(currentUser);
 
-        const followers: FollowerFull[] = await FollowerRepository.SelectAllFollowersOfUser(currentUser);
-        const pendingRequests: FollowerFull[] = followers.filter(f => !f.accepted);
+        const requests: FollowerFull[] = await FollowerRepository.SelectAllRequestsToUser(currentUser);
 
-        return pendingRequests;
+        return requests;
+    }
+
+    /**
+     * Gets pending follow requests from a user (for private accounts) - must be logged in
+     * @param currentUser - Username to get the pending follow requests made by
+     * @returns Array of pending follower objects
+     */
+    static async GetPendingRequestsFromUser(currentUser: UserPK): Promise<FollowerFull[]> {
+        await FetchPublicUser(currentUser);
+
+        const requests: FollowerFull[] = await FollowerRepository.SelectAllRequestsFromUser(currentUser);
+
+        return requests;
     }
 }

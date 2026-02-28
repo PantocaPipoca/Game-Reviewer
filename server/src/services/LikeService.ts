@@ -1,15 +1,10 @@
-import {StatusCodes} from "http-status-codes"
-import {AppError} from "../utils/ErrorHandler"
+import { StatusCodes } from "http-status-codes"
+import { AppError } from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import { GamePK, LikeFull, LikeShort, ReviewFull, UserPK } from "../types/Types";
+import { GamePK, LikeFull, LikeShort, ReviewFull, UserPK, ReactionResponse } from "../types/Types";
 import { FetchFullUser } from "./AccountService";
 import { ReviewRepository } from "../Repository/ReviewRepository"
 import { LikeRepository } from "../Repository/LikeRepository";
-
-export type ReactionResponse = {
-    likes: number,
-    dislikes: number,
-}
 
 export class LikeService {
 
@@ -72,7 +67,7 @@ export class LikeService {
 
     static async RemoveReactionFromReview(currentUser: UserPK, reviewer: UserPK, gameID: GamePK): Promise<LikeShort> {
         // Verify review exists
-        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer: currentUser, reviewed: gameID});
+        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer: reviewer, reviewed: gameID});
         if (!review)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
