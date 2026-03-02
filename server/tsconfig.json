@@ -12,7 +12,7 @@
     "target": "es2024",
     // For nodejs:
     "lib": ["es2024"],
-    "types": ["node"],
+    "types": ["node", "jest"],
     // and npm install -D @types/node
 
     // Other Outputs
@@ -41,5 +41,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../tests/**/*"]
 }
