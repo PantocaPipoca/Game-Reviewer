@@ -40,7 +40,7 @@ export class FollowerController {
 
     /**
      * Accepts a follower request to an account
-     * Used by PUT /api/users/me/followers/requests/to/:username
+     * Used by PUT /api/users/me/followers/requests/received/:username
      */
     static AcceptFollowerRequest: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser : string = ExtractLoggedUser(req);
@@ -52,7 +52,7 @@ export class FollowerController {
 
     /**
      * Removes a follower to an account
-     * Used by DELETE /api/users/me/followers/requests/to/:username
+     * Used by DELETE /api/users/me/followers/requests/received/:username
      */
     static RejectFollowerRequest: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser : string = ExtractLoggedUser(req);
@@ -89,7 +89,7 @@ export class FollowerController {
 
     /**
      * Gets the pending follower requests for a user
-     * Used by GET /api/users/me/followers/requests/to
+     * Used by GET /api/users/me/followers/requests/received
      */
     static GetPendingRequestsToUser = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser = ExtractLoggedUser(req);
@@ -99,7 +99,7 @@ export class FollowerController {
 
     /**
      * Gets the pending follower requests for a user
-     * Used by GET /api/users/me/followers/requests/from
+     * Used by GET /api/users/me/followers/requests/sent
      */
     static GetPendingRequestsFromUser = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser = ExtractLoggedUser(req);

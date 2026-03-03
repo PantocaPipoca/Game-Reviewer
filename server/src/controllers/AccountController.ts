@@ -3,7 +3,7 @@ import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import {StatusCodes} from "http-status-codes"
 import {AccountService} from "../services/AccountService"
-import { AuthResponse, UserPK, UserPublic } from "../types/Types"
+import { AuthResponse, UserPublic } from "../types/Types"
 import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth"
 
 // REGEX that tests whether an email is valid

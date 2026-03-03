@@ -96,7 +96,7 @@ router.put('/me', auth, AccountController.Alter);
 router.delete('/me', auth, AccountController.Remove);
 
 /**
- * GET /api/users/me/followers/requests/to
+ * GET /api/users/me/followers/requests/received
  * Gets the pending follower requests for a user (for private accounts)
  * (Empty body)
  * Response:
@@ -106,10 +106,10 @@ router.delete('/me', auth, AccountController.Remove);
  *      404 NOT FOUND               if the provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR   if the followers couldn't be retrieved
  */
-router.get('/me/followers/requests/to', auth, FollowerController.GetPendingRequestsToUser);
+router.get('/me/followers/requests/received', auth, FollowerController.GetPendingRequestsToUser);
 
 /**
- * GET /api/users/me/followers/requests/from
+ * GET /api/users/me/followers/requests/sent
  * Gets the pending follower requests made by a user (for private accounts)
  * (Empty body)
  * Response:
@@ -119,10 +119,10 @@ router.get('/me/followers/requests/to', auth, FollowerController.GetPendingReque
  *      404 NOT FOUND               if the provided user name doesn't exist
  *      500 INTERNAL SERVER ERROR   if the followers couldn't be retrieved
  */
-router.get('/me/followers/requests/from', auth, FollowerController.GetPendingRequestsFromUser);
+router.get('/me/followers/requests/sent', auth, FollowerController.GetPendingRequestsFromUser);
 
 /**
- * PUT /api/users/me/followers/requests/to/:username
+ * PUT /api/users/me/followers/requests/received/:username
  * Accepts a follower request from user ":username"
  * (Empty body)
  * Response:
@@ -135,10 +135,10 @@ router.get('/me/followers/requests/from', auth, FollowerController.GetPendingReq
  *      409 CONFLICT                if the second user already accepted the request
  *      500 INTERNAL SERVER ERROR   if the request couldn't be accepted
  */
-router.put('/me/followers/requests/to/:username', auth, FollowerController.AcceptFollowerRequest);
+router.put('/me/followers/requests/received/:username', auth, FollowerController.AcceptFollowerRequest);
 
 /**
- * DELETE /api/users/me/followers/requests/to/:username
+ * DELETE /api/users/me/followers/requests/received/:username
  * Rejects follower request from "":username"
  * (Empty body)
  * Response:
@@ -150,7 +150,7 @@ router.put('/me/followers/requests/to/:username', auth, FollowerController.Accep
  *      404 NOT FOUND               if the first user name doesn't follow the second yet
  *      500 INTERNAL SERVER ERROR   if the follower couldn't be removed
  */
-router.delete('/me/followers/requests/to/:username', auth, FollowerController.RejectFollowerRequest);
+router.delete('/me/followers/requests/received/:username', auth, FollowerController.RejectFollowerRequest);
 
 // ===================== SEARCH USERS =====================
 
