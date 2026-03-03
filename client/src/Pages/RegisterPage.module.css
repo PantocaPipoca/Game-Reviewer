@@ -7,7 +7,7 @@
 
 .panel {
     min-width: 600px;
-    height: 700px;
+    height: 780px;
     justify-content: space-around;
 }
 
@@ -18,8 +18,7 @@
     width: 100%;
 }
 
-.forgotRow,
-.signupRow {
+.loginRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
