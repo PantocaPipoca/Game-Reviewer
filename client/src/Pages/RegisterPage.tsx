@@ -8,6 +8,7 @@ import style from "./RegisterPage.module.css";
 function RegisterPage() {
     const [email, setEmail] = useState("");
     const [userName, setUserName] = useState("");
+    const [displayName, setDisplayName] = useState("");
     const [password, setPassword] = useState("");
 
     return (
@@ -37,6 +38,16 @@ function RegisterPage() {
                     </div>
 
                     <div className={style.fieldGroup}>
+                        <Text>displayName</Text>
+                        <InputField
+                            type="text"
+                            placeholder="insert displayName ..."
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                        />
+                    </div>
+
+                    <div className={style.fieldGroup}>
                         <Text>password</Text>
                         <InputField
                             type="password"
@@ -47,10 +58,15 @@ function RegisterPage() {
                     </div>
                 </div>
 
-                <SignupButton color="var(--green)" tColor="var(--reverseText)" />
+                <SignupButton
+                    color="var(--green)"
+                    tColor="var(--reverseText)"
+                />
 
                 <div className={style.loginRow}>
-                    <Text color="var(--mutedText)">already have an account?</Text>
+                    <Text color="var(--mutedText)">
+                        already have an account?
+                    </Text>
                     <a href="#" className={`body ${style.link}`}>
                         {`> `}LOGIN
                     </a>
