@@ -1,0 +1,25 @@
+.frame {
+    position: relative;
+    width: fit-content;
+}
+
+.navButtonLeft,
+.navButtonRight {
+    position: absolute;
+    top: 50%;
+}
+
+.navButtonLeft {
+    left: 0px;
+    transform: translate(-100%, -50%);
+}
+
+.navButtonRight {
+    right: 0px;
+    transform: translate(100%, -50%);
+}
+
+.row {
+    display: flex;
+    gap: var(--spacingSmall);
+}
