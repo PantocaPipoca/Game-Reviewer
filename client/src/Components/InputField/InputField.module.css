@@ -1,0 +1,21 @@
+.inputField {
+    background-color: var(--terciaryPanel);
+    border: 1px solid var(--separator);
+    width: 100%;
+    padding: var(--spacingSmall) 10px;
+    gap: var(--spacingSmall);
+    display: flex;
+    align-items: center;
+}
+
+.input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--mainText);
+    width: 100%;
+}
+
+.input::placeholder {
+    color: var(--mutedText);
+}

@@ -4,6 +4,10 @@
     margin-top: calc(var(--borderWidth) * -1);
 }
 
+.section {
+    width: 100%;
+}
+
 .header {
     display: flex;
     justify-content: space-between;

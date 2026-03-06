@@ -1,7 +1,0 @@
-.search {
-    background-color: var(--terciaryPanel);
-    border: 1px solid var(--separator);
-    width: 100%;
-    padding: var(--spacingSmall) 10px;
-    gap: var(--spacingSmall);
-}
