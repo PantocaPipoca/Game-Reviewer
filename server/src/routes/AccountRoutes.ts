@@ -6,7 +6,7 @@ import { FollowerController } from "../controllers/FollowerController";
 import FollowerRoutes from "./FollowerRoutes";
 
 // Router object
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 
 // ===================== AUTHENTICATION =====================
@@ -21,7 +21,7 @@ const router: Router = Router();
  *      email: string
  * Response:
  *      201 CREATED
- *      {accountName, isPrivate, userData, createdAt, token}
+ *      {accountName, isPrivate = false, userData, createdAt, token}
  *      400 BAD REQUEST             if any of the required fields is missing
  *      400 BAD REQUEST             if the account name is shorter than 3 characters
  *      400 BAD REQUEST             if the password is shorter than 8 characters
@@ -168,17 +168,7 @@ router.get('/search', optionalAuth, AccountController.Search)
 
 // ===================== USER SUB-RESOURCES =====================
 
-/**
- * GET /api/users/:username/followers
- * Gets the followers of a user, if it's private only returns followed users if the current user follows it
- * (Empty body)
- * Response:
- *      200 OK
- *      [{follows, followed, accepted, createdAt, updatedAt}]
- *      400 BAD REQUEST             if no user name was provided
- *      404 NOT FOUND               if the provided user name doesn't exist
- *      500 INTERNAL SERVER ERROR   if the followers couldn't be retrieved
- */
+// api/users/:username/followers routes are handled by FollowerRoutes
 router.use('/:username/followers', FollowerRoutes);
 
 /**

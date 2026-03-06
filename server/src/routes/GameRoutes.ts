@@ -1,10 +1,10 @@
 import {Router} from "express";
 import {GameController} from "../controllers/GameController";
 import { ReviewController } from "../controllers/ReviewController";
-import { auth } from "../utils/auth";
+import { auth, optionalAuth } from "../utils/auth";
 
 // Router object
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 
 // ===================== FIND GAMES =====================
@@ -49,7 +49,7 @@ router.get('/popular', GameController.GetPopularGames);
  *      404 NOT FOUND               if the provided game name doesn't exist
  *      500 INTERNAL SERVER ERROR   if the reviews couldn't be retrieved
  */
-router.get('/:gameID/reviews', ReviewController.GetReviewsByGame);
+router.get('/:gameID/reviews', optionalAuth, ReviewController.GetReviewsByGame);
 
 /**
  * POST /api/games/:gameID/reviews

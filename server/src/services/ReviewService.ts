@@ -115,7 +115,7 @@ export class ReviewService {
 
         const canView = await CanViewUser(user, currentUser);
         if (!canView)
-            return [];  // return empty if not authorized to view
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
         const reviews: ReviewFull[] = await ReviewRepository.SelectAllReviewsOfUser(username);
 

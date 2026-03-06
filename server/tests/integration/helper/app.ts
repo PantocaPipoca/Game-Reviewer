@@ -9,5 +9,8 @@ export function createTestApp() {
     const app = express();
     app.use(express.json());
     app.use("/api", apiRoutes);
+    app.set('json replacer', (_key: string, value: any) =>
+        typeof value === 'bigint' ? value.toString() : value
+    );
     return app;
 }

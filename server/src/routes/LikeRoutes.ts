@@ -3,7 +3,7 @@ import { LikeController } from "../controllers/LikeController";
 import { auth } from "../utils/auth";
 
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 
 // ===================== LIKES =====================

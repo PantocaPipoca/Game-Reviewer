@@ -24,7 +24,6 @@ export class FollowerService {
         if (existingRequest)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_REQUEST_EXISTS);
 
-        // get the followed users privacy setting
         const isPrivate: boolean = followedUser.isPrivate;
 
         // create follower request (accept auto for public accounts)
@@ -109,7 +108,7 @@ export class FollowerService {
         // check if currentUser can view followers list
         const canView: boolean = await CanViewUser(user, currentUser);
         if (!canView)
-            return [] // return empty list if not authorized to view
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
         const followers: FollowerFull[] = await FollowerRepository.SelectAllFollowersOfUser(username);
 
@@ -131,7 +130,7 @@ export class FollowerService {
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
         const following: FollowerFull[] = await FollowerRepository.SelectAllFollowedByUser(username);
-
+        
         return following;
     }
 

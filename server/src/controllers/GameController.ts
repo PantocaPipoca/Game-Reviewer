@@ -7,14 +7,14 @@ import { GameFull } from "../types/Types"
 
 /**
  * Translates a game name string to a game ID
- * @param gameName the game name
+ * @param gameID the game id
  * @returns the ID corresponding to the game
  * @throws AppError if the game name is not a number or would return an invalid game ID
  */
-export function toValidGameID(gameName?: string | string[] | undefined): number {
-    if (!gameName || typeof gameName !== 'string')
+export function toValidGameID(gameID: string | string[] | undefined): number {
+    if (typeof gameID !== 'string')
         throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NAME_REQUIRED);
-    const id: number | null = Number(gameName);
+    const id: number | null = Number(gameID);
     if (isNaN(id))
         throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NAME_REQUIRED);
     return id;

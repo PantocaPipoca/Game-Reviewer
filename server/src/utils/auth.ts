@@ -46,9 +46,9 @@ export function generateToken(username: string): string {
  * Middleware to verify JWT token and authenticate user
  * If valid, attaches user info to req.user and calls next()
  * If invalid/missing, responds with appropriate error status
- * @param req  Request object, expected to have Authorization header with Bearer token
- * @param res  Response object, used to send error responses if token is invalid/missing
- * @param next Next function to call if authentication is successful
+ * @param req  - Request object, expected to have Authorization header with Bearer token
+ * @param res  - Response object, used to send error responses if token is invalid/missing
+ * @param next - Next function to call if authentication is successful
  * @returns    void (sends response if auth fails, otherwise calls next())
  */
 export function auth(req: AuthRequest, res: Response, next: NextFunction): void {
@@ -72,9 +72,9 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction): void 
  * If token is valid, attaches user info to req.user
  * If token is invalid/missing, simply calls next() without attaching user info
  * This allows routes to access req.user if authenticated, but also work for unauthenticated users
- * @param req  Request object, may have Authorization header with Bearer token
- * @param res  Response object, not used in this middleware but required for signature
- * @param next Next function to call after processing token (regardless of validity)
+ * @param req  - Request object, may have Authorization header with Bearer token
+ * @param res  - Response object, not used in this middleware but required for signature
+ * @param next - Next function to call after processing token (regardless of validity)
  * @returns    void (always calls next(), never sends response)
  */
 export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction): void {
@@ -91,6 +91,7 @@ export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunctio
 
 export function ExtractLoggedUser(req: AuthRequest): UserPK {
     const currentUser: string | undefined = req.currentUser?.username;
-    if (!currentUser) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
+    if (!currentUser) 
+        throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
     return currentUser;
 }

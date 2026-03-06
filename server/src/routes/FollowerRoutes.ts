@@ -2,7 +2,7 @@ import {Router} from "express"
 import {FollowerController} from "../controllers/FollowerController"
 import { auth, optionalAuth } from "../utils/auth";
 
-const router: Router = Router()
+const router: Router = Router({ mergeParams: true });
 
 
 // ===================== GET FOLLOWERS =====================
@@ -25,7 +25,7 @@ router.get('/', optionalAuth, FollowerController.GetFollowers);
 
 /**
  * POST /api/users/:username/followers/
- * Makes a follower request to user ":username"
+ * Makes a follower request to user ":username" from current logged in user
  * (Empty body)
  * Response:
  *      201 CREATED
@@ -40,7 +40,7 @@ router.post('/', auth, FollowerController.RequestFollower);
 
 /**
  * DELETE /api/users/:username/followers/
- * Unfollows/cancels request to :username user ":username"
+ * Unfollows/cancels request to :username
  * (Empty body)
  * Response:
  *      202 ACCEPTED

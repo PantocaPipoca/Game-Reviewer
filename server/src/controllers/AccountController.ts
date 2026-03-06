@@ -74,14 +74,17 @@ export class AccountController {
     static Alter: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = ExtractLoggedUser(req);
 
-        const {isPrivate, password, email, userData} = req.body;
-        if (password! && password.length < 8)
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
-        if (email! && !email_regex.test(email))
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
-
+        const {isPrivate: isPrivate, password: password, email: email, userData: userData} = req.body;
+        if(password != undefined){
+            if (typeof password !== "string" || password.length < 8)
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
+        }
+        if(email != undefined){
+            if (typeof email !== "string" || !email_regex.test(email))
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
+        }
         const result: UserPublic = await AccountService.AlterUser(currentUser, isPrivate, password, email, userData);
-        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+        return MakeSuccess(res, StatusCodes.OK, result);
     })
 
     /**
@@ -93,7 +96,7 @@ export class AccountController {
         const currentUser: string = ExtractLoggedUser(req);
 
         const result: UserPublic = await AccountService.RemoveUser(currentUser);
-        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+        return MakeSuccess(res, StatusCodes.OK, result);
     })
 
     /**
@@ -121,10 +124,10 @@ export class AccountController {
     static Search: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const filter: any = req.query['query'];
         if (typeof filter !== 'string')
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION);
 
         const currentUser: string | undefined = req.currentUser?.username;
-        const result: UserPublic[] = await AccountService.SearchUsersByName(filter, currentUser)
-        return MakeSuccess(res, StatusCodes.OK, result)
+        const result: UserPublic[] = await AccountService.SearchUsersByName(filter, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
     });
 }

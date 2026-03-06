@@ -20,6 +20,9 @@ export const COMMENT_TEXT_REQUIRED: string  = "Missing comment provided field"
 export const COMMENT_ID_REQUIRED: string    = "Missing comment ID field"
 export const COMMENT_ID_INVALID: string    = "Invalid comment ID field"
 
+// ========== NOT AUTHORIZED ERRORS (401) ==========
+export const INVALID_CREDENTIALS: string = "Invalid credentials"
+
 // ========== AUTHENTICATION ERRORS (403) ==========
 export const PASSWORD_INCORRECT: string     = "Wrong password"
 export const UNAUTHORIZED_ACTION: string    = "Not authorized to perform this action"

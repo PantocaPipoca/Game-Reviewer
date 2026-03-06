@@ -2,7 +2,7 @@ import {Router} from "express"
 import { CommentController } from "../controllers/CommentController";
 import { auth, optionalAuth } from "../utils/auth";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 // ===================== MANAGE COMMENTS =====================
 

@@ -5,7 +5,7 @@ import LikeRoutes from "./LikeRoutes";
 import { auth, optionalAuth } from "../utils/auth";
 
 // Router object
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 
 // COMMENTS 

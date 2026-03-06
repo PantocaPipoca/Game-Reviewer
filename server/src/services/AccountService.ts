@@ -131,12 +131,15 @@ export class AccountService {
      * @returns AuthResponse object with token and user data
      */
     static async LoginUser(username: UserPK, password: string): Promise<AuthResponse> {
-        const user: UserFull = await FetchFullUser(username);
-
-        // Verify password
+        const user : UserFull | null = await UserRepository.SelectUser(username);
+        // verify user
+        if (!user)
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+    
         const isValid: boolean = await bcrypt.compare(password, user.passwordHash)
+        // Verify password
         if (!isValid)
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.PASSWORD_INCORRECT);
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
 
         // Generate JWT token
         const token: string = generateToken(user.accountName);
@@ -159,7 +162,10 @@ export class AccountService {
      * @returns User object
      */
     static async GetCurrentUser(currentUser: UserPK): Promise<UserPublic> {
-        const user: UserFull = await FetchFullUser(currentUser);
+        const user: UserFull | null = await UserRepository.SelectUser(currentUser);
+
+        if (!user)
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
 
         return UserFullToPublic(user);
     }
@@ -243,31 +249,28 @@ export class AccountService {
      * @param currentUser - authenticated user making the request (optional)
      */
     static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<UserPublic[]> {
-        const usersFull: UserFull[] = await UserRepository.SelectUsersOfSimilarName(nameFilter);
-        const users: UserPublic[] = usersFull.map(user => UserFullToPublic(user));
-        
-        const usersInfo: UserPublic[] = [];
+       const usersFull = await UserRepository.SelectUsersOfSimilarName(nameFilter);
+        const users = usersFull.map(UserFullToPublic);
 
-        for (const user of users){
-            const canView = await CanViewUser(user, currentUser);
-            if (canView) {
-                usersInfo.push({
-                    accountName: user.accountName,
-                    isPrivate: user.isPrivate,
-                    userData: user.userData as UserData,
-                    createdAt: user.createdAt,
-                });
-            }
-            else {
-                usersInfo.push({
-                    accountName: user.accountName,
-                    isPrivate: user.isPrivate,
-                    userData: null,
-                    createdAt: null
-                });
-            }
-        }
+        const canViewList = await Promise.all(
+            users.map(u => CanViewUser(u, currentUser))
+        );
 
-        return usersInfo;
+        return users.map((u, i) => {
+            if (canViewList[i]) {
+                return {
+                    accountName: u.accountName,
+                    isPrivate: u.isPrivate,
+                    userData: u.userData as UserData,
+                    createdAt: u.createdAt,
+                };
+            }
+            return {
+                accountName: u.accountName,
+                isPrivate: u.isPrivate,
+                userData: null,
+                createdAt: null,
+            };
+        });
     }
 }
