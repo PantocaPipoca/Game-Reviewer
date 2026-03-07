@@ -1,0 +1,2558 @@
+import {Router} from "express"
+import {AccountController} from "../controllers/AccountController"
+import { ReviewController } from "../controllers/ReviewController";
+import { optionalAuth, auth } from "../utils/auth";
+import { FollowerController } from "../controllers/FollowerController";
+import FollowerRoutes from "./FollowerRoutes";
+
+// Router object
+const router: Router = Router({ mergeParams: true });
+
+
+// ===================== AUTHENTICATION =====================
+
+/**
+ * POST /api/users
+ * Registers a new account
+ * Body:
+ *      accountName: string
+ *      displayName: string
+ *      password: string
+ *      email: string
+ * Response:
+ *      201 CREATED
+ *      {accountName, isPrivate = false, userData, createdAt, token}
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      400 BAD REQUEST             if the account name is shorter than 3 characters
+ *      400 BAD REQUEST             if the password is shorter than 8 characters
+ *      400 BAD REQUEST             if the email provided is invalid
+ *      409 CONFLICT                if the user name provided already exists
+ *      500 INTERNAL SERVER ERROR   if the account could not be created
+ */
+router.post('/', AccountController.Register);
+
+/**
+ * POST /api/users/login
+ * Logs in an existing account
+ * Body:
+ *      accountName: string
+ *      password: string
+ * Response:
+ *      200 OK
+ *      {accountName, isPrivate, userData, createdAt, token}
+ *      400 BAD REQUEST     if any of the required fields is missing
+ *      404 NOT FOUND       if the provided user name doesn't exist
+ *      403 FORBIDDEN       if the provided password is incorrect
+ */
+router.post('/login', AccountController.Login);
+
+
+// ===================== USER MANAGEMENT =====================
+
+/**
+ * GET /api/users/me
+ * Gets the currently logged in account
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      {accountName, isPrivate, userData, createdAt}
+ *      401 UNAUTHORIZED    if no account is logged in
+ *      404 NOT FOUND       if the username logged in doesn't exist
+ */
+router.get('/me', auth, AccountController.GetCurrentUser);
+
+/**
+ * PUT /api/users/me
+ * Alters account details in an existing account
+ * Body:
+ *      accountName: string
+ *      isPrivate?: boolean
+ *      password?: string
+ *      email?: string
+ *      userData?: JSON
+ * Response:
+ *      202 ACCEPTED
+ *      {accountName, isPrivate, userData, createdAt}
+ *      400 BAD REQUEST             if the account's name is missing
+ *      400 BAD REQUEST             if the password (if provided) is shorter than 8 characters
+ *      400 BAD REQUEST             if the email (if provided) is invalid
+ *      404 NOT FOUND               if the provided account's name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the account could not be updated
+ */
+router.put('/me', auth, AccountController.Alter);
+
+/**
+ * DELETE /api/users/me
+ * Deletes an existing account
+ * Body:
+ *      accountName: string
+ * Response:
+ *      202 ACCEPTED
+ *      {accountName, isPrivate, userData, createdAt}
+ *      400 BAD REQUEST             if the accountName field is missing
+ *      404 NOT FOUND               if provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the account could not be deleted
+ */
+router.delete('/me', auth, AccountController.Remove);
+
+/**
+ * GET /api/users/me/followers/requests/received
+ * Gets the pending follower requests for a user (for private accounts)
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{follows, followed, accepted, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if no user name was provided
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the followers couldn't be retrieved
+ */
+router.get('/me/followers/requests/received', auth, FollowerController.GetPendingRequestsToUser);
+
+/**
+ * GET /api/users/me/followers/requests/sent
+ * Gets the pending follower requests made by a user (for private accounts)
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{follows, followed, accepted, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if no user name was provided
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the followers couldn't be retrieved
+ */
+router.get('/me/followers/requests/sent', auth, FollowerController.GetPendingRequestsFromUser);
+
+/**
+ * PUT /api/users/me/followers/requests/received/:username
+ * Accepts a follower request from user ":username"
+ * (Empty body)
+ * Response:
+ *      202 ACCEPTED
+ *      {follows, followed, accepted, createdAt, updatedAt}
+ *      400 BAD REQUEST             if either user name or followerName are missing
+ *      403 FORBIDDEN               if no account is logged in
+ *      404 NOT FOUND               if any of the provided user names don't exist
+ *      404 NOT FOUND               if the first user didn't request to follow the second
+ *      409 CONFLICT                if the second user already accepted the request
+ *      500 INTERNAL SERVER ERROR   if the request couldn't be accepted
+ */
+router.put('/me/followers/requests/received/:username', auth, FollowerController.AcceptFollowerRequest);
+
+/**
+ * DELETE /api/users/me/followers/requests/received/:username
+ * Rejects follower request from "":username"
+ * (Empty body)
+ * Response:
+ *      202 ACCEPTED
+ *      {follows, followed, accepted, createdAt, updatedAt}
+ *      400 BAD REQUEST             if either user name or followerName are missing
+ *      403 FORBIDDEN               if no account is logged in
+ *      404 NOT FOUND               if any of the provided user names don't exist
+ *      404 NOT FOUND               if the first user name doesn't follow the second yet
+ *      500 INTERNAL SERVER ERROR   if the follower couldn't be removed
+ */
+router.delete('/me/followers/requests/received/:username', auth, FollowerController.RejectFollowerRequest);
+
+// ===================== SEARCH USERS =====================
+
+/**
+ * GET /api/users/search?query=...
+ * Finds accounts by a likely match
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{accountName, isPrivate, userData, createdAt}]
+ *      400 BAD REQUEST     if the query is invalid or empty
+ */
+router.get('/search', optionalAuth, AccountController.Search)
+
+
+// ===================== USER SUB-RESOURCES =====================
+
+// api/users/:username/followers routes are handled by FollowerRoutes
+router.use('/:username/followers', FollowerRoutes);
+
+/**
+ * GET /api/users/:username/following
+ * Gets the users followed by a user, if it's private only returns followed users if the current user follows it
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{follows, followed, accepted, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if no user name was provided
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the reviews couldn't be retrieved
+ */
+router.get('/:username/following', optionalAuth, FollowerController.GetFollowingByUser);
+
+
+/**
+ * GET /api/users/:username/reviews
+ * Gets the reviews of a user
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if no user name was provided
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the reviews couldn't be retrieved
+ */
+router.get('/:username/reviews', optionalAuth, ReviewController.GetReviewsByUser);
+
+
+// ===================== FIND USER PROFILE =====================
+
+/**
+ * GET /api/users/:username
+ * Finds an account by its name
+ * The account has to be public or in case of private the current authenticated user has to follow it,
+ * otherwise only the account's name and its privacy settings are shown
+ * Body:
+ *      accountName: string
+ * Response:
+ *      200 OK
+ *      {accountName, isPrivate, userData, createdAt}
+ *      400 BAD REQUEST             if the account's name is missing
+ *      404 NOT FOUND               if the provided account's name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the account could not be updated
+ */
+router.get('/:username', optionalAuth, AccountController.FindByUsername);
+
+export default router;
+import {Router} from "express"
+import { CommentController } from "../controllers/CommentController";
+import { auth, optionalAuth } from "../utils/auth";
+
+const router: Router = Router({ mergeParams: true });
+
+// ===================== MANAGE COMMENTS =====================
+
+/**
+ * GET /api/reviews/:reviewer/:reviewed/comments
+ * Gets the comments of a review
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{reviewer, reviewed, id, commentator, text, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      404 NOT FOUND               if the user didn't review the game
+ */
+router.get('/', optionalAuth, CommentController.GetComments);
+
+/**
+ * POST /api/reviews/:reviewer/:reviewed/comments
+ * Adds a comment to a review
+ * Body:
+ *      text: string
+ * Response:
+ *      201 CREATED
+ *      {reviewer, reviewed, id, commentator, text, createdAt, updatedAt}
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      404 NOT FOUND               if the user didn't review the game
+ */
+router.post('/', auth, CommentController.AddComment);
+
+// ===================== COMMENTS BY ID =====================
+
+/**
+ * PUT /api/reviews/:reviewer/:reviewed/comments/:id
+ * Edits a comment to a review
+ * Body:
+ *      text: string
+ * Response:
+ *      202 ACCEPTED
+ *      {reviewer, reviewed, id, commentator, text, createdAt, updatedAt}
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      404 NOT FOUND               if the user didn't review the game
+ */
+router.put('/:id', auth, CommentController.EditComment);
+ 
+/**
+ * DELETE /api/reviews/:reviewer/:reviewed/comments/:id
+ * Deletes a comment to a review
+ * Body:
+ *      (Empty body)
+ * Response:
+ *      202 ACCEPTED
+ *      {reviewer, reviewed, id, commentator, text, createdAt, updatedAt}
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      404 NOT FOUND               if the user didn't review the game
+ */
+router.delete('/:id', auth, CommentController.RemoveComment);
+
+export default router;import {Router} from "express"
+import {FollowerController} from "../controllers/FollowerController"
+import { auth, optionalAuth } from "../utils/auth";
+
+const router: Router = Router({ mergeParams: true });
+
+
+// ===================== GET FOLLOWERS =====================
+
+/**
+ * GET /api/users/:username/followers
+ * Gets the followers of an account
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{follows, followed, accepted, createdAt, updatedAt}]
+ *      400 BAD REQUEST             if no user name was provided
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the followers couldn't be retrieved
+ */
+router.get('/', optionalAuth, FollowerController.GetFollowers);
+
+
+// ===================== FOLLOW RELATION =====================
+
+/**
+ * POST /api/users/:username/followers/
+ * Makes a follower request to user ":username" from current logged in user
+ * (Empty body)
+ * Response:
+ *      201 CREATED
+ *      {follows, followed, accepted, createdAt, updatedAt}
+ *      400 BAD REQUEST             if either user name or followerName are missing
+ *      403 FORBIDDEN               if no account is logged in
+ *      404 NOT FOUND               if any of the provided user names don't exist
+ *      409 CONFLICT                if the first user already requested to follow the second
+ *      500 INTERNAL SERVER ERROR   if the request couldn't be made
+ */
+router.post('/', auth, FollowerController.RequestFollower);
+
+/**
+ * DELETE /api/users/:username/followers/
+ * Unfollows/cancels request to :username
+ * (Empty body)
+ * Response:
+ *      202 ACCEPTED
+ *      {follows, followed, accepted, createdAt, updatedAt}
+ *      400 BAD REQUEST             if either user name or followerName are missing
+ *      403 FORBIDDEN               if no account is logged in
+ *      404 NOT FOUND               if any of the provided user names don't exist
+ *      404 NOT FOUND               if the first user name doesn't follow the second yet
+ *      500 INTERNAL SERVER ERROR   if the follower couldn't be removed
+ */
+router.delete('/', auth, FollowerController.UnfollowUser);
+
+
+
+
+export default router;import {Router} from "express";
+import {GameController} from "../controllers/GameController";
+import { ReviewController } from "../controllers/ReviewController";
+import { auth } from "../utils/auth";
+
+// Router object
+const router: Router = Router({ mergeParams: true });
+
+
+// ===================== FIND GAMES =====================
+
+/**
+ * GET /api/games
+ * Search games using query params
+ * Example:
+ *      /games?name=elden
+ *      /games?tag=rpg
+ *      /games?name=elden&tag=rpg
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{gameID, gameName, metadata}]
+ *      400 BAD REQUEST             if any of the query parameters is invalid
+ *      500 INTERNAL SERVER ERROR   if the filters couldn't be retrieved
+ */
+router.get('/', GameController.SearchGames);
+
+/**
+ * GET /api/games/popular
+ * Returns popular games ordered by score or review count
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{gameName, metadata}]
+ *      500 INTERNAL SERVER ERROR   if the games couldn't be retrieved
+ */
+router.get('/popular', GameController.GetPopularGames);
+
+
+// ===================== GAME REVIEWS =====================
+
+/**
+ * GET /api/games/:gameID/reviews
+ * Gets the reviews of a game
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      [{reviewer, reviewed, text, score, createdAt, updatedAt}]
+ *      404 NOT FOUND               if the provided game name doesn't exist
+ *      500 INTERNAL SERVER ERROR   if the reviews couldn't be retrieved
+ */
+router.get('/:gameID/reviews', ReviewController.GetReviewsByGame);
+
+/**
+ * POST /api/games/:gameID/reviews
+ * Publishes a new review
+ * Body:
+ *      text: string
+ *      score: int4
+ * Response:
+ *      201 CREATED
+ *      {reviewer, reviewed, text, score, createdAt, updatedAt}
+ *      400 BAD REQUEST             if any of the required fields is missing
+ *      400 BAD REQUEST             if the score is not a number or not in [0, 10]
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      404 NOT FOUND               if the provided game name doesn't exist
+ *      409 CONFLICT                if the user already reviewed the game
+ *      500 INTERNAL SERVER ERROR   if the review couldn't be publised
+ */
+router.post('/:gameID/reviews', auth, ReviewController.PublishReview);
+
+/**
+ * PUT /api/games/:gameID/reviews
+ * Updates a user's review
+ * Body:
+ *      text: string
+ *      score: int4
+ * Response:
+ *      202 ACCEPTED
+ *      {reviewer, reviewed, text, score, createdAt, updatedAt}
+ *      400 BAD REQUEST             if either reviewer or reviewed fields are missing
+ *      400 BAD REQUEST             if the score is not a number or not in [0, 10]
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      404 NOT FOUND               if the provided game name doesn't exist
+ *      404 NOT FOUND               if the user didn't review the game
+ *      500 INTERNAL SERVER ERROR   if the review couldn't be updated
+ */
+router.put('/:gameID/reviews', auth, ReviewController.AlterReview);
+
+/**
+ * DELETE /api/games/:gameID/reviews
+ * Removes a user's review
+ * (Empty body)
+ * Response:
+ *      202 ACCEPTED
+ *      {reviewer, reviewed, text, score, createdAt, updatedAt}
+ *      400 BAD REQUEST             if either reviewer or reviewed fields are missing
+ *      404 NOT FOUND               if the provided user name doesn't exist
+ *      404 NOT FOUND               if the provided game name doesn't exist
+ *      404 NOT FOUND               if the user didn't review the game
+ *      500 INTERNAL SERVER ERROR   if the review couldn't be removed
+ */
+router.delete('/:gameID/reviews', auth, ReviewController.RemoveReview);
+
+// ===================== FIND GAME =====================
+
+/**
+ * GET /api/games/:gameID
+ * Finds a game by ID
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      {gameID, gameName, metadata}
+ *      400 BAD REQUEST     if gameID field is missing or is invalid
+ *      404 NOT FOUND       if the provided game doesn't exist
+ */
+router.get('/:gameID', GameController.GetGameById);
+
+
+export default router;
+import {Router} from "express"
+import { LikeController } from "../controllers/LikeController";
+import { auth } from "../utils/auth";
+
+
+const router: Router = Router({ mergeParams: true });
+
+
+// ===================== LIKES =====================
+
+/**
+ * GET /api/reviews/:reviewer/:reviewed/likes
+ * Gets the likes of a review
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      number of likes
+ *      400 BAD REQUEST     if any of the required fields is missing
+ *      404 NOT FOUND       if the provided user name doesn't exist
+ *      404 NOT FOUND       if the provided game name doesn't exist
+ *      404 NOT FOUND       if the user didn't review the game
+ */
+router.get('/likes', LikeController.GetLikes);
+
+/**
+ * POST /api/reviews/:reviewer/:reviewed/likes
+ * Adds a like to a review
+ * (Empty body)
+ * Response:
+ *      202 ACCEPTED
+ *      {reviewer, reviewed, liker, value}
+ *      400 BAD REQUEST     if any of the required fields is missing
+ *      401 UNAUTHORIZED    if no account is logged in
+ *      404 NOT FOUND       if the provided user name doesn't exist
+ *      404 NOT FOUND       if the provided game name doesn't exist
+ *      404 NOT FOUND       if the user didn't review the game
+ */
+router.post('/likes', auth, LikeController.AddLike);
+
+
+// ===================== DISLIKES =====================
+
+/**
+ * GET /api/reviews/:reviewer/:reviewed/dislikes
+ * Gets the dislikes of a review
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      number of likes
+ *      400 BAD REQUEST     if any of the required fields is missing
+ *      404 NOT FOUND       if the provided user name doesn't exist
+ *      404 NOT FOUND       if the provided game name doesn't exist
+ *      404 NOT FOUND       if the user didn't review the game
+ */
+router.get('/dislikes', LikeController.GetDislikes);
+
+/**
+ * POST /api/reviews/:reviewer/:reviewed/dislikes
+ * Adds a dislike to a review
+ * (Empty body)
+ * Response:
+ *      202 ACCEPTED
+ *      {reviewer, reviewed, liker, value}
+ *      400 BAD REQUEST     if any of the required fields is missing
+ *      401 UNAUTHORIZED    if no account is logged in
+ *      404 NOT FOUND       if the provided user name doesn't exist
+ *      404 NOT FOUND       if the provided game name doesn't exist
+ *      404 NOT FOUND       if the user didn't review the game
+ */
+router.post('/dislikes', auth, LikeController.AddDislike);
+
+
+// ===================== BOTH =====================
+
+/**
+ * DELETE /api/reviews/:reviewer/:reviewed/reacts
+ * Deletes likes and dislikes to a review
+ * (Empty body)
+ * Response:
+ *      202 ACCEPTED
+ *      {reviewer, reviewed, liker, value}
+ *      400 BAD REQUEST     if any of the required fields is missing
+ *      401 UNAUTHORIZED    if no account is logged in
+ *      404 NOT FOUND       if the provided user name doesn't exist
+ *      404 NOT FOUND       if the provided game name doesn't exist
+ *      404 NOT FOUND       if the user didn't review the game
+ */
+router.delete('/reacts', auth, LikeController.RemoveReactions);
+
+
+export default router;import {Router} from "express";
+import {ReviewController} from "../controllers/ReviewController";
+import CommentRoutes from "./CommentRoutes";
+import LikeRoutes from "./LikeRoutes";
+import { auth, optionalAuth } from "../utils/auth";
+
+// Router object
+const router: Router = Router({ mergeParams: true });
+
+
+// COMMENTS 
+router.use('/:reviewer/:reviewed/comments', CommentRoutes);
+
+// REACTIONS (LIKES/DISLIKES)
+router.use('/:reviewer/:reviewed/', LikeRoutes);
+
+// ===================== GET REVIEW =====================
+
+/**
+ * GET /api/reviews/:reviewer/:reviewed
+ * Finds a user's review on a game
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      {reviewer, reviewed, text, score, createdAt, updatedAt}
+ *      400 BAD REQUEST     if any of the required fields is missing
+ *      404 NOT FOUND       if the provided user name doesn't exist
+ *      404 NOT FOUND       if the provided game name doesn't exist
+ *      404 NOT FOUND       if the user didn't review the game
+ */
+router.get('/:reviewer/:reviewed/', optionalAuth, ReviewController.GetReview);
+
+
+export default router;
+import {Router} from "express";
+import accRoutes from "./AccountRoutes.js";
+import gameRoutes from "./GameRoutes.js";
+import revRoutes from "./ReviewRoutes.js";
+
+const router: Router = Router({ mergeParams: true });
+
+// Game routes
+router.use('/games', gameRoutes);
+
+// User routes
+router.use('/users', accRoutes);
+
+// Review routes
+router.use('/reviews', revRoutes);
+
+export default router;
+# ACCOUNT / USER ENDPOINTS
+
+- [ ] POST   /api/users/register
+- [ ] POST   /api/users/login
+- [ ] GET    /api/users/me
+- [ ] PUT    /api/users/me
+- [ ] DELETE /api/users/me
+- [ ] GET    /api/users/:username
+
+- [ ] GET    /api/users/search?name=...
+
+
+# FOLLOWER ENDPOINTS
+
+- [ ] GET    /api/users/:username/followers
+- [ ] POST   /api/users/:username/followers/:followerName
+- [ ] PUT    /api/users/:username/followers/:followerName
+- [ ] DELETE /api/users/:username/followers/:followerName
+- [ ] GET    /api/users/:username/following
+- [ ] GET    /api/users/:username/followers/pending
+
+
+# GAME ENDPOINTS
+
+- [ ] GET    /api/games/:gameID
+- [ ] GET    /api/games/search?name=...&tag=...
+- [ ] GET    /api/games/popular?orderBy=...&limit=...
+
+- [ ] GET    /api/games/:gameName/stats
+
+
+# REVIEW ENDPOINTS
+
+- [ ] GET    /api/reviews/:reviewer/:reviewed
+- [ ] POST   /api/reviews/:reviewer/:reviewed
+- [ ] PUT    /api/reviews/:reviewer/:reviewed
+- [ ] DELETE /api/reviews/:reviewer/:reviewed
+- [ ] GET    /api/games/:gameName/reviews
+- [ ] GET    /api/users/:username/reviews
+
+- [ ] GET    /api/reviews/recent
+
+
+# COMMENT ENDPOINTS
+
+- [ ] GET    /api/reviews/:reviewer/:reviewed/comments
+- [ ] POST  /api/reviews/:reviewer/:reviewed/comments
+- [ ] PUT    /api/reviews/:reviewer/:reviewed/comments
+- [ ] DELETE /api/reviews/:reviewer/:reviewed/comments - (how to know which comment to delete - body?)
+
+
+# LIKE / DISLIKE ENDPOINTS
+
+- [ ] GET    /api/reviews/:reviewer/:gameName/likes
+- [ ] GET    /api/reviews/:reviewer/:gameName/dislikes
+- [ ] POST   /api/reviews/:reviewer/:reviewed/likes
+- [ ] POST   /api/reviews/:reviewer/:reviewed/dislikes
+- [ ] DELETE /api/reviews/:reviewer/:reviewed/likes
+- [ ] DELETE /api/reviews/:reviewer/:reviewed/dislikes
+
+- [ ] GET    /api/users/:username/likes
+- [ ] GET    /api/users/:username/dislikes
+import bcrypt from "bcrypt"
+import { StatusCodes } from "http-status-codes"
+import * as ErrorMessage from "../utils/ErrorMessage";
+import { AppError } from "../utils/ErrorHandler"
+import { generateToken } from "../utils/auth"
+import { UserRepository } from "../Repository/UserRepository"
+import {UserData, UserFull, UserPK, AuthResponse, UserPublic} from "../types/Types"
+import { FollowerRepository } from "../Repository/FollowerRepository"
+
+const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
+
+
+/**
+ * Gets a user full object by username and throws an error if the user doesn't exist
+ * @param username - username of the user to fetch
+ * @returns Full User object if found
+ * @throws AppError if the user doesn't exist (HTTP 404)
+*/
+export async function FetchFullUser(username: UserPK): Promise<UserFull> {
+    const user : UserFull | null = await UserRepository.SelectUser(username);
+    
+    if (!user)
+        throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
+    
+    return user;
+}
+
+/**
+ * Gets a user public object by username (only public fields)
+ * @param username - username of the user to fetch
+ * @returns Public User object if found
+ * @throws AppError if the user doesn't exist (HTTP 404)
+ * 
+ */
+export async function FetchPublicUser(username: UserPK): Promise<UserPublic> {
+    const user: UserFull = await FetchFullUser(username);
+
+    return UserFullToPublic(user);
+}
+
+export function UserFullToPublic(user: UserFull): UserPublic {
+    return {
+        accountName: user.accountName,
+        isPrivate: user.isPrivate,
+        userData: user.userData as UserData,
+        createdAt: user.createdAt,
+    };
+}
+
+/**
+ * Checks if a user can view another user's profile based on privacy settings
+ * @param targetUser the user being viewed
+ * @param currentUser the user requesting (undefined if not authenticated) - confirmed by auth middleware
+ * @returns true if user can view, false otherwise
+ */
+export async function CanViewUser(targetUser: UserPublic, currentUser?: UserPK): Promise<boolean> {
+    const isPrivate: boolean = targetUser.isPrivate;
+    
+    if (!isPrivate) // public account
+        return true;
+    
+    // not authenticated - cant view private accounts
+    if (!currentUser)
+        return false;
+    
+    // own account - always visible
+    if (targetUser.accountName === currentUser)
+        return true;
+    
+    // check if currentUser follows targetUser
+    const followRelation = await FollowerRepository.SelectFollower({
+        follows: currentUser,
+        followed: targetUser.accountName
+    });
+    
+    return followRelation !== null && followRelation.accepted; // has to be accepted
+}
+
+export class AccountService {
+
+    // ===================== AUTHENTICATION =====================
+
+    /**
+     * Creates a new user account with the provided information, 
+     * hashes the password, and generates a JWT token for authentication
+     * @param username - username of the new account
+     * @param displayName - display name for the user profile
+     * @param password - plaintext password to be hashed and stored
+     * @param email - email address of the user
+     * @returns AuthResponse object with token and user data
+     */
+    static async RegisterUser(username: UserPK, displayName: string, password: string, email: string): Promise<AuthResponse> {
+        // Check if username is being used
+        const existingUser: UserFull | null = await UserRepository.SelectUser(username);
+        if (existingUser)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
+
+        const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+
+        // create userData JSON object
+        const userData: UserData = {
+            displayName: displayName,
+            gender: null,
+            bio: null
+        };
+
+        const newUser: UserFull = await UserRepository.InsertUser({
+            accountName: username,
+            isPrivate: false, // default to public account
+            passwordHash,
+            userData,
+            email
+        });
+
+        // generate JWT token
+        const token: string = generateToken(newUser.accountName); 
+
+        return {
+            accountName: newUser.accountName,
+            isPrivate: newUser.isPrivate,
+            userData: newUser.userData as UserData,
+            createdAt: newUser.createdAt,
+            token
+        } as AuthResponse;
+    }
+
+    /**
+     * Login user by verifying password and generating JWT token
+     * @param username - username of the account to login
+     * @param password - plaintext password to verify against stored hash
+     * @returns AuthResponse object with token and user data
+     */
+    static async LoginUser(username: UserPK, password: string): Promise<AuthResponse> {
+        const user : UserFull | null = await UserRepository.SelectUser(username);
+        // verify user
+        if (!user)
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+    
+        const isValid: boolean = await bcrypt.compare(password, user.passwordHash)
+        // Verify password
+        if (!isValid)
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+
+        // Generate JWT token
+        const token: string = generateToken(user.accountName);
+
+        return {
+            accountName: user.accountName,
+            isPrivate: user.isPrivate,
+            userData: user.userData as UserData,
+            createdAt: user.createdAt,
+            token
+        } as AuthResponse;
+    }
+
+    
+    // ===================== USER MANAGEMENT =====================
+
+    /**
+     * Gets the currently authenticated user's data
+     * @param currentUser - username of the currently authenticated user (from JWT)
+     * @returns User object
+     */
+    static async GetCurrentUser(currentUser: UserPK): Promise<UserPublic> {
+        const user: UserFull | null = await UserRepository.SelectUser(currentUser);
+
+        if (!user)
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+
+        return UserFullToPublic(user);
+    }
+
+    /**
+     * Updates user account information
+     * @param currentUser - username of the currently authenticated user (from JWT)
+     * @param password - new password (optional)
+     * @param email - new email (optional)
+     * @param userData - partial user data updates (optional)
+     * @returns updated user data
+     */
+    static async AlterUser(currentUser: UserPK, isPrivate?: boolean, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
+        const user: UserFull = await FetchFullUser(currentUser);
+
+        const passwordHash = password
+            ? await bcrypt.hash(password, SALT_ROUNDS) 
+            : user.passwordHash;
+
+        const updatedEmail: string = email ?? user.email;
+
+        // merge current user data with provided user data updates
+        const currentUserData: UserData = user.userData as UserData;
+        const updatedUserData: UserData = {
+            ...currentUserData,
+            ...userData  // only override provided fields
+        };
+
+        const updated: UserFull = await UserRepository.UpdateUser({
+            accountName: currentUser, 
+            isPrivate: isPrivate ?? user.isPrivate,
+            passwordHash, 
+            userData: updatedUserData, 
+            email: updatedEmail
+        });
+
+        return UserFullToPublic(updated);
+    }
+
+    /**
+     * Deletes a user by username
+     * @param currentUser - username of the currently authenticated user (from JWT)
+     * @returns the deleted user's data
+     */
+    static async RemoveUser(currentUser: UserPK): Promise<UserPublic> {
+        const user: UserFull = await FetchFullUser(currentUser);
+        const deletedUser: UserFull = await UserRepository.DeleteUser(user.accountName);
+
+        return UserFullToPublic(deletedUser);
+    }
+
+
+    // ===================== SEARCH USERS =====================
+
+    /**
+     * Gets a user by username
+     * @param username - username to find
+     * @param currentUser - username of the currently authenticated user (optional)
+     * @returns Full Public user object if is visible (public or followed), if it's not visible returns only the username
+     */
+    static async FindByUsername(username: UserPK, currentUser?: UserPK): Promise<UserPublic> {
+        const user: UserPublic = await FetchPublicUser(username);
+        
+        // check if currentUser can view this profile
+        const canView: boolean = await CanViewUser(user, currentUser);
+
+        // if user is private and currentUser is not following, return only the username
+        let out: UserPublic = {
+            accountName: user.accountName,
+            isPrivate: user.isPrivate,
+            userData: canView ? user.userData as UserData : null,
+            createdAt: canView ? user.createdAt : null
+        }
+
+        return out;
+    }
+
+    /**
+     * Searches for users by name or similar names
+     * @param nameFilter - search string
+     * @param currentUser - authenticated user making the request (optional)
+     */
+    static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<UserPublic[]> {
+       const usersFull = await UserRepository.SelectUsersOfSimilarName(nameFilter);
+        const users = usersFull.map(UserFullToPublic);
+
+        const canViewList = await Promise.all(
+            users.map(u => CanViewUser(u, currentUser))
+        );
+
+        return users.map((u, i) => {
+            if (canViewList[i]) {
+                return {
+                    accountName: u.accountName,
+                    isPrivate: u.isPrivate,
+                    userData: u.userData as UserData,
+                    createdAt: u.createdAt,
+                };
+            }
+            return {
+                accountName: u.accountName,
+                isPrivate: u.isPrivate,
+                userData: null,
+                createdAt: null,
+            };
+        });
+    }
+}import {StatusCodes} from "http-status-codes"
+import {AppError} from "../utils/ErrorHandler"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import { ReviewRepository } from "../Repository/ReviewRepository"
+import { CommentRepository } from "../Repository/CommentRepository"
+import { CommentFull, CommentPK, GamePK, ReviewFull, UserPK } from "../types/Types"
+import { CanViewUser, FetchPublicUser } from "./AccountService"
+
+export class CommentService {
+
+    /**
+     * Returns all comments of a review
+     * @param reviewer - the reviewer of the game
+     * @param gameID - the game id of the review
+     * @returns a promise that resolves to an array of comments
+     */
+    static async GetComments(reviewer: UserPK, gameID: GamePK, currentUser?: UserPK): Promise<CommentFull[]> {
+        const review: ReviewFull | null = await ReviewRepository.SelectReview({ reviewer, reviewed: gameID });
+        if (!review) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        const reviewerUser = await FetchPublicUser(reviewer);
+        const canView = await CanViewUser(reviewerUser, currentUser);
+        if (!canView) 
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        return await CommentRepository.SelectCommentsOfSameReview({ reviewer, reviewed: gameID });
+    }
+
+    /**
+     * Creates a new comment to a review
+     * @param currentUser - the current user
+     * @param reviewer - the reviewer of the game
+     * @param gameID - the game id of the review
+     * @param text - the text of the comment
+     * @returns a promise that resolves to the created comment
+     */
+    static async PublishComment(currentUser: UserPK, reviewer: UserPK, gameID: GamePK, text: string): Promise<CommentFull> {
+        // check if review exists
+        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer, reviewed: gameID});
+        if (!review)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        const comment: CommentFull = await CommentRepository.InsertComment({
+            commentator: currentUser,
+            reviewer,
+            reviewed: gameID,
+            text
+        });
+
+        return comment;
+    }
+
+    /**
+     * EditComment edits an existing comment.
+     * @param currentUser - the current user
+     * @param commentID - the id of the comment
+     * @param text - the new text of the comment
+     * @returns a promise that resolves to the updated comment
+     */
+    static async EditComment(currentUser: UserPK, commentID: CommentPK, text: string): Promise<CommentFull> {
+        const comment: CommentFull | null = await CommentRepository.SelectComment(commentID);
+        if (!comment)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.COMMENT_NOT_FOUND);
+
+        if (comment.commentator !== currentUser)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        const updated: CommentFull = await CommentRepository.UpdateComment(commentID, text);
+
+        return updated;
+    }
+
+    /**
+     * RemoveComment deletes a comment.
+     * @param currentUser - the current user
+     * @param commentID - the id of the comment
+     * @returns a promise that resolves to the deleted comment
+     */
+    static async RemoveComment(currentUser: UserPK, commentID: CommentPK): Promise<CommentFull> {
+        const comment: CommentFull | null = await CommentRepository.SelectComment(commentID);
+        if (!comment)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.COMMENT_NOT_FOUND);
+
+        // only comment author can delete
+        if (comment.commentator !== currentUser)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        const deleted: CommentFull = await CommentRepository.DeleteComment(commentID);
+
+        return deleted;
+    }
+}
+import {StatusCodes} from "http-status-codes"
+import {AppError} from "../utils/ErrorHandler"
+import {FetchFullUser, CanViewUser, FetchPublicUser} from "./AccountService"
+import {FollowerFull, FollowerShort, UserData, UserPK, UserPublic} from "../types/Types"
+import { FollowerRepository } from "../Repository/FollowerRepository"
+import * as ErrorMessage from "../utils/ErrorMessage"
+
+export class FollowerService {
+
+    /**
+     * Creates a follow request from one user to another
+     * @param currentUser - username of the user making the request (the one who follows)
+     * @param followed - username of the user to be followed
+     * @returns Created follower relation object
+     */
+    static async RequestFollower(currentUser: UserPK, followed: UserPK): Promise<FollowerFull> {
+        const followedUser: UserPublic = await FetchPublicUser(followed);
+
+        if(currentUser === followed)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.CANNOT_FOLLOW_YOURSELF);
+
+        // check if request already exists
+        const existingRequest: FollowerFull | null = await FollowerRepository.SelectFollower({follows: currentUser, followed});
+        if (existingRequest)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_REQUEST_EXISTS);
+
+        const isPrivate: boolean = followedUser.isPrivate;
+
+        // create follower request (accept auto for public accounts)
+        const follower: FollowerFull = await FollowerRepository.InsertFollower({
+            follows: currentUser,
+            followed,
+            accepted: !isPrivate
+        });
+
+        return follower;
+    }
+
+    /**
+     * Accepts a follow request (for private accounts)
+     * @param currentUser - user authenticated
+     * @param follows - username of the follower
+     * @param followed - username of the followed user
+     * @returns updated follower relation object
+     */
+    static async AcceptFollower(currentUser: UserPK, follows: UserPK): Promise<FollowerFull> {
+        await FetchFullUser(currentUser);
+        await FetchFullUser(follows);
+
+        // check if request exists
+        const existingRequest: FollowerFull | null = await FollowerRepository.SelectFollower({follows, followed: currentUser});
+        if (!existingRequest)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOW_REQUEST_NOT_FOUND);
+
+        // check if already accepted
+        if (existingRequest.accepted)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_ALREADY_ACCEPTED);
+
+        const updatedFollower: FollowerFull = await FollowerRepository.UpdateFollower({
+            follows,
+            followed: currentUser,
+            accepted: true
+        });
+
+        return updatedFollower;
+    }
+
+    /**
+     * Removes a follower relationship
+     * @param currentUser - currentUser
+     * @param follows - username of the follower
+     * @param followed - username of the followed user
+     * @param expectedAccepted - expected accepted status - true is for removing followers, false is for declining follow requests, undefined either
+     * @returns Deleted follower relation object
+     */
+    // FollowerService.ts
+    static async RemoveFollower(currentUser: UserPK, follows: UserPK, followed: UserPK, expectedAccepted?: boolean): Promise<FollowerFull> {
+        await FetchFullUser(follows);
+        await FetchFullUser(followed);
+
+        if (currentUser !== follows && currentUser !== followed)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        const existing: FollowerFull | null = await FollowerRepository.SelectFollower({ follows, followed });
+
+        if (!existing)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOWER_NOT_FOUND);
+
+        if (expectedAccepted !== undefined && existing.accepted !== expectedAccepted) {
+            throw new AppError(
+                StatusCodes.NOT_FOUND,
+                expectedAccepted ? ErrorMessage.FOLLOWER_NOT_FOUND : ErrorMessage.FOLLOW_REQUEST_NOT_FOUND
+            );
+        }
+
+        return await FollowerRepository.DeleteFollower({ follows, followed });
+    }
+
+    /**
+     * Gets all followers of a user
+     * @param username - username to get followers
+     * @param currentUser - authenticated user (if authenticated)
+     * @returns Array of follower objects
+     */
+    static async GetFollowers(username: UserPK, currentUser?: UserPK): Promise<FollowerFull[]> {
+        const user: UserPublic = await FetchPublicUser(username);
+
+        // check if currentUser can view followers list
+        const canView: boolean = await CanViewUser(user, currentUser);
+        if (!canView)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        const followers: FollowerFull[] = await FollowerRepository.SelectAllFollowersOfUser(username);
+
+        return followers;
+    }
+
+    /**
+     * Gets all users that a user is following
+     * @param username - username to get following
+     * @param currentUser - authenticated username (if authenticated)
+     * @returns Array of follower objects
+     */
+    static async GetFollowing(username: UserPK, currentUser?: UserPK): Promise<FollowerFull[]> {
+        const user: UserPublic =await FetchPublicUser(username);
+        
+        // check if currentUser can view following list
+        const canView: boolean = await CanViewUser(user, currentUser);
+        if (!canView)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        const following: FollowerFull[] = await FollowerRepository.SelectAllFollowedByUser(username);
+        
+        return following;
+    }
+
+    /**
+     * Gets pending follow requests to a user (for private accounts) - must be logged in
+     * @param currentUser - Username to get pending follow requests to
+     * @returns Array of pending follower objects
+     */
+    static async GetPendingRequestsToUser(currentUser: UserPK): Promise<FollowerFull[]> {
+        await FetchPublicUser(currentUser);
+
+        const requests: FollowerFull[] = await FollowerRepository.SelectAllRequestsToUser(currentUser);
+
+        return requests;
+    }
+
+    /**
+     * Gets pending follow requests from a user (for private accounts) - must be logged in
+     * @param currentUser - Username to get the pending follow requests made by
+     * @returns Array of pending follower objects
+     */
+    static async GetPendingRequestsFromUser(currentUser: UserPK): Promise<FollowerFull[]> {
+        await FetchPublicUser(currentUser);
+
+        const requests: FollowerFull[] = await FollowerRepository.SelectAllRequestsFromUser(currentUser);
+
+        return requests;
+    }
+}
+import { AppError } from "../utils/ErrorHandler"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import { StatusCodes } from "http-status-codes"
+import { GameFull, GamePK } from "../types/Types"
+import { GameRepository } from "../Repository/GameRepository"
+
+export class GameService {
+    /**
+     * Gets a game by it's primary key
+     * @param gameId - the game id
+     * @returns Game Information
+     */
+    static async GetGameById(gameId: GamePK): Promise<GameFull> {
+        const game: GameFull | null = await GameRepository.SelectGame(gameId)
+        
+        if (!game)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND)
+
+        return {
+            gameID: game.gameID,
+            gameName: game.gameName,
+            metadata: game.metadata
+        }
+    }
+
+    /**
+     * Searches for games by name and/or other atributes
+     * @param name 
+     * @param tag 
+     */
+    static async searchGames(name?: string, tag?: string): Promise<void> {
+    }
+
+    // WIP
+
+    static async getPopularGames(): Promise<void> {
+    }
+
+
+    static async GetGameStats(gameId: GamePK): Promise<void> {
+    }
+
+    // needs a endpoint "get x games"
+}
+import { StatusCodes } from "http-status-codes"
+import { AppError } from "../utils/ErrorHandler"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import { GamePK, LikeFull, LikeShort, ReviewFull, UserPK, ReactionResponse } from "../types/Types";
+import { FetchFullUser } from "./AccountService";
+import { ReviewRepository } from "../Repository/ReviewRepository"
+import { LikeRepository } from "../Repository/LikeRepository";
+
+export class LikeService {
+
+    /**
+     * Get reactions of a review 
+     * @param reviewer 
+     * @param gameID 
+     * @returns 
+     */
+    static async GetReactionsByReview(reviewer: UserPK, gameID: GamePK): Promise<ReactionResponse> {
+        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer, reviewed: gameID});
+        if (!review)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        const likes: number = await LikeRepository.CountLikesOrDislikesOfReview({reviewer, reviewed: gameID}, true);
+        const dislikes: number = await LikeRepository.CountLikesOrDislikesOfReview({reviewer, reviewed: gameID}, false);
+
+        return {
+            likes,
+            dislikes,
+        } as ReactionResponse;
+    }
+
+    // reaction is true for like and false for dislike
+    static async ReactReview(currentUser: UserPK, reviewer: UserPK, gameID: GamePK, reaction: boolean): Promise<LikeShort> {
+        await FetchFullUser(currentUser);
+
+        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer, reviewed: gameID});
+        if (!review)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        // check if like/dislike already exists
+        const existing: LikeFull | null = await LikeRepository.SelectLike({liker: currentUser, reviewer, reviewed: gameID});
+
+        let like: LikeFull;
+        if (existing){
+            like = await LikeRepository.UpdateLike({
+                liker: currentUser,
+                reviewer,
+                reviewed: gameID,
+                value: reaction
+            })
+        }
+        else {
+            like = await LikeRepository.InsertLike({
+                liker: currentUser,
+                reviewer,
+                reviewed: gameID,
+                value: reaction
+            })
+        }
+
+        return {
+            liker: like.liker,
+            reviewer: like.reviewer,
+            reviewed: like.reviewed,
+            value: like.value,
+        } as LikeShort;
+    }
+
+    static async RemoveReactionFromReview(currentUser: UserPK, reviewer: UserPK, gameID: GamePK): Promise<LikeShort> {
+        // Verify review exists
+        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer: reviewer, reviewed: gameID});
+        if (!review)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+
+        // Check if like exists
+        const existing: LikeFull | null = await LikeRepository.SelectLike({liker: currentUser, reviewer, reviewed: gameID});
+        if (!existing)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REACTION_NOT_FOUND);
+
+        const deleted: LikeFull = await LikeRepository.DeleteLike({liker: currentUser, reviewer, reviewed: gameID});
+
+        return {
+            liker: deleted.liker,
+            reviewer: deleted.reviewer,
+            reviewed: deleted.reviewed,
+            value: deleted.value,
+        } as LikeShort;
+    }
+
+    // TODO Later
+    static async GetLikesByUser(username: UserPK): Promise<void> {
+    }
+}import { StatusCodes } from "http-status-codes"
+import { AppError } from "../utils/ErrorHandler"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import {GameFull, GamePK, ReviewFull, UserPK, UserPublic} from "../types/Types"
+import { CanViewUser, FetchPublicUser } from "./AccountService"
+import { GameRepository } from "../Repository/GameRepository"
+import { ReviewRepository } from "../Repository/ReviewRepository"
+
+
+// Throws if the user or the game dont exist
+async function FetchGame(gameID: number): Promise<GameFull> {
+    const game: GameFull | null = await GameRepository.SelectGame(gameID);
+    if (!game)
+        throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
+    return game;
+}
+
+
+export class ReviewService {
+    static async FindReview(reviewer: UserPK, reviewed: GamePK, currentUser?: UserPK): Promise<ReviewFull> {
+        const user : UserPublic = await FetchPublicUser(reviewer);
+        await FetchGame(reviewed);
+
+        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer, reviewed});
+        if(!review)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        // check privacy settings
+        const canView: boolean = await CanViewUser(user, currentUser);
+        if(!canView)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        return review;
+    }
+
+    static async PublishReview(currentUser: UserPK, gameID: GamePK, text: string, score: number): Promise<ReviewFull> {
+        await FetchPublicUser(currentUser);
+        await FetchGame(gameID);
+
+        // check if review already exists
+        const existing: ReviewFull | null = await ReviewRepository.SelectReview({reviewer: currentUser, reviewed: gameID});
+        if(existing)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.REVIEW_ALREADY_EXISTS);
+
+        const review: ReviewFull = await ReviewRepository.InsertReview({
+            reviewer: currentUser,
+            reviewed: gameID,
+            text,
+            score
+        });
+
+        return review;
+    }
+
+    static async UpdateReview(currentUser: UserPK, gameID: GamePK, text?: string, score?: number): Promise<ReviewFull> {
+        await FetchPublicUser(currentUser);
+        await FetchGame(gameID);
+
+        const existing: ReviewFull | null = await ReviewRepository.SelectReview({reviewer: currentUser, reviewed: gameID});
+        if(!existing)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        const updated: ReviewFull = await ReviewRepository.UpdateReview({
+            reviewer: currentUser,
+            reviewed: gameID,
+            text: text ?? existing.text,
+            score: score ?? existing.score
+        });
+
+        return updated;
+    }
+
+    static async RemoveReview(currentUser: UserPK, gameID: GamePK): Promise<ReviewFull> {
+        await FetchPublicUser(currentUser);
+        await FetchGame(gameID);
+
+        const existing: ReviewFull | null = await ReviewRepository.SelectReview({reviewer: currentUser, reviewed: gameID});
+        if(!existing)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        const deleted: ReviewFull = await ReviewRepository.DeleteReview({reviewer: currentUser, reviewed: gameID});
+
+        return deleted;
+    }
+
+    static async GetReviewsByGame(gameID: GamePK, currentUser?: UserPK): Promise<ReviewFull[]> {
+        const game: GameFull | null = await GameRepository.SelectGame(gameID);
+        if(!game)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
+
+        const reviews: ReviewFull[] = await ReviewRepository.SelectAllReviewsOfGame(gameID);
+
+        // filter based on privacy
+        const visibleReviews: ReviewFull[] = [];
+        for (const review of reviews){
+            const user: UserPublic = await FetchPublicUser(review.reviewer); // This will hurt in performance
+            const canView: boolean = await CanViewUser(user, currentUser);
+            if (canView) {
+                visibleReviews.push({
+                    reviewer: review.reviewer,
+                    reviewed: review.reviewed,
+                    text: review.text,
+                    score: review.score,
+                    createdAt: review.createdAt,
+                    updatedAt: review.updatedAt
+                })
+            }
+        }
+
+        return visibleReviews;
+    }
+
+    static async GetReviewsByUser(username: UserPK, currentUser?: UserPK): Promise<ReviewFull[]> {
+        const user: UserPublic = await FetchPublicUser(username);
+
+        const canView = await CanViewUser(user, currentUser);
+        if (!canView)
+            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        const reviews: ReviewFull[] = await ReviewRepository.SelectAllReviewsOfUser(username);
+
+        return reviews;
+    }
+
+    // TODO Later
+    static async GetRecentReviews(gameID: GamePK): Promise<void> {
+    }
+}
+import {Request, Response} from "express"
+import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import {StatusCodes} from "http-status-codes"
+import {AccountService} from "../services/AccountService"
+import { AuthResponse, UserPublic } from "../types/Types"
+import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth"
+
+// REGEX that tests whether an email is valid
+const email_regex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+
+export class AccountController {
+
+    /**
+     * Registers a new user
+     * Used by POST /api/users/
+     * Does not require previous authentication
+     */
+    static Register: any = AsyncHandler(async (req: Request, res: Response) => {
+        const {accountName, displayName, password, email} = req.body;
+        if (!accountName)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        if (!displayName)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.DISPLAY_NAME_REQUIRED);
+        if (!password)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
+        if (!email)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_REQUIRED);
+        if (accountName.length < 3)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_SHORT);
+        if (password.length < 8)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
+        if (!email_regex.test(email))
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
+
+        const result: AuthResponse = await AccountService.RegisterUser(accountName, displayName, password, email);
+        return MakeSuccess(res, StatusCodes.CREATED, result);
+    })
+
+    /**
+     * Logins a new user
+     * Used by POST /api/users/login
+     * Does not require previous authentication
+     */
+    static Login: any = AsyncHandler(async (req: Request, res: Response) => {
+        const {accountName, password} = req.body;
+        if (!accountName)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        if (!password)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
+
+        const result: AuthResponse = await AccountService.LoginUser(accountName, password);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    })
+
+    /**
+     * Gets the currently logged in user
+     * Used by GET /api/users/me
+     * Requires previous authentication
+     */
+    static GetCurrentUser: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+        
+        const result: UserPublic = await AccountService.GetCurrentUser(currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    })
+    
+    /**
+     * Changes a user information
+     * Used by PUT /api/users/me
+     * Requires previous authentication
+     */
+    static Alter: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
+        const {isPrivate: isPrivate, password: password, email: email, userData: userData} = req.body;
+        if(password != undefined){
+            if (typeof password !== "string" || password.length < 8)
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
+        }
+        if(email != undefined){
+            if (typeof email !== "string" || !email_regex.test(email))
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
+        }
+        const result: UserPublic = await AccountService.AlterUser(currentUser, isPrivate, password, email, userData);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    })
+
+    /**
+     * Removes a user
+     * Used by DELETE /api/users/me
+     * Requires previous authentication
+     */
+    static Remove: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
+        const result: UserPublic = await AccountService.RemoveUser(currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    })
+
+    /**
+     * Finds a user by username
+     * Used by GET /api/users/:username
+     * (optional authentication)
+     */
+    static FindByUsername: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string | undefined = req.currentUser?.username;
+        
+        const username: string | string[] | undefined = req.params['username'];
+        if (!username || typeof username !== 'string')
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+
+        const result: UserPublic = await AccountService.FindByUsername(username, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+    
+
+    /**
+     * Searches users by username
+     * Used by GET /api/users/search?query=...
+     * (optional authentication)
+     */
+    static Search: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const filter: any = req.query['query'];
+        if (typeof filter !== 'string')
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        const currentUser: string | undefined = req.currentUser?.username;
+        const result: UserPublic[] = await AccountService.SearchUsersByName(filter, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+}
+import {Request, Response} from "express"
+import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
+import {StatusCodes} from "http-status-codes"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import { ExtractReviewPK, ReviewPrimaryKey } from "./ReviewController";
+import { CommentService } from "../services/CommentService";
+import { AuthRequest, ExtractLoggedUser } from "../utils/auth";
+
+export class CommentController {
+
+    /**
+     * Gets the comments of a review
+     * Used by GET /api/reviews/:reviewer/:reviewed/comments
+     */
+    static GetComments: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string | undefined = req.currentUser?.username;
+        const { reviewer, reviewed }: ReviewPrimaryKey = ExtractReviewPK(req);
+
+        const result = await CommentService.GetComments(reviewer, reviewed, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+  });
+    /**
+     * Adds a comment to a review
+     * Used by POST /api/reviews/:reviewer/:reviewed/comments
+     */
+    static AddComment: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
+        const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req)
+        const {text} = req.body
+        if (!text)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_TEXT_REQUIRED)
+        const result: any = await CommentService.PublishComment(currentUser, reviewer, reviewed, text)
+        return MakeSuccess(res, StatusCodes.CREATED, result)
+    });
+
+    /**
+     * Edits a comment to a review
+     * Used by PUT /api/reviews/:reviewer/:reviewed/comments/:id
+     */
+    static EditComment: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
+        const commentID: string | string[] | undefined = req.params['id']
+        if (!commentID || typeof commentID !== 'string')
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_ID_REQUIRED)
+
+        const { text} = req.body
+        if (!text)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_TEXT_REQUIRED)
+
+        let id: bigint
+        try {
+            id = BigInt(commentID)
+        } catch (_) {
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_ID_INVALID)
+        }
+        const result: any = await CommentService.EditComment(currentUser, id, text)
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result)
+    });
+
+    /**
+     * Deletes a comment to a review
+     * Used by DELETE /api/reviews/:reviewer/:reviewed/comments/:id
+     */
+    static RemoveComment: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
+        const commentID: string | string[] | undefined = req.params['id']
+        if (!commentID || typeof commentID !== 'string')
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_ID_REQUIRED)
+        
+        let id: bigint
+        try {
+            id = BigInt(commentID)
+        } catch (_) {
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_ID_INVALID)
+        }
+
+        const result: any = await CommentService.RemoveComment(currentUser, id)
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result)
+    });
+}import {Request, Response} from "express"
+import {AsyncHandler, MakeSuccess, AppError} from "../utils/ErrorHandler"
+import {StatusCodes} from "http-status-codes"
+import {FollowerService} from "../services/FollowerService"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import { FollowerFull } from "../types/Types"
+import { AuthRequest, ExtractLoggedUser } from "../utils/auth"
+
+function ExtractUsername(req: AuthRequest): string {
+    const username = req.params['username'];
+    if (!username || typeof username !== 'string') throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+    return username;
+}
+
+export class FollowerController {
+    /**
+     * Makes a follower request to an account
+     * Used by POST /api/users/:username/followers/
+     */
+    static RequestFollower: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+        const username: string = ExtractUsername(req);
+
+        const result = await FollowerService.RequestFollower(currentUser, username);
+        return MakeSuccess(res, StatusCodes.CREATED, result);
+    });
+
+    /**
+     * Removes a follower request to an account
+     * Used by DELETE /api/users/:username/followers/
+     */
+    static UnfollowUser = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+        const username: string = ExtractUsername(req);
+
+        // remove relation: follows=currentUser, followed=username
+        const result = await FollowerService.RemoveFollower(currentUser, currentUser, username);
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    }); 
+
+    /**
+     * Accepts a follower request to an account
+     * Used by PUT /api/users/me/followers/requests/received/:username
+     */
+    static AcceptFollowerRequest: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser : string = ExtractLoggedUser(req);
+        const username: string = ExtractUsername(req);
+        
+        const result = await FollowerService.AcceptFollower(currentUser, username);
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    });
+
+    /**
+     * Removes a follower to an account
+     * Used by DELETE /api/users/me/followers/requests/received/:username
+     */
+    static RejectFollowerRequest: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser : string = ExtractLoggedUser(req);
+        const username: string = ExtractUsername(req);
+        
+        // delete relation: follows=username, followed=currentUser (pending request)
+        const result = await FollowerService.RemoveFollower(currentUser, username, currentUser, false);
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    });
+
+    /**
+     * Gets the followers of an account
+     * Used by GET /api/users/:username/followers
+     */
+    static GetFollowers: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string | undefined = req.currentUser?.username;
+        const username: string = ExtractUsername(req);
+        
+        const result: FollowerFull[] = await FollowerService.GetFollowers(username, currentUser)
+        return MakeSuccess(res, StatusCodes.OK, result)
+    });
+
+    /**
+     * Gets the users followed by a user, if it's private only returns followed users if the current user follows it
+     * Used by GET /api/users/:username/following
+     */
+    static GetFollowingByUser: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string | undefined = req.currentUser?.username;
+        const username: string = ExtractUsername(req);
+
+        const result: FollowerFull[] = await FollowerService.GetFollowing(username, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result)
+    });
+
+    /**
+     * Gets the pending follower requests for a user
+     * Used by GET /api/users/me/followers/requests/received
+     */
+    static GetPendingRequestsToUser = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser = ExtractLoggedUser(req);
+        const result = await FollowerService.GetPendingRequestsToUser(currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+
+    /**
+     * Gets the pending follower requests for a user
+     * Used by GET /api/users/me/followers/requests/sent
+     */
+    static GetPendingRequestsFromUser = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser = ExtractLoggedUser(req);
+        const result = await FollowerService.GetPendingRequestsFromUser(currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+}
+import {Request, Response} from "express"
+import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import {StatusCodes} from "http-status-codes"
+import {GameService} from "../services/GameService"
+import { GameFull } from "../types/Types"
+
+/**
+ * Translates a game name string to a game ID
+ * @param gameID the game id
+ * @returns the ID corresponding to the game
+ * @throws AppError if the game name is not a number or would return an invalid game ID
+ */
+export function toValidGameID(gameID: string | string[] | undefined): number {
+    if (typeof gameID !== 'string')
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NAME_REQUIRED);
+    const id: number | null = Number(gameID);
+    if (isNaN(id))
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NAME_REQUIRED);
+    return id;
+}
+
+export class GameController {
+    /**
+     * Finds a game by ID
+     * Used by GET /api/games/:gameID
+     */
+    static GetGameById: any = AsyncHandler(async (req: Request, res: Response) => {
+        const result: GameFull = await GameService.GetGameById(toValidGameID(req.params['gameID']));
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+
+    // TODO
+
+    /**
+     * Search games using query params
+     * Used by GET /api/games
+     */
+    static SearchGames: any = AsyncHandler(async (req: Request, res: Response) => {});
+
+    /**
+     * Returns popular games ordered by score or review count
+     * Used by GET /api/games/popular
+     */
+    static GetPopularGames: any = AsyncHandler(async (_: Request, res: Response) => {});
+
+    static GetGameStats: any = AsyncHandler(async (req: Request, res: Response) => {});
+}
+import {Request, Response} from "express"
+import {AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
+import { LikeShort, ReviewPK, ReactionResponse } from "../types/Types";
+import { LikeService } from "../services/LikeService";
+import { ExtractReviewPK } from "./ReviewController";
+import { StatusCodes } from "http-status-codes";
+import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth";
+
+/**
+ * Counts the amount of likes or dislikes of a review
+ * @param req the Request object for utility
+ * @param res the Response object for utility
+ * @param reaction if true, will count the amount of likes, otherwise the amount of dislikes
+ * @returns the amount of likes/dislikes of a review
+ * @throws AppError if there is no such game, user or review
+ */
+async function CountReactions(req: Request, res: Response, reaction: boolean): Promise<Response> {
+    const {reviewer, reviewed}: ReviewPK = ExtractReviewPK(req);
+    const result: ReactionResponse = await LikeService.GetReactionsByReview(reviewer, reviewed);
+    return MakeSuccess(res, StatusCodes.OK, reaction ? result.likes : result.dislikes);
+}
+
+/**
+ * Adds a new reaction to a review
+ * @param req the Request object for utility
+ * @param res the Response object for utility
+ * @param reaction if true, will add a like, otherwise a dislike
+ * @returns a Response object with the result of the instruction
+ * @throws AppError if there is no such game, user or review
+ */
+async function PushReaction(req: AuthRequest, res: Response, reaction: boolean): Promise<Response> {
+    const currentUser: string = ExtractLoggedUser(req);
+    
+    const {reviewer, reviewed}: ReviewPK = ExtractReviewPK(req);
+    const result: LikeShort = await LikeService.ReactReview(currentUser, reviewer, reviewed, reaction);
+    return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+}
+
+export class LikeController {
+    // ===================== LIKES =====================
+
+    /**
+     * Gets the likes of a review
+     * Used by GET /api/reviews/:reviewer/:reviewed/likes
+     */
+    static GetLikes: any = AsyncHandler(async (req: Request, res: Response) => {
+        return await CountReactions(req, res, true);
+    });
+
+    /**
+     * Adds a like to a review
+     * Used by POST /api/reviews/:reviewer/:reviewed/likes
+     */
+    static AddLike: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        return await PushReaction(req, res, true);
+    });
+
+    // TODO LATER
+    static GetLikesByUser: any = AsyncHandler(async (req: Request, res: Response) => {});
+
+    // ===================== DISLIKES =====================
+
+    /**
+     * Gets the dislikes of a review
+     * Used by GET /api/reviews/:reviewer/:reviewed/dislikes
+     */
+    static GetDislikes: any = AsyncHandler(async (req: Request, res: Response) => {
+        return await CountReactions(req, res, false);
+    });
+
+    /**
+     * Adds a dislike to a review
+     * Used by POST /api/reviews/:reviewer/:reviewed/dislikes
+     */
+    static AddDislike: any = AsyncHandler(async (req: Request, res: Response) => {
+        return await PushReaction(req, res, false);
+    });
+
+    // TODO LATER
+    static GetDislikesByUser: any = AsyncHandler(async (req: Request, res: Response) => {});
+
+    // ===================== INDEPENDENT =====================
+
+    /**
+     * Deletes likes and dislikes to a review
+     * Used by DELETE /api/reviews/:reviewer/:reviewed/reacts
+     */
+    static RemoveReactions: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+        const {reviewer, reviewed}: ReviewPK = ExtractReviewPK(req);
+        const result: LikeShort = await LikeService.RemoveReactionFromReview(currentUser, reviewer, reviewed);
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    });
+}import {Request, Response} from "express"
+import {AsyncHandler, MakeSuccess, AppError} from "../utils/ErrorHandler"
+import {StatusCodes} from "http-status-codes"
+import {ReviewService} from "../services/ReviewService"
+import * as ErrorMessage from "../utils/ErrorMessage"
+import { toValidGameID } from "./GameController"
+import { AuthRequest, ExtractLoggedUser } from "../utils/auth"
+import { ReviewFull } from "../types/Types"
+
+export interface ReviewPrimaryKey {
+    reviewer: string;
+    reviewed: number;
+}
+
+// Extracts reviewer and reviewed fields from Request object
+export function ExtractReviewPK(req: Request): ReviewPrimaryKey {
+    const reviewer: string | string[] | undefined = req.params['reviewer'];
+    if (!reviewer || typeof reviewer !== 'string')
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+    const reviewed: number = toValidGameID(req.params['reviewed'])
+    return {reviewer, reviewed} as ReviewPrimaryKey;
+}
+
+// Throws if score is invalid
+function CheckScore(score?: any): number {
+    if (score === undefined || score === null)
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_SCORE_REQUIRED)
+    if (typeof score !== 'number' || score < 0 || score > 10)
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_SCORE_INVALID)
+    return score
+}
+
+export class ReviewController {
+    /**
+     * Finds a user's review on a game
+     * Usde by GET /api/reviews/:reviewer/:reviewed
+     */
+    static GetReview: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string | undefined = req.currentUser?.username;
+        const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
+        const result: ReviewFull = await ReviewService.FindReview(reviewer, reviewed, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+
+    /**
+     * Publishes a new review
+     * Used by POST /api/reviews/:reviewer/:reviewed
+     */
+    static PublishReview: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
+        const gameID: number = toValidGameID(req.params['gameID']);
+        const {text, score} = req.body;
+        if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_REQUIRED);
+
+        const result: ReviewFull = await ReviewService.PublishReview(currentUser, gameID, text, CheckScore(score));
+        return MakeSuccess(res, StatusCodes.CREATED, result);
+    });
+
+    /**
+     * Updates a user's review
+     * Used by PUT /api/reviews/:reviewer/:reviewed
+     */
+    static AlterReview: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
+        const gameID: number = toValidGameID(req.params['gameID']);
+        const {text, score} = req.body;
+
+        const result: ReviewFull = await ReviewService.UpdateReview(currentUser, gameID, text, CheckScore(score));
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    })
+
+    /**
+     * Removes a user's review
+     * Used by DELETE /api/reviews/:reviewer/:reviewed
+     */
+    static RemoveReview: any = AsyncHandler(async (req: AuthRequest  , res: Response) => {
+        const currentUser: string = ExtractLoggedUser(req);
+
+        const gameID: number = toValidGameID(req.params['gameID']);
+        const result: ReviewFull = await ReviewService.RemoveReview(currentUser, gameID);
+        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    });
+
+    /**
+     * Gets the reviews of a game
+     * Used by GET /api/games/:gameID/reviews
+     */
+    static GetReviewsByGame: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const gameID: number = toValidGameID(req.params['gameID']);
+        const currentUser: string | undefined = req.currentUser?.username;
+        const result: ReviewFull[] = await ReviewService.GetReviewsByGame(gameID, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+
+    /**
+     * Gets the reviews of a user
+     * Used by GET /api/users/:username/reviews
+     */
+    static GetReviewsByUser: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        const username: string | string[] | undefined = req.params['username'];
+        const currentUser: string | undefined = req.currentUser?.username;
+        if (!username || typeof username !== 'string')
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+
+        const result: ReviewFull[] = await ReviewService.GetReviewsByUser(username, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
+    });
+
+    // TODO LATER
+    static GetRecentReviews: any = AsyncHandler(async (_: Request, res: Response) => {});
+}
+import { prisma } from "../prisma";
+import { CommentFull, CommentShort, CommentPK, ReviewPK, UserPK } from "../types/Types";
+
+export class CommentRepository {
+
+    /**
+     * @description Selects a Comment from the database
+     * @param commentPK primary key of Comment
+     * @returns a promise of the table entry which contains the given primary key, if nothing is found the promise resolves to null
+    */
+    public static SelectComment(commentPK: CommentPK): Promise<CommentFull | null> {
+        return prisma.comment.findUnique({
+            where: { id: commentPK }
+        });
+    }
+
+    /**
+     * @description Inserts a Comment in the database
+     * @param comment json with all fields of Comment that need to be manually set
+     * @returns a promise of the table entry which contains the full inserted Comment
+    */
+    public static InsertComment(comment: CommentShort): Promise<CommentFull> {
+        return prisma.comment.create({
+            data: comment
+        });
+    }
+
+    /**
+     * @description Updates a Comment in the database with the primary key given, with the text given
+     * @param commentPK primary key of the Comment to update
+     * @param newText updated text of Comment
+     * @returns a promise of the updated table entry of the Comment with the corresponding primary key
+    */
+    public static UpdateComment(commentPK: CommentPK, newText: string): Promise<CommentFull> {
+        return prisma.comment.update({
+            where: { id: commentPK },
+            data: { text: newText }
+        });
+    }
+
+    /**
+     * @description Deletes a Comment from the database
+     * @param commentPK primary key of Comment
+     * @returns a promise of the deleted entry
+    */
+    public static DeleteComment(commentPK: CommentPK): Promise<CommentFull> {
+        return prisma.comment.delete({
+            where: { id: commentPK }
+        });
+    }
+
+
+
+    /**
+     * @description Selects all Comments of the same Review
+     * @param reviewPK primary key of the Review we want the Comments of
+     * @returns a promise of the array of Comments of that Review
+    */
+    public static SelectCommentsOfSameReview(reviewPK: ReviewPK): Promise<CommentFull[]> {
+        return prisma.comment.findMany({
+            where: { review: reviewPK }
+        });
+    }
+
+    /**
+     * @description Selects all Comments of the same User, may be useful debug info
+     * @param userPK primary key of the User we want the Comments of
+     * @returns a promise of the array of Comments of that User
+    */
+    public static SelectCommentsOfSameUser(userPK: UserPK): Promise<CommentFull[]> {
+        return prisma.comment.findMany({
+            where: { commentator: userPK }
+        });
+    }
+
+    /**
+     * @description Selects all Comments of the same User on the same Review, may be useful debug info
+     * @param userPK primary key of the User we want the Comments of
+     * @param reviewPK primary key of the Review we want the Comments of
+     * @returns a promise of the array of Comments of that User on that Review
+    */
+    public static SelectCommentsOfSameReviewAndUser(reviewPK: ReviewPK, userPK: UserPK): Promise<CommentFull[]> {
+        return prisma.comment.findMany({
+            where: {
+                review: reviewPK,
+                commentator: userPK
+            }
+        });
+    }
+
+}
+import { prisma } from "../prisma";
+import { FollowerFull, FollowerShort, FollowerPK, UserPK } from "../types/Types";
+
+export class FollowerRepository {
+
+    /**
+     * @description Selects a Follower from the database
+     * @param followerPK primary key of Follower
+     * @returns a promise of the table entry which contains the given primary key, if nothing is found the promise resolves to null
+    */
+    public static SelectFollower(followerPK: FollowerPK): Promise<FollowerFull | null> {
+        return prisma.follower.findUnique({
+            where: { follows_followed: followerPK }
+        });
+    }
+
+    /**
+     * @description Inserts a Follower in the database
+     * @param follower json with all fields of Follower that need to be manually set
+     * @returns a promise of the table entry which contains the full inserted Follower
+    */
+    public static InsertFollower(follower: FollowerShort): Promise<FollowerFull> {
+        return prisma.follower.create({
+            data: follower
+        });
+    }
+
+    /**
+     * @description Updates a Follower in the database with the primary key given in follower, with the rest of the values given
+     * @param follower json with all fields of Follower that need to be manually set
+     * @returns a promise of the updated table entry of the Follower with the corresponding primary key
+    */
+    public static UpdateFollower(follower: FollowerShort): Promise<FollowerFull> {
+        const followerPK: FollowerPK = {
+            follows: follower.follows,
+            followed: follower.followed,
+        }
+        return prisma.follower.update({
+            where: { follows_followed: followerPK },
+            data: { accepted: follower.accepted }
+        });
+    }
+
+    /**
+     * @description Deletes a Follower from the database
+     * @param followerPK primary key of Follower
+     * @returns a promise of the deleted entry
+    */
+    public static DeleteFollower(followerPK: FollowerPK): Promise<FollowerFull> {
+        return prisma.follower.delete({
+            where: { follows_followed: followerPK }
+        });
+    }
+
+
+
+    /**
+     * @description Selects all Followers of a given User
+     * @param userPK primary key of the User we want the Followers of
+     * @returns a promise of the array of Followers that follow the given User
+    */
+    public static SelectAllFollowersOfUser(userPK: UserPK): Promise<FollowerFull[]> {
+        return prisma.follower.findMany({
+            where: {
+                followed: userPK,
+                accepted: true
+            }
+        });
+    }
+
+    /**
+     * @description Selects all Followers a User follows
+     * @param userPK primary key of the User that follows the others
+     * @returns a promise of the array of Followers that the given User follows
+    */
+    public static SelectAllFollowedByUser(userPK: UserPK): Promise<FollowerFull[]> {
+        return prisma.follower.findMany({
+            where: {
+                follows: userPK,
+                accepted: true
+            }
+        });
+    }
+
+    /**
+     * @description Selects all follow requests addressed to a given User
+     * @param userPK primary key of the User that the requests were addressed to
+     * @returns a promise of the array of follow requests that are addressed the given User
+    */
+    public static SelectAllRequestsToUser(userPK: UserPK): Promise<FollowerFull[]> {
+        return prisma.follower.findMany({
+            where: {
+                followed: userPK,
+                accepted: false
+            }
+        });
+    }
+
+    /**
+     * @description Selects all follow requests made from a given User
+     * @param userPK primary key of the User we want the follow requests made by
+     * @returns a promise of the array of follow requests made from the given User
+    */
+    public static SelectAllRequestsFromUser(userPK: UserPK): Promise<FollowerFull[]> {
+        return prisma.follower.findMany({
+            where: {
+                follows: userPK,
+                accepted: false
+            }
+        });
+    }
+
+}
+import { prisma } from "../prisma";
+import { GameFull, GameShort, GamePK } from "../types/Types";
+
+export class GameRepository {
+
+    /**
+     * @description Selects a Game from the database
+     * @param gamePK primary key of Game
+     * @returns a promise of the table entry which contains the given primary key, if nothing is found the promise resolves to null
+     */
+    public static SelectGame(gamePK: GamePK): Promise<GameFull | null> {
+        return prisma.game.findUnique({
+            where: { gameID: gamePK }
+        });
+    }
+
+    /**
+     * @description Inserts a Game in the database
+     * @param game json with all fields of Game that need to be manually set
+     * @returns a promise of the table entry which contains the full inserted Game
+     */
+    public static InsertGame(game: GameShort): Promise<GameFull> {
+        return prisma.game.create({
+            data: game
+        });
+    }
+
+    /**
+     * @description Updates a Game in the database with the primary key given in game, with the rest of the values given
+     * @param game json with all fields of Game that need to be manually set
+     * @returns a promise of the updated table entry of the Game with the corresponding primary key
+     */
+    public static UpdateGame(game: GameShort): Promise<GameFull> {
+        return prisma.game.update({
+            where: { gameID: game.gameID },
+            data: { metadata: game.metadata }
+        });
+    }
+
+    /**
+     * @description Deletes a Game from the database
+     * @param gamePK primary key of Game
+     * @returns a promise of the deleted entry
+     */
+    public static DeleteGame(gamePK: GamePK): Promise<GameFull> {
+        return prisma.game.delete({
+            where: { gameID: gamePK }
+        });
+    }
+
+
+
+    // select games with same tags and/or similar name
+
+}
+import { prisma } from "../prisma";
+import { LikeFull, LikeShort, LikePK, ReviewPK, UserPK } from "../types/Types";
+
+export class LikeRepository {
+
+    /**
+     * @description Selects a Like from the database
+     * @param likePK primary key of Like
+     * @returns a promise of the table entry which contains the given primary key, if nothing is found the promise resolves to null
+    */
+    public static SelectLike(likePK: LikePK): Promise<LikeFull | null> {
+        return prisma.like.findUnique({
+            where: { liker_reviewer_reviewed: likePK }
+        });
+    }
+
+    /**
+     * @description Inserts a Like in the database
+     * @param like json with all fields of Like that need to be manually set
+     * @returns a promise of the table entry which contains the full inserted Like
+    */
+    public static InsertLike(like: LikeShort): Promise<LikeFull> {
+        return prisma.like.create({
+            data: like
+        });
+    }
+
+    /**
+     * @description Updates a Like in the database with the primary key given in game, with the rest of the values given
+     * @param like json with all fields of Like that need to be manually set
+     * @returns a promise of the updated table entry of the Like with the corresponding primary key
+    */
+    public static UpdateLike(like: LikeShort): Promise<LikeFull> {
+        const likePK: LikePK = {
+            liker: like.liker,
+            reviewer: like.reviewer,
+            reviewed: like.reviewed
+        }
+        return prisma.like.update({
+            where: { liker_reviewer_reviewed: likePK },
+            data: { value: like.value }
+        });
+    }
+
+    /**
+     * @description Deletes a Like from the database
+     * @param likePK primary key of Like
+     * @returns a promise of the deleted entry
+    */
+    public static DeleteLike(likePK: LikePK): Promise<LikeFull> {
+        return prisma.like.delete({
+            where: { liker_reviewer_reviewed: likePK }
+        });
+    }
+
+
+
+    /**
+     * @description returns the amount of likes or dislikes in a Review
+     * @param reviewPK primary key of the Review which we want to count the likes or dislikes
+     * @param toCount if true counts the likes, if false counts the dislikes
+     * @returns a promise of the number of likes or dislikes
+    */
+    public static CountLikesOrDislikesOfReview(reviewPK: ReviewPK, toCount: boolean): Promise<number> {
+        return prisma.like.count({
+            where: {
+                review: reviewPK,
+                value: toCount
+            }
+        });
+    }
+
+    /**
+     * @description Selects all likes or dislikes of a User, may be useful debug info
+     * @param userPK primary key of the User which we want to get the likes or dislikes
+     * @returns a promise of the array of likes or dislikes of that User
+    */
+    public static SelectAllLikesOfUser(userPK: UserPK): Promise<LikeFull[]> {
+        return prisma.like.findMany({
+            where: { liker: userPK }
+        });
+    }
+
+}
+Cada ficheiro *Repository.ts contêm funções que realizam todas as queries possíveis de fazer à tabela correspondente
+
+os tipos correspondentes à sua tabela estão exportados no ficheiro types/Types.ts
+
+
+
+Todos os Select's recebem a chave primária e devolvem a entrada correspondente
+
+
+Todos os Insert's recebem valores para todos os campos da tablela e criam uma entrada com esses valores
+
+
+Todos os Update's recebem valores para todos os campos da tablela e atualizam a entrada correspondente, 
+para não alterar campos utilizar os valores obtidos no Select
+
+
+Todos os delete's recebem a chave primária e apagam a entrada correspondente
+
+
+
+Os ficheiros possuem queries adicionais para obter várias entradas segundo um filtro específico da query
+
+O formato do filtro e explicado em cada função
+
+Essas queries retornam um array do tipo correspondente
+import { prisma } from "../prisma";
+import { ReviewFull, ReviewShort, ReviewPK, GamePK, UserPK } from "../types/Types";
+
+export class ReviewRepository {
+
+    /**
+     * @description Selects a Review from the database
+     * @param reviewPK primary key of Review
+     * @returns a promise of the table entry which contains the given primary key, if nothing is found the promise resolves to null
+    */
+    public static SelectReview(reviewPK: ReviewPK): Promise<ReviewFull | null> {
+        return prisma.review.findUnique({
+            where: { reviewer_reviewed: reviewPK }
+        });
+    }
+
+    /**
+     * @description Inserts a Review in the database
+     * @param review json with all fields of Review that need to be manually set
+     * @returns a promise of the table entry which contains the full inserted Review
+    */
+    public static InsertReview(review: ReviewShort): Promise<ReviewFull> {
+        return prisma.review.create({
+            data: review
+        });
+    }
+
+    /**
+     * @description Updates a Review in the database with the primary key given in game, with the rest of the values given
+     * @param review json with all fields of Review that need to be manually set
+     * @returns a promise of the updated table entry of the Review with the corresponding primary key
+    */
+    public static UpdateReview(review: ReviewShort): Promise<ReviewFull> {
+        const reviewPK: ReviewPK = {
+            reviewer: review.reviewer,
+            reviewed: review.reviewed
+        }
+        return prisma.review.update({
+            where: { reviewer_reviewed: reviewPK },
+            data: {
+                text: review.text,
+                score: review.score
+            }
+        });
+    }
+
+    /**
+     * @description Deletes a Review from the database
+     * @param reviewPK primary key of Review
+     * @returns a promise of the deleted entry
+    */
+    public static DeleteReview(reviewPK: ReviewPK): Promise<ReviewFull> {
+        return prisma.review.delete({
+            where: { reviewer_reviewed: reviewPK }
+        });
+    }
+
+
+
+    /**
+     * @description Selects all Reviews of a given Game
+     * @param gamePK primary key of the Game which we want the Reviews of
+     * @returns a promise of the Array of Reviews
+    */
+    public static SelectAllReviewsOfGame(gamePK: GamePK): Promise<ReviewFull[]> {
+        return prisma.review.findMany({
+            where: { reviewed: gamePK }
+        });
+    }
+
+    /**
+     * @description Selects all Reviews of a given User
+     * @param userPK primary key of the User which we want the Reviews of
+     * @returns a promise of the Array of Reviews
+    */
+    public static SelectAllReviewsOfUser(userPK: UserPK): Promise<ReviewFull[]> {
+        return prisma.review.findMany({
+            where: { reviewer: userPK }
+        });
+    }
+
+}
+import { prisma } from "../prisma";
+import { UserFull, UserShort, UserPK } from "../types/Types";
+
+export class UserRepository {
+
+    /**
+     * @description Selects a User from the database
+     * @param userPK primary key of User
+     * @returns a promise of the table entry which contains the given primary key, if nothing is found the promise resolves to null
+     */
+    public static SelectUser(userPK: UserPK): Promise<UserFull | null> {
+        return prisma.user.findUnique({
+            where: { accountName: userPK }
+        });
+    }
+
+    /**
+     * @description Inserts a User in the database
+     * @param user json with all fields of User that need to be manually set
+     * @returns a promise of the table entry which contains the full inserted User
+     */
+    public static InsertUser(user: UserShort): Promise<UserFull> {
+        return prisma.user.create({
+            data: user
+        });
+    }
+
+    /**
+     * @description Updates a User in the database with the primary key given in user, with the rest of the values given
+     * @param user json with all fields of User that need to be manually set
+     * @returns a promise of the updated table entry of the User with the corresponding primary key
+     */
+    public static UpdateUser(user: UserShort): Promise<UserFull> {
+        return prisma.user.update({
+            where: { accountName: user.accountName },
+            data: {
+                passwordHash: user.passwordHash,
+                userData: user.userData,
+                isPrivate: user.isPrivate,
+                email: user.email,
+            }
+        });
+    }
+
+    /**
+     * @description Deletes a User from the database
+     * @param userPK primary key of User
+     * @returns a promise of the deleted entry
+     */
+    public static DeleteUser(userPK: UserPK): Promise<UserFull> {
+        return prisma.user.delete({
+            where: { accountName: userPK }
+        });
+    }
+
+
+
+
+    /**
+     * @description Selects all the Users whose name contains the given string
+     * @param nameFilter string that filters the Users
+     * @returns a promise of an array of Users
+     */
+    public static SelectUsersOfSimilarName(nameFilter: string): Promise<UserFull[]> {
+        return prisma.user.findMany({
+            where: {
+                accountName: {
+                    contains: nameFilter,
+                    mode: "insensitive"
+                }
+            }
+        });
+    }
+
+}
