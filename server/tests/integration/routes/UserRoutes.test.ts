@@ -119,6 +119,20 @@ describe("POST /api/users (register)", () => {
             })
             .expect(StatusCodes.CONFLICT);
         });
+
+        it("duplicate email", async () => {
+            await Register(app, username, displayName, password, email);
+
+            await request(app)
+            .post("/api/users")
+            .send({
+                accountName: username + "2",
+                displayName,
+                password,
+                email,
+            })
+            .expect(StatusCodes.CONFLICT);
+        });
     });
 });
 
@@ -882,5 +896,5 @@ describe("GET /api/users/:username/reviews", () => {
             .get("/api/users/" + target.accountName + "/reviews")
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.OK);
-    })
+    });
 });
