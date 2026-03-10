@@ -4,6 +4,7 @@ import InputField from "../Components/InputField/InputField";
 import LoginButton from "../Components/Buttons/LoginButton";
 import Text from "../Components/Text/Text";
 import style from "./LoginPage.module.css";
+import { Link, useNavigate } from "react-router-dom";
 
 function LoginPage() {
     const [identifier, setIdentifier] = useState("");
@@ -38,18 +39,18 @@ function LoginPage() {
 
                 <div className={style.forgotRow}>
                     <Text color="var(--mutedText)">forgot password?</Text>
-                    <a href="#" className={`body ${style.link}`}>
+                    <Link to="#" className={`body ${style.link}`}>
                         {`> `}RESET PASSWORD
-                    </a>
+                    </Link>
                 </div>
 
                 <LoginButton />
 
                 <div className={style.signupRow}>
                     <Text color="var(--mutedText)">don't have an account?</Text>
-                    <a href="#" className={`body ${style.link}`}>
+                    <Link to="/register" className={`body ${style.link}`}>
                         {`> `}CREATE ACCOUNT
-                    </a>
+                    </Link>
                 </div>
             </Panel>
         </div>

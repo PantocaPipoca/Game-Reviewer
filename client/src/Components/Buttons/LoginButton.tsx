@@ -6,11 +6,13 @@ import type { CssVar } from "../../Types/Types";
 type LoginButtonProps = {
     color?: CssVar;
     tColor?: CssVar;
+    onClick?: () => void;
+    disabled?: boolean;
 };
 
-function LoginButton({ color, tColor }: LoginButtonProps) {
+function LoginButton({ color, tColor, onClick, disabled }: LoginButtonProps) {
     return (
-        <Button className={style.login} color={color} tColor={tColor}>
+        <Button className={style.signup} color={color} tColor={tColor} onClick={onClick} disabled={disabled}>
             <Text>LOGIN</Text>
         </Button>
     );

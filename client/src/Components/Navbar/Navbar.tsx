@@ -3,6 +3,7 @@ import SignupButton from "../Buttons/SignupButton";
 import Search from "../InputField/Search";
 import Text from "../Text/Text";
 import style from "./Navbar.module.css";
+import { Link } from 'react-router-dom';
 
 function Navbar() {
     return (
@@ -11,8 +12,12 @@ function Navbar() {
                 Game_Reviewer+
             </Text>
             <Search />
-            <SignupButton />
-            <LoginButton />
+            <Link to = "/register">
+                <SignupButton />
+            </Link>
+            <Link to = "/login">
+                <LoginButton/>
+            </Link>
         </div>
     );
 }
