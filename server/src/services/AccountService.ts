@@ -95,6 +95,10 @@ export class AccountService {
         if (existingUser)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
 
+        const existingEmail: UserFull | null = await UserRepository.SelectUserByEmail(email);
+        if (existingEmail)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
+
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
         // create userData JSON object
@@ -181,11 +185,17 @@ export class AccountService {
     static async AlterUser(currentUser: UserPK, isPrivate?: boolean, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
         const user: UserFull = await FetchFullUser(currentUser);
 
-        const passwordHash = password
+        const passwordHash: string = password
             ? await bcrypt.hash(password, SALT_ROUNDS) 
             : user.passwordHash;
 
-        const updatedEmail: string = email ?? user.email;
+        let updatedEmail = email ?? user.email;
+
+        if(email){
+            const existingUser = await UserRepository.SelectUserByEmail(email);
+            if (existingUser)
+                throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
+        }
 
         // merge current user data with provided user data updates
         const currentUserData: UserData = user.userData as UserData;

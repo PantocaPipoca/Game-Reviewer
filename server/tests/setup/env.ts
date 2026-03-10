@@ -7,9 +7,12 @@ const path: string = ".env.test";
 // Load environment variables from .env.test
 dotenv.config({
     path: path,
-    override: true,
 });
 
 if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL not found in" + path);
+}
+
+if (!process.env.JWT_SECRET) {
+  throw new Error(`JWT_SECRET not found in ${path}`);
 }

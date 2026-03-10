@@ -18,7 +18,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: admin
-          POSTGRES_PASSWORD: password
+          POSTGRES_PASSWORD: admin123
         ports:
           - 5432:5432
         options: >-
@@ -27,8 +27,10 @@ jobs:
           --health-timeout=5s
           --health-retries=5
     env:
-      DATABASE_URL: postgresql://admin:password@localhost:5432/test_db
+      DATABASE_URL: postgresql://admin:admin123@localhost:5432/test_db
       NODE_ENV: test
+      JWT_SECRET: 1e0e789d1f02b40fa729dceb36832a574217fb9fd0714957c39be2c2595b3474
+      JWT_EXPIRES_IN: 7d
     steps:
       - uses: actions/checkout@v4
 
@@ -45,10 +47,13 @@ jobs:
         run: sudo apt-get install -y postgresql-client
 
       - name: Create test database
-        run: PGPASSWORD=password psql -h localhost -U admin -d postgres -c "CREATE DATABASE test_db;" || true
+        run: PGPASSWORD=admin123 psql -h localhost -U admin -d postgres -c "CREATE DATABASE test_db;" || true
+
+      - name: Remove root .env
+        run: rm -f ../.env
 
       - name: Run tests
-        run: npm test
+        run: npm run test:ci
 
   frontend:
     name: Frontend CI

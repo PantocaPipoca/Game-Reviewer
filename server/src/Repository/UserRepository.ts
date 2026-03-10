@@ -42,6 +42,12 @@ export class UserRepository {
         });
     }
 
+    public static SelectUserByEmail(email: string): Promise<UserFull | null> {
+        return prisma.user.findUnique({
+            where: { email: email }
+        });
+    }
+
     /**
      * @description Deletes a User from the database
      * @param userPK primary key of User

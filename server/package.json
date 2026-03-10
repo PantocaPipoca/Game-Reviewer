@@ -6,12 +6,12 @@
     "scripts": {
         "build": "tsc",
         "dev": "tsx watch src/index.ts",
-        "test:unit": "cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.unit.config.mjs",
-        "prisma:generate": "npx prisma generate",
-        "prisma:migrate:test": "npx dotenv-cli -e .env.test -o -- npx prisma migrate deploy",
-        "pretest:integration": "npm run prisma:generate && npm run prisma:migrate:test",
-        "test:integration": "npx dotenv-cli -e .env.test -o -- cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.integration.config.mjs --runInBand",
-        "test": "npm run test:unit && npm run test:integration"
+        "prisma:test": "dotenv -e .env.test -- prisma generate && dotenv -e .env.test -- prisma migrate deploy",
+        "test:unit": "npm run prisma:test && cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.unit.config.mjs --runInBand",
+        "test:integration": "npm run prisma:test && dotenv -e .env.test -- cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.integration.config.mjs --runInBand",
+        "test": "npm run test:unit && npm run test:integration",
+        "prisma:ci": "prisma generate && prisma migrate deploy",
+        "test:ci": "npm run prisma:ci && npm run test:unit && npm run test:integration"
     },
     "jest": {
         "testEnvironment": "node",
