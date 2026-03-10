@@ -1,6 +1,6 @@
 import LoginButton from "../Buttons/LoginButton";
 import SignupButton from "../Buttons/SignupButton";
-import Search from "../Search/Search";
+import Search from "../InputField/Search";
 import Text from "../Text/Text";
 import style from "./Navbar.module.css";
 
