@@ -6,6 +6,7 @@ import Text from "../Components/Text/Text";
 import style from "./LoginPage.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
+import { isAuthenticated } from "../API/Auth";
 import { AUTH_ERRORS } from "../Types/Consts";
 
 function LoginPage() {
@@ -16,8 +17,7 @@ function LoginPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) navigate("/");
+        if (isAuthenticated()) navigate("/");
     }, [navigate]);
 
     const handleLogin = async () => {
@@ -31,11 +31,11 @@ function LoginPage() {
 
         setLoading(true);
         try {
-            const result = await UserAPI.login({ accountName, password });
-            localStorage.setItem("token", result.token);
+            await UserAPI.login({ accountName, password });
             navigate("/");
         } catch (err: any) {
-            const message = err.response?.data?.message || AUTH_ERRORS.loginFailed;
+            const message =
+                err.response?.data?.message || AUTH_ERRORS.loginFailed;
             setError(message);
         } finally {
             setLoading(false);

@@ -1,5 +1,6 @@
 import client from "./Client";
 import type { AuthResponse, UserPublic } from "./Types";
+import { setToken } from "./Auth";
 
 export class UserAPI {
     static async register(data: {
@@ -8,11 +9,15 @@ export class UserAPI {
         password: string;
         email: string;
     }): Promise<AuthResponse> {
-        return client.post("/users", data);
+        const response = (await client.post("/users", data)) as AuthResponse;
+        setToken(response.token);
+        return response;
     }
 
     static async login(data: {accountName: string; password: string;}): Promise<AuthResponse> {
-        return client.post("/users/login", data);
+        const response = (await client.post("/users/login", data)) as AuthResponse;
+        setToken(response.token);
+        return response;
     }
 
     static async getMe(): Promise<UserPublic>{

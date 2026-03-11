@@ -6,6 +6,7 @@ import Text from "../Components/Text/Text";
 import style from "./RegisterPage.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
+import { isAuthenticated } from "../API/Auth";
 import { AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
 
 function RegisterPage() {
@@ -20,8 +21,7 @@ function RegisterPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) navigate("/");
+        if (isAuthenticated()) navigate("/");
     }, [navigate]);
 
     const handleSignup = async () => {
@@ -50,10 +50,16 @@ function RegisterPage() {
 
         setLoading(true);
         try {
-            await UserAPI.register({ accountName: userName, displayName, password, email });
-            navigate("/login");
+            await UserAPI.register({
+                accountName: userName,
+                displayName,
+                password,
+                email,
+            });
+            navigate("/");
         } catch (err: any) {
-            const message = err.response?.data?.message || AUTH_ERRORS.registerFailed;
+            const message =
+                err.response?.data?.message || AUTH_ERRORS.registerFailed;
             setError(message);
         } finally {
             setLoading(false);
@@ -125,7 +131,9 @@ function RegisterPage() {
                 {error && <Text color="var(--pink)"> * {error}</Text>}
 
                 <div className={style.loginRow}>
-                    <Text color="var(--mutedText)">already have an account?</Text>
+                    <Text color="var(--mutedText)">
+                        already have an account?
+                    </Text>
                     <Link to="/login" className={`body ${style.link}`}>
                         {`> `}LOGIN
                     </Link>

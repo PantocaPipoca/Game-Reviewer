@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import LoginPage from "./Pages/LoginPage";
 import MainPage from "./Pages/MainPage";
 import RegisterPage from "./Pages/RegisterPage";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
     return (

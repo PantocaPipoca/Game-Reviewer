@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getToken } from "./Auth";
 
 const client = axios.create({
     baseURL: "http://localhost:3000/api/",
@@ -7,7 +8,7 @@ const client = axios.create({
 
 // Attach token to every request if present
 client.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (token) 
         config.headers.Authorization = "Bearer " + token;
     return config;
