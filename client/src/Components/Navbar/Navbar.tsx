@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginButton from "../Buttons/LoginButton";
 import LogoutButton from "../Buttons/LogoutButton";
 import SignupButton from "../Buttons/SignupButton";
@@ -11,7 +11,11 @@ import { UserAPI } from "../../API/User";
 
 function Navbar() {
     const navigate = useNavigate();
-    const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        isAuthenticated().then(setIsLoggedIn);
+    }, []);
 
     const handleLogout = () => {
         UserAPI.logout();

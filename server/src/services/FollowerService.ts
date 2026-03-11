@@ -73,7 +73,6 @@ export class FollowerService {
      * @param expectedAccepted - expected accepted status - true is for removing followers, false is for declining follow requests, undefined either
      * @returns Deleted follower relation object
      */
-    // FollowerService.ts
     static async RemoveFollower(currentUser: UserPK, follows: UserPK, followed: UserPK, expectedAccepted?: boolean): Promise<FollowerFull> {
         await FetchFullUser(follows);
         await FetchFullUser(followed);

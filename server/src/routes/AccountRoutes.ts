@@ -46,6 +46,16 @@ router.post('/', AccountController.Register);
  */
 router.post('/login', AccountController.Login);
 
+/**
+ * POST /api/users/logout
+ * Logs out an existing account
+ * (Empty body)
+ * Response:
+ *      200 OK
+ *      401 UNAUTHORIZED    if no account is logged in
+ */
+router.post('/logout', auth, AccountController.Logout);
+
 
 // ===================== USER MANAGEMENT =====================
 

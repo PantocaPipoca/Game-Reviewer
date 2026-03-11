@@ -4,7 +4,7 @@ import * as ErrorMessage from "../utils/ErrorMessage"
 import {StatusCodes} from "http-status-codes"
 import {AccountService} from "../services/AccountService"
 import { AuthResponse, UserPublic } from "../types/Types"
-import { AuthRequest, ExtractLoggedUser, JwtPayload, setAuthCookie } from "../utils/auth"
+import { AuthRequest, clearAuthCookie, ExtractLoggedUser, JwtPayload, setAuthCookie } from "../utils/auth"
 
 // REGEX that tests whether an email is valid
 const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -54,6 +54,16 @@ export class AccountController {
         const result: AuthResponse = await AccountService.LoginUser(accountName, password);
         setAuthCookie(res, result.token);
         return MakeSuccess(res, StatusCodes.OK, result);
+    })
+
+    /**
+     * Logouts a user
+     * Used by POST /api/users/logout
+     * Requires previous authentication
+     */
+    static Logout: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        clearAuthCookie(res);
+        res.status(StatusCodes.OK).json({ status: "success", data: null });
     })
 
     /**
