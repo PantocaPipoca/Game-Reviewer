@@ -6,6 +6,7 @@ import Text from "../Components/Text/Text";
 import style from "./LoginPage.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
+import { AUTH_ERRORS } from "../Types/Consts";
 
 function LoginPage() {
     const [identifier, setIdentifier] = useState("");
@@ -24,7 +25,7 @@ function LoginPage() {
         setError("");
 
         if (!accountName || !password) {
-            setError("All fields are required.");
+            setError(AUTH_ERRORS.requiredFields);
             return;
         }
 
@@ -34,7 +35,7 @@ function LoginPage() {
             localStorage.setItem("token", result.token);
             navigate("/");
         } catch (err: any) {
-            const message = err.response?.data?.message || "Login failed. Please try again.";
+            const message = err.response?.data?.message || AUTH_ERRORS.loginFailed;
             setError(message);
         } finally {
             setLoading(false);

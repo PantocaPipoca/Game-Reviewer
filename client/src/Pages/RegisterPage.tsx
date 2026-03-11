@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Panel from "../Components/Panel/Panel";
 import InputField from "../Components/InputField/InputField";
 import SignupButton from "../Components/Buttons/SignupButton";
 import Text from "../Components/Text/Text";
 import style from "./RegisterPage.module.css";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
+import { AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
 
 function RegisterPage() {
     const [email, setEmail] = useState("");
@@ -18,38 +19,41 @@ function RegisterPage() {
 
     const navigate = useNavigate();
 
-    const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) navigate("/");
+    }, [navigate]);
 
     const handleSignup = async () => {
         setError("");
 
-        if(!email || !userName || !displayName || !password){
-            setError("All fields are required.");
+        if (!email || !userName || !displayName || !password) {
+            setError(AUTH_ERRORS.requiredFields);
             return;
         }
-        if(!EMAIL_REGEX.test(email)){
-            setError("Invalid email format.");
+        if (!AUTH_VALIDATION.emailRegex.test(email)) {
+            setError(AUTH_ERRORS.invalidEmail);
             return;
         }
-        if(userName.length < 3){
-            setError("Username must be at least 3 characters.");
+        if (userName.length < AUTH_VALIDATION.minUserNameLength) {
+            setError(AUTH_ERRORS.userNameTooShort);
             return;
         }
-        if(password.length < 8){
-            setError("Password must be at least 8 characters.");
+        if (password.length < AUTH_VALIDATION.minPasswordLength) {
+            setError(AUTH_ERRORS.passwordTooShort);
             return;
         }
-        if(password !== confirmPassword){
-            setError("Passwords do not match.");
+        if (password !== confirmPassword) {
+            setError(AUTH_ERRORS.passwordsDoNotMatch);
             return;
         }
 
         setLoading(true);
         try {
-            const result = await UserAPI.register({ accountName: userName, displayName, password, email });
+            await UserAPI.register({ accountName: userName, displayName, password, email });
             navigate("/login");
         } catch (err: any) {
-            const message = err.response?.data?.message || "Registration failed. Please try again.";
+            const message = err.response?.data?.message || AUTH_ERRORS.registerFailed;
             setError(message);
         } finally {
             setLoading(false);
@@ -117,13 +121,11 @@ function RegisterPage() {
                     tColor="var(--reverseText)"
                     onClick={handleSignup}
                     disabled={loading}
-                    />
+                />
                 {error && <Text color="var(--pink)"> * {error}</Text>}
 
                 <div className={style.loginRow}>
-                    <Text color="var(--mutedText)">
-                        already have an account?
-                    </Text>
+                    <Text color="var(--mutedText)">already have an account?</Text>
                     <Link to="/login" className={`body ${style.link}`}>
                         {`> `}LOGIN
                     </Link>

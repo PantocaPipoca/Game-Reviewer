@@ -12,7 +12,7 @@ type LoginButtonProps = {
 
 function LoginButton({ color, tColor, onClick, disabled }: LoginButtonProps) {
     return (
-        <Button className={style.signup} color={color} tColor={tColor} onClick={onClick} disabled={disabled}>
+        <Button className={style.login} color={color} tColor={tColor} onClick={onClick} disabled={disabled}>
             <Text>LOGIN</Text>
         </Button>
     );
