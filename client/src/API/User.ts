@@ -1,6 +1,6 @@
 import client from "./Client";
 import type { AuthResponse, UserPublic } from "./Types";
-import { setToken } from "./Auth";
+import { setToken, clearToken } from "./Auth";
 
 export class UserAPI {
     static async register(data: {
@@ -18,6 +18,10 @@ export class UserAPI {
         const response = (await client.post("/users/login", data)) as AuthResponse;
         setToken(response.token);
         return response;
+    }
+
+    static async logout(): Promise<void> {
+        clearToken();
     }
 
     static async getMe(): Promise<UserPublic>{
