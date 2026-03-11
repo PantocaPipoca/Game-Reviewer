@@ -17,6 +17,10 @@ export class UserAPI {
         return response;
     }
 
+    static async logout(): Promise<void> {
+        await client.post("/users/logout");
+    }
+
     static async getMe(): Promise<UserPublic>{
         return client.get("/users/me");
     }
