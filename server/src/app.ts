@@ -3,16 +3,18 @@ import router from './routes/router.js'
 import cors from 'cors'
 import { AppError } from './utils/ErrorHandler';
 import { StatusCodes } from 'http-status-codes';
+import cookieParser from "cookie-parser";
 
 const app = express()
 
 app.use(cors({
-    origin: "http://localhost:5173"
+    origin: "http://localhost:5173",
+    credentials: true
 }));
 
 app.use(express.json());
-
 app.use(express.urlencoded({extended: true}));
+app.use(cookieParser());
 
 // Big int to string
 app.set('json replacer', (_key: string, value: any) =>

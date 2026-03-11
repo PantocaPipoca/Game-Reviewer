@@ -21,7 +21,9 @@ function RegisterPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (isAuthenticated()) navigate("/");
+        isAuthenticated().then((authenticated) => {
+            if (authenticated) navigate("/");
+        });
     }, [navigate]);
 
     const handleSignup = async () => {

@@ -38,6 +38,11 @@ export async function FetchPublicUser(username: UserPK): Promise<UserPublic> {
     return UserFullToPublic(user);
 }
 
+/**
+ * Converts a full User object to a public User object, removing sensitive data such as passwordHash
+ * @param user - full User object to convert
+ * @returns public User object with only public fields
+ */
 export function UserFullToPublic(user: UserFull): UserPublic {
     return {
         accountName: user.accountName,

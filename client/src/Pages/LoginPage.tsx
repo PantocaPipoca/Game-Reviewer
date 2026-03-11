@@ -17,7 +17,9 @@ function LoginPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (isAuthenticated()) navigate("/");
+        isAuthenticated().then((authenticated) => {
+            if (authenticated) navigate("/");
+        });
     }, [navigate]);
 
     const handleLogin = async () => {

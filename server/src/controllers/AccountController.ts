@@ -4,7 +4,7 @@ import * as ErrorMessage from "../utils/ErrorMessage"
 import {StatusCodes} from "http-status-codes"
 import {AccountService} from "../services/AccountService"
 import { AuthResponse, UserPublic } from "../types/Types"
-import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth"
+import { AuthRequest, ExtractLoggedUser, JwtPayload, setAuthCookie } from "../utils/auth"
 
 // REGEX that tests whether an email is valid
 const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -35,6 +35,7 @@ export class AccountController {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
         const result: AuthResponse = await AccountService.RegisterUser(accountName, displayName, password, email);
+        setAuthCookie(res, result.token);
         return MakeSuccess(res, StatusCodes.CREATED, result);
     })
 
@@ -51,6 +52,7 @@ export class AccountController {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
 
         const result: AuthResponse = await AccountService.LoginUser(accountName, password);
+        setAuthCookie(res, result.token);
         return MakeSuccess(res, StatusCodes.OK, result);
     })
 

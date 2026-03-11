@@ -1,24 +1,21 @@
 import {Request, Response, NextFunction} from "express"
 import jwt from "jsonwebtoken"
 import {StatusCodes} from "http-status-codes"
-import dotenv from "dotenv"
 
 import { AppError } from "./ErrorHandler";
 import { UserPK } from "../types/Types";
 import * as ErrorMessage from "./ErrorMessage";
 
-dotenv.config();
-
-// JWT payload structure (data stored in token)
 export type JwtPayload = {
     username: string;
 }
 
 // Extended Request type with optional user info from JWT
-export interface AuthRequest extends Request {
+export type AuthRequest = Request & {
     currentUser?: JwtPayload;
 }
 
+// env variables
 const JWT_SECRET: string = process.env["JWT_SECRET"] ?? (() => { 
     throw new Error("JWT_SECRET must be set")
 })();
@@ -51,7 +48,7 @@ export function generateToken(username: string): string {
  * @returns    void (sends response if auth fails, otherwise calls next())
  */
 export function auth(req: AuthRequest, res: Response, next: NextFunction): void {
-    const token: string | undefined = req.headers.authorization?.replace('Bearer ', '');
+    const token = req.cookies?.['token']  || req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
         res.status(StatusCodes.UNAUTHORIZED).json({error: "Token required"});
@@ -77,20 +74,40 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction): void 
  * @returns    void (always calls next(), never sends response)
  */
 export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction): void {
-    const token: string | undefined = req.headers.authorization?.replace('Bearer ', '');
+    const token = req.cookies?.['token'] || req.headers.authorization?.replace('Bearer ', '');
     
     if (token) {
         try {
             req.currentUser = jwt.verify(token, JWT_SECRET) as JwtPayload;
-        } catch {} // ignore invalid tokens without errors
+        } catch {}
     }
     
     next()
 }
 
+/**
+ * Extracts the username of the logged in user from the request
+ * @param req - Request object
+ * @returns username of the logged in user
+ */
 export function ExtractLoggedUser(req: AuthRequest): UserPK {
     const currentUser: string | undefined = req.currentUser?.username;
     if (!currentUser) 
         throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
     return currentUser;
+}
+
+
+const JWT_COOKIE_NAME = "token";
+
+export function setAuthCookie(res: Response, token: string): void {
+    res.cookie(JWT_COOKIE_NAME, token, {
+        httpOnly: true,
+        secure: false, // because we are not using HTTPS
+        sameSite: "strict",
+    });
+}
+
+export function clearAuthCookie(res: Response): void {
+    res.clearCookie(JWT_COOKIE_NAME);
 }
