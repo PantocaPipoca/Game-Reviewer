@@ -31,7 +31,7 @@ type AuthResponseIGDB = {
 async function GetNewToken(): Promise<void> {
 
     if (clientId == undefined || secret == undefined) {
-        throw new Error("probably missing .env file");
+        throw new Error("missing IGDB_CLIENT_ID and IGDB_CLIENT_SECRET variables in .env");
     }
 
     const response: Response = await fetch(
@@ -42,6 +42,7 @@ async function GetNewToken(): Promise<void> {
     let responseJSON = await response.json() as AuthResponseIGDB;
     tokenInfo.access_token = responseJSON.access_token;
     tokenInfo.expires_at = Math.floor(Date.now() / 1000) + responseJSON.expires_in - 20
+    fs.writeFileSync(filePath, JSON.stringify(tokenInfo, null, 2));
 }
 
 async function HandleToken() {
@@ -56,16 +57,11 @@ async function HandleToken() {
     const now = Math.floor(Date.now() / 1000);
     if (now > expires_at) {
         await GetNewToken();
-        let dataToSave: TokenData = {
-            access_token: tokenInfo.access_token,
-            expires_at: tokenInfo.expires_at,
-        }
-        fs.writeFileSync(filePath, JSON.stringify(dataToSave, null, 2));
     }
 }
 
 
-export async function SearchGames(input: string) {
+export async function SearchGames(input: string, amount: number) {
     await HandleToken();
 
     return fetch(
@@ -78,8 +74,44 @@ export async function SearchGames(input: string) {
             },
             body: `
                 search: "${input}";
-                fields: id, name, platforms.name;
-                limit 50;
+                fields:
+                    id,
+                    name,
+                    game_type.type,
+                    platforms.name,
+                    cover.*
+                ;
+                where game_type = (0, 1, 4, 8, 11) & cover != null;
+                limit ${amount};
+            `
+        }
+    ).then(x => x.json());
+}
+
+
+// provide a random offset for a random set of games
+export async function GetGamesFromMainList(amount: number, offset: number) {
+    await HandleToken();
+
+    return fetch(
+        "https://api.igdb.com/v4/games",
+        {
+            method: "POST",
+            headers: {
+                "Client-ID": clientId,
+                "Authorization": `Bearer ${tokenInfo.access_token}`
+            },
+            body: `
+                fields
+                    id,
+                    name,
+                    game_type.type,
+                    platforms.name,
+                    cover.*
+                ;
+                where game_type = (0, 1, 4, 8, 11) & cover != null;
+                limit ${amount};
+                offset ${offset};
             `
         }
     ).then(x => x.json());
@@ -131,12 +163,38 @@ export async function GetGameByID(ID: number) {
                     websites.trusted,
                     websites.url,
                     websites.type.type,
-                    game_type.type;
+                    game_type.type
+                ;
                 where id = ${ID};
             `
         }
     ).then(x => x.json());
 }
+
+
+
+
+// helper function made just to get the relevant game_types
+async function GetAllTypes() {
+    await HandleToken();
+
+    return fetch(
+        "https://api.igdb.com/v4/game_types",
+        {
+            method: "POST",
+            headers: {
+                "Client-ID": clientId,
+                "Authorization": `Bearer ${tokenInfo.access_token}`
+            },
+            body: `
+                fields *;
+            `
+        }
+    ).then(x => x.text());
+}
+
+
+
 
 // tests
 
@@ -145,5 +203,11 @@ export async function GetGameByID(ID: number) {
 
 // let output2: any = await GetGameByID(235102);
 // console.log(JSON.stringify(output2, null, 2));
+
+// let output3: any = await GetGamesFromMainList(15, 1);
+// console.log(JSON.stringify(output3, null, 2));
+
+// let output4: any = await GetAllTypes();
+// console.log(output4);
 
 // working correctly
