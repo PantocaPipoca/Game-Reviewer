@@ -1,18 +1,17 @@
-import { StatusCodes } from "http-status-codes"
-import { AppError } from "../utils/ErrorHandler"
+import {StatusCodes} from "http-status-codes"
+import {AppError} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import { GamePK, LikeFull, LikeShort, ReviewFull, UserPK, ReactionResponse } from "../types/Types";
-import { FetchFullUser } from "./AccountService";
-import { ReviewRepository } from "../Repository/ReviewRepository"
-import { LikeRepository } from "../Repository/LikeRepository";
+import {GamePK, LikeFull, LikeShort, ReviewFull, UserPK, ReactionResponse} from "../types/Types";
+import {FetchFullUser} from "./AccountService";
+import {ReviewRepository} from "../Repository/ReviewRepository"
+import {LikeRepository} from "../Repository/LikeRepository";
 
 export class LikeService {
-
     /**
      * Get reactions of a review 
-     * @param reviewer 
-     * @param gameID 
-     * @returns 
+     * @param reviewer the reviewer of the target review
+     * @param gameID the game ID of the target review
+     * @returns the amount of likes and the amount of dislikes
      */
     static async GetReactionsByReview(reviewer: UserPK, gameID: GamePK): Promise<ReactionResponse> {
         const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer, reviewed: gameID});
@@ -28,7 +27,14 @@ export class LikeService {
         } as ReactionResponse;
     }
 
-    // reaction is true for like and false for dislike
+    /**
+     * Gives a reaction to a review
+     * @param currentUser the commentator
+     * @param reviewer the reviewer of the target review
+     * @param gameID the game ID of the target review
+     * @param reaction if true, the reaction will be a like, otherwise a dislike
+     * @returns the reaction given
+     */
     static async ReactReview(currentUser: UserPK, reviewer: UserPK, gameID: GamePK, reaction: boolean): Promise<LikeShort> {
         await FetchFullUser(currentUser);
 
@@ -65,6 +71,13 @@ export class LikeService {
         } as LikeShort;
     }
 
+    /**
+     * Clears a reaction from a review
+     * @param currentUser the commentator
+     * @param reviewer the reviewer of the target review
+     * @param gameID the game ID of the target review
+     * @returns the reaction before it was removed
+     */
     static async RemoveReactionFromReview(currentUser: UserPK, reviewer: UserPK, gameID: GamePK): Promise<LikeShort> {
         // Verify review exists
         const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer: reviewer, reviewed: gameID});
@@ -85,9 +98,5 @@ export class LikeService {
             reviewed: deleted.reviewed,
             value: deleted.value,
         } as LikeShort;
-    }
-
-    // TODO Later
-    static async GetLikesByUser(username: UserPK): Promise<void> {
     }
 }

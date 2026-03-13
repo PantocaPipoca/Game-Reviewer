@@ -1,14 +1,13 @@
 import bcrypt from "bcrypt"
-import { StatusCodes } from "http-status-codes"
+import {StatusCodes} from "http-status-codes"
 import * as ErrorMessage from "../utils/ErrorMessage";
-import { AppError } from "../utils/ErrorHandler"
-import { generateToken } from "../utils/auth"
-import { UserRepository } from "../Repository/UserRepository"
+import {AppError} from "../utils/ErrorHandler"
+import {generateToken} from "../utils/auth"
+import {UserRepository} from "../Repository/UserRepository"
 import {UserData, UserFull, UserPK, AuthResponse, UserPublic} from "../types/Types"
-import { FollowerRepository } from "../Repository/FollowerRepository"
+import {FollowerRepository} from "../Repository/FollowerRepository"
 
 const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
-
 
 /**
  * Gets a user full object by username and throws an error if the user doesn't exist
@@ -38,6 +37,11 @@ export async function FetchPublicUser(username: UserPK): Promise<UserPublic> {
     return UserFullToPublic(user);
 }
 
+/**
+ * Removes non-public info from a user object
+ * @param user the user with all their info
+ * @returns the user with only their public info
+ */
 export function UserFullToPublic(user: UserFull): UserPublic {
     return {
         accountName: user.accountName,
@@ -189,10 +193,10 @@ export class AccountService {
             ? await bcrypt.hash(password, SALT_ROUNDS) 
             : user.passwordHash;
 
-        let updatedEmail = email ?? user.email;
+        let updatedEmail: string = email ?? user.email;
 
-        if(email){
-            const existingUser = await UserRepository.SelectUserByEmail(email);
+        if (email) {
+            const existingUser: UserFull | null = await UserRepository.SelectUserByEmail(email);
             if (existingUser)
                 throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
         }
@@ -259,10 +263,9 @@ export class AccountService {
      * @param currentUser - authenticated user making the request (optional)
      */
     static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<UserPublic[]> {
-       const usersFull = await UserRepository.SelectUsersOfSimilarName(nameFilter);
-        const users = usersFull.map(UserFullToPublic);
-
-        const canViewList = await Promise.all(
+        const usersFull: UserFull[] = await UserRepository.SelectUsersOfSimilarName(nameFilter);
+        const users: UserPublic[] = usersFull.map(UserFullToPublic);
+        const canViewList: boolean[] = await Promise.all(
             users.map(u => CanViewUser(u, currentUser))
         );
 

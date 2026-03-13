@@ -1,12 +1,11 @@
 import {StatusCodes} from "http-status-codes"
 import {AppError} from "../utils/ErrorHandler"
 import {FetchFullUser, CanViewUser, FetchPublicUser} from "./AccountService"
-import {FollowerFull, FollowerShort, UserData, UserPK, UserPublic} from "../types/Types"
-import { FollowerRepository } from "../Repository/FollowerRepository"
+import {FollowerFull, UserPK, UserPublic} from "../types/Types"
+import {FollowerRepository} from "../Repository/FollowerRepository"
 import * as ErrorMessage from "../utils/ErrorMessage"
 
 export class FollowerService {
-
     /**
      * Creates a follow request from one user to another
      * @param currentUser - username of the user making the request (the one who follows)
@@ -24,13 +23,11 @@ export class FollowerService {
         if (existingRequest)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.FOLLOW_REQUEST_EXISTS);
 
-        const isPrivate: boolean = followedUser.isPrivate;
-
         // create follower request (accept auto for public accounts)
         const follower: FollowerFull = await FollowerRepository.InsertFollower({
             follows: currentUser,
             followed,
-            accepted: !isPrivate
+            accepted: !followedUser.isPrivate
         });
 
         return follower;
@@ -40,7 +37,6 @@ export class FollowerService {
      * Accepts a follow request (for private accounts)
      * @param currentUser - user authenticated
      * @param follows - username of the follower
-     * @param followed - username of the followed user
      * @returns updated follower relation object
      */
     static async AcceptFollower(currentUser: UserPK, follows: UserPK): Promise<FollowerFull> {
@@ -73,16 +69,11 @@ export class FollowerService {
      * @param expectedAccepted - expected accepted status - true is for removing followers, false is for declining follow requests, undefined either
      * @returns Deleted follower relation object
      */
-    // FollowerService.ts
-    static async RemoveFollower(currentUser: UserPK, follows: UserPK, followed: UserPK, expectedAccepted?: boolean): Promise<FollowerFull> {
+    static async RemoveFollower(follows: UserPK, followed: UserPK, expectedAccepted?: boolean): Promise<FollowerFull> {
         await FetchFullUser(follows);
         await FetchFullUser(followed);
 
-        if (currentUser !== follows && currentUser !== followed)
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
-
         const existing: FollowerFull | null = await FollowerRepository.SelectFollower({ follows, followed });
-
         if (!existing)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOWER_NOT_FOUND);
 
@@ -111,7 +102,6 @@ export class FollowerService {
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
         const followers: FollowerFull[] = await FollowerRepository.SelectAllFollowersOfUser(username);
-
         return followers;
     }
 
@@ -130,7 +120,6 @@ export class FollowerService {
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
         const following: FollowerFull[] = await FollowerRepository.SelectAllFollowedByUser(username);
-        
         return following;
     }
 
@@ -143,7 +132,6 @@ export class FollowerService {
         await FetchPublicUser(currentUser);
 
         const requests: FollowerFull[] = await FollowerRepository.SelectAllRequestsToUser(currentUser);
-
         return requests;
     }
 
@@ -156,7 +144,6 @@ export class FollowerService {
         await FetchPublicUser(currentUser);
 
         const requests: FollowerFull[] = await FollowerRepository.SelectAllRequestsFromUser(currentUser);
-
         return requests;
     }
 }

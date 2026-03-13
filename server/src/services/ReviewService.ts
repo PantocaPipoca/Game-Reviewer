@@ -1,20 +1,18 @@
-import { StatusCodes } from "http-status-codes"
-import { AppError } from "../utils/ErrorHandler"
+import {StatusCodes} from "http-status-codes"
+import {AppError} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import {GameFull, GamePK, ReviewFull, UserPK, UserPublic} from "../types/Types"
-import { CanViewUser, FetchPublicUser } from "./AccountService"
-import { GameRepository } from "../Repository/GameRepository"
-import { ReviewRepository } from "../Repository/ReviewRepository"
+import {CanViewUser, FetchPublicUser} from "./AccountService"
+import {GameRepository} from "../Repository/GameRepository"
+import {ReviewRepository} from "../Repository/ReviewRepository"
 
-
-// Throws if the user or the game dont exist
+// Throws if the game doesn't exist
 async function FetchGame(gameID: number): Promise<GameFull> {
     const game: GameFull | null = await GameRepository.SelectGame(gameID);
     if (!game)
         throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
     return game;
 }
-
 
 export class ReviewService {
     static async FindReview(reviewer: UserPK, reviewed: GamePK, currentUser?: UserPK): Promise<ReviewFull> {

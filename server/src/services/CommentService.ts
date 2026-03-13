@@ -1,13 +1,12 @@
 import {StatusCodes} from "http-status-codes"
 import {AppError} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import { ReviewRepository } from "../Repository/ReviewRepository"
-import { CommentRepository } from "../Repository/CommentRepository"
-import { CommentFull, CommentPK, GamePK, ReviewFull, UserPK } from "../types/Types"
-import { CanViewUser, FetchPublicUser } from "./AccountService"
+import {ReviewRepository} from "../Repository/ReviewRepository"
+import {CommentRepository} from "../Repository/CommentRepository"
+import {CommentFull, CommentPK, GamePK, ReviewFull, UserPK} from "../types/Types"
+import {CanViewUser, FetchPublicUser} from "./AccountService"
 
 export class CommentService {
-
     /**
      * Returns all comments of a review
      * @param reviewer - the reviewer of the game

@@ -1,8 +1,8 @@
-import { AppError } from "../utils/ErrorHandler"
+import {AppError} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import { StatusCodes } from "http-status-codes"
-import { GameFull, GamePK } from "../types/Types"
-import { GameRepository } from "../Repository/GameRepository"
+import {StatusCodes} from "http-status-codes"
+import {GameFull, GamePK} from "../types/Types"
+import {GameRepository} from "../Repository/GameRepository"
 
 export class GameService {
     /**
@@ -12,7 +12,6 @@ export class GameService {
      */
     static async GetGameById(gameId: GamePK): Promise<GameFull> {
         const game: GameFull | null = await GameRepository.SelectGame(gameId)
-        
         if (!game)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND)
 
