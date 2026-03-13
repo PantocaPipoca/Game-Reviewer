@@ -21,6 +21,13 @@
     color: var(--mainText);
 }
 
+.logout {
+    white-space: nowrap;
+    padding: 0.8em 1.7em;
+    background-color: var(--transparent);
+    color: var(--mainText);
+}
+
 .button:hover {
     border-color: var(--cyan);
 }

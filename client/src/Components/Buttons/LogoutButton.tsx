@@ -3,19 +3,19 @@ import Text from "../Text/Text";
 import style from "./Buttons.module.css";
 import type { CssVar } from "../../Types/Types";
 
-type LoginButtonProps = {
+type LogoutButtonProps = {
     color?: CssVar;
     tColor?: CssVar;
     onClick?: () => void;
     disabled?: boolean;
 };
 
-function LoginButton({ color, tColor, onClick, disabled }: LoginButtonProps) {
+function LogoutButton({ color, tColor, onClick, disabled }: LogoutButtonProps) {
     return (
-        <Button className={style.login} color={color} tColor={tColor} onClick={onClick} disabled={disabled}>
-            <Text>LOGIN</Text>
+        <Button className={style.logout} color={color} tColor={tColor} onClick={onClick} disabled={disabled}>
+            <Text>LOG OUT</Text>
         </Button>
     );
 }
 
-export default LoginButton;
+export default LogoutButton;

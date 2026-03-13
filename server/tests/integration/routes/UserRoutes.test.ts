@@ -181,6 +181,24 @@ describe("POST /api/users/login", () => {
     });
 });
 
+// =============== Logout ===============
+
+describe("POST /api/users/logout", () => {
+    it("returns UNAUTHORIZED if not authenticated", async () => {
+        await request(app).post("/api/users/logout").expect(StatusCodes.UNAUTHORIZED);
+    });
+
+    it("returns OK", async () => {
+        const user: AuthResponse = await Register(app, username, displayName, password, email);
+        const token: string = user.token;
+
+        await request(app)
+            .post("/api/users/logout")
+            .set("Authorization", "Bearer " + token)
+            .expect(StatusCodes.OK);
+    });
+});
+
 // =============== Current User ===============
 
 describe("GET /api/users/me", () => {

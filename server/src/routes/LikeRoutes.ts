@@ -1,91 +1,190 @@
-import {Router} from "express"
+import { Router } from "express";
 import { LikeController } from "../controllers/LikeController";
 import { auth } from "../utils/auth";
 
-
 const router: Router = Router({ mergeParams: true });
-
 
 // ===================== LIKES =====================
 
 /**
- * GET /api/reviews/:reviewer/:reviewed/likes
- * Gets the likes of a review
- * (Empty body)
- * Response:
- *      200 OK
- *      number of likes
- *      400 BAD REQUEST     if any of the required fields is missing
- *      404 NOT FOUND       if the provided user name doesn't exist
- *      404 NOT FOUND       if the provided game name doesn't exist
- *      404 NOT FOUND       if the user didn't review the game
+ * @swagger
+ *  /reviews/{reviewer}/{reviewed}/likes:
+ *      get:
+ *          tags: [Reactions]
+ *          summary: Gets the likes of a review
+ *          description: |
+ *              Gets the likes of a review.
+ *          parameters:
+ *              - in: path
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
+ *              - in: path
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *          responses:
+ *              200:
+ *                  description: "**OK** - number of likes"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: integer
+ *              400:
+ *                  description: "**Bad Request** - if any of the required fields are missing"
+ *              404:
+ *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.get('/likes', LikeController.GetLikes);
+router.get("/likes", LikeController.GetLikes);
 
 /**
- * POST /api/reviews/:reviewer/:reviewed/likes
- * Adds a like to a review
- * (Empty body)
- * Response:
- *      202 ACCEPTED
- *      {reviewer, reviewed, liker, value}
- *      400 BAD REQUEST     if any of the required fields is missing
- *      401 UNAUTHORIZED    if no account is logged in
- *      404 NOT FOUND       if the provided user name doesn't exist
- *      404 NOT FOUND       if the provided game name doesn't exist
- *      404 NOT FOUND       if the user didn't review the game
+ * @swagger
+ *  /reviews/{reviewer}/{reviewed}/likes:
+ *      post:
+ *          tags: [Reactions]
+ *          summary: Adds a like to a review
+ *          description: |
+ *              Adds a like to a review.
+ *          security:
+ *              - bearerAuth: []
+ *          parameters:
+ *              - in: path
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
+ *              - in: path
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *          responses:
+ *              202:
+ *                  description: "**Accepted**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Like'
+ *              400:
+ *                  description: "**Bad Request** - if any of the required fields are missing"
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *              404:
+ *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.post('/likes', auth, LikeController.AddLike);
-
+router.post("/likes", auth, LikeController.AddLike);
 
 // ===================== DISLIKES =====================
 
 /**
- * GET /api/reviews/:reviewer/:reviewed/dislikes
- * Gets the dislikes of a review
- * (Empty body)
- * Response:
- *      200 OK
- *      number of likes
- *      400 BAD REQUEST     if any of the required fields is missing
- *      404 NOT FOUND       if the provided user name doesn't exist
- *      404 NOT FOUND       if the provided game name doesn't exist
- *      404 NOT FOUND       if the user didn't review the game
+ * @swagger
+ *  /reviews/{reviewer}/{reviewed}/dislikes:
+ *      get:
+ *          tags: [Reactions]
+ *          summary: Gets the dislikes of a review
+ *          description: |
+ *              Gets the dislikes of a review.
+ *          parameters:
+ *              - in: path
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
+ *              - in: path
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *          responses:
+ *              200:
+ *                  description: "**OK** - number of dislikes"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: integer
+ *              400:
+ *                  description: "**Bad Request** - if any of the required fields are missing"
+ *              404:
+ *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.get('/dislikes', LikeController.GetDislikes);
+router.get("/dislikes", LikeController.GetDislikes);
 
 /**
- * POST /api/reviews/:reviewer/:reviewed/dislikes
- * Adds a dislike to a review
- * (Empty body)
- * Response:
- *      202 ACCEPTED
- *      {reviewer, reviewed, liker, value}
- *      400 BAD REQUEST     if any of the required fields is missing
- *      401 UNAUTHORIZED    if no account is logged in
- *      404 NOT FOUND       if the provided user name doesn't exist
- *      404 NOT FOUND       if the provided game name doesn't exist
- *      404 NOT FOUND       if the user didn't review the game
+ * @swagger
+ *  /reviews/{reviewer}/{reviewed}/dislikes:
+ *      post:
+ *          tags: [Reactions]
+ *          summary: Adds a dislike to a review
+ *          description: |
+ *              Adds a dislike to a review.
+ *          security:
+ *              - bearerAuth: []
+ *          parameters:
+ *              - in: path
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
+ *              - in: path
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *          responses:
+ *              202:
+ *                  description: "**Accepted**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Like'
+ *              400:
+ *                  description: "**Bad Request** - if any of the required fields are missing"
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *              404:
+ *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.post('/dislikes', auth, LikeController.AddDislike);
-
+router.post("/dislikes", auth, LikeController.AddDislike);
 
 // ===================== BOTH =====================
 
 /**
- * DELETE /api/reviews/:reviewer/:reviewed/reacts
- * Deletes likes and dislikes to a review
- * (Empty body)
- * Response:
- *      202 ACCEPTED
- *      {reviewer, reviewed, liker, value}
- *      400 BAD REQUEST     if any of the required fields is missing
- *      401 UNAUTHORIZED    if no account is logged in
- *      404 NOT FOUND       if the provided user name doesn't exist
- *      404 NOT FOUND       if the provided game name doesn't exist
- *      404 NOT FOUND       if the user didn't review the game
+ * @swagger
+ *  /reviews/{reviewer}/{reviewed}/reacts:
+ *      delete:
+ *          tags: [Reactions]
+ *          summary: Deletes likes and dislikes to a review
+ *          description: |
+ *              Deletes likes and dislikes to a review.
+ *          security:
+ *              - bearerAuth: []
+ *          parameters:
+ *              - in: path
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
+ *              - in: path
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *          responses:
+ *              202:
+ *                  description: "**Accepted**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Like'
+ *              400:
+ *                  description: "**Bad Request** - if any of the required fields are missing"
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *              404:
+ *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.delete('/reacts', auth, LikeController.RemoveReactions);
-
+router.delete("/reacts", auth, LikeController.RemoveReactions);
 
 export default router;

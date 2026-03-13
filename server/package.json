@@ -6,9 +6,9 @@
     "scripts": {
         "build": "tsc",
         "dev": "tsx watch src/index.ts",
-        "prisma:test": "dotenv -e .env.test -- prisma generate && dotenv -e .env.test -- prisma migrate deploy",
+        "prisma:test": "dotenv -e .env.test -- prisma generate && dotenv -e .env.test -o -- prisma migrate deploy",
         "test:unit": "npm run prisma:test && cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.unit.config.mjs --runInBand",
-        "test:integration": "npm run prisma:test && dotenv -e .env.test -- cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.integration.config.mjs --runInBand",
+        "test:integration": "npm run prisma:test && dotenv -e .env.test -o -- cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.integration.config.mjs --runInBand",
         "test": "npm run test:unit && npm run test:integration",
         "prisma:ci": "prisma generate && prisma migrate deploy",
         "test:ci": "npm run prisma:ci && npm run test:unit && npm run test:integration"
@@ -16,18 +16,18 @@
     "jest": {
         "testEnvironment": "node",
         "testMatch": [
-        "**/tests/**/*.test.ts"
+            "**/tests/**/*.test.ts"
         ],
         "transform": {
-        "^.+\\.ts$": [
-            "ts-jest",
-            {
-            "useESM": true
-            }
-        ]
+            "^.+\\.ts$": [
+                "ts-jest",
+                {
+                    "useESM": true
+                }
+            ]
         },
         "extensionsToTreatAsEsm": [
-        ".ts"
+            ".ts"
         ]
     },
     "keywords": [],
@@ -37,11 +37,15 @@
     "devDependencies": {
         "@prisma/client": "^7.3.0",
         "@types/bcrypt": "^6.0.0",
+        "@types/cookie-parser": "^1.4.10",
+        "@types/cors": "^2.8.19",
         "@types/express": "^5.0.6",
         "@types/jest": "^30.0.0",
         "@types/jsonwebtoken": "^9.0.10",
         "@types/node": "^25.3.0",
         "@types/supertest": "^7.2.0",
+        "@types/swagger-jsdoc": "^6.0.4",
+        "@types/swagger-ui-express": "^4.1.8",
         "cross-env": "^10.1.0",
         "dotenv-cli": "^11.0.0",
         "jest": "^30.2.0",
@@ -56,10 +60,14 @@
     "dependencies": {
         "@prisma/adapter-pg": "^7.3.0",
         "bcrypt": "^6.0.0",
+        "cookie-parser": "^1.4.7",
+        "cors": "^2.8.6",
         "dotenv": "^17.2.4",
         "express": "^5.2.1",
         "http-status-codes": "^2.3.0",
         "jsonwebtoken": "^9.0.3",
-        "pg": "^8.18.0"
+        "pg": "^8.18.0",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1"
     }
 }

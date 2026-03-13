@@ -8,11 +8,17 @@ export class UserAPI {
         password: string;
         email: string;
     }): Promise<AuthResponse> {
-        return client.post("/users", data);
+        const response = (await client.post("/users", data)) as AuthResponse;
+        return response;
     }
 
     static async login(data: {accountName: string; password: string;}): Promise<AuthResponse> {
-        return client.post("/users/login", data);
+        const response = (await client.post("/users/login", data)) as AuthResponse;
+        return response;
+    }
+
+    static async logout(): Promise<void> {
+        await client.post("/users/logout");
     }
 
     static async getMe(): Promise<UserPublic>{

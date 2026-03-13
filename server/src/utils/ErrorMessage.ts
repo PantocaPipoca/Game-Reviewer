@@ -36,7 +36,7 @@ export const REACTION_NOT_FOUND: string = "Reaction not found"
 
 // ========== CONFLICT ERRORS (409) ==========
 export const ACCOUNT_ALREADY_EXISTS: string     = "User name is already taken"
-export const EMAIL_ALREADY_EXISTS: string        = "Email is already used by another user"
+export const EMAIL_ALREADY_EXISTS: string        = "Email is already taken"
 
 export const FOLLOW_REQUEST_EXISTS: string      = "User already requested to follow user"
 export const FOLLOW_REQUEST_NOT_FOUND: string   = "User didn't request to follow user"
