@@ -6,11 +6,14 @@
     "scripts": {
         "build": "tsc",
         "dev": "tsx watch src/index.ts",
+
         "prisma:test": "dotenv -e .env.test -- prisma generate && dotenv -e .env.test -- prisma migrate deploy",
-        "test:unit": "npm run prisma:test && cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.unit.config.mjs --runInBand",
-        "test:integration": "npm run prisma:test && dotenv -e .env.test -o -- cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.integration.config.mjs --runInBand",
-        "test": "npm run test:unit && npm run test:integration",
         "prisma:ci": "prisma generate && prisma migrate deploy",
+
+        "test:unit": "cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.unit.config.mjs --runInBand",
+        "test:integration": "cross-env NODE_OPTIONS=--experimental-vm-modules jest -c jest.integration.config.mjs --runInBand",
+
+        "test": "npm run prisma:test && dotenv -e .env.test -- npm run test:unit && dotenv -e .env.test -- npm run test:integration",
         "test:ci": "npm run prisma:ci && npm run test:unit && npm run test:integration"
     },
     "jest": {
