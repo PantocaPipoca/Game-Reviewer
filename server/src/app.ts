@@ -4,6 +4,8 @@ import cors from 'cors'
 import { AppError } from './utils/ErrorHandler';
 import { StatusCodes } from 'http-status-codes';
 import cookieParser from "cookie-parser";
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './swagger.js';
 
 const app = express()
 
@@ -23,6 +25,10 @@ app.set('json replacer', (_key: string, value: any) =>
 
 // Health check
 app.get('/api/health', (_, res) => res.json({status: 'ok', message: "Game Reviewer API"}));
+
+// Swagger docs
+app.get('/api/docs.json', (_, res) => res.json(swaggerSpec));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // App routes
 app.use('/api', router);

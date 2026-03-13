@@ -98,6 +98,8 @@ export function ExtractLoggedUser(req: AuthRequest): UserPK {
 }
 
 
+// Set cookies for authentication in HTTP responses
+
 const JWT_COOKIE_NAME = "token";
 
 export function setAuthCookie(res: Response, token: string): void {
