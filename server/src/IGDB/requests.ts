@@ -117,6 +117,37 @@ export async function GetGamesFromMainList(amount: number, offset: number) {
     ).then(x => x.json());
 }
 
+// gets the most recent games
+export async function GetRecentGames(amount: number, offset: number) {
+    let now = Math.floor(Date.now() / 1000);
+    await HandleToken();
+    return fetch(
+        "https://api.igdb.com/v4/games",
+        {
+            method: "POST",
+            headers: {
+                "Client-ID": clientId,
+                "Authorization": `Bearer ${tokenInfo.access_token}`
+            },
+            body: `
+                fields
+                    id,
+                    name,
+                    game_type.type,
+                    platforms.name,
+                    cover.*
+                ;
+                where game_type = (0, 1, 4, 8, 11) & cover != null & first_release_date < ${now};
+                sort first_release_date desc;
+                limit ${amount};
+                offset ${offset};
+            `
+        }
+    ).then(x => x.json());
+}
+
+
+
 export async function GetGameByID(ID: number) {
     await HandleToken();
 
@@ -207,7 +238,10 @@ async function GetAllTypes() {
 // let output3: any = await GetGamesFromMainList(15, 1);
 // console.log(JSON.stringify(output3, null, 2));
 
-// let output4: any = await GetAllTypes();
-// console.log(output4);
+// let output4: any = await GetRecentGames(15, 1);
+// console.log(JSON.stringify(output4, null, 2));
+
+// let outputN: any = await GetAllTypes();
+// console.log(outputN);
 
 // working correctly
