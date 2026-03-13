@@ -34,7 +34,7 @@ export class FollowerController {
         const username: string = ExtractUsername(req);
 
         // remove relation: follows=currentUser, followed=username
-        const result = await FollowerService.RemoveFollower(currentUser, currentUser, username);
+        const result = await FollowerService.RemoveFollower(currentUser, username);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     }); 
 
@@ -59,7 +59,7 @@ export class FollowerController {
         const username: string = ExtractUsername(req);
         
         // delete relation: follows=username, followed=currentUser (pending request)
-        const result = await FollowerService.RemoveFollower(currentUser, username, currentUser, false);
+        const result = await FollowerService.RemoveFollower(username, currentUser, false);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 
