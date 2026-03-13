@@ -28,3 +28,8 @@
 .button:active {
     border-color: var(--pink);
 }
+
+.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}

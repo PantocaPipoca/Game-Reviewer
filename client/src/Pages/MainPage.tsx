@@ -1,10 +1,38 @@
 import type { ReactNode } from "react";
 import Navbar from "../Components/Navbar/Navbar";
-import BigGameCard from "../Components/GameCards/BigGameCard";
+import BigGameCard, { type BigGameCardProps } from "../Components/GameCards/BigGameCard";
 import GameCard, { type GameCardProps } from "../Components/GameCards/GameCard";
+import Carousel from "../Components/Carousel/Carousel";
 import Panel from "../Components/Panel/Panel";
 import style from "./MainPage.module.css";
 import Text from "../Components/Text/Text";
+
+const popularGames: BigGameCardProps[] = [
+    {
+        name: "Celeste",
+        cover: "https://www.gamespot.com/a/uploads/screen_kubrick/1556/15568848/3344763-7693939071-da3dd1bae53674882038f46b61fbf726",
+        genres: ["Platform", "Adventure", "Indie"],
+        developer: "Extremely OK Games",
+        collage: [
+            "https://images.igdb.com/igdb/image/upload/t_720p/fwjvpiu2ircdq5afkm1o.webp",
+            "https://images.igdb.com/igdb/image/upload/t_720p/vahss8soe3tginavzmzp.webp",
+            "https://images.igdb.com/igdb/image/upload/t_720p/fkbchtayhzmfnljfusel.webp",
+            "https://images.igdb.com/igdb/image/upload/t_720p/loakfrjghok9fxnh59lt.webp",
+        ],
+    },
+    {
+        name: "Hades",
+        cover: "https://images.igdb.com/igdb/image/upload/t_720p/ar3m4o.webp",
+        genres: ["Action RPG", "Roguelike"],
+        developer: "Supergiant Games",
+        collage: [
+            "https://images.igdb.com/igdb/image/upload/t_720p/sc8lik.webp",
+            "https://images.igdb.com/igdb/image/upload/t_720p/sc8lim.webp",
+            "https://images.igdb.com/igdb/image/upload/t_720p/sc8lin.webp",
+            "https://images.igdb.com/igdb/image/upload/t_720p/sc8lij.webp",
+        ],
+    },
+];
 
 const recomended: GameCardProps[] = [
     {
@@ -35,47 +63,47 @@ const recomended: GameCardProps[] = [
     {
         name: "Ori and the Will of the Wisps",
         rating: 4.8,
-        cover: "https://upload.wikimedia.org/wikipedia/en/3/thirty/Ori_and_the_Will_of_the_Wisps.jpg",
+        cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2e1l.webp",
     },
     {
         name: "Shovel Knight",
         rating: 4.7,
-        cover: "https://upload.wikimedia.org/wikipedia/en/3/35/Shovel_Knight_cover_art.jpg",
+        cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/cobaa7.webp",
     },
     {
         name: "Stardew Valley",
         rating: 4.9,
-        cover: "https://upload.wikimedia.org/wikipedia/en/f/fd/Logo_of_Stardew_Valley.png",
+        cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/coa93h.webp",
     },
     {
         name: "Undertale",
         rating: 4.8,
-        cover: "https://upload.wikimedia.org/wikipedia/en/6/6b/Undertale_cover.png",
+        cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/cob1t2.webp",
     },
     {
         name: "Katana ZERO",
         rating: 4.7,
-        cover: "https://upload.wikimedia.org/wikipedia/en/3/34/Katana_Zero_cover_art.jpg",
+        cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1isp.webp",
     },
     {
         name: "Axiom Verge",
         rating: 4.6,
-        cover: "https://upload.wikimedia.org/wikipedia/en/2/23/Axiom_Verge_cover.jpg",
+        cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1kml.webp",
     },
     {
         name: "Rain World",
         rating: 4.6,
-        cover: "https://upload.wikimedia.org/wikipedia/en/1/14/Rain_World_cover.jpg",
+        cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co24pm.webp",
     },
     {
         name: "Hyper Light Drifter",
         rating: 4.7,
-        cover: "https://upload.wikimedia.org/wikipedia/en/b/b5/Hyper_Light_Drifter_cover.jpg",
+        cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2edn.webp",
     },
     {
         name: "Dandara",
         rating: 4.5,
-        cover: "https://upload.wikimedia.org/wikipedia/en/5/5d/Dandara_cover_art.jpg",
+        cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1tvu.webp",
     },
 ];
 
@@ -109,7 +137,7 @@ const friendRecomended: GameCardProps[] = [
 
 function Section({ title, href, children }: { title: string; href: string; children: ReactNode }) {
     return (
-        <div>
+        <div className={style.section}>
             <div className={style.header}>
                 <Text>{title}</Text>
                 <a href={href} className={style.seeMore}>
@@ -121,16 +149,6 @@ function Section({ title, href, children }: { title: string; href: string; child
     );
 }
 
-function CardRow({ games }: { games: GameCardProps[] }) {
-    return (
-        <div className={style.cardRow}>
-            {games.slice(0, 5).map((game) => (
-                <GameCard name={game.name} rating={game.rating} cover={game.cover} />
-            ))}
-        </div>
-    );
-}
-
 function MainPage() {
     return (
         <div>
@@ -138,15 +156,22 @@ function MainPage() {
             <div className={style.mainPanel}>
                 <Panel type="main">
                     <Section title="Popular Games" href="#">
-                        <BigGameCard />
+                        <Carousel
+                            items={popularGames}
+                            pageSize={1}
+                            renderItem={(game) => <BigGameCard key={game.name} {...game} />}
+                        />
                     </Section>
                     <hr />
                     <Section title="Recomended to you" href="#">
-                        <CardRow games={recomended} />
+                        <Carousel items={recomended} renderItem={(game) => <GameCard key={game.name} {...game} />} />
                     </Section>
                     <hr />
                     <Section title="Popular with your friends" href="#">
-                        <CardRow games={friendRecomended} />
+                        <Carousel
+                            items={friendRecomended}
+                            renderItem={(game) => <GameCard key={game.name} {...game} />}
+                        />
                     </Section>
                 </Panel>
             </div>
