@@ -15,15 +15,15 @@ const router: Router = Router({ mergeParams: true });
  *          description: Gets the comments of a review
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              200:
  *                  description: "**OK** — comments retrieved successfully"
@@ -53,15 +53,15 @@ router.get("/", optionalAuth, CommentController.GetComments);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          requestBody:
  *              required: true
  *              content:
@@ -99,20 +99,20 @@ router.post("/", auth, CommentController.AddComment);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
  *              - in: path
- *                  name: id
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: id
+ *                required: true
+ *                schema:
+ *                  type: string
  *          requestBody:
  *              required: true
  *              content:
@@ -150,20 +150,20 @@ router.put("/:id", auth, CommentController.EditComment);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
  *              - in: path
- *                  name: id
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: id
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              202:
  *                  description: "**Accepted** — comment deleted successfully"

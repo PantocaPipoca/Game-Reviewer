@@ -25,17 +25,17 @@ router.use("/:reviewer/:reviewed/", LikeRoutes);
  *              Finds a user's review on a game.
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
- *                  description: The reviewer's username
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
+ *                description: The reviewer's username
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
- *                  description: The reviewed game's ID
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *                description: The reviewed game's ID
  *          responses:
  *              200:
  *                  description: "**OK**"

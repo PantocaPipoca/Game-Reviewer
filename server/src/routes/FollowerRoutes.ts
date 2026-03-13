@@ -15,10 +15,10 @@ const router: Router = Router({ mergeParams: true });
  *          description: Gets the followers of an account
  *          parameters:
  *              - in: path
- *                  name: username
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              200:
  *                  description: "**OK** — followers retrieved successfully"
@@ -50,10 +50,10 @@ router.get("/", optionalAuth, FollowerController.GetFollowers);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: username
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              201:
  *                  description: "**Created** — follower request made successfully"
@@ -81,10 +81,10 @@ router.post("/", auth, FollowerController.RequestFollower);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: username
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              202:
  *                  description: "**Accepted** — unfollowed successfully"

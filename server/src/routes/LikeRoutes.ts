@@ -16,15 +16,15 @@ const router: Router = Router({ mergeParams: true });
  *              Gets the likes of a review.
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              200:
  *                  description: "**OK** - number of likes"
@@ -51,15 +51,15 @@ router.get("/likes", LikeController.GetLikes);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              202:
  *                  description: "**Accepted**"
@@ -88,15 +88,15 @@ router.post("/likes", auth, LikeController.AddLike);
  *              Gets the dislikes of a review.
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              200:
  *                  description: "**OK** - number of dislikes"
@@ -123,15 +123,15 @@ router.get("/dislikes", LikeController.GetDislikes);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              202:
  *                  description: "**Accepted**"
@@ -162,15 +162,15 @@ router.post("/dislikes", auth, LikeController.AddDislike);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: reviewer
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
  *              - in: path
- *                  name: reviewed
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              202:
  *                  description: "**Accepted**"

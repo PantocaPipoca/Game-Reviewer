@@ -240,10 +240,10 @@ router.get("/me/followers/requests/sent", auth, FollowerController.GetPendingReq
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: username
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              202:
  *                  description: "**Accepted** — follower request accepted successfully"
@@ -271,10 +271,10 @@ router.put("/me/followers/requests/received/:username", auth, FollowerController
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: username
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              202:
  *                  description: "**Accepted** — follower request rejected successfully"
@@ -300,10 +300,10 @@ router.delete("/me/followers/requests/received/:username", auth, FollowerControl
  *          description: Finds accounts by a likely match
  *          parameters:
  *              - in: query
- *                  name: query
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: query
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              200:
  *                  description: "**OK** — accounts found successfully"
@@ -332,10 +332,10 @@ router.use("/:username/followers", FollowerRoutes);
  *          description: Gets the users followed by a user, if it's private only returns followed users if the current user follows it
  *          parameters:
  *              - in: path
- *                  name: username
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              200:
  *                  description: "**OK** — followed users retrieved successfully"
@@ -363,10 +363,10 @@ router.get("/:username/following", optionalAuth, FollowerController.GetFollowing
  *          description: Gets the reviews of a user
  *          parameters:
  *              - in: path
- *                  name: username
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              200:
  *                  description: "**OK** — reviews retrieved successfully"
@@ -399,10 +399,10 @@ router.get("/:username/reviews", optionalAuth, ReviewController.GetReviewsByUser
  *              otherwise only the account's name and its privacy settings are shown
  *          parameters:
  *              - in: path
- *                  name: username
- *                  required: true
- *                  schema:
- *                      type: string
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
  *          responses:
  *              200:
  *                  description: "**OK** — account found successfully"

@@ -19,15 +19,15 @@ const router: Router = Router({ mergeParams: true });
  *              Example: `/games?name=elden`, `/games?tag=rpg`, `/games?name=elden&tag=rpg`
  *          parameters:
  *              - in: query
- *                  name: name
- *                  schema:
- *                      type: string
- *                  description: Game name to search for
+ *                name: name
+ *                schema:
+ *                  type: string
+ *                description: Game name to search for
  *              - in: query
- *                  name: tag
- *                  schema:
- *                      type: string
- *                  description: Game tag to filter by
+ *                name: tag
+ *                schema:
+ *                  type: string
+ *                description: Game tag to filter by
  *          responses:
  *              200:
  *                  description: "**OK**"
@@ -78,10 +78,10 @@ router.get("/popular", GameController.GetPopularGames);
  *              Gets the reviews of a game.
  *          parameters:
  *              - in: path
- *                  name: gameID
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: gameID
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              200:
  *                  description: "**OK**"
@@ -110,10 +110,10 @@ router.get("/:gameID/reviews", optionalAuth, ReviewController.GetReviewsByGame);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: gameID
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: gameID
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          requestBody:
  *              required: true
  *              content:
@@ -158,10 +158,10 @@ router.post("/:gameID/reviews", auth, ReviewController.PublishReview);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: gameID
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: gameID
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          requestBody:
  *              required: true
  *              content:
@@ -204,10 +204,10 @@ router.put("/:gameID/reviews", auth, ReviewController.AlterReview);
  *              - bearerAuth: []
  *          parameters:
  *              - in: path
- *                  name: gameID
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: gameID
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              202:
  *                  description: "**Accepted**"
@@ -236,10 +236,10 @@ router.delete("/:gameID/reviews", auth, ReviewController.RemoveReview);
  *              Finds a game by ID.
  *          parameters:
  *              - in: path
- *                  name: gameID
- *                  required: true
- *                  schema:
- *                      type: integer
+ *                name: gameID
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              200:
  *                  description: "**OK**"
