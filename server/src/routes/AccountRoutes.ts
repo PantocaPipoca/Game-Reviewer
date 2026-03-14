@@ -8,6 +8,7 @@ import FollowerRoutes from "./FollowerRoutes";
 // Router object
 const router: Router = Router({ mergeParams: true });
 
+
 // ===================== AUTHENTICATION =====================
 
 /**

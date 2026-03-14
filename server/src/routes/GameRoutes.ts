@@ -226,6 +226,9 @@ router.delete("/:gameID/reviews", auth, ReviewController.RemoveReview);
 
 // ===================== FIND GAME =====================
 
+
+// ===================== GAME REVIEWS =====================
+
 /**
  * @swagger
  *  /games/{gameID}:
