@@ -21,7 +21,7 @@ services:
     build: ./server
     container_name: gr_server
     env_file:
-      - .env
+      - ./server/.env
     ports:
       - "3000:3000"
       - "5555:5555"

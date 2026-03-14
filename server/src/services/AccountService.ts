@@ -1,14 +1,13 @@
 import bcrypt from "bcrypt"
-import { StatusCodes } from "http-status-codes"
+import {StatusCodes} from "http-status-codes"
 import * as ErrorMessage from "../utils/ErrorMessage";
-import { AppError } from "../utils/ErrorHandler"
-import { generateToken } from "../utils/auth"
-import { UserRepository } from "../Repository/UserRepository"
+import {AppError} from "../utils/ErrorHandler"
+import {generateToken} from "../utils/auth"
+import {UserRepository} from "../Repository/UserRepository"
 import {UserData, UserFull, UserPK, AuthResponse, UserPublic} from "../types/Types"
-import { FollowerRepository } from "../Repository/FollowerRepository"
+import {FollowerRepository} from "../Repository/FollowerRepository"
 
 const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
-
 
 /**
  * Gets a user full object by username and throws an error if the user doesn't exist
@@ -38,6 +37,11 @@ export async function FetchPublicUser(username: UserPK): Promise<UserPublic> {
     return UserFullToPublic(user);
 }
 
+/**
+ * Removes non-public info from a user object
+ * @param user the user with all their info
+ * @returns the user with only their public info
+ */
 export function UserFullToPublic(user: UserFull): UserPublic {
     return {
         accountName: user.accountName,
@@ -95,6 +99,10 @@ export class AccountService {
         if (existingUser)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
 
+        const existingEmail: UserFull | null = await UserRepository.SelectUserByEmail(email);
+        if (existingEmail)
+            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
+
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
         // create userData JSON object
@@ -131,12 +139,15 @@ export class AccountService {
      * @returns AuthResponse object with token and user data
      */
     static async LoginUser(username: UserPK, password: string): Promise<AuthResponse> {
-        const user: UserFull = await FetchFullUser(username);
-
-        // Verify password
+        const user : UserFull | null = await UserRepository.SelectUser(username);
+        // verify user
+        if (!user)
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+    
         const isValid: boolean = await bcrypt.compare(password, user.passwordHash)
+        // Verify password
         if (!isValid)
-            throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.PASSWORD_INCORRECT);
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
 
         // Generate JWT token
         const token: string = generateToken(user.accountName);
@@ -159,7 +170,10 @@ export class AccountService {
      * @returns User object
      */
     static async GetCurrentUser(currentUser: UserPK): Promise<UserPublic> {
-        const user: UserFull = await FetchFullUser(currentUser);
+        const user: UserFull | null = await UserRepository.SelectUser(currentUser);
+
+        if (!user)
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
 
         return UserFullToPublic(user);
     }
@@ -175,11 +189,17 @@ export class AccountService {
     static async AlterUser(currentUser: UserPK, isPrivate?: boolean, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
         const user: UserFull = await FetchFullUser(currentUser);
 
-        const passwordHash = password
+        const passwordHash: string = password
             ? await bcrypt.hash(password, SALT_ROUNDS) 
             : user.passwordHash;
 
-        const updatedEmail: string = email ?? user.email;
+        let updatedEmail: string = email ?? user.email;
+
+        if (email) {
+            const existingUser: UserFull | null = await UserRepository.SelectUserByEmail(email);
+            if (existingUser)
+                throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
+        }
 
         // merge current user data with provided user data updates
         const currentUserData: UserData = user.userData as UserData;
@@ -244,30 +264,26 @@ export class AccountService {
      */
     static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<UserPublic[]> {
         const usersFull: UserFull[] = await UserRepository.SelectUsersOfSimilarName(nameFilter);
-        const users: UserPublic[] = usersFull.map(user => UserFullToPublic(user));
-        
-        const usersInfo: UserPublic[] = [];
+        const users: UserPublic[] = usersFull.map(UserFullToPublic);
+        const canViewList: boolean[] = await Promise.all(
+            users.map(u => CanViewUser(u, currentUser))
+        );
 
-        for (const user of users){
-            const canView = await CanViewUser(user, currentUser);
-            if (canView) {
-                usersInfo.push({
-                    accountName: user.accountName,
-                    isPrivate: user.isPrivate,
-                    userData: user.userData as UserData,
-                    createdAt: user.createdAt,
-                });
+        return users.map((u, i) => {
+            if (canViewList[i]) {
+                return {
+                    accountName: u.accountName,
+                    isPrivate: u.isPrivate,
+                    userData: u.userData as UserData,
+                    createdAt: u.createdAt,
+                };
             }
-            else {
-                usersInfo.push({
-                    accountName: user.accountName,
-                    isPrivate: user.isPrivate,
-                    userData: null,
-                    createdAt: null
-                });
-            }
-        }
-
-        return usersInfo;
+            return {
+                accountName: u.accountName,
+                isPrivate: u.isPrivate,
+                userData: null,
+                createdAt: null,
+            };
+        });
     }
 }

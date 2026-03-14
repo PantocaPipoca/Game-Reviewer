@@ -1,34 +1,53 @@
-import {Router} from "express";
-import {ReviewController} from "../controllers/ReviewController";
+﻿import { Router } from "express";
+import { ReviewController } from "../controllers/ReviewController";
 import CommentRoutes from "./CommentRoutes";
 import LikeRoutes from "./LikeRoutes";
 import { auth, optionalAuth } from "../utils/auth";
 
 // Router object
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
-
-// COMMENTS 
-router.use('/:reviewer/:reviewed/comments', CommentRoutes);
+// COMMENTS
+router.use("/:reviewer/:reviewed/comments", CommentRoutes);
 
 // REACTIONS (LIKES/DISLIKES)
-router.use('/:reviewer/:reviewed/', LikeRoutes);
+router.use("/:reviewer/:reviewed/", LikeRoutes);
 
 // ===================== GET REVIEW =====================
 
 /**
- * GET /api/reviews/:reviewer/:reviewed
- * Finds a user's review on a game
- * (Empty body)
- * Response:
- *      200 OK
- *      {reviewer, reviewed, text, score, createdAt, updatedAt}
- *      400 BAD REQUEST     if any of the required fields is missing
- *      404 NOT FOUND       if the provided user name doesn't exist
- *      404 NOT FOUND       if the provided game name doesn't exist
- *      404 NOT FOUND       if the user didn't review the game
+ * @swagger
+ *  /reviews/{reviewer}/{reviewed}:
+ *      get:
+ *          tags: [Reviews]
+ *          summary: Finds a user's review on a game
+ *          description: |
+ *              Finds a user's review on a game.
+ *          parameters:
+ *              - in: path
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
+ *                description: The reviewer's username
+ *              - in: path
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *                description: The reviewed game's ID
+ *          responses:
+ *              200:
+ *                  description: "**OK**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Review'
+ *              400:
+ *                  description: "**Bad Request** - if any of the required fields are missing"
+ *              404:
+ *                  description: "**Not Found** - if the provided user or game doesn't exist, or if the user didn't review the game"
  */
-router.get('/:reviewer/:reviewed/', optionalAuth, ReviewController.GetReview);
-
+router.get("/:reviewer/:reviewed/", optionalAuth, ReviewController.GetReview);
 
 export default router;

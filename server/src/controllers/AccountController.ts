@@ -3,11 +3,12 @@ import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import {StatusCodes} from "http-status-codes"
 import {AccountService} from "../services/AccountService"
-import { AuthResponse, UserPK, UserPublic } from "../types/Types"
-import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth"
+import { AuthResponse, UserPublic } from "../types/Types"
+import { AuthRequest, clearAuthCookie, ExtractLoggedUser, JwtPayload, setAuthCookie } from "../utils/auth"
 
 // REGEX that tests whether an email is valid
-const email_regex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 
 
 export class AccountController {
@@ -31,10 +32,11 @@ export class AccountController {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_SHORT);
         if (password.length < 8)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
-        if (!email_regex.test(email))
+        if (!EMAIL_REGEX.test(email))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
         const result: AuthResponse = await AccountService.RegisterUser(accountName, displayName, password, email);
+        setAuthCookie(res, result.token);
         return MakeSuccess(res, StatusCodes.CREATED, result);
     })
 
@@ -51,7 +53,18 @@ export class AccountController {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
 
         const result: AuthResponse = await AccountService.LoginUser(accountName, password);
+        setAuthCookie(res, result.token);
         return MakeSuccess(res, StatusCodes.OK, result);
+    })
+
+    /**
+     * Logouts a user
+     * Used by POST /api/users/logout
+     * Requires previous authentication
+     */
+    static Logout: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+        clearAuthCookie(res);
+        res.status(StatusCodes.OK).json({ status: "success", data: null });
     })
 
     /**
@@ -74,14 +87,17 @@ export class AccountController {
     static Alter: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = ExtractLoggedUser(req);
 
-        const {isPrivate, password, email, userData} = req.body;
-        if (password! && password.length < 8)
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
-        if (email! && !email_regex.test(email))
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
-
+        const {isPrivate: isPrivate, password: password, email: email, userData: userData} = req.body;
+        if(password != undefined){
+            if (typeof password !== "string" || password.length < 8)
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
+        }
+        if(email != undefined){
+            if (typeof email !== "string" || !EMAIL_REGEX.test(email))
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
+        }
         const result: UserPublic = await AccountService.AlterUser(currentUser, isPrivate, password, email, userData);
-        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+        return MakeSuccess(res, StatusCodes.OK, result);
     })
 
     /**
@@ -93,7 +109,7 @@ export class AccountController {
         const currentUser: string = ExtractLoggedUser(req);
 
         const result: UserPublic = await AccountService.RemoveUser(currentUser);
-        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+        return MakeSuccess(res, StatusCodes.OK, result);
     })
 
     /**
@@ -121,10 +137,10 @@ export class AccountController {
     static Search: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const filter: any = req.query['query'];
         if (typeof filter !== 'string')
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION);
 
         const currentUser: string | undefined = req.currentUser?.username;
-        const result: UserPublic[] = await AccountService.SearchUsersByName(filter, currentUser)
-        return MakeSuccess(res, StatusCodes.OK, result)
+        const result: UserPublic[] = await AccountService.SearchUsersByName(filter, currentUser);
+        return MakeSuccess(res, StatusCodes.OK, result);
     });
 }
