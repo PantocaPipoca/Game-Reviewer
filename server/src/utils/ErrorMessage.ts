@@ -20,6 +20,9 @@ export const COMMENT_TEXT_REQUIRED: string  = "Missing comment provided field"
 export const COMMENT_ID_REQUIRED: string    = "Missing comment ID field"
 export const COMMENT_ID_INVALID: string    = "Invalid comment ID field"
 
+// ========== NOT AUTHORIZED ERRORS (401) ==========
+export const INVALID_CREDENTIALS: string = "Invalid credentials"
+
 // ========== AUTHENTICATION ERRORS (403) ==========
 export const PASSWORD_INCORRECT: string     = "Wrong password"
 export const UNAUTHORIZED_ACTION: string    = "Not authorized to perform this action"
@@ -32,7 +35,9 @@ export const COMMENT_NOT_FOUND: string  = "Comment doesn't exist"
 export const REACTION_NOT_FOUND: string = "Reaction not found"
 
 // ========== CONFLICT ERRORS (409) ==========
-export const ACCOUNT_ALREADY_EXISTS: string     = "User name is already used"
+export const ACCOUNT_ALREADY_EXISTS: string     = "User name is already taken"
+export const EMAIL_ALREADY_EXISTS: string        = "Email is already taken"
+
 export const FOLLOW_REQUEST_EXISTS: string      = "User already requested to follow user"
 export const FOLLOW_REQUEST_NOT_FOUND: string   = "User didn't request to follow user"
 export const FOLLOW_ALREADY_ACCEPTED: string    = "User already accepted follower request"

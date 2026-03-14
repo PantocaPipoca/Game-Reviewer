@@ -7,3 +7,11 @@
     gap: 41px;
     padding: 0 54px;
 }
+
+.profileLink {
+    display: block;
+    width: 48px;
+    background-color: var(--button);
+    flex-shrink: 0;
+    aspect-ratio: 1 / 1;
+}

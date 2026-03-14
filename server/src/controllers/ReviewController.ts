@@ -49,11 +49,11 @@ export class ReviewController {
     static PublishReview: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = ExtractLoggedUser(req);
 
-        const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
+        const gameID: number = toValidGameID(req.params['gameID']);
         const {text, score} = req.body;
         if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_REQUIRED);
 
-        const result: ReviewFull = await ReviewService.PublishReview(currentUser, reviewed, text, CheckScore(score));
+        const result: ReviewFull = await ReviewService.PublishReview(currentUser, gameID, text, CheckScore(score));
         return MakeSuccess(res, StatusCodes.CREATED, result);
     });
 
@@ -64,10 +64,10 @@ export class ReviewController {
     static AlterReview: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = ExtractLoggedUser(req);
 
-        const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
+        const gameID: number = toValidGameID(req.params['gameID']);
         const {text, score} = req.body;
 
-        const result: ReviewFull = await ReviewService.UpdateReview(currentUser, reviewed, text, CheckScore(score));
+        const result: ReviewFull = await ReviewService.UpdateReview(currentUser, gameID, text, CheckScore(score));
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     })
 
@@ -78,8 +78,8 @@ export class ReviewController {
     static RemoveReview: any = AsyncHandler(async (req: AuthRequest  , res: Response) => {
         const currentUser: string = ExtractLoggedUser(req);
 
-        const {reviewer, reviewed}: ReviewPrimaryKey = ExtractReviewPK(req);
-        const result: ReviewFull = await ReviewService.RemoveReview(currentUser, reviewed);
+        const gameID: number = toValidGameID(req.params['gameID']);
+        const result: ReviewFull = await ReviewService.RemoveReview(currentUser, gameID);
         return MakeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 
