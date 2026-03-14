@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { GameRepository } from "../Repository/GameRepository";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,6 +62,7 @@ async function HandleToken() {
 }
 
 
+// is going to become custom search
 export async function SearchGames(input: string, amount: number) {
     await HandleToken();
 
@@ -77,8 +79,6 @@ export async function SearchGames(input: string, amount: number) {
                 fields:
                     id,
                     name,
-                    game_type.type,
-                    platforms.name,
                     cover.*
                 ;
                 where game_type = (0, 1, 4, 8, 11) & cover != null;
@@ -89,6 +89,7 @@ export async function SearchGames(input: string, amount: number) {
 }
 
 
+// is going to be deprecated
 // provide a random offset for a random set of games
 export async function GetGamesFromMainList(amount: number, offset: number) {
     await HandleToken();
@@ -105,8 +106,6 @@ export async function GetGamesFromMainList(amount: number, offset: number) {
                 fields
                     id,
                     name,
-                    game_type.type,
-                    platforms.name,
                     cover.*
                 ;
                 where game_type = (0, 1, 4, 8, 11) & cover != null;
@@ -117,6 +116,36 @@ export async function GetGamesFromMainList(amount: number, offset: number) {
     ).then(x => x.json());
 }
 
+
+// DONE
+export async function GetPopularGames(amount: number, offset: number) {
+
+    const popularID = await GameRepository.GetPopularGames(amount, offset);
+
+    const gameList: string = `(${popularID.map(g => g.gameID).join(",")})`;
+
+    await HandleToken();
+    return fetch(
+        "https://api.igdb.com/v4/games",
+        {
+            method: "POST",
+            headers: {
+                "Client-ID": clientId,
+                "Authorization": `Bearer ${tokenInfo.access_token}`
+            },
+            body: `
+                fields
+                    id,
+                    name,
+                    cover.*
+                ;
+                where id = ${gameList}
+            `
+        }
+    ).then(x => x.json());
+}
+
+// DONE
 // gets the most recent games
 export async function GetRecentGames(amount: number, offset: number) {
     let now = Math.floor(Date.now() / 1000);
@@ -133,8 +162,6 @@ export async function GetRecentGames(amount: number, offset: number) {
                 fields
                     id,
                     name,
-                    game_type.type,
-                    platforms.name,
                     cover.*
                 ;
                 where game_type = (0, 1, 4, 8, 11) & cover != null & first_release_date < ${now};
@@ -146,8 +173,8 @@ export async function GetRecentGames(amount: number, offset: number) {
     ).then(x => x.json());
 }
 
-
-
+// DONE
+// used for the game page
 export async function GetGameByID(ID: number) {
     await HandleToken();
 
@@ -161,40 +188,54 @@ export async function GetGameByID(ID: number) {
             },
             body: `
                 fields
+                    artworks.*,
+                    artworks.artwork_type.*,
+
                     cover.*,
+                    cover.game_localization.*,
+                    cover.game_localization.region.*,
+
                     first_release_date,
-                    game_modes.name,
-                    game_modes.slug,
-                    genres.name,
-                    genres.slug,
+
+                    game_modes.*,
+
+                    game_type.*,
+
+                    genres.*,
+
+                    involved_companies.*,
                     involved_companies.company.description,
                     involved_companies.company.name,
                     involved_companies.company.slug,
                     involved_companies.company.status.name,
-                    involved_companies.developer,
-                    involved_companies.porting,
-                    involved_companies.publisher,
-                    involved_companies.supporting,
-                    keywords.name,
-                    keywords.slug,
+
+                    multiplayer_modes.*,
+
                     name,
+
                     platforms.name,
                     platforms.slug,
+
                     player_perspectives.name,
                     player_perspectives.slug,
-                    release_dates.date,
-                    release_dates.human,
+
+                    screenshots.*,
+
                     slug,
+
+                    storyline,
+
                     summary,
-                    tags,
+
                     themes.name,
                     themes.slug,
+
                     videos.name,
                     videos.video_id,
+
                     websites.trusted,
                     websites.url,
-                    websites.type.type,
-                    game_type.type
+                    websites.type.type
                 ;
                 where id = ${ID};
             `

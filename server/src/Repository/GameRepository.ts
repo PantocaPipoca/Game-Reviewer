@@ -48,7 +48,26 @@ export class GameRepository {
         });
     }
 
-
+    /**
+     * @description Returns the most popular games from the database, that definition being "games with the most reviews with scores higher or equal to 7"
+     * @param amount the number of games on the returned array
+     * @param offset the number of games first on the list that are skipped
+     * @returns a promise of an array with 
+     */
+    public static GetPopularGames(amount: number, offset: number): Promise<{ gameID: GamePK }[]> {
+        return prisma.$queryRaw`
+            SELECT g."gameID"
+            FROM
+                "Game" g
+                    LEFT JOIN
+                "Review" r
+                    ON r."reviewed" = g."gameID" AND r."score" >= 7
+            GROUP BY g."gameID"
+            ORDER BY COUNT(*) DESC
+            LIMIT ${amount}
+            OFFSET ${offset}
+        `;
+    }
 
     // select games with same tags and/or similar name
 
