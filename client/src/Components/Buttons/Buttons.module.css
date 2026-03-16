@@ -1,0 +1,42 @@
+.button {
+    width: fit-content;
+    height: fit-content;
+    padding: 1em 0.7em;
+    border: var(--borderWidth) solid var(--border);
+    background-color: var(--button);
+    color: var(--mainText);
+    cursor: pointer;
+}
+
+.login {
+    padding: 0.8em 1.7em;
+    background-color: var(--green);
+    color: var(--reverseText);
+}
+
+.signup {
+    white-space: nowrap;
+    padding: 0.8em 1.7em;
+    background-color: var(--transparent);
+    color: var(--mainText);
+}
+
+.logout {
+    white-space: nowrap;
+    padding: 0.8em 1.7em;
+    background-color: var(--transparent);
+    color: var(--mainText);
+}
+
+.button:hover {
+    border-color: var(--cyan);
+}
+
+.button:active {
+    border-color: var(--pink);
+}
+
+.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
