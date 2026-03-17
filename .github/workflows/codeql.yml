@@ -1,14 +1,14 @@
-name: SAST — CodeQL
-
+name: SAST - CodeQL
 on:
   push:
     branches: ["main", "dev", "tests"]
   pull_request:
     branches: ["main", "dev", "tests"]
   schedule:
-    - cron: "25 3 * * 1"
+    - cron: "0 12 * * 1"
 
-permissions:
+# workflow
+permissions: 
   contents: read
   actions: read
   security-events: write
@@ -24,7 +24,7 @@ jobs:
         language: [javascript-typescript]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4  # download repo
 
       - name: Init CodeQL
         uses: github/codeql-action/init@v4

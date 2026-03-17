@@ -27,7 +27,7 @@ export type AuthResponse =
     UserPublic &
     {
         token: string;
-    }
+    };
 
 
 // ========================== Game Types =====================
