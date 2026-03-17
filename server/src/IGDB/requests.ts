@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { GameRepository } from "../Repository/GameRepository";
+import { UserPK } from "../types/Types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,6 +48,7 @@ async function GetNewToken(): Promise<void> {
 }
 
 async function HandleToken() {
+
     if (!read_token) {
         const fileContent = fs.readFileSync(filePath, "utf-8");
         const fileData: TokenData = JSON.parse(fileContent);
@@ -54,6 +56,7 @@ async function HandleToken() {
         tokenInfo.expires_at = fileData.expires_at;
         read_token = true;
     }
+
     const expires_at = tokenInfo.expires_at;
     const now = Math.floor(Date.now() / 1000);
     if (now > expires_at) {
@@ -64,6 +67,7 @@ async function HandleToken() {
 
 // is going to become custom search
 export async function SearchGames(input: string, amount: number) {
+
     await HandleToken();
 
     return fetch(
@@ -85,7 +89,7 @@ export async function SearchGames(input: string, amount: number) {
                 limit ${amount};
             `
         }
-    ).then(x => x.json());
+    ).then(res => res.json());
 }
 
 
@@ -113,7 +117,7 @@ export async function GetGamesFromMainList(amount: number, offset: number) {
                 offset ${offset};
             `
         }
-    ).then(x => x.json());
+    ).then(res => res.json());
 }
 
 
@@ -142,11 +146,10 @@ export async function GetPopularGames(amount: number, offset: number) {
                 where id = ${gameList}
             `
         }
-    ).then(x => x.json());
+    ).then(res => res.json());
 }
 
 // DONE
-// gets the most recent games
 export async function GetRecentGames(amount: number, offset: number) {
     let now = Math.floor(Date.now() / 1000);
     await HandleToken();
@@ -170,8 +173,93 @@ export async function GetRecentGames(amount: number, offset: number) {
                 offset ${offset};
             `
         }
-    ).then(x => x.json());
+    ).then(res => res.json());
 }
+
+
+// DONE
+export async function GetRecommendedGames(userPK: UserPK, amount: number, offset: number) {
+
+    const likedGamesRaw = await GameRepository.GetGamesUserLikes(userPK);
+
+    const likedGamesParsedString: string = `(${likedGamesRaw.map(g => g.gameID).join(",")})`
+
+    await HandleToken();
+    const genresRaw = await fetch(
+        "https://api.igdb.com/v4/games",
+        {
+            method: "POST",
+            headers: {
+                "Client-ID": clientId,
+                "Authorization": `Bearer ${tokenInfo.access_token}`
+            },
+            body: `
+                fields genres.*;
+                where id = ${likedGamesParsedString} & genres != null;
+            `
+        }
+    ).then(res => res.json() as Promise<
+        {
+            genres: {
+                id: number
+            }[]
+        }[]
+    >);
+
+
+    /**
+    [
+        {
+            genres: [
+                {
+                    id: number
+                },
+                ...
+            ]
+        },
+        ...
+    ]
+        |
+        V
+      number[]
+      the Set removes repeating elements
+    */
+
+    const genresParsed = [...
+        new Set(
+            genresRaw.map(x =>
+                x.genres.map(y =>
+                    y.id
+                )
+            ).flat()
+        )
+    ]
+
+    const genresParsedString = `(${genresParsed.join(',')})`
+
+    await HandleToken();
+    return fetch(
+        "https://api.igdb.com/v4/games",
+        {
+            method: "POST",
+            headers: {
+                "Client-ID": clientId,
+                "Authorization": `Bearer ${tokenInfo.access_token}`
+            },
+            body: `
+                fields
+                    id,
+                    name,
+                    cover.*
+                ;
+                where genres = ${genresParsedString};
+                limit ${amount};
+                offset ${offset};
+            `
+        }
+    ).then(res => res.json());
+}
+
 
 // DONE
 // used for the game page
@@ -240,7 +328,7 @@ export async function GetGameByID(ID: number) {
                 where id = ${ID};
             `
         }
-    ).then(x => x.json());
+    ).then(res => res.json());
 }
 
 
@@ -262,7 +350,7 @@ async function GetAllTypes() {
                 fields *;
             `
         }
-    ).then(x => x.text());
+    ).then(res => res.text());
 }
 
 
@@ -270,7 +358,7 @@ async function GetAllTypes() {
 
 // tests
 
-// let output: any = await SearchGames("strawberry jam");
+// let output: any = await SearchGames("the sims", 5);
 // console.log(JSON.stringify(output, null, 2));
 
 // let output2: any = await GetGameByID(235102);
