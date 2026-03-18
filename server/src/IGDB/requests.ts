@@ -86,7 +86,7 @@ export class IGDB {
         const expires_at = IGDB.tokenInfo.expires_at;
         const now = Math.floor(Date.now() / 1000);
         if (now > expires_at)
-            IGDB.GetNewToken();
+            await IGDB.GetNewToken();
     }
 
 
@@ -325,7 +325,7 @@ export class IGDB {
     static async GetAllTypes() {
         await IGDB.HandleToken();
 
-        fetch(
+        return fetch(
             "https://api.igdb.com/v4/game_types",
             {
                 method: "POST",
@@ -337,7 +337,7 @@ export class IGDB {
                     fields *;
                 `
             }
-        ).then(res => res.text());
+        ).then(res => res.json());
     }
 }
 
@@ -354,6 +354,6 @@ export class IGDB {
 // console.log(JSON.stringify(output3, null, 2));
 
 // let outputN: any = await IGDB.GetAllTypes();
-// console.log(outputN);
+// console.log(JSON.stringify(outputN, null, 2));
 
 // working correctly
