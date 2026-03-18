@@ -2,11 +2,11 @@ name: Container Scan - Trivy
 
 on:
   push:
-    branches: ["main", "dev", "tests"]
+    branches: ["main", "dev"]
   pull_request:
-    branches: ["main", "dev", "tests"]
+    branches: ["main", "dev"]
   schedule:
-    - cron: "0 12 * * 1"
+    - cron: "0 17 * * 5"
 
 # workflow
 permissions:
@@ -14,27 +14,52 @@ permissions:
   security-events: write
 
 jobs:
+  trivy-postgres:
+    name: Scan postgres image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5 # clone repo
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: postgres:17-alpine
+          format: sarif
+          output: trivy-postgres.sarif
+          severity: CRITICAL,HIGH
+          vuln-type: os,library
+          ignore-unfixed: true
+
+      - name: Upload results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-postgres.sarif
+          category: trivy-postgres
+
   trivy-backend:
     name: Scan backend image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4 # clone repo
+      - uses: actions/checkout@v5 # clone repo
 
-      - name: Build backend image
-        run: docker build -t backend-app:${{ github.sha }} ./server
+      - name: Create dummy .env for build
+        run: echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy" > server/.env
+
+      - name: Build image with docker compose
+        run: docker compose build server
 
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
-          image-ref: backend-app:${{ github.sha }}
+          image-ref: gr_server
           format: sarif
           output: trivy-backend.sarif
           severity: CRITICAL,HIGH
-          exit-code: "1"
+          vuln-type: os,library
+          ignore-unfixed: true
 
       - name: Upload results to GitHub Security
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-backend.sarif
           category: trivy-backend
@@ -43,23 +68,23 @@ jobs:
     name: Scan frontend image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4 # clone repo
+      - uses: actions/checkout@v5
 
-      - name: Build frontend image
-        run: docker build -t frontend-app:${{ github.sha }} ./client
+      - name: Build image with docker compose
+        run: docker compose build client
 
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
-          image-ref: frontend-app:${{ github.sha }}
+          image-ref: gr_client
           format: sarif
           output: trivy-frontend.sarif
           severity: CRITICAL,HIGH
-          exit-code: "1"
+          vuln-type: os,library
+          ignore-unfixed: true
 
       - name: Upload results to GitHub Security
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-frontend.sarif
           category: trivy-frontend

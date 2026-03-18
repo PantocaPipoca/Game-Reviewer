@@ -10,7 +10,7 @@ export const EMAIL_INVALID: string          = "Email provided is invalid"
 export const FOLLOWER_NAME_REQUIRED: string = "Missing follower name field"
 export const FOLLOWED_NAME_REQUIRED: string = "Missing followed name field"
 
-export const GAME_NAME_REQUIRED: string     = "Missing game name field"
+export const GAME_ID_REQUIRED: string     = "Missing gameID field"
 
 export const REVIEW_TEXT_REQUIRED: string   = "Missing critique provided field"
 export const REVIEW_SCORE_REQUIRED: string  = "Missing score field"

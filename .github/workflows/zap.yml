@@ -1,15 +1,19 @@
 name: DAST - ZAP API Scan
-
+# Alert Codes - https://www.zaproxy.org/docs/alerts/
 on:
   push:
-    branches: ["main", "dev", "tests"]
+    branches: ["main", "dev"]
+  pull_request:
+    branches: ["main", "dev"]
+  schedule:
+    - cron: "0 17 * * 5"
   workflow_dispatch: # run manually in github actions
-
+      
 # workflow
 permissions:
   contents: read
   issues: write
-
+  
 jobs:
   zap_api:
     name: ZAP API Scan
@@ -21,7 +25,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17-alpine
         env:
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: admin123
@@ -38,13 +42,14 @@ jobs:
       DATABASE_URL: postgresql://admin:admin123@localhost:5432/test_db
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       JWT_EXPIRES_IN: 7d
+      RATE_LIMIT_MAX: "10000"
 
     steps:
-      - uses: actions/checkout@v4 # download repo
+      - uses: actions/checkout@v5 # clone repo
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: server/package-lock.json
 
@@ -70,3 +75,4 @@ jobs:
           target: http://127.0.0.1:3000/api/docs.json
           fail_action: true # fail workflow
           artifact_name: zap-api-report
+          rules_file_name: .zap/rules.tsv

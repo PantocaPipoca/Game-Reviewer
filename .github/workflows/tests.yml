@@ -1,10 +1,16 @@
-name: CI Pipeline
+name: Tests - Unit & Integration
 
 on:
   push:
     branches: ["main", "dev", "tests"]
   pull_request:
     branches: ["main", "dev", "tests"]
+  schedule:
+    - cron: "0 17 * * 5"
+
+# workflow
+permissions:
+  contents: read
 
 jobs:
   backend:
@@ -16,7 +22,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17
         env:
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: admin123
@@ -35,11 +41,11 @@ jobs:
       JWT_EXPIRES_IN: 7d
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: server/package-lock.json
 
@@ -60,11 +66,11 @@ jobs:
         working-directory: client
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: client/package-lock.json
 
