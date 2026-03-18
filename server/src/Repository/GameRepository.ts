@@ -88,7 +88,10 @@ export class GameRepository {
 
         return prisma.review.findMany({
             where: {
-                reviewer: userPK
+                reviewer: userPK,
+                score:{
+                    gte: 6
+                }
             },
             select: {
                 reviewed: true
