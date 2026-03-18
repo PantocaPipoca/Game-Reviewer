@@ -1,12 +1,13 @@
 import { describe, it, expect } from "@jest/globals";
 import request from "supertest";
-import { createTestApp } from "../helper/app.ts";
+import { CreateApp } from "../../../src/app.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { Register, CreateGame } from "../helper/helper.ts";
 import { AuthResponse } from "../../../src/types/Types.ts";
 
-const app: Express = createTestApp();
+const app: Express = CreateApp();
+
 
 const username = "user_" + Date.now();
 const password = "12345678";

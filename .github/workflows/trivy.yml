@@ -1,4 +1,4 @@
-name: Container Scan - Trivy
+name: Container Scan — Trivy
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
   schedule:
     - cron: "0 17 * * 5"
 
-# workflow
 permissions:
   contents: read
   security-events: write

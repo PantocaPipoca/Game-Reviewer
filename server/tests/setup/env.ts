@@ -16,3 +16,5 @@ if (!process.env.DATABASE_URL) {
 if (!process.env.JWT_SECRET) {
   throw new Error(`JWT_SECRET not found in ${path}`);
 }
+
+process.env['RATE_LIMIT_MAX'] = '10000';
