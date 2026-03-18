@@ -54,6 +54,8 @@ export class IGDB {
         expires_at: 0 as number,
     };
 
+    private static usedTypes:string = "(0, 1, 2, 4, 6, 8, 9, 10, 11, 12, 13)"
+
     private static async GetNewToken(): Promise<void> {
 
         if (IGDB.clientId == undefined || IGDB.secret == undefined) {
@@ -93,6 +95,8 @@ export class IGDB {
     // DONE
     public static async SearchGames(name: string, genres: number[], offset: number, amount: number): Promise<GameCover[]> {
 
+        const genresString: string = genres.length > 0 ? `& genres = (${genres.join(',')})` : "";        
+        
         await IGDB.HandleToken();
         return fetch(
             "https://api.igdb.com/v4/games",
@@ -110,8 +114,10 @@ export class IGDB {
                     cover.*
                 ;
                 
-                where game_type = (0, 1, 4, 8, 11) & cover != null
-                ${genres.length > 0 ? `& genres = (${genres.join(',')})` : ""}
+                where
+                    game_type = ${IGDB.usedTypes} &
+                    cover != null
+                    ${genresString}
                 ;
                 
                 offset ${offset};
@@ -158,7 +164,6 @@ export class IGDB {
         const now = Math.floor(Date.now() / 1000);
 
         await IGDB.HandleToken()
-
         return fetch(
             "https://api.igdb.com/v4/games",
             {
@@ -174,7 +179,11 @@ export class IGDB {
                         cover.*
                     ;
 
-                    where game_type = (0, 1, 4, 8, 11) & cover != null & first_release_date < ${now};
+                    where
+                        game_type = ${IGDB.usedTypes} &
+                        cover != null &
+                        first_release_date < ${now}
+                    ;
 
                     sort first_release_date desc;
 
@@ -189,6 +198,11 @@ export class IGDB {
     public static async GetRecommendedGames(userPK: UserPK, amount: number, offset: number): Promise<GameCover[]> {
 
         const likedGamesRaw = await GameRepository.GetGamesUserLikes(userPK);
+
+        if(likedGamesRaw.length < 1){
+            return IGDB.GetPopularGames(amount, offset);
+        }
+
         const likedGamesParsedString: string = `(${likedGamesRaw.map(g => g.gameID).join(",")})`;
 
         await IGDB.HandleToken();
@@ -203,7 +217,10 @@ export class IGDB {
                 body: `
                     fields genres.*;
 
-                    where id = ${likedGamesParsedString} & genres != null;
+                    where
+                        id = ${likedGamesParsedString} &
+                        genres != null
+                    ;
                 `
             }
         ).then(res => res.json() as Promise<GameGenre[]>);
@@ -236,7 +253,10 @@ export class IGDB {
                         cover.*
                     ;
 
-                    where genres = ${genresParsedString};
+                    where
+                        game_type = ${IGDB.usedTypes} &
+                        genres = ${genresParsedString}
+                    ;
 
                     limit ${amount};
                     offset ${offset};
@@ -312,7 +332,10 @@ export class IGDB {
                     websites.type.type
                     ;
 
-                    where id = ${ID};
+                    where
+                        game_type = ${IGDB.usedTypes} &
+                        id = ${ID}
+                    ;
                 `
             }
         ).then(res => res.json() as Promise<any[]>);
