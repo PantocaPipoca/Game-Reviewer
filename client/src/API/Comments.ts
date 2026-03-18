@@ -2,7 +2,7 @@ import client from "./Client";
 import type { CommentFull } from "./Types";
 
 export class CommentAPI {
-    static async getAll(reviewer: string, reviewed: number): Promise<CommentFull[]>{
+    static async getAll(reviewer: string, reviewed: number): Promise<CommentFull[]> {
         return client.get("/reviews/" + reviewer + "/" + reviewed + "/comments");
     }
 

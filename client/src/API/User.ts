@@ -12,7 +12,7 @@ export class UserAPI {
         return response;
     }
 
-    static async login(data: {accountName: string; password: string;}): Promise<AuthResponse> {
+    static async login(data: { accountName: string; password: string }): Promise<AuthResponse> {
         const response = (await client.post("/users/login", data)) as AuthResponse;
         return response;
     }
@@ -21,7 +21,7 @@ export class UserAPI {
         await client.post("/users/logout");
     }
 
-    static async getMe(): Promise<UserPublic>{
+    static async getMe(): Promise<UserPublic> {
         return client.get("/users/me");
     }
 
@@ -42,7 +42,7 @@ export class UserAPI {
         return client.get("/users/search", { params: { query } });
     }
 
-    static async getByUsername(username: string): Promise<UserPublic>{
+    static async getByUsername(username: string): Promise<UserPublic> {
         return client.get("/users/" + username);
     }
-};
+}

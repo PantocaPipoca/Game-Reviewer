@@ -2,17 +2,23 @@ import client from "./Client";
 import type { ReviewFull } from "./Types";
 
 export class ReviewAPI {
-    static async publish(gameID: number, data: {
-        text: string;
-        score: number;
-    }): Promise<ReviewFull> {
+    static async publish(
+        gameID: number,
+        data: {
+            text: string;
+            score: number;
+        },
+    ): Promise<ReviewFull> {
         return client.post("/games/" + gameID + "/reviews", data);
     }
 
-    static async update(gameID: number, data: {
-        text?: string;
-        score?: number;
-    }): Promise<ReviewFull>{
+    static async update(
+        gameID: number,
+        data: {
+            text?: string;
+            score?: number;
+        },
+    ): Promise<ReviewFull> {
         return client.put("/games/" + gameID + "/reviews", data);
     }
 

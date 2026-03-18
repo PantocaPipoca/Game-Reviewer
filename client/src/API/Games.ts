@@ -1,8 +1,8 @@
 import client from "./Client";
-import type { GameFull } from "./Types";
+import type { GameFull, GameSearchResult } from "./Types";
 
 export class GameAPI{
-    static async search(params: { name?: string; tag?: string }): Promise<GameFull[]> {
+    static async search(params: { name?: string; tag?: string; limit?: number }): Promise<GameSearchResult[]> {
         return client.get("/games", { params });
     }
 
