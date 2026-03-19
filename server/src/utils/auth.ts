@@ -103,13 +103,23 @@ export function ExtractLoggedUser(req: AuthRequest): UserPK {
 const JWT_COOKIE_NAME = "token";
 
 export function setAuthCookie(res: Response, token: string): void {
+    const isProduction = process.env["NODE_ENV"] === "production";
+
     res.cookie(JWT_COOKIE_NAME, token, {
         httpOnly: true,
-        secure: false, // because we are not using HTTPS
+        secure: isProduction,
         sameSite: "strict",
+        path: "/",
     });
 }
 
 export function clearAuthCookie(res: Response): void {
-    res.clearCookie(JWT_COOKIE_NAME);
+    const isProduction = process.env["NODE_ENV"] === "production";
+
+    res.clearCookie(JWT_COOKIE_NAME, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: "strict",
+        path: "/",
+    });
 }

@@ -8,6 +8,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { doubleCsrf } from 'csrf-csrf'
 import { middleware } from 'express-openapi-validator';
 
 export function CreateApp(): Express {
@@ -35,6 +36,34 @@ export function CreateApp(): Express {
         }
     })
     app.use(limiter);
+
+    const {generateCsrfToken, doubleCsrfProtection, invalidCsrfTokenError } = doubleCsrf({
+        getSecret: () => process.env['CSRF_SECRET']!,
+        getSessionIdentifier: (req) => req.cookies['token'] ?? '',
+        cookieName: 'csrf-token',
+        cookieOptions: {
+            sameSite: 'strict',
+            secure: process.env['NODE_ENV'] === 'production',
+            httpOnly: true,
+        },
+        ignoredMethods: ["GET", "HEAD", "OPTIONS"],
+        getCsrfTokenFromRequest: (req) => {
+            const headerToken = req.headers["x-csrf-token"];
+            return typeof headerToken === "string" ? headerToken : "";
+        },
+    })
+    
+    if (process.env["NODE_ENV"] !== "test") {
+        app.get("/api/csrf-token", (req, res) => {
+            const csrfToken = generateCsrfToken(req, res);
+            res.json({
+                status: "success",
+                data: { csrfToken },
+            });
+        });
+
+        app.use(doubleCsrfProtection);
+    }
 
     // Big int to string
     app.set('json replacer', (_key: string, value: any) =>
@@ -71,12 +100,16 @@ export function CreateApp(): Express {
 
     // Error handler
     app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-        if (err instanceof AppError)
-            return res.status(err.statusCode).json({ status: 'error', message: err.message });
+        if (err?.code === "EBADCSRFTOKEN") {
+            return res.status(StatusCodes.FORBIDDEN).json({ status: "error", message: "Invalid CSRF token", });
+        }
+
+        if (err instanceof AppError) {
+            return res.status(err.statusCode).json({ status: "error", message: err.message });
+        }
 
         console.error(err);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(
-            { status: 'error', message: 'Internal server error' });
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: "error", message: "Internal server error", });
     });
 
     return app
