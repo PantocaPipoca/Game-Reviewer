@@ -41,6 +41,12 @@ export class IGDB {
 
     private static usedTypes: string = "(0, 1, 2, 4, 6, 8, 9, 10, 11, 12, 13)"
 
+
+    // avoid getting 429'd during tests 
+    private static async sleep() {
+        new Promise(resolve => setTimeout(resolve, 300));
+    }
+
     private static async GetNewToken(): Promise<void> {
 
         if (IGDB.clientId == undefined || IGDB.secret == undefined) {
@@ -62,6 +68,7 @@ export class IGDB {
 
     private static async HandleToken(): Promise<void> {
 
+        await IGDB.sleep();
         if (!IGDB.read_token) {
             const fileContent = fs.readFileSync(filePath, "utf-8");
             const fileData: TokenData = JSON.parse(fileContent);
@@ -254,7 +261,7 @@ export class IGDB {
 
     // DONE
     // used for the game page
-    public static async GetGameByID(ID: number): Promise<any> {
+    public static async GetGameByID(ID: number): Promise<any[]> {
 
         await IGDB.HandleToken();
         return fetch(
@@ -323,7 +330,7 @@ export class IGDB {
                     ;
                 `
             }
-        ).then(res => res.json() as Promise<any>);
+        ).then(res => res.json() as Promise<any[]>);
     }
 
 
