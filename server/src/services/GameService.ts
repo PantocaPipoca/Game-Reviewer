@@ -22,13 +22,13 @@ export class GameService {
             metadata: game.metadata
         }
     }
-    
+
     /**
      * Gets all info to make a page about a game
      * @param gameID the ID of the game we want to make a page for
      * @returns detailed info for the game in json format
      */
-    static async GetGamePage(gameID: GamePK): Promise<any> {
+    static async GetGamePage(gameID: GamePK): Promise<any[]> {
         return IGDB.GetGameByID(gameID);
     }
 
@@ -66,6 +66,7 @@ export class GameService {
 
     /**
      * Gets what games are recommended to the given user
+     * @param userPK primary key of the user we want the recommended games of
      * @param offset number of games on IGDB we want to skip
      * @param amount total number of games we want
      * @returns array of enough game info to make a cover

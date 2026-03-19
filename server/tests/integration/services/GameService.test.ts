@@ -1,7 +1,7 @@
-import {describe, it, expect} from "@jest/globals";
-import {GameFull} from "../../../src/types/Types";
-import {CreateGame} from "../helper/helper";
-import {GameService} from '../../../src/services/GameService';
+import { describe, it, expect } from "@jest/globals";
+import { GameFull } from "../../../src/types/Types";
+import { CreateGame } from "../helper/helper";
+import { GameService } from '../../../src/services/GameService';
 
 describe("GameService (integration)", () => {
     it("GetGameById correctly returns a selected game", async () => {
@@ -18,9 +18,17 @@ describe("GameService (integration)", () => {
         }
     });
 
-    it.todo("SearchGames");
-
-    it.todo("GetPopularGames");
-
     it.todo("GetGameStats");
+});
+
+
+describe("IGDB (integration)", () => {
+    it.todo(`
+        accesses IGDB correctly in all functions:
+            game page
+            search games
+            popular games
+            recent games
+            recommended games
+    `);
 });

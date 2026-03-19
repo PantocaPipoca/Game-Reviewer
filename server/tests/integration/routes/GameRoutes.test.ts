@@ -4,7 +4,6 @@ import { createTestApp } from "../helper/app.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { Register, CreateGame } from "../helper/helper.ts";
-import { AuthResponse } from "../../../src/types/Types.ts";
 
 const app: Express = createTestApp();
 
@@ -43,18 +42,33 @@ describe("GET /api/games/:gameID", () => {
 });
 
 
-// ===================== SEARCH / POPULAR (TODO) =====================
+// ===================== IGDB REQUESTS (TODO) =====================
 
-describe("GET /api/games (search)", () => {
+describe("GET /api/games/id/:gameID", () => {
+    it.todo("returns OK and game data");
+    it.todo("returns BAD REQUEST if given GameID isn't a valid integer");
+});
+
+describe("POST /api/games/search", () => {
     it.todo("returns OK and matching games for a valid name query");
-    it.todo("returns OK and matching games for a valid tag query");
-    it.todo("returns OK and matching games for combined name and tag query");
+    it.todo("returns OK and matching games for a valid genre query");
+    it.todo("returns OK and matching games for combined name and genre query");
     it.todo("returns BAD REQUEST if query params are invalid");
 });
 
-describe("GET /api/games/popular", () => {
+describe("POST /api/games/popular", () => {
     it.todo("returns OK and list of popular games");
-    it.todo("respects orderBy and limit query params");
+    it.todo("returns BAD REQUEST if query params are invalid");
+});
+
+describe("POST /api/games/recent", () => {
+    it.todo("returns OK and list of recent games");
+    it.todo("returns BAD REQUEST if query params are invalid");
+});
+
+describe("POST /api/games/recommended", () => {
+    it.todo("returns OK and list of recommended games");
+    it.todo("returns BAD REQUEST if query params are invalid");
 });
 
 
