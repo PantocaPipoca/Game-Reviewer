@@ -34,9 +34,8 @@ async function fetchCsrfToken(): Promise<string> {
     });
 
     const token = response.data?.data?.csrfToken;
-    if (!token || typeof token !== "string") {
+    if (!token || typeof token !== "string")
         throw new Error("Failed to fetch CSRF token");
-    }
 
     csrfToken = token;
     return token;
@@ -48,13 +47,11 @@ async function fetchCsrfToken(): Promise<string> {
 client.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
         if (isUnsafeMethod(config.method)) {
-            if (!csrfToken) {
+            if (!csrfToken)
                 await fetchCsrfToken();
-            }
 
-            if (!config.headers) {
+            if (!config.headers)
                 config.headers = new AxiosHeaders();
-            }
 
             config.headers.set("x-csrf-token", csrfToken as string);
         }
@@ -79,9 +76,9 @@ client.interceptors.response.use((res) => res.data.data,
             csrfToken = null;
             await fetchCsrfToken();
 
-            if (!originalRequest.headers) {
+            if (!originalRequest.headers)
                 originalRequest.headers = new AxiosHeaders();
-            }
+            
             if (csrfToken !== null) {
                 originalRequest.headers.set("x-csrf-token", csrfToken);
                 return client(originalRequest);
