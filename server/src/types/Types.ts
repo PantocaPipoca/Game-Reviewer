@@ -51,7 +51,20 @@ export type ReviewPK = {
     reviewed: GamePK;
 };
 
-
+export type GameCover = {
+    id: number,
+    name: string,
+    cover: {
+        id: number,
+        alpha_channel: boolean,
+        animated: boolean,
+        game: number,
+        height: number,
+        image_id: string,
+        url: string,
+        width: number,
+    }
+}
 
 // ===================== Reaction Types =====================
 

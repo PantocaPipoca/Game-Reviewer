@@ -8,6 +8,8 @@ const router: Router = Router({ mergeParams: true });
 
 // ===================== FIND GAMES =====================
 
+router.get("/id/:gameID/page", GameController.GetGamePage);
+
 /**
  * @swagger
  *  /games:
@@ -42,7 +44,8 @@ const router: Router = Router({ mergeParams: true });
  *              500:
  *                  description: "**Internal Server Error** - if the filters couldn't be retrieved"
  */
-router.get("/", GameController.SearchGames);
+// it's now a POST and /search so this documentation might be wrong 
+router.post("/search", GameController.SearchGames);
 
 /**
  * @swagger
@@ -64,7 +67,15 @@ router.get("/", GameController.SearchGames);
  *              500:
  *                  description: "**Internal Server Error** - if the games couldn't be retrieved"
  */
-router.get("/popular", GameController.GetPopularGames);
+// it's now a POST so this documentation might be wrong 
+router.post("/popular", GameController.GetPopularGames);
+
+router.post("/recent", GameController.GetRecentGames);
+
+router.post("/recommended", auth, GameController.GetRecommendedGames);
+
+
+
 
 // ===================== GAME REVIEWS =====================
 

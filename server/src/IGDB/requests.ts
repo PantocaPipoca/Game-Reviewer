@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { GameRepository } from "../Repository/GameRepository";
-import { UserPK } from "../types/Types";
+import { UserPK, GameCover } from "../types/Types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,21 +20,6 @@ type AuthResponseIGDB = {
     access_token: string,
     expires_in: number,
     token_type: string
-}
-
-type GameCover = {
-    id: number,
-    name: string,
-    cover: {
-        id: number,
-        alpha_channel: boolean,
-        animated: boolean,
-        game: number,
-        height: number,
-        image_id: string,
-        url: string,
-        width: number,
-    }
 }
 
 type GameGenre = {
@@ -54,7 +39,7 @@ export class IGDB {
         expires_at: 0 as number,
     };
 
-    private static usedTypes:string = "(0, 1, 2, 4, 6, 8, 9, 10, 11, 12, 13)"
+    private static usedTypes: string = "(0, 1, 2, 4, 6, 8, 9, 10, 11, 12, 13)"
 
     private static async GetNewToken(): Promise<void> {
 
@@ -95,8 +80,8 @@ export class IGDB {
     // DONE
     public static async SearchGames(name: string, genres: number[], offset: number, amount: number): Promise<GameCover[]> {
 
-        const genresString: string = genres.length > 0 ? `& genres = (${genres.join(',')})` : "";        
-        
+        const genresString: string = genres.length > 0 ? `& genres = (${genres.join(',')})` : "";
+
         await IGDB.HandleToken();
         return fetch(
             "https://api.igdb.com/v4/games",
@@ -129,9 +114,9 @@ export class IGDB {
 
 
     // DONE
-    public static async GetPopularGames(amount: number, offset: number): Promise<GameCover[]> {
+    public static async GetPopularGames(offset: number, amount: number): Promise<GameCover[]> {
 
-        const popularGamesEntries = await GameRepository.GetPopularGames(amount, offset);
+        const popularGamesEntries = await GameRepository.GetPopularGames(offset, amount);
 
         const gameIDListString: string = `(${popularGamesEntries.map(g => g.gameID).join(",")})`;
 
@@ -159,7 +144,7 @@ export class IGDB {
     }
 
     // DONE
-    public static async GetRecentGames(amount: number, offset: number): Promise<GameCover[]> {
+    public static async GetRecentGames(offset: number, amount: number): Promise<GameCover[]> {
 
         const now = Math.floor(Date.now() / 1000);
 
@@ -187,20 +172,20 @@ export class IGDB {
 
                     sort first_release_date desc;
 
-                    limit ${amount};
                     offset ${offset};
+                    limit ${amount};
                 `
             }
         ).then(res => res.json() as Promise<GameCover[]>);
     }
 
     // DONE
-    public static async GetRecommendedGames(userPK: UserPK, amount: number, offset: number): Promise<GameCover[]> {
+    public static async GetRecommendedGames(userPK: UserPK, offset: number, amount: number): Promise<GameCover[]> {
 
         const likedGamesRaw = await GameRepository.GetGamesUserLikes(userPK);
 
-        if(likedGamesRaw.length < 1){
-            return IGDB.GetPopularGames(amount, offset);
+        if (likedGamesRaw.length < 1) {
+            return IGDB.GetPopularGames(offset, amount);
         }
 
         const likedGamesParsedString: string = `(${likedGamesRaw.map(g => g.gameID).join(",")})`;
@@ -258,8 +243,8 @@ export class IGDB {
                         genres = ${genresParsedString}
                     ;
 
-                    limit ${amount};
                     offset ${offset};
+                    limit ${amount};
                 `
             }
         ).then(res => res.json() as Promise<GameCover[]>);
@@ -269,7 +254,7 @@ export class IGDB {
 
     // DONE
     // used for the game page
-    public static async GetGameByID(ID: number): Promise<any[]> {
+    public static async GetGameByID(ID: number): Promise<any> {
 
         await IGDB.HandleToken();
         return fetch(
@@ -338,7 +323,7 @@ export class IGDB {
                     ;
                 `
             }
-        ).then(res => res.json() as Promise<any[]>);
+        ).then(res => res.json() as Promise<any>);
     }
 
 

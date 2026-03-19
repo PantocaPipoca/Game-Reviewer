@@ -54,7 +54,7 @@ export class GameRepository {
      * @param offset the number of games first on the list that are skipped
      * @returns a promise of an array of entries with the popular games' gameID
      */
-    public static GetPopularGames(amount: number, offset: number): Promise<{ gameID: GamePK }[]> {
+    public static GetPopularGames(offset: number, amount: number): Promise<{ gameID: GamePK }[]> {
 
         return prisma.review.groupBy({
             by: ['reviewed'],
@@ -89,7 +89,7 @@ export class GameRepository {
         return prisma.review.findMany({
             where: {
                 reviewer: userPK,
-                score:{
+                score: {
                     gte: 6
                 }
             },
