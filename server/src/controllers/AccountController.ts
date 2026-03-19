@@ -4,7 +4,8 @@ import * as ErrorMessage from "../utils/ErrorMessage"
 import {StatusCodes} from "http-status-codes"
 import {AccountService} from "../services/AccountService"
 import { AuthResponse, UserPublic } from "../types/Types"
-import { AuthRequest, clearAuthCookie, ExtractLoggedUser, JwtPayload, setAuthCookie } from "../utils/auth"
+import { AuthRequest, clearAuthCookie, ExtractLoggedUser, setAuthCookie } from "../utils/auth"
+import { sanitizeString } from "../utils/Sanitize"
 
 // REGEX that tests whether an email is valid
 const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -52,7 +53,8 @@ export class AccountController {
         if (!password)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
 
-        const result: AuthResponse = await AccountService.LoginUser(accountName, password);
+        const sanitizedName = sanitizeString(accountName);
+        const result: AuthResponse = await AccountService.LoginUser(sanitizedName, password);
         setAuthCookie(res, result.token);
         return MakeSuccess(res, StatusCodes.OK, result);
     })
@@ -135,12 +137,16 @@ export class AccountController {
      * (optional authentication)
      */
     static Search: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const filter: any = req.query['query'];
-        if (typeof filter !== 'string')
+        const query: any = req.query['query'];
+        if (typeof query !== 'string')
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION);
+        
+        const sanitized = sanitizeString(query);
+        if (sanitized.length === 0)
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Invalid query');
 
         const currentUser: string | undefined = req.currentUser?.username;
-        const result: UserPublic[] = await AccountService.SearchUsersByName(filter, currentUser);
+        const result: UserPublic[] = await AccountService.SearchUsersByName(sanitized, currentUser);
         return MakeSuccess(res, StatusCodes.OK, result);
     });
 }

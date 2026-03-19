@@ -1,14 +1,14 @@
 import { describe, it, expect } from "@jest/globals";
 import request from "supertest";
 import bcrypt from "bcrypt"
-import { createTestApp } from "../helper/app.ts";
+import { CreateApp } from "../../../src/app.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from 'express';
 import { Register, CreateGame } from "../helper/helper.ts";
 import { AuthResponse, UserData, UserFull } from "../../../src/types/Types.ts";
 import { FetchFullUser } from "../../../src/services/AccountService.ts";
 
-const app: Express = createTestApp();
+const app: Express = CreateApp();
 
 // Jest docs: https://jestjs.io/docs/api
 

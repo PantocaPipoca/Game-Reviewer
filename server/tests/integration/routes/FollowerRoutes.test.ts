@@ -1,13 +1,12 @@
 import { describe, it, expect } from "@jest/globals";
 import request from "supertest";
-
-import { createTestApp } from "../helper/app.ts";
+import { CreateApp } from "../../../src/app.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from 'express';
 import { Register } from "../helper/helper.ts";
 import { AuthResponse } from "../../../src/types/Types.ts";
 
-const app: Express = createTestApp();
+const app: Express = CreateApp();
 
 // user 1
 const username: string = "user_" + Date.now();

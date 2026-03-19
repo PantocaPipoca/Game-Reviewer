@@ -1,10 +1,16 @@
-name: CI Pipeline
+name: Tests - Unit & Integration
 
 on:
   push:
     branches: ["main", "dev", "tests"]
   pull_request:
     branches: ["main", "dev", "tests"]
+  schedule:
+    - cron: "0 17 * * 5"
+
+# workflow
+permissions:
+  contents: read
 
 jobs:
   backend:
@@ -16,7 +22,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17
         env:
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: admin123
@@ -31,23 +37,26 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://admin:admin123@localhost:5432/test_db
-      JWT_SECRET: 1e0e789d1f02b40fa729dceb36832a574217fb9fd0714957c39be2c2595b3474
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
       JWT_EXPIRES_IN: 7d
+      RATE_LIMIT_MAX: "10000"
+      CSRF_SECRET: test_secret
+      NODE_ENV: test
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: server/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Remove root .env
-        run: rm -f ../.env
+      - name: Remove local env files
+        run: rm -f .env .env.test ../.env ../.env.test
 
       - name: Run tests
         run: npm run test:ci
@@ -60,11 +69,11 @@ jobs:
         working-directory: client
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: client/package-lock.json
 

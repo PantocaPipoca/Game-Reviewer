@@ -1,0 +1,38 @@
+name: SAST - CodeQL
+
+on:
+  push:
+    branches: ["main", "dev", "tests"]
+  pull_request:
+    branches: ["main", "dev", "tests"]
+  schedule:
+    - cron: "0 17 * * 5"
+
+# workflow
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: CodeQL Analyze
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        language: [javascript-typescript]
+
+    steps:
+      - uses: actions/checkout@v5  # download repo
+
+      - name: Init CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
