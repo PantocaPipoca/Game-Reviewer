@@ -43,6 +43,7 @@ jobs:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       JWT_EXPIRES_IN: 7d
       RATE_LIMIT_MAX: "10000"
+      NODE_ENV: test
 
     steps:
       - uses: actions/checkout@v5 # clone repo
