@@ -1,8 +1,9 @@
-import {AppError} from "../utils/ErrorHandler"
+import { AppError } from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import {StatusCodes} from "http-status-codes"
-import {GameFull, GamePK} from "../types/Types"
-import {GameRepository} from "../Repository/GameRepository"
+import { StatusCodes } from "http-status-codes"
+import { GameFull, GamePK, UserPK, GameCover } from "../types/Types"
+import { GameRepository } from "../Repository/GameRepository"
+import { IGDB } from "../IGDB/requests"
 
 export class GameService {
     /**
@@ -21,19 +22,60 @@ export class GameService {
             metadata: game.metadata
         }
     }
+    
+    /**
+     * Gets all info to make a page about a game
+     * @param gameID the ID of the game we want to make a page for
+     * @returns detailed info for the game in json format
+     */
+    static async GetGamePage(gameID: GamePK): Promise<any> {
+        return IGDB.GetGameByID(gameID);
+    }
 
     /**
-     * Searches for games by name and/or other atributes
-     * @param name 
-     * @param tag 
+     * Searches for games by name and/or genres
+     * @param name name of the games
+     * @param genres genres of the games
+     * @param offset number of games on IGDB we want to skip
+     * @param amount total number of games we want
+     * @returns array of enough game info to make a cover
      */
-    static async searchGames(name?: string, tag?: string): Promise<void> {
+    static async SearchGames(name: string, genres: number[], offset: number, amount: number): Promise<GameCover[]> {
+        return IGDB.SearchGames(name, genres, offset, amount);
     }
 
-    // WIP
-
-    static async getPopularGames(): Promise<void> {
+    /**
+     * Gets what games are popular on our db
+     * @param offset number of games on IGDB we want to skip
+     * @param amount total number of games we want
+     * @returns array of enough game info to make a cover
+     */
+    static async GetPopularGames(offset: number, amount: number): Promise<GameCover[]> {
+        return IGDB.GetPopularGames(offset, amount)
     }
+
+    /**
+     * Gets what games have recently released
+     * @param offset number of games on IGDB we want to skip
+     * @param amount total number of games we want
+     * @returns array of enough game info to make a cover
+     */
+    static async GetRecentGames(amount: number, offset: number): Promise<GameCover[]> {
+        return IGDB.GetRecentGames(offset, amount);
+    }
+
+    /**
+     * Gets what games are recommended to the given user
+     * @param offset number of games on IGDB we want to skip
+     * @param amount total number of games we want
+     * @returns array of enough game info to make a cover
+     */
+    static async getRecommendedGames(userPK: UserPK, offset: number, amount: number): Promise<GameCover[]> {
+        return IGDB.GetRecommendedGames(userPK, offset, amount);
+    }
+
+
+
 
 
     static async GetGameStats(gameId: GamePK): Promise<void> {
