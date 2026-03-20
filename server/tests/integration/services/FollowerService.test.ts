@@ -14,10 +14,10 @@ describe("FollowerService (integration)", () => {
     async function RegisterUsersAux(): Promise<UserMicroPair> {
         const user1: UserMicro = MakeSomeUser();
         await AccountService.RegisterUser(user1.accountName, "USER1", "12345678", user1.email);
-        await AccountService.AlterUser(user1.accountName, true);
+        await AccountService.AlterUser(user1.accountName, undefined, true);
         const user2: UserMicro = MakeSomeUser();
         await AccountService.RegisterUser(user2.accountName, "USER2", "87654321", user2.email);
-        await AccountService.AlterUser(user2.accountName, true);
+        await AccountService.AlterUser(user2.accountName, undefined, true);
         return {user1, user2} as UserMicroPair;
     }
 
@@ -106,7 +106,7 @@ describe("FollowerService (integration)", () => {
         const us1: string = user.accountName;
         await AccountService.RegisterUser(us1, "USER1", "12345678", user.email);
         // Make target user private
-        await AccountService.AlterUser(us1, true);
+        await AccountService.AlterUser(us1, undefined, true);
 
         // Registers a number of users to follow the target user
         const followers: string[] = [];
@@ -155,7 +155,7 @@ describe("FollowerService (integration)", () => {
             const f: UserMicro = MakeSomeUser();
             followed.push(f.accountName);
             await AccountService.RegisterUser(f.accountName, "FOLLOWED" + i, "12345678", f.email);
-            await AccountService.AlterUser(f.accountName, true);
+            await AccountService.AlterUser(f.accountName, undefined, true);
             await FollowerService.RequestFollower(us1, f.accountName);
             await FollowerService.AcceptFollower(f.accountName, us1);
         }
@@ -166,7 +166,7 @@ describe("FollowerService (integration)", () => {
             const d: UserMicro = MakeSomeUser();
             requests.push(d.accountName);
             await AccountService.RegisterUser(d.accountName, "DUMMY" + i, "12345678", d.email);
-            await AccountService.AlterUser(d.accountName, true);
+            await AccountService.AlterUser(d.accountName, undefined, true);
             await FollowerService.RequestFollower(us1, d.accountName);
         }
 

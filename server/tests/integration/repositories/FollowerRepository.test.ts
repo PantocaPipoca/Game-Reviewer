@@ -11,6 +11,7 @@ describe("FollowerRepository (integration)", () => {
         return await UserRepository.InsertUser({
             accountName: user,
             passwordHash: "hash",
+            profilePic: null,
             userData: {displayName: "Repo", gender: null, bio: null},
             isPrivate: false,
             email: `${user}@test.com`
@@ -44,8 +45,8 @@ describe("FollowerRepository (integration)", () => {
         // Creates two private users
         const user1: string = (await InsertUserAux()).accountName;
         const user2: string = (await InsertUserAux()).accountName;
-        await AccountService.AlterUser(user1, true);
-        await AccountService.AlterUser(user2, true);
+        await AccountService.AlterUser(user1, undefined, true);
+        await AccountService.AlterUser(user2, undefined, true);
         
         // Inserts a follow request
         const f1: FollowerFull = await InsertFollowerAux(user1, user2);
@@ -63,8 +64,8 @@ describe("FollowerRepository (integration)", () => {
         // Creates two private users
         const user1: string = (await InsertUserAux()).accountName;
         const user2: string = (await InsertUserAux()).accountName;
-        await AccountService.AlterUser(user1, true);
-        await AccountService.AlterUser(user2, true);
+        await AccountService.AlterUser(user1, undefined, true);
+        await AccountService.AlterUser(user2, undefined, true);
         
         // Fails, not yet requested
         await expect(UpdateFollowerAux(user1, user2)).rejects.toBeDefined();
@@ -80,8 +81,8 @@ describe("FollowerRepository (integration)", () => {
         // Creates two private users
         const user1: string = (await InsertUserAux()).accountName;
         const user2: string = (await InsertUserAux()).accountName;
-        await AccountService.AlterUser(user1, true);
-        await AccountService.AlterUser(user2, true);
+        await AccountService.AlterUser(user1, undefined, true);
+        await AccountService.AlterUser(user2, undefined, true);
 
         // Fails, not yet requested
         await expect(DeleteFollowerAux(user1, user2)).rejects.toBeDefined();
