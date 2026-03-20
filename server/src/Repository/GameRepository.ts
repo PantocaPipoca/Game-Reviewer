@@ -1,5 +1,5 @@
 import { prisma } from "../prisma";
-import { GameFull, GameShort, GamePK } from "../types/Types";
+import { GameFull, GameShort, GamePK, UserPK } from "../types/Types";
 
 export class GameRepository {
 
@@ -48,8 +48,62 @@ export class GameRepository {
         });
     }
 
+    /**
+     * @description Returns the most popular games from the database, that definition being "games with the most reviews with scores higher or equal to 7"
+     * @param amount the number of games on the returned array
+     * @param offset the number of games first on the list that are skipped
+     * @returns a promise of an array of entries with the popular games' gameID
+     */
+    public static GetPopularGames(offset: number, amount: number): Promise<{ gameID: GamePK }[]> {
+
+        return prisma.review.groupBy({
+            by: ['reviewed'],
+            _count: {
+                reviewer: true
+            },
+            where: {
+                score: {
+                    gte: 7
+                }
+            },
+            orderBy: {
+                _count: {
+                    reviewer: 'desc'
+                }
+            },
+            skip: offset,
+            take: amount
+        }).then(results =>
+            results.map(x => ({ gameID: x.reviewed }))
+        );
+    }
 
 
-    // select games with same tags and/or similar name
+    /**
+     * @description Returns the top 50% of games a specific User has left a review on
+     * @param userPK primary key of the user we want the liked games
+     * @returns a promise of an array of entries with the user liked games' gameID
+     */
+    public static GetGamesUserLikes(userPK: UserPK): Promise<{ gameID: GamePK }[]> {
 
+        return prisma.review.findMany({
+            where: {
+                reviewer: userPK,
+                score: {
+                    gte: 6
+                }
+            },
+            select: {
+                reviewed: true
+            },
+            orderBy: {
+                score: 'desc'
+            },
+            take: 20
+
+        }).then(results =>
+            results.map(x => ({ gameID: x.reviewed }))
+        );
+
+    }
 }
