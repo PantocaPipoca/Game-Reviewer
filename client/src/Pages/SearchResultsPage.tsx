@@ -28,6 +28,10 @@ function SearchResultsPage() {
     useEffect(() => {
         if (!query) return;
 
+        setLoading(true);
+        setError(false);
+        setResults([]);
+
         GameAPI.search({ name: query })
             .then((data) => setResults(data))
             .catch(() => setError(true))

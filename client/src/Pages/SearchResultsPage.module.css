@@ -9,6 +9,9 @@
 }
 
 .list {
+    justify-content: center;
     gap: var(--spacingSmall);
     padding: var(--spacingSmall);
+    flex-wrap: wrap;
+    width: 100%;
 }
