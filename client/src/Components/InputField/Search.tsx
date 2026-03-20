@@ -145,7 +145,17 @@ function Search() {
                         {!isLoading &&
                             !error &&
                             results.map((game) => (
-                                <Panel key={game.id} type="terciary" className={style.itemRow} direction="row">
+                                <Panel
+                                    key={game.id}
+                                    type="terciary"
+                                    className={style.itemRow}
+                                    direction="row"
+                                    interactive
+                                    onClick={() => {
+                                        navigate(`/game/${game.id}`);
+                                        setIsFocused(false);
+                                    }}
+                                >
                                     <img className={style.cover} src={toCoverUrl(game)} alt={game.name} />
                                     <Text className={style.name} variant="body">
                                         {game.name}

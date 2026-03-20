@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
 import style from "./BigGameCard.module.css";
@@ -11,6 +12,7 @@ export type BigGameCardProps = {
     genres?: string[];
     developer?: string;
     collage?: string[];
+    gameID: number;
 };
 
 function BigGameCard({
@@ -19,10 +21,16 @@ function BigGameCard({
     genres = ["###", "###"],
     developer = "###",
     collage = [NOT_FOUND_IMAGE, NOT_FOUND_IMAGE, NOT_FOUND_IMAGE, NOT_FOUND_IMAGE],
+    gameID,
 }: BigGameCardProps) {
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        navigate(`/game/${gameID}`);
+    };
     return (
         <div className={style.Frame}>
-            <Panel type="secondary" direction="row" interactive>
+            <Panel type="secondary" direction="row" interactive onClick={handleClick}>
                 <img src={cover} className={style.KeyArt} />
                 <div className={style.Details}>
                     <Text variant="h2">{name}</Text>

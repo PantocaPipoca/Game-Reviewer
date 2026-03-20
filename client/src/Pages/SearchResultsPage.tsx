@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { GameAPI } from "../API/Games";
 import type { GameSearchResult } from "../API/Types";
 import GameCard from "../Components/GameCards/GameCard";
 import Navbar from "../Components/Navbar/Navbar";
@@ -19,9 +20,18 @@ function SearchResultsPage() {
     const [searchParams] = useSearchParams();
 
     const query = (searchParams.get("q") ?? "").trim();
-    const results = useMemo<GameSearchResult[]>(() => {
-        if (!query) return [];
-        return [];
+
+    const [results, setResults] = useState<GameSearchResult[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
+
+    useEffect(() => {
+        if (!query) return;
+
+        GameAPI.search({ name: query })
+            .then((data) => setResults(data))
+            .catch(() => setError(true))
+            .finally(() => setLoading(false));
     }, [query]);
 
     return (
@@ -34,18 +44,20 @@ function SearchResultsPage() {
                         {query ? `"${query}"` : "Write something to search for"}
                     </Text>
 
-                    {query && results.length === 0 && (
-                        <Text variant="body" color="var(--mutedText)">
-                            No results for this search.
-                        </Text>
-                    )}
-
                     <hr />
 
-                    {results.length > 0 && (
+                    {loading && <Text color="var(--mutedText)">searching...</Text>}
+
+                    {!loading && error && <Text color="var(--pink)">* error during search. please try again.</Text>}
+
+                    {!loading && !error && query && results.length === 0 && (
+                        <Text color="var(--mutedText)">no results for this search.</Text>
+                    )}
+
+                    {!loading && !error && results.length > 0 && (
                         <Panel type="secondary" direction="row" className={style.list}>
                             {results.map((game) => (
-                                <GameCard key={game.id} name={game.name} cover={toCoverUrl(game)} />
+                                <GameCard key={game.id} name={game.name} cover={toCoverUrl(game)} gameID={game.id} />
                             ))}
                         </Panel>
                     )}
