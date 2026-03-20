@@ -139,6 +139,8 @@ router.get("/me", auth, AccountController.GetCurrentUser);
  *                          properties:
  *                              accountName:
  *                                  type: string
+ *                              profilePic:
+ *                                  type: string
  *                              isPrivate:
  *                                  type: boolean
  *                              password:
