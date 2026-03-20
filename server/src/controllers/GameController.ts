@@ -16,7 +16,7 @@ type queryBody = {
 const genresSet: number[] = [2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36];
 
 function isNatural(num: unknown) {
-    return Number.isInteger(num) && (num as number) >= 0;
+    return Number.isInteger(num) && (num as number) > 0;
 }
 
 /**
@@ -37,25 +37,29 @@ export class GameController {
      * Finds a game by ID
      * Used by GET /api/games/:gameID
      */
-    static GetGameById: any = AsyncHandler(async (req: Request, res: Response) => {
-        const result: GameFull = await GameService.GetGameById(toValidGameID(req.params["gameID"]));
-        return MakeSuccess(res, StatusCodes.OK, result);
-    });
+    // static GetGameById: any = AsyncHandler(async (req: Request, res: Response) => {
+    //     const result: GameFull = await GameService.GetGameById(toValidGameID(req.params['gameID']));
+    //     return MakeSuccess(res, StatusCodes.OK, result);
+    // });
+    // won't be used
 
     /**
      * Returns all necessary info for the frontend to create a page for the game
      * Used by GET /api/games/id/:gameID
      */
-    static GetGamePage: any = AsyncHandler(async (req: Request, res: Response) => {
-        const gameIDStr = req.params["gameID"] as string;
-        let gameID: number;
+    static GetGameInfo: any = AsyncHandler(async (req: Request, res: Response) => {
+        const gameIDStr = req.params['gameID'] as string;
+        let gameID: number
         try {
-            gameID = Number.parseInt(gameIDStr);
-            if (gameID <= 0) throw new Error();
+            gameID = toValidGameID(gameIDStr);
+            if (gameID <= 0)
+                throw new Error;
         } catch (e) {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_INVALID);
         }
         const result = await GameService.GetGamePage(gameID);
+        if (result.length == 0)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NOT_FOUND);
         return MakeSuccess(res, StatusCodes.OK, result);
     });
 
@@ -67,10 +71,11 @@ export class GameController {
         let { name, genres, offset, amount }: queryBody = req.body;
         if (!isNatural(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
         if (!isNatural(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
-        if (!name) name = "";
-        if (!genres) genres = [] as number[];
         if (!genres.every((x) => genresSet.includes(x)))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GENRES_INVALID);
+
+        if (!name) name = "";
+        if (!genres) genres = [] as number[];
         const result = await GameService.SearchGames(name, genres, offset, amount);
         return MakeSuccess(res, StatusCodes.OK, result);
     });
@@ -84,7 +89,7 @@ export class GameController {
         if (!isNatural(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
         if (!isNatural(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         const result = await GameService.GetPopularGames(offset, amount);
-        return MakeSuccess(res, StatusCodes.OK, result);
+        return MakeSuccess(res, StatusCodes.OK, result)
     });
 
     /**
@@ -112,5 +117,9 @@ export class GameController {
         return MakeSuccess(res, StatusCodes.OK, result);
     });
 
-    static GetGameStats: any = AsyncHandler(async (req: Request, res: Response) => {});
+
+
+
+
+    static GetGameStats: any = AsyncHandler(async (req: Request, res: Response) => { });
 }

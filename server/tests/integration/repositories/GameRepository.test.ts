@@ -45,3 +45,14 @@ describe("GameRepository (integration)", () => {
         expect(g5).toBeNull();
     });
 });
+
+describe("IGDB requests (integration)", () => {
+    it.todo(`
+        Checks if IGDB requests are all working correctly:
+            get game by id
+            search games
+            get given games
+            get recent games
+            get genres of games
+    `);
+});
