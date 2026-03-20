@@ -3,7 +3,7 @@ import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import {StatusCodes} from "http-status-codes"
 import {GameService} from "../services/GameService"
-import { GameFull } from "../types/Types"
+import {GameFull} from "../types/Types"
 
 /**
  * Translates a game name string to a game ID

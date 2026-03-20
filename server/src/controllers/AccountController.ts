@@ -3,16 +3,13 @@ import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
 import {StatusCodes} from "http-status-codes"
 import {AccountService} from "../services/AccountService"
-import { AuthResponse, UserPublic } from "../types/Types"
-import { AuthRequest, clearAuthCookie, ExtractLoggedUser, JwtPayload, setAuthCookie } from "../utils/auth"
+import {AuthResponse, UserPrivate, UserPublic} from "../types/Types"
+import {AuthRequest, clearAuthCookie, ExtractLoggedUser, setAuthCookie} from "../utils/auth"
 
 // REGEX that tests whether an email is valid
 const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-
-
 export class AccountController {
-
     /**
      * Registers a new user
      * Used by POST /api/users/
@@ -38,7 +35,7 @@ export class AccountController {
         const result: AuthResponse = await AccountService.RegisterUser(accountName, displayName, password, email);
         setAuthCookie(res, result.token);
         return MakeSuccess(res, StatusCodes.CREATED, result);
-    })
+    });
 
     /**
      * Logins a new user
@@ -55,17 +52,17 @@ export class AccountController {
         const result: AuthResponse = await AccountService.LoginUser(accountName, password);
         setAuthCookie(res, result.token);
         return MakeSuccess(res, StatusCodes.OK, result);
-    })
+    });
 
     /**
      * Logouts a user
      * Used by POST /api/users/logout
      * Requires previous authentication
      */
-    static Logout: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
+    static Logout: any = AsyncHandler(async (_: AuthRequest, res: Response) => {
         clearAuthCookie(res);
         res.status(StatusCodes.OK).json({ status: "success", data: null });
-    })
+    });
 
     /**
      * Gets the currently logged in user
@@ -74,10 +71,10 @@ export class AccountController {
      */
     static GetCurrentUser: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = ExtractLoggedUser(req);
-        
+
         const result: UserPublic = await AccountService.GetCurrentUser(currentUser);
         return MakeSuccess(res, StatusCodes.OK, result);
-    })
+    });
     
     /**
      * Changes a user information
@@ -87,16 +84,15 @@ export class AccountController {
     static Alter: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = ExtractLoggedUser(req);
 
-        const {isPrivate: isPrivate, password: password, email: email, userData: userData} = req.body;
+        const {profilePic, isPrivate, password, email, userData} = req.body;
         if(password != undefined){
             if (typeof password !== "string" || password.length < 8)
                 throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
         }
-        if(email != undefined){
-            if (typeof email !== "string" || !EMAIL_REGEX.test(email))
+        if (email != undefined && (typeof email !== "string" || !EMAIL_REGEX.test(email)))
                 throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
-        }
-        const result: UserPublic = await AccountService.AlterUser(currentUser, isPrivate, password, email, userData);
+
+        const result: UserPublic = await AccountService.AlterUser(currentUser, profilePic, isPrivate, password, email, userData);
         return MakeSuccess(res, StatusCodes.OK, result);
     })
 
@@ -124,11 +120,10 @@ export class AccountController {
         if (!username || typeof username !== 'string')
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
 
-        const result: UserPublic = await AccountService.FindByUsername(username, currentUser);
+        const result: UserPublic | UserPrivate = await AccountService.FindByUsername(username, currentUser);
         return MakeSuccess(res, StatusCodes.OK, result);
     });
     
-
     /**
      * Searches users by username
      * Used by GET /api/users/search?query=...
@@ -140,7 +135,7 @@ export class AccountController {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION);
 
         const currentUser: string | undefined = req.currentUser?.username;
-        const result: UserPublic[] = await AccountService.SearchUsersByName(filter, currentUser);
+        const result: (UserPublic | UserPrivate)[] = await AccountService.SearchUsersByName(filter, currentUser);
         return MakeSuccess(res, StatusCodes.OK, result);
     });
 }

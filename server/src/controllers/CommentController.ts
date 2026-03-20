@@ -1,10 +1,10 @@
-import {Request, Response} from "express"
+import {Response} from "express"
 import {AppError, AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
 import {StatusCodes} from "http-status-codes"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import { ExtractReviewPK, ReviewPrimaryKey } from "./ReviewController";
-import { CommentService } from "../services/CommentService";
-import { AuthRequest, ExtractLoggedUser } from "../utils/auth";
+import {ExtractReviewPK, ReviewPrimaryKey} from "./ReviewController";
+import {CommentService} from "../services/CommentService";
+import {AuthRequest, ExtractLoggedUser} from "../utils/auth";
 
 export class CommentController {
 
