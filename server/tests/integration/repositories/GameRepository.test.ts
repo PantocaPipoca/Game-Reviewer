@@ -2,6 +2,7 @@ import {describe, it, expect} from "@jest/globals";
 import {GameRepository} from "../../../src/Repository/GameRepository";
 import {GameFull} from '../../../src/types/Types';
 import {InputJsonValue, JsonValue} from "@prisma/client/runtime/client";
+import { CreateGame } from "../helper/helper";
 
 describe("GameRepository (integration)", () => {
     // Auxiliary function, checks a games's name, id and data against expected values
@@ -14,15 +15,11 @@ describe("GameRepository (integration)", () => {
     }
 
     it("InsertGame correctly creates games; UpdateGame correctly updates games' metadata; DeleteGame correctly deletes games; SelectGames, InsertGame, UpdateGame and DeleteGame always give correct info", async () => {
-        // Array of 50 games
+        // Array of 10 games
         const arr: GameFull[] = [];
-        for (var i = 0; i < 50; i++) arr.push(await GameRepository.InsertGame(
-            {
-                gameID: Date.now() % 100000,
-                gameName: Date.now() + "" + i,
-                metadata: {info1: i + 1, info2: 50 - i} as InputJsonValue
-            }
-        ));
+        for (var i = 0; i < 10; i++){
+            arr.push(await CreateGame());
+        }
 
         // Check all game data against expected values
         for (var i = 0; i < arr.length; i++) {

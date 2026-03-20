@@ -21,13 +21,15 @@ export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "createdAt" |
     createdAt: Date | null
 };
 
+export type UserPrivate = Omit<UserPublic, "userData" | "createdAt">;
+
 export type UserPK = string;
 
 export type AuthResponse =
     UserPublic &
     {
         token: string;
-    }
+    };
 
 
 // ========================== Game Types =====================
@@ -40,7 +42,7 @@ export type GameShort = Omit<GameFull, "metadata"> & {
 
 export type GamePK = number;
 
-// Review Types
+// ========================== Review Types =====================
 
 export type ReviewFull = Review;
 

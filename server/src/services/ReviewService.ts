@@ -16,17 +16,17 @@ async function FetchGame(gameID: number): Promise<GameFull> {
 
 export class ReviewService {
     static async FindReview(reviewer: UserPK, reviewed: GamePK, currentUser?: UserPK): Promise<ReviewFull> {
-        const user : UserPublic = await FetchPublicUser(reviewer);
         await FetchGame(reviewed);
-
-        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer, reviewed});
-        if(!review)
-            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+        const user: UserPublic = await FetchPublicUser(reviewer);
 
         // check privacy settings
         const canView: boolean = await CanViewUser(user, currentUser);
         if(!canView)
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
+
+        const review: ReviewFull | null = await ReviewRepository.SelectReview({reviewer, reviewed});
+        if(!review)
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
         return review;
     }
@@ -40,14 +40,12 @@ export class ReviewService {
         if(existing)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.REVIEW_ALREADY_EXISTS);
 
-        const review: ReviewFull = await ReviewRepository.InsertReview({
+        return await ReviewRepository.InsertReview({
             reviewer: currentUser,
             reviewed: gameID,
             text,
             score
-        });
-
-        return review;
+        }) as ReviewFull;
     }
 
     static async UpdateReview(currentUser: UserPK, gameID: GamePK, text?: string, score?: number): Promise<ReviewFull> {
@@ -58,14 +56,12 @@ export class ReviewService {
         if(!existing)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
-        const updated: ReviewFull = await ReviewRepository.UpdateReview({
+        return await ReviewRepository.UpdateReview({
             reviewer: currentUser,
             reviewed: gameID,
             text: text ?? existing.text,
             score: score ?? existing.score
-        });
-
-        return updated;
+        }) as ReviewFull;
     }
 
     static async RemoveReview(currentUser: UserPK, gameID: GamePK): Promise<ReviewFull> {
@@ -76,9 +72,7 @@ export class ReviewService {
         if(!existing)
             throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
-        const deleted: ReviewFull = await ReviewRepository.DeleteReview({reviewer: currentUser, reviewed: gameID});
-
-        return deleted;
+        return await ReviewRepository.DeleteReview({reviewer: currentUser, reviewed: gameID}) as ReviewFull;
     }
 
     static async GetReviewsByGame(gameID: GamePK, currentUser?: UserPK): Promise<ReviewFull[]> {
@@ -90,10 +84,9 @@ export class ReviewService {
 
         // filter based on privacy
         const visibleReviews: ReviewFull[] = [];
-        for (const review of reviews){
+        for (const review of reviews) {
             const user: UserPublic = await FetchPublicUser(review.reviewer); // This will hurt in performance
-            const canView: boolean = await CanViewUser(user, currentUser);
-            if (canView) {
+            if (await CanViewUser(user, currentUser)) {
                 visibleReviews.push({
                     reviewer: review.reviewer,
                     reviewed: review.reviewed,
@@ -101,11 +94,11 @@ export class ReviewService {
                     score: review.score,
                     createdAt: review.createdAt,
                     updatedAt: review.updatedAt
-                })
+                });
             }
         }
 
-        return visibleReviews;
+        return visibleReviews as ReviewFull[];
     }
 
     static async GetReviewsByUser(username: UserPK, currentUser?: UserPK): Promise<ReviewFull[]> {
@@ -115,9 +108,7 @@ export class ReviewService {
         if (!canView)
             throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        const reviews: ReviewFull[] = await ReviewRepository.SelectAllReviewsOfUser(username);
-
-        return reviews;
+        return await ReviewRepository.SelectAllReviewsOfUser(username) as ReviewFull[];
     }
 
     // TODO Later

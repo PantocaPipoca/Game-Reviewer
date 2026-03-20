@@ -26,9 +26,11 @@ function isNatural(num: unknown) {
  * @throws AppError if the game name is not a number or would return an invalid game ID
  */
 export function toValidGameID(gameID: string | string[] | undefined): number {
-    if (typeof gameID !== "string") throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NAME_REQUIRED);
+    if (typeof gameID !== 'string')
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_REQUIRED);
     const id: number | null = Number(gameID);
-    if (isNaN(id)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NAME_REQUIRED);
+    if (!Number.isSafeInteger(id) || id < 0)
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_REQUIRED);
     return id;
 }
 
