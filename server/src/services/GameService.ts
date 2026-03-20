@@ -7,21 +7,22 @@ import { IGDB } from "../IGDB/requests"
 
 export class GameService {
     /**
-     * Gets a game by it's primary key
+     * Gets a game by its primary key
      * @param gameId - the game id
      * @returns Game Information
      */
-    static async GetGameById(gameId: GamePK): Promise<GameFull> {
-        const game: GameFull | null = await GameRepository.SelectGame(gameId)
-        if (!game)
-            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND)
+    // static async GetGameById(gameId: GamePK): Promise<GameFull> {
+    //     const game: GameFull | null = await GameRepository.SelectGame(gameId)
+    //     if (!game)
+    //         throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND)
 
-        return {
-            gameID: game.gameID,
-            gameName: game.gameName,
-            metadata: game.metadata
-        }
-    }
+    //     return {
+    //         gameID: game.gameID,
+    //         gameName: game.gameName,
+    //         metadata: game.metadata
+    //     }
+    // }
+    // won't be used
 
     /**
      * Gets all info to make a page about a game
@@ -51,7 +52,9 @@ export class GameService {
      * @returns array of enough game info to make a cover
      */
     static async GetPopularGames(offset: number, amount: number): Promise<GameCover[]> {
-        return IGDB.GetPopularGames(offset, amount)
+        const popularGamesEntriesRaw = await GameRepository.GetPopularGames(offset, amount);
+        const popularGamesEntriesArr = popularGamesEntriesRaw.map(g => g.gameID);
+        return IGDB.GetGivenGames(popularGamesEntriesArr);
     }
 
     /**
@@ -72,15 +75,19 @@ export class GameService {
      * @returns array of enough game info to make a cover
      */
     static async getRecommendedGames(userPK: UserPK, offset: number, amount: number): Promise<GameCover[]> {
-        return IGDB.GetRecommendedGames(userPK, offset, amount);
+        const likedGamesRaw = await GameRepository.GetGamesUserLikes(userPK);
+        if (likedGamesRaw.length < 1) {
+            return GameService.GetPopularGames(offset, amount);
+        }
+        const likedGamesParsed: number[] = likedGamesRaw.map(g => g.gameID);
+        const likedGenres: number[] = await IGDB.GetGenresOfGames(likedGamesParsed);
+        return IGDB.SearchGames("", likedGenres, offset, amount);
     }
 
 
-
-
-
-    static async GetGameStats(gameId: GamePK): Promise<void> {
-    }
+    // static async GetGameStats(gameId: GamePK): Promise<void> {
+    // }
+    // won't be used
 
     // needs a endpoint "get x games"
 }

@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { GameCover } from "../types/Types";
 import { GameRepository } from "../Repository/GameRepository";
-import { UserPK, GameCover } from "../types/Types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,9 +23,7 @@ type AuthResponseIGDB = {
 }
 
 type GameGenre = {
-    genres: {
-        id: number
-    }[]
+    genres: number[]
 }
 
 export class IGDB {
@@ -58,7 +56,9 @@ export class IGDB {
             `https://id.twitch.tv/oauth2/token?client_id=${IGDB.clientId}&client_secret=${IGDB.secret}&grant_type=client_credentials`,
             { method: "POST" }
 
-        ).then(res => res.json() as Promise<AuthResponseIGDB>);
+        ).then(
+            res => res.json() as Promise<AuthResponseIGDB>
+        );
 
         IGDB.tokenInfo.access_token = auth.access_token;
         IGDB.tokenInfo.expires_at = Math.floor(Date.now() / 1000) + auth.expires_in - 20
@@ -82,182 +82,6 @@ export class IGDB {
         if (now > expires_at)
             await IGDB.GetNewToken();
     }
-
-
-    // DONE
-    public static async SearchGames(name: string, genres: number[], offset: number, amount: number): Promise<GameCover[]> {
-
-        const genresString: string = genres.length > 0 ? `& genres = (${genres.join(',')})` : "";
-
-        await IGDB.HandleToken();
-        return fetch(
-            "https://api.igdb.com/v4/games",
-            {
-                method: "POST",
-                headers: {
-                    "Client-ID": IGDB.clientId,
-                    "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
-                },
-                body: `
-                ${name != null && name.length != 0 ? `search "${name}";` : ""}
-                fields:
-                    id,
-                    name,
-                    cover.*
-                ;
-                
-                where
-                    game_type = ${IGDB.usedTypes} &
-                    cover != null
-                    ${genresString}
-                ;
-                
-                offset ${offset};
-                limit ${amount};
-                `
-            }
-        ).then(res => res.json() as Promise<GameCover[]>);
-    }
-
-
-    // DONE
-    public static async GetPopularGames(offset: number, amount: number): Promise<GameCover[]> {
-
-        const popularGamesEntries = await GameRepository.GetPopularGames(offset, amount);
-
-        const gameIDListString: string = `(${popularGamesEntries.map(g => g.gameID).join(",")})`;
-
-        await IGDB.HandleToken();
-        return fetch(
-            "https://api.igdb.com/v4/games",
-            {
-                method: "POST",
-                headers: {
-                    "Client-ID": IGDB.clientId,
-                    "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
-                },
-                body: `
-                    fields
-                        id,
-                        name,
-                        cover.*
-                    ;
-
-                    where id = ${gameIDListString};
-                `
-            }
-        ).then(res => res.json() as Promise<GameCover[]>);
-
-    }
-
-    // DONE
-    public static async GetRecentGames(offset: number, amount: number): Promise<GameCover[]> {
-
-        const now = Math.floor(Date.now() / 1000);
-
-        await IGDB.HandleToken()
-        return fetch(
-            "https://api.igdb.com/v4/games",
-            {
-                method: "POST",
-                headers: {
-                    "Client-ID": IGDB.clientId,
-                    "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
-                },
-                body: `
-                    fields
-                        id,
-                        name,
-                        cover.*
-                    ;
-
-                    where
-                        game_type = ${IGDB.usedTypes} &
-                        cover != null &
-                        first_release_date < ${now}
-                    ;
-
-                    sort first_release_date desc;
-
-                    offset ${offset};
-                    limit ${amount};
-                `
-            }
-        ).then(res => res.json() as Promise<GameCover[]>);
-    }
-
-    // DONE
-    public static async GetRecommendedGames(userPK: UserPK, offset: number, amount: number): Promise<GameCover[]> {
-
-        const likedGamesRaw = await GameRepository.GetGamesUserLikes(userPK);
-
-        if (likedGamesRaw.length < 1) {
-            return IGDB.GetPopularGames(offset, amount);
-        }
-
-        const likedGamesParsedString: string = `(${likedGamesRaw.map(g => g.gameID).join(",")})`;
-
-        await IGDB.HandleToken();
-        const likedGenresRaw = await fetch(
-            "https://api.igdb.com/v4/games",
-            {
-                method: "POST",
-                headers: {
-                    "Client-ID": IGDB.clientId,
-                    "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
-                },
-                body: `
-                    fields genres.*;
-
-                    where
-                        id = ${likedGamesParsedString} &
-                        genres != null
-                    ;
-                `
-            }
-        ).then(res => res.json() as Promise<GameGenre[]>);
-
-        const likedGenresParsed: number[] = [...
-            new Set(
-                likedGenresRaw.map(x =>
-                    x.genres.map(y =>
-                        y.id
-                    )
-                ).flat()
-            )
-        ]
-
-        const genresParsedString: string = `(${likedGenresParsed.join(',')})`
-
-        await IGDB.HandleToken();
-        return fetch(
-            "https://api.igdb.com/v4/games",
-            {
-                method: "POST",
-                headers: {
-                    "Client-ID": IGDB.clientId,
-                    "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
-                },
-                body: `
-                    fields
-                        id,
-                        name,
-                        cover.*
-                    ;
-
-                    where
-                        game_type = ${IGDB.usedTypes} &
-                        genres = ${genresParsedString}
-                    ;
-
-                    offset ${offset};
-                    limit ${amount};
-                `
-            }
-        ).then(res => res.json() as Promise<GameCover[]>);
-    }
-
-
 
     // DONE
     // used for the game page
@@ -330,10 +154,147 @@ export class IGDB {
                     ;
                 `
             }
-        ).then(res => res.json() as Promise<any[]>);
+        ).then(
+            res => res.json() as Promise<any[]>
+        );
+    }
+
+    // DONE
+    public static async SearchGames(name: string, genres: number[], offset: number, amount: number): Promise<GameCover[]> {
+
+        const genresString: string = genres.length > 0 ? `& genres = (${genres.join(',')})` : "";
+
+        const searchStr: string = name != null && name.length != 0 ? `search "${name}";` : ""
+
+        await IGDB.HandleToken();
+        return fetch(
+            "https://api.igdb.com/v4/games",
+            {
+                method: "POST",
+                headers: {
+                    "Client-ID": IGDB.clientId,
+                    "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
+                },
+                body: `
+                    ${searchStr}
+                    fields:
+                        id,
+                        name,
+                        cover.*
+                    ;
+                    
+                    where
+                        game_type = ${IGDB.usedTypes} &
+                        cover != null
+                        ${genresString}
+                    ;
+                    
+                    offset ${offset};
+                    limit ${amount};
+                `
+            }
+        ).then(
+            res => res.json() as Promise<GameCover[]>
+        );
     }
 
 
+    // DONE
+    // used to get games obtained through a search in our db
+    public static async GetGivenGames(gameIDs: number[]) {
+        const gameIDListString: string = `(${gameIDs.join(",")})`;
+
+        await IGDB.HandleToken();
+        return fetch(
+            "https://api.igdb.com/v4/games",
+            {
+                method: "POST",
+                headers: {
+                    "Client-ID": IGDB.clientId,
+                    "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
+                },
+                body: `
+                    fields
+                        id,
+                        name,
+                        cover.*
+                    ;
+
+                    where id = ${gameIDListString};
+                `
+            }
+        ).then(
+            res => res.json() as Promise<GameCover[]>
+        );
+    }
+
+    // DONE
+    public static async GetRecentGames(offset: number, amount: number): Promise<GameCover[]> {
+
+        const now = Math.floor(Date.now() / 1000);
+
+        await IGDB.HandleToken()
+        return fetch(
+            "https://api.igdb.com/v4/games",
+            {
+                method: "POST",
+                headers: {
+                    "Client-ID": IGDB.clientId,
+                    "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
+                },
+                body: `
+                    fields
+                        id,
+                        name,
+                        cover.*
+                    ;
+
+                    where
+                        game_type = ${IGDB.usedTypes} &
+                        cover != null &
+                        first_release_date < ${now}
+                    ;
+
+                    sort first_release_date desc;
+
+                    offset ${offset};
+                    limit ${amount};
+                `
+            }
+        ).then(
+            res => res.json() as Promise<GameCover[]>
+        );
+    }
+
+    // DONE
+    public static async GetGenresOfGames(games: number[]): Promise<number[]> {
+
+        const gamesStr = `(${games.join(',')})`
+
+        await IGDB.HandleToken();
+        return await fetch(
+            "https://api.igdb.com/v4/games",
+            {
+                method: "POST",
+                headers: {
+                    "Client-ID": IGDB.clientId,
+                    "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
+                },
+                body: `
+                    fields genres;
+
+                    where
+                        id = ${gamesStr} &
+                        genres != null
+                    ;
+                `
+            }
+        ).then(
+            res => res.json() as Promise<GameGenre[]>
+        ).then(
+            raw => [... new Set(raw.map(x => x.genres).flat())]
+        );
+    }
 
 
     // helper function made just to get the relevant game_types
@@ -352,7 +313,9 @@ export class IGDB {
                     fields *;
                 `
             }
-        ).then(res => res.json());
+        ).then(
+            res => res.json()
+        );
     }
 }
 

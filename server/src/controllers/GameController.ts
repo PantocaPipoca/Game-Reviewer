@@ -39,27 +39,29 @@ export class GameController {
      * Finds a game by ID
      * Used by GET /api/games/:gameID
      */
-    static GetGameById: any = AsyncHandler(async (req: Request, res: Response) => {
-        const result: GameFull = await GameService.GetGameById(toValidGameID(req.params['gameID']));
-        return MakeSuccess(res, StatusCodes.OK, result);
-    });
-
+    // static GetGameById: any = AsyncHandler(async (req: Request, res: Response) => {
+    //     const result: GameFull = await GameService.GetGameById(toValidGameID(req.params['gameID']));
+    //     return MakeSuccess(res, StatusCodes.OK, result);
+    // });
+    // won't be used
 
     /**
      * Returns all necessary info for the frontend to create a page for the game
      * Used by GET /api/games/id/:gameID
      */
-    static GetGamePage: any = AsyncHandler(async (req: Request, res: Response) => {
+    static GetGameInfo: any = AsyncHandler(async (req: Request, res: Response) => {
         const gameIDStr = req.params['gameID'] as string;
         let gameID: number
         try {
-            gameID = Number.parseInt(gameIDStr);
+            gameID = toValidGameID(gameIDStr);
             if (gameID <= 0)
                 throw new Error;
         } catch (e) {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_INVALID);
         }
         const result = await GameService.GetGamePage(gameID);
+        if (result.length == 0)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NOT_FOUND);
         return MakeSuccess(res, StatusCodes.OK, result);
     });
 
@@ -69,9 +71,9 @@ export class GameController {
      */
     static SearchGames: any = AsyncHandler(async (req: Request, res: Response) => {
         let { name, genres, offset, amount }: queryBody = req.body;
-        if (isNatural(offset))
+        if (!isNatural(offset))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
-        if (isNatural(amount))
+        if (!isNatural(amount))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         if (genres.every(x => genresSet.includes(x)))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GENRES_INVALID);
@@ -89,9 +91,9 @@ export class GameController {
      */
     static GetPopularGames: any = AsyncHandler(async (req: Request, res: Response) => {
         const { offset, amount }: queryBody = req.body;
-        if (isNatural(offset))
+        if (!isNatural(offset))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
-        if (isNatural(amount))
+        if (!isNatural(amount))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         const result = await GameService.GetPopularGames(offset, amount);
         return MakeSuccess(res, StatusCodes.OK, result)
@@ -103,9 +105,9 @@ export class GameController {
      */
     static GetRecentGames: any = AsyncHandler(async (req: Request, res: Response) => {
         const { offset, amount } = req.body;
-        if (isNatural(offset))
+        if (!isNatural(offset))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
-        if (isNatural(amount))
+        if (!isNatural(amount))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         const result = await GameService.GetRecentGames(offset, amount);
         return MakeSuccess(res, StatusCodes.OK, result);
@@ -118,9 +120,9 @@ export class GameController {
     static GetRecommendedGames: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
         const { amount, offset } = req.body;
         const accountName = ExtractLoggedUser(req);
-        if (isNatural(offset))
+        if (!isNatural(offset))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
-        if (isNatural(amount))
+        if (!isNatural(amount))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         const result = await GameService.getRecommendedGames(accountName, offset, amount);
         return MakeSuccess(res, StatusCodes.OK, result);

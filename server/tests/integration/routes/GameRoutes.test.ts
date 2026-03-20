@@ -14,32 +14,32 @@ const email = username + "@test.com";
 
 
 // ===================== GET GAME BY ID =====================
+// describe("GET /api/games/:gameID", () => {
+//     it("returns BAD REQUEST if gameID is not a number", async () => {
+//         await request(app)
+//         .get("/api/games/not-a-number")
+//         .expect(StatusCodes.BAD_REQUEST);
+//     });
 
-describe("GET /api/games/:gameID", () => {
-    it("returns BAD REQUEST if gameID is not a number", async () => {
-        await request(app)
-            .get("/api/games/not-a-number")
-            .expect(StatusCodes.BAD_REQUEST);
-    });
+//     it("returns NOT FOUND if game doesn't exist", async () => {
+//         await request(app)
+//         .get("/api/games/99999")
+//         .expect(StatusCodes.NOT_FOUND);
+//     });
 
-    it("returns NOT FOUND if game doesn't exist", async () => {
-        await request(app)
-            .get("/api/games/99999")
-            .expect(StatusCodes.NOT_FOUND);
-    });
+//     it("returns OK and game data", async () => {
+//         const game = await CreateGame();
 
-    it("returns OK and game data", async () => {
-        const game = await CreateGame();
+//         const res = await request(app)
+//         .get("/api/games/" + game.gameID)
+//         .expect(StatusCodes.OK);
 
-        const res = await request(app)
-            .get("/api/games/" + game.gameID)
-            .expect(StatusCodes.OK);
-
-        expect(res.body.status).toBe("success");
-        expect(res.body.data.gameID).toBe(game.gameID);
-        expect(res.body.data.gameName).toBeDefined();
-    });
-});
+//         expect(res.body.status).toBe("success");
+//         expect(res.body.data.gameID).toBe(game.gameID);
+//         expect(res.body.data.gameName).toBeDefined();
+//     });
+// });
+// refactor this for IGDB
 
 
 // ===================== IGDB REQUESTS (TODO) =====================
