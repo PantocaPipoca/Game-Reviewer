@@ -9,7 +9,7 @@ const router: Router = Router({ mergeParams: true });
 // ===================== GAMES =====================
 
 /**
- * @swagger
+ * swagger
  * /games/id/:gameID:
  *      get:
  *          tags: [Games]
@@ -29,12 +29,13 @@ const router: Router = Router({ mergeParams: true });
  *              400:
  *                  description: "**Bad Request** - if given game id is invalid or no game has that id"
  *              500:
+ *                  description: "**Internal Server Error** - if the game couldn't be retrieved"
  * 
  */
 router.get("/id/:gameID", GameController.GetGameInfo);
 
 /**
- * @swagger
+ * swagger
  *  /games/search:
  *      post:
  *          tags: [Games]
@@ -70,9 +71,9 @@ router.get("/id/:gameID", GameController.GetGameInfo);
 router.post("/search", GameController.SearchGames);
 
 /**
- * @swagger
+ * swagger
  *  /games/popular:
- *      get:
+ *      post:
  *          tags: [Games]
  *          summary: Returns popular games ordered by review count
  *          description: |
@@ -93,7 +94,7 @@ router.post("/popular", GameController.GetPopularGames);
 // it's now a POST so this documentation needs updating
 
 /**
- * @swagger
+ * swagger
  * /games/recent:
  *      post:
  *          tags: [Games]
@@ -105,8 +106,8 @@ router.post("/popular", GameController.GetPopularGames);
 router.post("/recent", GameController.GetRecentGames);
 
 /**
- * @swagger
- * /games/recent:
+ * swagger
+ * /games/recommended:
  *      post:
  *          tags: [Games]
  *          summary: Returns recommended games
