@@ -3,9 +3,9 @@ import {AsyncHandler, MakeSuccess, AppError} from "../utils/ErrorHandler"
 import {StatusCodes} from "http-status-codes"
 import {ReviewService} from "../services/ReviewService"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import { toValidGameID } from "./GameController"
-import { AuthRequest, ExtractLoggedUser } from "../utils/auth"
-import { ReviewFull } from "../types/Types"
+import {toValidGameID} from "./GameController"
+import {AuthRequest, ExtractLoggedUser} from "../utils/auth"
+import {ReviewFull} from "../types/Types"
 
 export interface ReviewPrimaryKey {
     reviewer: string;

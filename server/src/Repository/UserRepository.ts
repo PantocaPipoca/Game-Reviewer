@@ -35,6 +35,7 @@ export class UserRepository {
             where: { accountName: user.accountName },
             data: {
                 passwordHash: user.passwordHash,
+                profilePic: user.profilePic,
                 userData: user.userData,
                 isPrivate: user.isPrivate,
                 email: user.email,

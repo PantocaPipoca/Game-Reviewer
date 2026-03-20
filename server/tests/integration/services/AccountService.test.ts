@@ -1,6 +1,6 @@
 import {describe, it, expect} from "@jest/globals";
 import {AccountService} from "../../../src/services/AccountService";
-import {AuthResponse, UserFull, UserPublic} from '../../../src/types/Types';
+import {AuthResponse, UserFull, UserPrivate, UserPublic} from '../../../src/types/Types';
 import {MakeSomeUser, UserMicro} from "../helper/helper";
 import {UserRepository} from "../../../src/Repository/UserRepository";
 
@@ -68,7 +68,7 @@ describe("AccountService (integration)", () => {
         const prevPassHash: string | undefined = dbUser1?.passwordHash;
 
         // Alter user data and check the returned object
-        const altered: UserPublic = await AccountService.AlterUser(user.accountName, true, pass, user.email);
+        const altered: UserPublic = await AccountService.AlterUser(user.accountName, undefined, true, pass, user.email);
         expect(altered).not.toBeNull();
         expect(altered.accountName).toBe(user.accountName);
         expect(altered.isPrivate).toBe(true);
@@ -81,7 +81,7 @@ describe("AccountService (integration)", () => {
         // Fails, duplicate email
         const otherEmail: string = "otheremail@test.com";
         await AccountService.RegisterUser("username2", "OTHER USER", "18273645", otherEmail);
-        await expect(AccountService.AlterUser(user.accountName, true, pass, otherEmail)).rejects.toBeDefined();
+        await expect(AccountService.AlterUser(user.accountName, undefined, true, pass, otherEmail)).rejects.toBeDefined();
     });
 
     it("DeleteUser removes a user", async () => {
@@ -109,11 +109,10 @@ describe("AccountService (integration)", () => {
 
         // Check the result of FindByUsername against all users
         for (var i = 0; i < size; i++) {
-            const found: UserPublic = await AccountService.FindByUsername(users[i].accountName);
+            const found: UserPublic | UserPrivate = await AccountService.FindByUsername(users[i].accountName);
             expect(found).not.toBeNull();
             expect(found.accountName).toBe(users[i].accountName);
             expect(found.isPrivate).toBe(users[i].isPrivate);
-            expect(found.createdAt).toBe(found.createdAt);
         }
     });
 });

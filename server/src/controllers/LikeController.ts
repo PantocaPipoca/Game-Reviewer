@@ -1,10 +1,10 @@
 import {Request, Response} from "express"
 import {AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
-import { LikeShort, ReviewPK, ReactionResponse } from "../types/Types";
-import { LikeService } from "../services/LikeService";
-import { ExtractReviewPK } from "./ReviewController";
-import { StatusCodes } from "http-status-codes";
-import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth";
+import {LikeShort, ReviewPK, ReactionResponse} from "../types/Types";
+import {LikeService} from "../services/LikeService";
+import {ExtractReviewPK} from "./ReviewController";
+import {StatusCodes} from "http-status-codes";
+import {AuthRequest, ExtractLoggedUser} from "../utils/auth";
 
 /**
  * Counts the amount of likes or dislikes of a review

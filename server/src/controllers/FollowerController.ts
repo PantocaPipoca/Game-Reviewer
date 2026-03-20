@@ -1,10 +1,10 @@
-import {Request, Response} from "express"
+import {Response} from "express"
 import {AsyncHandler, MakeSuccess, AppError} from "../utils/ErrorHandler"
 import {StatusCodes} from "http-status-codes"
 import {FollowerService} from "../services/FollowerService"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import { FollowerFull } from "../types/Types"
-import { AuthRequest, ExtractLoggedUser } from "../utils/auth"
+import {FollowerFull} from "../types/Types"
+import {AuthRequest, ExtractLoggedUser} from "../utils/auth"
 
 function ExtractUsername(req: AuthRequest): string {
     const username = req.params['username'];

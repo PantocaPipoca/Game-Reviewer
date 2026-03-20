@@ -4,7 +4,7 @@ import * as ErrorMessage from "../utils/ErrorMessage";
 import {AppError} from "../utils/ErrorHandler"
 import {generateToken} from "../utils/auth"
 import {UserRepository} from "../Repository/UserRepository"
-import {UserData, UserFull, UserPK, AuthResponse, UserPublic} from "../types/Types"
+import {UserData, UserFull, UserPK, AuthResponse, UserPublic, UserPrivate} from "../types/Types"
 import {FollowerRepository} from "../Repository/FollowerRepository"
 
 const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
@@ -45,6 +45,7 @@ export async function FetchPublicUser(username: UserPK): Promise<UserPublic> {
 export function UserFullToPublic(user: UserFull): UserPublic {
     return {
         accountName: user.accountName,
+        profilePic: user.profilePic,
         isPrivate: user.isPrivate,
         userData: user.userData as UserData,
         createdAt: user.createdAt,
@@ -103,7 +104,7 @@ export class AccountService {
         if (existingEmail)
             throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
 
-        const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+        const passwordHash: string = await bcrypt.hash(password, SALT_ROUNDS);
 
         // create userData JSON object
         const userData: UserData = {
@@ -114,6 +115,7 @@ export class AccountService {
 
         const newUser: UserFull = await UserRepository.InsertUser({
             accountName: username,
+            profilePic: null,
             isPrivate: false, // default to public account
             passwordHash,
             userData,
@@ -186,7 +188,7 @@ export class AccountService {
      * @param userData - partial user data updates (optional)
      * @returns updated user data
      */
-    static async AlterUser(currentUser: UserPK, isPrivate?: boolean, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
+    static async AlterUser(currentUser: UserPK, profilePic?: string | null, isPrivate?: boolean, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
         const user: UserFull = await FetchFullUser(currentUser);
 
         const passwordHash: string = password
@@ -209,7 +211,8 @@ export class AccountService {
         };
 
         const updated: UserFull = await UserRepository.UpdateUser({
-            accountName: currentUser, 
+            accountName: currentUser,
+            profilePic: profilePic ?? user.profilePic,
             isPrivate: isPrivate ?? user.isPrivate,
             passwordHash, 
             userData: updatedUserData, 
@@ -240,21 +243,27 @@ export class AccountService {
      * @param currentUser - username of the currently authenticated user (optional)
      * @returns Full Public user object if is visible (public or followed), if it's not visible returns only the username
      */
-    static async FindByUsername(username: UserPK, currentUser?: UserPK): Promise<UserPublic> {
+    static async FindByUsername(username: UserPK, currentUser?: UserPK): Promise<UserPublic | UserPrivate> {
         const user: UserPublic = await FetchPublicUser(username);
         
         // check if currentUser can view this profile
         const canView: boolean = await CanViewUser(user, currentUser);
 
-        // if user is private and currentUser is not following, return only the username
-        let out: UserPublic = {
-            accountName: user.accountName,
-            isPrivate: user.isPrivate,
-            userData: canView ? user.userData as UserData : null,
-            createdAt: canView ? user.createdAt : null
+        if (await CanViewUser(user, currentUser)) {
+            return {
+                accountName: user.accountName,
+                profilePic: user.profilePic,
+                isPrivate: user.isPrivate,
+                userData: canView ? user.userData as UserData : null,
+                createdAt: canView ? user.createdAt : null
+            } as UserPublic;
+        } else {
+            return {
+                accountName: user.accountName,
+                profilePic: user.profilePic,
+                isPrivate: user.isPrivate
+            } as UserPrivate;
         }
-
-        return out;
     }
 
     /**
@@ -262,7 +271,7 @@ export class AccountService {
      * @param nameFilter - search string
      * @param currentUser - authenticated user making the request (optional)
      */
-    static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<UserPublic[]> {
+    static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<(UserPublic | UserPrivate)[]> {
         const usersFull: UserFull[] = await UserRepository.SelectUsersOfSimilarName(nameFilter);
         const users: UserPublic[] = usersFull.map(UserFullToPublic);
         const canViewList: boolean[] = await Promise.all(
@@ -273,17 +282,17 @@ export class AccountService {
             if (canViewList[i]) {
                 return {
                     accountName: u.accountName,
+                    profilePic: u.profilePic,
                     isPrivate: u.isPrivate,
                     userData: u.userData as UserData,
                     createdAt: u.createdAt,
-                };
+                } as UserPublic;
             }
             return {
                 accountName: u.accountName,
-                isPrivate: u.isPrivate,
-                userData: null,
-                createdAt: null,
-            };
+                profilePic: u.profilePic,
+                isPrivate: u.isPrivate
+            } as UserPrivate;
         });
     }
 }

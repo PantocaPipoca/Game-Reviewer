@@ -1,10 +1,10 @@
 import { Request, Response } from "express"
 import { AppError, AsyncHandler, MakeSuccess } from "../utils/ErrorHandler"
 import * as ErrorMessage from "../utils/ErrorMessage"
-import { StatusCodes } from "http-status-codes"
-import { GameService } from "../services/GameService"
-import { GameFull } from "../types/Types"
-import { AuthRequest, ExtractLoggedUser } from "../utils/auth"
+import {StatusCodes} from "http-status-codes"
+import {GameService} from "../services/GameService"
+import {GameFull} from "../types/Types"
+import {AuthRequest, ExtractLoggedUser} from "../utils/auth"
 
 /**
  * Translates a game name string to a game ID

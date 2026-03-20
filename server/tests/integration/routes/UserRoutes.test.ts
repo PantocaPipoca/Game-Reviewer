@@ -372,8 +372,8 @@ describe("GET /api/users/:username (find profile)", () => {
         expect(res.body.status).toBe("success");
         expect(res.body.data.accountName).toBe(u.accountName);
         expect(res.body.data.isPrivate).toBe(true);
-        expect(res.body.data.userData).toBeNull();
-        expect(res.body.data.createdAt).toBeNull();
+        expect(res.body.data.userData).toBeUndefined();
+        expect(res.body.data.createdAt).toBeUndefined();
     });
 
     it("returns OK and shows private profile to self (auth)", async () => {
@@ -468,7 +468,7 @@ describe("GET /api/users/search?query=...", () => {
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
         expect(res.body.data[0].accountName).toBe(u.accountName);
-        expect(res.body.data[0].userData).toBeNull();
+        expect(res.body.data[0].userData).toBeUndefined();
     })
 });
 
