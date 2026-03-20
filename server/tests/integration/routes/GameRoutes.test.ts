@@ -5,7 +5,6 @@ import { CreateApp } from "../../../src/app.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { Register, CreateGame } from "../helper/helper.ts";
-import { AuthResponse } from "../../../src/types/Types.ts";
 
 const app: Express = CreateApp();
 
@@ -16,46 +15,61 @@ const email = username + "@test.com";
 
 
 // ===================== GET GAME BY ID =====================
+// describe("GET /api/games/:gameID", () => {
+//     it("returns BAD REQUEST if gameID is not a number", async () => {
+//         await request(app)
+//         .get("/api/games/not-a-number")
+//         .expect(StatusCodes.BAD_REQUEST);
+//     });
 
-describe("GET /api/games/:gameID", () => {
-    it("returns BAD REQUEST if gameID is not a number", async () => {
-        await request(app)
-            .get("/api/games/not-a-number")
-            .expect(StatusCodes.BAD_REQUEST);
-    });
+//     it("returns NOT FOUND if game doesn't exist", async () => {
+//         await request(app)
+//         .get("/api/games/99999")
+//         .expect(StatusCodes.NOT_FOUND);
+//     });
 
-    it("returns NOT FOUND if game doesn't exist", async () => {
-        await request(app)
-            .get("/api/games/99999")
-            .expect(StatusCodes.NOT_FOUND);
-    });
+//     it("returns OK and game data", async () => {
+//         const game = await CreateGame();
 
-    it("returns OK and game data", async () => {
-        const game = await CreateGame();
+//         const res = await request(app)
+//         .get("/api/games/" + game.gameID)
+//         .expect(StatusCodes.OK);
 
-        const res = await request(app)
-            .get("/api/games/" + game.gameID)
-            .expect(StatusCodes.OK);
+//         expect(res.body.status).toBe("success");
+//         expect(res.body.data.gameID).toBe(game.gameID);
+//         expect(res.body.data.gameName).toBeDefined();
+//     });
+// });
+// refactor this for IGDB
 
-        expect(res.body.status).toBe("success");
-        expect(res.body.data.gameID).toBe(game.gameID);
-        expect(res.body.data.gameName).toBeDefined();
-    });
+
+// ===================== IGDB REQUESTS (TODO) =====================
+
+describe("GET /api/games/id/:gameID", () => {
+    it.todo("returns OK and game data");
+    it.todo("returns BAD REQUEST if given GameID isn't a valid integer");
 });
 
-
-// ===================== SEARCH / POPULAR (TODO) =====================
-
-describe("GET /api/games (search)", () => {
+describe("POST /api/games/search", () => {
     it.todo("returns OK and matching games for a valid name query");
-    it.todo("returns OK and matching games for a valid tag query");
-    it.todo("returns OK and matching games for combined name and tag query");
+    it.todo("returns OK and matching games for a valid genre query");
+    it.todo("returns OK and matching games for combined name and genre query");
     it.todo("returns BAD REQUEST if query params are invalid");
 });
 
-describe("GET /api/games/popular", () => {
+describe("POST /api/games/popular", () => {
     it.todo("returns OK and list of popular games");
-    it.todo("respects orderBy and limit query params");
+    it.todo("returns BAD REQUEST if query params are invalid");
+});
+
+describe("POST /api/games/recent", () => {
+    it.todo("returns OK and list of recent games");
+    it.todo("returns BAD REQUEST if query params are invalid");
+});
+
+describe("POST /api/games/recommended", () => {
+    it.todo("returns OK and list of recommended games");
+    it.todo("returns BAD REQUEST if query params are invalid");
 });
 
 

@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import LoginPage from "./Pages/LoginPage";
 import MainPage from "./Pages/MainPage";
 import RegisterPage from "./Pages/RegisterPage";
-import ProtectedRoute from "./Components/ProtectedRoute";
+import SearchResultsPage from "./Pages/SearchResultsPage";
 
 function App() {
     return (
@@ -11,6 +11,7 @@ function App() {
                 <Route path="/" element={<MainPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
+                <Route path="search" element={<SearchResultsPage />} />
             </Routes>
         </div>
     );
