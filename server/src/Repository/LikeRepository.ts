@@ -1,16 +1,15 @@
-import { prisma } from "../prisma";
+import { PRISMA } from "../Prisma";
 import { LikeFull, LikeShort, LikePK, ReviewPK, UserPK } from "../types/Types";
 
 export class LikeRepository {
-
     /**
      * @description Selects a Like from the database
      * @param likePK primary key of Like
      * @returns a promise of the table entry which contains the given primary key, if nothing is found the promise resolves to null
-    */
-    public static SelectLike(likePK: LikePK): Promise<LikeFull | null> {
-        return prisma.like.findUnique({
-            where: { liker_reviewer_reviewed: likePK }
+     */
+    public static selectLike(likePK: LikePK): Promise<LikeFull | null> {
+        return PRISMA.like.findUnique({
+            where: { liker_reviewer_reviewed: likePK },
         });
     }
 
@@ -18,10 +17,10 @@ export class LikeRepository {
      * @description Inserts a Like in the database
      * @param like json with all fields of Like that need to be manually set
      * @returns a promise of the table entry which contains the full inserted Like
-    */
-    public static InsertLike(like: LikeShort): Promise<LikeFull> {
-        return prisma.like.create({
-            data: like
+     */
+    public static insertLike(like: LikeShort): Promise<LikeFull> {
+        return PRISMA.like.create({
+            data: like,
         });
     }
 
@@ -29,16 +28,16 @@ export class LikeRepository {
      * @description Updates a Like in the database with the primary key given in game, with the rest of the values given
      * @param like json with all fields of Like that need to be manually set
      * @returns a promise of the updated table entry of the Like with the corresponding primary key
-    */
-    public static UpdateLike(like: LikeShort): Promise<LikeFull> {
+     */
+    public static updateLike(like: LikeShort): Promise<LikeFull> {
         const likePK: LikePK = {
             liker: like.liker,
             reviewer: like.reviewer,
-            reviewed: like.reviewed
-        }
-        return prisma.like.update({
+            reviewed: like.reviewed,
+        };
+        return PRISMA.like.update({
             where: { liker_reviewer_reviewed: likePK },
-            data: { value: like.value }
+            data: { value: like.value },
         });
     }
 
@@ -46,27 +45,25 @@ export class LikeRepository {
      * @description Deletes a Like from the database
      * @param likePK primary key of Like
      * @returns a promise of the deleted entry
-    */
-    public static DeleteLike(likePK: LikePK): Promise<LikeFull> {
-        return prisma.like.delete({
-            where: { liker_reviewer_reviewed: likePK }
+     */
+    public static deleteLike(likePK: LikePK): Promise<LikeFull> {
+        return PRISMA.like.delete({
+            where: { liker_reviewer_reviewed: likePK },
         });
     }
-
-
 
     /**
      * @description returns the amount of likes or dislikes in a Review
      * @param reviewPK primary key of the Review which we want to count the likes or dislikes
      * @param toCount if true counts the likes, if false counts the dislikes
      * @returns a promise of the number of likes or dislikes
-    */
-    public static CountLikesOrDislikesOfReview(reviewPK: ReviewPK, toCount: boolean): Promise<number> {
-        return prisma.like.count({
+     */
+    public static countLikesOrDislikesOfReview(reviewPK: ReviewPK, toCount: boolean): Promise<number> {
+        return PRISMA.like.count({
             where: {
                 review: reviewPK,
-                value: toCount
-            }
+                value: toCount,
+            },
         });
     }
 
@@ -74,11 +71,10 @@ export class LikeRepository {
      * @description Selects all likes or dislikes of a User, may be useful debug info
      * @param userPK primary key of the User which we want to get the likes or dislikes
      * @returns a promise of the array of likes or dislikes of that User
-    */
-    public static SelectAllLikesOfUser(userPK: UserPK): Promise<LikeFull[]> {
-        return prisma.like.findMany({
-            where: { liker: userPK }
+     */
+    public static selectAllLikesOfUser(userPK: UserPK): Promise<LikeFull[]> {
+        return PRISMA.like.findMany({
+            where: { liker: userPK },
         });
     }
-
 }

@@ -1,9 +1,9 @@
-import { AppError } from "../utils/ErrorHandler"
-import * as ErrorMessage from "../utils/ErrorMessage"
-import { StatusCodes } from "http-status-codes"
-import { GameFull, GamePK, UserPK, GameCover } from "../types/Types"
-import { GameRepository } from "../Repository/GameRepository"
-import { IGDB } from "../IGDB/requests"
+import { AppError } from "../utils/ErrorHandler";
+import * as ErrorMessage from "../utils/ErrorMessage";
+import { StatusCodes } from "http-status-codes";
+import { GameFull, GamePK, UserPK, GameCover } from "../types/Types";
+import { GameRepository } from "../Repository/GameRepository";
+import { IGDB } from "../IGDB/Requests";
 
 export class GameService {
     /**
@@ -11,8 +11,8 @@ export class GameService {
      * @param gameId - the game id
      * @returns Game Information
      */
-    // static async GetGameById(gameId: GamePK): Promise<GameFull> {
-    //     const game: GameFull | null = await GameRepository.SelectGame(gameId)
+    // static async getGameById(gameId: GamePK): Promise<GameFull> {
+    //     const game: GameFull | null = await GameRepository.selectGame(gameId)
     //     if (!game)
     //         throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND)
 
@@ -29,8 +29,8 @@ export class GameService {
      * @param gameID the ID of the game we want to make a page for
      * @returns detailed info for the game in json format
      */
-    static async GetGamePage(gameID: GamePK): Promise<any[]> {
-        return IGDB.GetGameByID(gameID);
+    static async getGamePage(gameID: GamePK): Promise<any[]> {
+        return IGDB.getGameByID(gameID);
     }
 
     /**
@@ -41,8 +41,8 @@ export class GameService {
      * @param amount total number of games we want
      * @returns array of enough game info to make a cover
      */
-    static async SearchGames(name: string, genres: number[], offset: number, amount: number): Promise<GameCover[]> {
-        return IGDB.SearchGames(name, genres, offset, amount);
+    static async searchGames(name: string, genres: number[], offset: number, amount: number): Promise<GameCover[]> {
+        return IGDB.searchGames(name, genres, offset, amount);
     }
 
     /**
@@ -51,10 +51,10 @@ export class GameService {
      * @param amount total number of games we want
      * @returns array of enough game info to make a cover
      */
-    static async GetPopularGames(offset: number, amount: number): Promise<GameCover[]> {
-        const popularGamesEntriesRaw = await GameRepository.GetPopularGames(offset, amount);
-        const popularGamesEntriesArr = popularGamesEntriesRaw.map(g => g.gameID);
-        return IGDB.GetGivenGames(popularGamesEntriesArr);
+    static async getPopularGames(offset: number, amount: number): Promise<GameCover[]> {
+        const popularGamesEntriesRaw = await GameRepository.getPopularGames(offset, amount);
+        const popularGamesEntriesArr = popularGamesEntriesRaw.map((g) => g.gameID);
+        return IGDB.getGivenGames(popularGamesEntriesArr);
     }
 
     /**
@@ -63,8 +63,8 @@ export class GameService {
      * @param amount total number of games we want
      * @returns array of enough game info to make a cover
      */
-    static async GetRecentGames(amount: number, offset: number): Promise<GameCover[]> {
-        return IGDB.GetRecentGames(offset, amount);
+    static async getRecentGames(amount: number, offset: number): Promise<GameCover[]> {
+        return IGDB.getRecentGames(offset, amount);
     }
 
     /**
@@ -75,17 +75,16 @@ export class GameService {
      * @returns array of enough game info to make a cover
      */
     static async getRecommendedGames(userPK: UserPK, offset: number, amount: number): Promise<GameCover[]> {
-        const likedGamesRaw = await GameRepository.GetGamesUserLikes(userPK);
+        const likedGamesRaw = await GameRepository.getGamesUserLikes(userPK);
         if (likedGamesRaw.length < 1) {
-            return GameService.GetPopularGames(offset, amount);
+            return GameService.getPopularGames(offset, amount);
         }
-        const likedGamesParsed: number[] = likedGamesRaw.map(g => g.gameID);
-        const likedGenres: number[] = await IGDB.GetGenresOfGames(likedGamesParsed);
-        return IGDB.SearchGames("", likedGenres, offset, amount);
+        const likedGamesParsed: number[] = likedGamesRaw.map((g) => g.gameID);
+        const likedGenres: number[] = await IGDB.getGenresOfGames(likedGamesParsed);
+        return IGDB.searchGames("", likedGenres, offset, amount);
     }
 
-
-    // static async GetGameStats(gameId: GamePK): Promise<void> {
+    // static async getGameStats(gameId: GamePK): Promise<void> {
     // }
     // won't be used
 

@@ -60,8 +60,7 @@ function RegisterPage() {
             });
             navigate("/");
         } catch (err: any) {
-            const message =
-                err.response?.data?.message || AUTH_ERRORS.registerFailed;
+            const message = err.response?.data?.message || AUTH_ERRORS.registerFailed;
             setError(message);
         } finally {
             setLoading(false);
@@ -133,9 +132,7 @@ function RegisterPage() {
                 {error && <Text color="var(--pink)"> * {error}</Text>}
 
                 <div className={style.loginRow}>
-                    <Text color="var(--mutedText)">
-                        already have an account?
-                    </Text>
+                    <Text color="var(--mutedText)">already have an account?</Text>
                     <Link to="/login" className={`body ${style.link}`}>
                         {`> `}LOGIN
                     </Link>

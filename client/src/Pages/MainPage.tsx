@@ -7,7 +7,7 @@ import Panel from "../Components/Panel/Panel";
 import style from "./MainPage.module.css";
 import Text from "../Components/Text/Text";
 
-const popularGames: BigGameCardProps[] = [
+const POPULAR_GAMES: BigGameCardProps[] = [
     {
         name: "Celeste",
         cover: "https://www.gamespot.com/a/uploads/screen_kubrick/1556/15568848/3344763-7693939071-da3dd1bae53674882038f46b61fbf726",
@@ -36,7 +36,7 @@ const popularGames: BigGameCardProps[] = [
     },
 ];
 
-const recomended: GameCardProps[] = [
+const RECOMENDED: GameCardProps[] = [
     {
         name: "Blasphemous",
         rating: 5.0,
@@ -123,7 +123,7 @@ const recomended: GameCardProps[] = [
     },
 ];
 
-const friendRecomended: GameCardProps[] = [
+const FRIEND_RECOMENDED: GameCardProps[] = [
     {
         name: "Elden Ring",
         rating: 4.9,
@@ -178,19 +178,19 @@ function MainPage() {
                 <Panel type="main">
                     <Section title="Popular Games" href="#">
                         <Carousel
-                            items={popularGames}
+                            items={POPULAR_GAMES}
                             pageSize={1}
                             renderItem={(game) => <BigGameCard key={game.name} {...game} />}
                         />
                     </Section>
                     <hr />
                     <Section title="Recomended to you" href="#">
-                        <Carousel items={recomended} renderItem={(game) => <GameCard key={game.name} {...game} />} />
+                        <Carousel items={RECOMENDED} renderItem={(game) => <GameCard key={game.name} {...game} />} />
                     </Section>
                     <hr />
                     <Section title="Popular with your friends" href="#">
                         <Carousel
-                            items={friendRecomended}
+                            items={FRIEND_RECOMENDED}
                             renderItem={(game) => <GameCard key={game.name} {...game} />}
                         />
                     </Section>

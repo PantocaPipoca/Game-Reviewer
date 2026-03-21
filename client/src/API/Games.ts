@@ -1,9 +1,9 @@
-import client from "./Client";
+import CLIENT from "./Client";
 import type { GameFull, GameSearchResult } from "./Types";
 
 export class GameAPI {
     static async search(params: { name?: string; tag?: string; limit?: number }): Promise<GameSearchResult[]> {
-        const response = (await client.post("/games/search", {
+        const response = (await CLIENT.post("/games/search", {
             name: params.name ?? "",
             genres: [],
             offset: 0,
@@ -18,10 +18,10 @@ export class GameAPI {
     }
 
     static async getPopular(): Promise<GameFull[]> {
-        return client.get("/games/popular");
+        return CLIENT.get("/games/popular");
     }
 
     static async getById(gameID: number): Promise<GameFull> {
-        return client.get("/games/" + gameID);
+        return CLIENT.get("/games/" + gameID);
     }
 }

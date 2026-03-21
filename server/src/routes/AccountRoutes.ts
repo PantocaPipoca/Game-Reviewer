@@ -1,13 +1,12 @@
 ﻿import { Router } from "express";
 import { AccountController } from "../controllers/AccountController";
 import { ReviewController } from "../controllers/ReviewController";
-import { optionalAuth, auth } from "../utils/auth";
+import { optionalAuth, auth } from "../utils/Auth";
 import { FollowerController } from "../controllers/FollowerController";
 import FollowerRoutes from "./FollowerRoutes";
 
 // Router object
 const router: Router = Router({ mergeParams: true });
-
 
 // ===================== AUTHENTICATION =====================
 
@@ -48,7 +47,7 @@ const router: Router = Router({ mergeParams: true });
  *              500:
  *                  description: "**Internal Server Error** — if the account could not be created"
  */
-router.post("/", AccountController.Register);
+router.post("/", AccountController.register);
 
 /**
  * @swagger
@@ -81,7 +80,7 @@ router.post("/", AccountController.Register);
  *              401:
  *                  description: "**Unauthorized** — if the provided credentials are invalid"
  */
-router.post('/login', AccountController.Login);
+router.post("/login", AccountController.login);
 
 /**
  * @swagger
@@ -96,7 +95,7 @@ router.post('/login', AccountController.Login);
  *              401:
  *                  description: "**Unauthorized** — if the authenticated user doesn't exist"
  */
-router.post('/logout', auth, AccountController.Logout);
+router.post("/logout", auth, AccountController.logout);
 
 // ===================== USER MANAGEMENT =====================
 
@@ -119,7 +118,7 @@ router.post('/logout', auth, AccountController.Logout);
  *              401:
  *                  description: "**Unauthorized** — if the authenticated user doesn't exist"
  */
-router.get("/me", auth, AccountController.GetCurrentUser);
+router.get("/me", auth, AccountController.getCurrentUser);
 
 /**
  * @swagger
@@ -163,7 +162,7 @@ router.get("/me", auth, AccountController.GetCurrentUser);
  *              409:
  *                  description: "**Conflict** — if the email provided already exists"
  */
-router.put("/me", auth, AccountController.Alter);
+router.put("/me", auth, AccountController.alter);
 
 /**
  * @swagger
@@ -184,7 +183,7 @@ router.put("/me", auth, AccountController.Alter);
  *              404:
  *                  description: "**Not Found** — if the authenticated user doesn't exist"
  */
-router.delete("/me", auth, AccountController.Remove);
+router.delete("/me", auth, AccountController.remove);
 
 /**
  * @swagger
@@ -207,7 +206,7 @@ router.delete("/me", auth, AccountController.Remove);
  *              404:
  *                  description: "**Not Found** — if the authenticated user doesn't exist"
  */
-router.get("/me/followers/requests/received", auth, FollowerController.GetPendingRequestsToUser);
+router.get("/me/followers/requests/received", auth, FollowerController.getPendingRequestsToUser);
 
 /**
  * @swagger
@@ -230,7 +229,7 @@ router.get("/me/followers/requests/received", auth, FollowerController.GetPendin
  *              404:
  *                  description: "**Not Found** — if the authenticated user doesn't exist"
  */
-router.get("/me/followers/requests/sent", auth, FollowerController.GetPendingRequestsFromUser);
+router.get("/me/followers/requests/sent", auth, FollowerController.getPendingRequestsFromUser);
 
 /**
  * @swagger
@@ -261,7 +260,7 @@ router.get("/me/followers/requests/sent", auth, FollowerController.GetPendingReq
  *              409:
  *                  description: "**Conflict** — if the second user already accepted the request"
  */
-router.put("/me/followers/requests/received/:username", auth, FollowerController.AcceptFollowerRequest);
+router.put("/me/followers/requests/received/:username", auth, FollowerController.acceptFollowerRequest);
 
 /**
  * @swagger
@@ -290,7 +289,7 @@ router.put("/me/followers/requests/received/:username", auth, FollowerController
  *              404:
  *                  description: "**Not Found** — if any of the provided user names don't exist, or if the follow request doesn't exist"
  */
-router.delete("/me/followers/requests/received/:username", auth, FollowerController.RejectFollowerRequest);
+router.delete("/me/followers/requests/received/:username", auth, FollowerController.rejectFollowerRequest);
 
 // ===================== SEARCH USERS =====================
 
@@ -319,7 +318,7 @@ router.delete("/me/followers/requests/received/:username", auth, FollowerControl
  *              400:
  *                  description: "**Bad Request** — if the query is invalid or empty"
  */
-router.get("/search", optionalAuth, AccountController.Search);
+router.get("/search", optionalAuth, AccountController.search);
 
 // ===================== USER SUB-RESOURCES =====================
 
@@ -355,7 +354,7 @@ router.use("/:username/followers", FollowerRoutes);
  *              404:
  *                  description: "**Not Found** — if the provided user name doesn't exist"
  */
-router.get("/:username/following", optionalAuth, FollowerController.GetFollowingByUser);
+router.get("/:username/following", optionalAuth, FollowerController.getFollowingByUser);
 
 /**
  * @swagger
@@ -386,7 +385,7 @@ router.get("/:username/following", optionalAuth, FollowerController.GetFollowing
  *              404:
  *                  description: "**Not Found** — if the provided user name doesn't exist"
  */
-router.get("/:username/reviews", optionalAuth, ReviewController.GetReviewsByUser);
+router.get("/:username/reviews", optionalAuth, ReviewController.getReviewsByUser);
 
 // ===================== FIND USER PROFILE =====================
 
@@ -418,6 +417,6 @@ router.get("/:username/reviews", optionalAuth, ReviewController.GetReviewsByUser
  *              404:
  *                  description: "**Not Found** — if the provided account's name doesn't exist"
  */
-router.get("/:username", optionalAuth, AccountController.FindByUsername);
+router.get("/:username", optionalAuth, AccountController.findByUsername);
 
 export default router;

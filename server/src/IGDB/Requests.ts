@@ -8,7 +8,7 @@ import { UserPK, GameCover } from "../types/Types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const filePath = path.join(__dirname, "token.log");
+const FILE_PATH = path.join(__dirname, "token.log");
 
 dotenv.config();
 
@@ -31,7 +31,7 @@ export class IGDB {
     private static clientId: string | undefined = process.env["IGDB_CLIENT_ID"];
     private static secret: string | undefined = process.env["IGDB_CLIENT_SECRET"];
 
-    private static read_token: boolean = false;
+    private static readToken: boolean = false;
     private static tokenInfo: TokenData = {
         access_token: "" as string,
         expires_at: 0 as number,
@@ -44,45 +44,39 @@ export class IGDB {
         new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    private static async GetNewToken(): Promise<void> {
+    private static async getNewToken(): Promise<void> {
         if (IGDB.clientId == undefined || IGDB.secret == undefined)
             throw new Error("missing IGDB_CLIENT_ID and IGDB_CLIENT_SECRET variables in .env");
 
         const auth: AuthResponseIGDB = await fetch(
-
             `https://id.twitch.tv/oauth2/token?client_id=${IGDB.clientId}&client_secret=${IGDB.secret}&grant_type=client_credentials`,
-            { method: "POST" },
-
-        ).then(
-
-            (res) => res.json() as Promise<AuthResponseIGDB>
-
-        );
+            { method: "POST" }
+        ).then((res) => res.json() as Promise<AuthResponseIGDB>);
 
         IGDB.tokenInfo.access_token = auth.access_token;
         IGDB.tokenInfo.expires_at = Math.floor(Date.now() / 1000) + auth.expires_in - 20;
-        fs.writeFileSync(filePath, JSON.stringify(IGDB.tokenInfo, null, 2));
+        fs.writeFileSync(FILE_PATH, JSON.stringify(IGDB.tokenInfo, null, 2));
     }
 
-    private static async HandleToken(): Promise<void> {
+    private static async handleToken(): Promise<void> {
         await IGDB.sleep();
-        if (!IGDB.read_token) {
-            const fileContent = fs.readFileSync(filePath, "utf-8");
+        if (!IGDB.readToken) {
+            const fileContent = fs.readFileSync(FILE_PATH, "utf-8");
             const fileData: TokenData = JSON.parse(fileContent);
             IGDB.tokenInfo.access_token = fileData.access_token;
             IGDB.tokenInfo.expires_at = fileData.expires_at;
-            IGDB.read_token = true;
+            IGDB.readToken = true;
         }
 
         const expires_at = IGDB.tokenInfo.expires_at;
         const now = Math.floor(Date.now() / 1000);
-        if (now > expires_at) await IGDB.GetNewToken();
+        if (now > expires_at) await IGDB.getNewToken();
     }
 
     // DONE
     // used for the game page
-    public static async GetGameByID(ID: number): Promise<any[]> {
-        await IGDB.HandleToken();
+    public static async getGameByID(ID: number): Promise<any[]> {
+        await IGDB.handleToken();
         return fetch("https://api.igdb.com/v4/games", {
             method: "POST",
             headers: {
@@ -146,25 +140,20 @@ export class IGDB {
                     id = ${ID}
                 ;
             `,
-
-        }).then(
-
-            (res) => res.json() as Promise<any[]>
-
-        );
+        }).then((res) => res.json() as Promise<any[]>);
     }
 
     // DONE
-    public static async SearchGames(
+    public static async searchGames(
         name: string,
         genres: number[],
         offset: number,
-        amount: number,
+        amount: number
     ): Promise<GameCover[]> {
         const genresString: string = genres.length > 0 ? `& genres = (${genres.join(",")})` : "";
-        const searchStr: string = name != null && name.length != 0 ? `search "${name}";` : ""
+        const searchStr: string = name != null && name.length != 0 ? `search "${name}";` : "";
 
-        await IGDB.HandleToken();
+        await IGDB.handleToken();
         return fetch("https://api.igdb.com/v4/games", {
             method: "POST",
             headers: {
@@ -188,26 +177,20 @@ export class IGDB {
                 offset ${offset};
                 limit ${amount};
             `,
-
-        }).then(
-
-            (res) => res.json() as Promise<GameCover[]>
-
-        );
+        }).then((res) => res.json() as Promise<GameCover[]>);
     }
-
 
     // DONE
     // used to get games obtained through a search in our db
-    public static async GetGivenGames(gameIDs: number[]) {
+    public static async getGivenGames(gameIDs: number[]) {
         const gameIDListString: string = `(${gameIDs.join(",")})`;
 
-        await IGDB.HandleToken();
+        await IGDB.handleToken();
         return fetch("https://api.igdb.com/v4/games", {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields
@@ -217,21 +200,15 @@ export class IGDB {
                 ;
 
                 where id = ${gameIDListString};
-            `
-
-        }).then(
-
-            res => res.json() as Promise<GameCover[]>
-
-        );
+            `,
+        }).then((res) => res.json() as Promise<GameCover[]>);
     }
 
-
     // DONE
-    public static async GetRecentGames(offset: number, amount: number): Promise<GameCover[]> {
+    public static async getRecentGames(offset: number, amount: number): Promise<GameCover[]> {
         const now = Math.floor(Date.now() / 1000);
 
-        await IGDB.HandleToken();
+        await IGDB.handleToken();
         return fetch("https://api.igdb.com/v4/games", {
             method: "POST",
             headers: {
@@ -256,24 +233,19 @@ export class IGDB {
                 offset ${offset};
                 limit ${amount};
             `,
-
-        }).then(
-
-            (res) => res.json() as Promise<GameCover[]>
-
-        );
+        }).then((res) => res.json() as Promise<GameCover[]>);
     }
 
     // DONE
-    public static async GetGenresOfGames(games: number[]): Promise<number[]> {
-        const gamesStr = `(${games.join(',')})`
+    public static async getGenresOfGames(games: number[]): Promise<number[]> {
+        const gamesStr = `(${games.join(",")})`;
 
-        await IGDB.HandleToken();
+        await IGDB.handleToken();
         return await fetch("https://api.igdb.com/v4/games", {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                "Authorization": `Bearer ${IGDB.tokenInfo.access_token}`
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields genres;
@@ -282,24 +254,15 @@ export class IGDB {
                     id = ${gamesStr} &
                     genres != null
                 ;
-            `
-        }).then(
-
-            res => res.json() as Promise<GameGenre[]>
-
-        ).then(
-
-            raw => [... new Set(raw.map(x => x.genres).flat())]
-
-        );
+            `,
+        })
+            .then((res) => res.json() as Promise<GameGenre[]>)
+            .then((raw) => [...new Set(raw.map((x) => x.genres).flat())]);
     }
 
-
-
-
     // helper function made just to get the relevant game_types
-    static async GetAllTypes() {
-        await IGDB.HandleToken();
+    static async getAllTypes() {
+        await IGDB.handleToken();
 
         return fetch("https://api.igdb.com/v4/game_types", {
             method: "POST",
@@ -310,28 +273,22 @@ export class IGDB {
             body: `
                     fields *;
                 `,
-
-        }).then(
-
-            (res) => res.json()
-
-        );
+        }).then((res) => res.json());
     }
 }
 
-
 // tests
 
-// let output: any = await IGDB.SearchGames("the sims", [], 0, 5);
+// let output: any = await IGDB.searchGames("the sims", [], 0, 5);
 // console.log(JSON.stringify(output, null, 2));
 
-// let output2: any = await IGDB.GetGameByID(235102);
+// let output2: any = await IGDB.getGameByID(235102);
 // console.log(JSON.stringify(output2, null, 2));
 
-// let output3: any = await IGDB.GetRecentGames(15, 1);
+// let output3: any = await IGDB.getRecentGames(15, 1);
 // console.log(JSON.stringify(output3, null, 2));
 
-// let outputN: any = await IGDB.GetAllTypes();
+// let outputN: any = await IGDB.getAllTypes();
 // console.log(JSON.stringify(outputN, null, 2));
 
 // working correctly

@@ -2,7 +2,7 @@
 import { ReviewController } from "../controllers/ReviewController";
 import CommentRoutes from "./CommentRoutes";
 import LikeRoutes from "./LikeRoutes";
-import { auth, optionalAuth } from "../utils/auth";
+import { auth, optionalAuth } from "../utils/Auth";
 
 // Router object
 const router: Router = Router({ mergeParams: true });
@@ -48,6 +48,6 @@ router.use("/:reviewer/:reviewed/", LikeRoutes);
  *              404:
  *                  description: "**Not Found** - if the provided user or game doesn't exist, or if the user didn't review the game"
  */
-router.get("/:reviewer/:reviewed/", optionalAuth, ReviewController.GetReview);
+router.get("/:reviewer/:reviewed/", optionalAuth, ReviewController.getReview);
 
 export default router;

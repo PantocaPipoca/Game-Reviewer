@@ -1,7 +1,7 @@
 ﻿import { Router } from "express";
 import { GameController } from "../controllers/GameController";
 import { ReviewController } from "../controllers/ReviewController";
-import { auth, optionalAuth } from "../utils/auth";
+import { auth, optionalAuth } from "../utils/Auth";
 
 // Router object
 const router: Router = Router({ mergeParams: true });
@@ -30,9 +30,9 @@ const router: Router = Router({ mergeParams: true });
  *                  description: "**Bad Request** - if given game id is invalid or no game has that id"
  *              500:
  *                  description: "**Internal Server Error** - if the game couldn't be retrieved"
- * 
+ *
  */
-router.get("/id/:gameID", GameController.GetGameInfo);
+router.get("/id/:gameID", GameController.getGameInfo);
 
 /**
  * swagger
@@ -50,7 +50,7 @@ router.get("/id/:gameID", GameController.GetGameInfo);
  *                      schema:
  *                          type: object
  *                          properties:
- *                              name: 
+ *                              name:
  *                                  type: string
  *                              genres
  *                                  type: number[]
@@ -68,7 +68,7 @@ router.get("/id/:gameID", GameController.GetGameInfo);
  *              500:
  *                  description: "**Internal Server Error** - if the filters couldn't be retrieved"
  */
-router.post("/search", GameController.SearchGames);
+router.post("/search", GameController.searchGames);
 
 /**
  * swagger
@@ -90,7 +90,7 @@ router.post("/search", GameController.SearchGames);
  *              500:
  *                  description: "**Internal Server Error** - if the games couldn't be retrieved"
  */
-router.post("/popular", GameController.GetPopularGames);
+router.post("/popular", GameController.getPopularGames);
 // it's now a POST so this documentation needs updating
 
 /**
@@ -101,9 +101,9 @@ router.post("/popular", GameController.GetPopularGames);
  *          summary: Returns recent games
  *          description: |
  *              Returns recently released games
- *      
+ *
  */
-router.post("/recent", GameController.GetRecentGames);
+router.post("/recent", GameController.getRecentGames);
 
 /**
  * swagger
@@ -113,12 +113,9 @@ router.post("/recent", GameController.GetRecentGames);
  *          summary: Returns recommended games
  *          description: |
  *              Returns recommended games the user might like based on the genres of the games they already liked
- *      
+ *
  */
-router.post("/recommended", auth, GameController.GetRecommendedGames);
-
-
-
+router.post("/recommended", auth, GameController.getRecommendedGames);
 
 // ===================== GAME REVIEWS =====================
 
@@ -150,7 +147,7 @@ router.post("/recommended", auth, GameController.GetRecommendedGames);
  *              500:
  *                  description: "**Internal Server Error** - if the reviews couldn't be retrieved"
  */
-router.get("/:gameID/reviews", optionalAuth, ReviewController.GetReviewsByGame);
+router.get("/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
 
 /**
  * @swagger
@@ -198,7 +195,7 @@ router.get("/:gameID/reviews", optionalAuth, ReviewController.GetReviewsByGame);
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be published"
  */
-router.post("/:gameID/reviews", auth, ReviewController.PublishReview);
+router.post("/:gameID/reviews", auth, ReviewController.publishReview);
 
 /**
  * @swagger
@@ -244,7 +241,7 @@ router.post("/:gameID/reviews", auth, ReviewController.PublishReview);
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be updated"
  */
-router.put("/:gameID/reviews", auth, ReviewController.AlterReview);
+router.put("/:gameID/reviews", auth, ReviewController.alterReview);
 
 /**
  * @swagger
@@ -276,15 +273,7 @@ router.put("/:gameID/reviews", auth, ReviewController.AlterReview);
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be removed"
  */
-router.delete("/:gameID/reviews", auth, ReviewController.RemoveReview);
-
-
-
-
-
-
-
-
+router.delete("/:gameID/reviews", auth, ReviewController.removeReview);
 
 /**
  * swagger
@@ -312,7 +301,7 @@ router.delete("/:gameID/reviews", auth, ReviewController.RemoveReview);
  *              404:
  *                  description: "**Not Found** - if the provided game doesn't exist"
  */
-// router.get("/:gameID", GameController.GetGameById);
-// use this documentation as a base for the new /id/gameID and delete this route 
+// router.get("/:gameID", GameController.getGameById);
+// use this documentation as a base for the new /id/gameID and delete this route
 
 export default router;

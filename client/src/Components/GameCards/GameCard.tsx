@@ -25,12 +25,12 @@ function GameCard({
 
     return (
         <Panel type="secondary" interactive onClick={handleClick}>
-            <img className={style.Cover} src={cover} />
-            <div className={style.Name}>
+            <img className={style.cover} src={cover} />
+            <div className={style.name}>
                 <Text variant="body">{displayedName}</Text>
             </div>
-            <div className={style.Rating}>
-                <img className={style.Star} src="https://cdn-icons-png.flaticon.com/512/541/541415.png" />
+            <div className={style.rating}>
+                <img className={style.star} src="https://cdn-icons-png.flaticon.com/512/541/541415.png" />
                 <Text variant="small">{rating}</Text>
             </div>
         </Panel>

@@ -1,32 +1,32 @@
-.Frame {
+.frame {
     position: relative;
     width: fit-content;
     cursor: pointer;
 }
 
-.NavButtonLeft,
-.NavButtonRight {
+.navButtonLeft,
+.navButtonRight {
     position: absolute;
     top: 50%;
 }
 
-.NavButtonLeft {
+.navButtonLeft {
     left: 0px;
     transform: translate(-100%, -50%);
 }
 
-.NavButtonRight {
+.navButtonRight {
     right: 0px;
     transform: translate(100%, -50%);
 }
 
-.KeyArt {
+.keyArt {
     width: 500px;
     aspect-ratio: 16 / 9;
     display: block;
 }
 
-.Details {
+.details {
     word-wrap: break-word;
     overflow-wrap: break-word;
     padding: 10px 15px;
@@ -36,19 +36,19 @@
     align-self: stretch;
 }
 
-.Collage {
+.collage {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacingSmall);
     margin-top: 6px;
 }
 
-.Image {
+.image {
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
 }
 
-.Value {
+.value {
     color: var(--cyan);
 }

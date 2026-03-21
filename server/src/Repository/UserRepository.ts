@@ -1,16 +1,15 @@
-import { prisma } from "../prisma";
+import { PRISMA } from "../Prisma";
 import { UserFull, UserShort, UserPK } from "../types/Types";
 
 export class UserRepository {
-
     /**
      * @description Selects a User from the database
      * @param userPK primary key of User
      * @returns a promise of the table entry which contains the given primary key, if nothing is found the promise resolves to null
      */
-    public static SelectUser(userPK: UserPK): Promise<UserFull | null> {
-        return prisma.user.findUnique({
-            where: { accountName: userPK }
+    public static selectUser(userPK: UserPK): Promise<UserFull | null> {
+        return PRISMA.user.findUnique({
+            where: { accountName: userPK },
         });
     }
 
@@ -19,9 +18,9 @@ export class UserRepository {
      * @param user json with all fields of User that need to be manually set
      * @returns a promise of the table entry which contains the full inserted User
      */
-    public static InsertUser(user: UserShort): Promise<UserFull> {
-        return prisma.user.create({
-            data: user
+    public static insertUser(user: UserShort): Promise<UserFull> {
+        return PRISMA.user.create({
+            data: user,
         });
     }
 
@@ -30,8 +29,8 @@ export class UserRepository {
      * @param user json with all fields of User that need to be manually set
      * @returns a promise of the updated table entry of the User with the corresponding primary key
      */
-    public static UpdateUser(user: UserShort): Promise<UserFull> {
-        return prisma.user.update({
+    public static updateUser(user: UserShort): Promise<UserFull> {
+        return PRISMA.user.update({
             where: { accountName: user.accountName },
             data: {
                 passwordHash: user.passwordHash,
@@ -39,13 +38,13 @@ export class UserRepository {
                 userData: user.userData,
                 isPrivate: user.isPrivate,
                 email: user.email,
-            }
+            },
         });
     }
 
-    public static SelectUserByEmail(email: string): Promise<UserFull | null> {
-        return prisma.user.findUnique({
-            where: { email: email }
+    public static selectUserByEmail(email: string): Promise<UserFull | null> {
+        return PRISMA.user.findUnique({
+            where: { email: email },
         });
     }
 
@@ -54,29 +53,25 @@ export class UserRepository {
      * @param userPK primary key of User
      * @returns a promise of the deleted entry
      */
-    public static DeleteUser(userPK: UserPK): Promise<UserFull> {
-        return prisma.user.delete({
-            where: { accountName: userPK }
+    public static deleteUser(userPK: UserPK): Promise<UserFull> {
+        return PRISMA.user.delete({
+            where: { accountName: userPK },
         });
     }
-
-
-
 
     /**
      * @description Selects all the Users whose name contains the given string
      * @param nameFilter string that filters the Users
      * @returns a promise of an array of Users
      */
-    public static SelectUsersOfSimilarName(nameFilter: string): Promise<UserFull[]> {
-        return prisma.user.findMany({
+    public static selectUsersOfSimilarName(nameFilter: string): Promise<UserFull[]> {
+        return PRISMA.user.findMany({
             where: {
                 accountName: {
                     contains: nameFilter,
-                    mode: "insensitive"
-                }
-            }
+                    mode: "insensitive",
+                },
+            },
         });
     }
-
 }

@@ -36,8 +36,7 @@ function LoginPage() {
             await UserAPI.login({ accountName, password });
             navigate("/");
         } catch (err: any) {
-            const message =
-                err.response?.data?.message || AUTH_ERRORS.loginFailed;
+            const message = err.response?.data?.message || AUTH_ERRORS.loginFailed;
             setError(message);
         } finally {
             setLoading(false);
