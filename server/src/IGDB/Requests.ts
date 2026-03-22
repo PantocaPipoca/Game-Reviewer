@@ -151,7 +151,6 @@ export class IGDB {
         amount: number
     ): Promise<GameCover[]> {
         const genresString: string = genres.length > 0 ? `& genres = (${genres.join(",")})` : "";
-        const searchStr: string = name != null && name.length != 0 ? `search "${name}";` : "";
 
         await IGDB.handleToken();
         return fetch("https://api.igdb.com/v4/games", {
@@ -161,7 +160,6 @@ export class IGDB {
                 Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
-                ${searchStr}
                 fields:
                     id,
                     name,
@@ -169,6 +167,7 @@ export class IGDB {
                 ;
                 
                 where
+                    name ~ *"${name}"* &
                     game_type = ${IGDB.usedTypes} &
                     cover != null
                     ${genresString}

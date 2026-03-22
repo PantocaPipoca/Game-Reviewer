@@ -15,8 +15,12 @@ type QueryBody = {
 
 const GENRES_SET: number[] = [2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36];
 
-function isNatural(num: unknown) {
+function isValidOffset(num: unknown): boolean{
     return Number.isInteger(num) && (num as number) >= 0;
+}
+
+function isValidAmount(num: unknown): boolean {
+    return Number.isInteger(num) && (num as number) > 0;
 }
 
 /**
@@ -67,8 +71,8 @@ export class GameController {
      */
     static searchGames: any = asyncHandler(async (req: Request, res: Response) => {
         let { name, genres, offset, amount }: QueryBody = req.body;
-        if (!isNatural(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
-        if (!isNatural(amount) && amount > 0) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
+        if (!isValidOffset(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
+        if (!isValidAmount(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         if (!genres.every((x) => GENRES_SET.includes(x)))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GENRES_INVALID);
 
@@ -84,8 +88,8 @@ export class GameController {
      */
     static getPopularGames: any = asyncHandler(async (req: Request, res: Response) => {
         const { offset, amount }: QueryBody = req.body;
-        if (!isNatural(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
-        if (!isNatural(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
+        if (!isValidOffset(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
+        if (!isValidAmount(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         const result = await GameService.getPopularGames(offset, amount);
         return makeSuccess(res, StatusCodes.OK, result);
     });
@@ -96,8 +100,8 @@ export class GameController {
      */
     static getRecentGames: any = asyncHandler(async (req: Request, res: Response) => {
         const { offset, amount } = req.body;
-        if (!isNatural(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
-        if (!isNatural(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
+        if (!isValidOffset(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
+        if (!isValidAmount(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         const result = await GameService.getRecentGames(offset, amount);
         return makeSuccess(res, StatusCodes.OK, result);
     });
@@ -109,8 +113,8 @@ export class GameController {
     static getRecommendedGames: any = asyncHandler(async (req: AuthRequest, res: Response) => {
         const { amount, offset } = req.body;
         const accountName = extractLoggedUser(req);
-        if (!isNatural(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
-        if (!isNatural(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
+        if (!isValidOffset(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
+        if (!isValidAmount(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         const result = await GameService.getRecommendedGames(accountName, offset, amount);
         return makeSuccess(res, StatusCodes.OK, result);
     });
