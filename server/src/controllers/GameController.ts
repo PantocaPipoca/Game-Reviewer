@@ -16,7 +16,7 @@ type QueryBody = {
 const GENRES_SET: number[] = [2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36];
 
 function isNatural(num: unknown) {
-    return Number.isInteger(num) && (num as number) > 0;
+    return Number.isInteger(num) && (num as number) >= 0;
 }
 
 /**
@@ -68,7 +68,7 @@ export class GameController {
     static searchGames: any = asyncHandler(async (req: Request, res: Response) => {
         let { name, genres, offset, amount }: QueryBody = req.body;
         if (!isNatural(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
-        if (!isNatural(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
+        if (!isNatural(amount) && amount > 0) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         if (!genres.every((x) => GENRES_SET.includes(x)))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GENRES_INVALID);
 
