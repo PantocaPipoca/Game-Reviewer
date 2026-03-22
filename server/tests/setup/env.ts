@@ -8,6 +8,5 @@ dotenv.config({
 const requiredVars = ["DATABASE_URL", "JWT_SECRET", "CSRF_SECRET", "RATE_LIMIT_MAX"];
 
 for (const key of requiredVars) {
-    if (!process.env[key])
-        throw new Error(`${key} not found in .env.test`);
+    if (!process.env[key]) throw new Error(`${key} not found in .env.test`);
 }
