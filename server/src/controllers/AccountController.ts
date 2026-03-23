@@ -87,12 +87,10 @@ export class AccountController {
         const currentUser: string = ExtractLoggedUser(req);
 
         const {profilePic, isPrivate, password, email, userData} = req.body;
-        if(password != undefined){
-            if (typeof password !== "string" || password.length < 8)
-                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
-        }
+        if (password != undefined && (typeof password !== "string" || password.length < 8))
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
         if (email != undefined && (typeof email !== "string" || !EMAIL_REGEX.test(email)))
-                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
         const result: UserPublic = await AccountService.AlterUser(currentUser, profilePic, isPrivate, password, email, userData);
         return MakeSuccess(res, StatusCodes.OK, result);

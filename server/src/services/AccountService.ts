@@ -183,12 +183,14 @@ export class AccountService {
     /**
      * Updates user account information
      * @param currentUser - username of the currently authenticated user (from JWT)
+     * @param profilePic - the profile picture of the user (optional)
+     * @param isPrivate - whether or not the user's account is private (optional)
      * @param password - new password (optional)
      * @param email - new email (optional)
      * @param userData - partial user data updates (optional)
      * @returns updated user data
      */
-    static async AlterUser(currentUser: UserPK, profilePic?: string | null, isPrivate?: boolean, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
+    static async AlterUser(currentUser: UserPK, profilePic?: Uint8Array<ArrayBuffer> | null, isPrivate?: boolean, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
         const user: UserFull = await FetchFullUser(currentUser);
 
         const passwordHash: string = password

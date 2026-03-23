@@ -18,11 +18,11 @@ describe("UserRepository (integration)", () => {
     }
 
     // Auxiliary function, checks a user's data against expected values
-    function CheckUserAux(user: UserFull | null, name: string, email: string, pfp: string | null): void {
+    function CheckUserAux(user: UserFull | null, name: string, email: string, pfp: Uint8Array<ArrayBuffer> | null): void {
         expect(user).not.toBeNull();
         expect(user?.accountName).toBe(name);
         expect(user?.email).toBe(email);
-        expect(user?.profilePic).toBe(pfp);
+        expect(user?.profilePic).toStrictEqual(pfp);
     }
 
     it("Inserts and selects a user", async () => {
@@ -43,7 +43,7 @@ describe("UserRepository (integration)", () => {
         const user: UserFull = await InsertAux();
         const passwordHash: string = "newhash";
         const newEmail: string = "another@test.com";
-        const newProfilePic: string = "FAKE PROFILE PIC LINK";
+        const newProfilePic: Uint8Array<ArrayBuffer> = new Uint8Array([4, 7, 8, 1]);
 
         // Updates user with new data and checks
         const found: UserFull = await UserRepository.UpdateUser({
@@ -68,7 +68,7 @@ describe("UserRepository (integration)", () => {
     it("Inserts and deletes a user", async () => {
         // Inserts user
         const user: UserFull = await InsertAux();
-        const newProfilePic: string = "FAKE PROFILE PIC LINK";
+        const newProfilePic: Uint8Array<ArrayBuffer> = new Uint8Array([4, 7, 8, 1]);
         await AccountService.AlterUser(user.accountName, newProfilePic);
 
         // Deletes user and checks if the data matches the old

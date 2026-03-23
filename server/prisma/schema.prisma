@@ -17,7 +17,7 @@ datasource db {
 model User {
     accountName  String   @id
     passwordHash String
-    profilePic   String?
+    profilePic   Bytes?
     userData     Json // defined in Types.ts
     isPrivate    Boolean  @default(false)
     email        String   @unique
