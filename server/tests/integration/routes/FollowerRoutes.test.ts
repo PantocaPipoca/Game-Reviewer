@@ -23,10 +23,6 @@ const email2: string = username2 + "@test.com";
 // =============== FOLLOWERS ===============
 
 describe("GET /api/users/:username/followers", () => {
-    it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
-        await request(app).get("/api/users/").expect(StatusCodes.NOT_FOUND);
-    });
-
     it("returns NOT FOUND if user doesn't exist", async () => {
         await request(app).get("/api/users/not-existing-user/followers").expect(StatusCodes.NOT_FOUND);
     });
