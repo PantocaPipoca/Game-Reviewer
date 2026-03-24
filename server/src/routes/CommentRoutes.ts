@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { CommentController } from "../controllers/CommentController";
-import { auth, optionalAuth } from "../utils/auth";
+import { auth, optionalAuth } from "../utils/Auth";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -42,7 +42,7 @@ const router: Router = Router({ mergeParams: true });
  *              404:
  *                  description: "**Not Found** — if the user didn't review the game"
  */
-router.get("/", optionalAuth, CommentController.GetComments);
+router.get("/", optionalAuth, CommentController.getComments);
 
 /**
  * @swagger
@@ -86,7 +86,7 @@ router.get("/", optionalAuth, CommentController.GetComments);
  *              404:
  *                  description: "**Not Found** — if the user didn't review the game"
  */
-router.post("/", auth, CommentController.AddComment);
+router.post("/", auth, CommentController.addComment);
 
 // ===================== COMMENTS BY ID =====================
 
@@ -139,7 +139,7 @@ router.post("/", auth, CommentController.AddComment);
  *              404:
  *                  description: "**Not Found** — if the comment doesn't exist"
  */
-router.put("/:id", auth, CommentController.EditComment);
+router.put("/:id", auth, CommentController.editComment);
 
 /**
  * @swagger
@@ -180,6 +180,6 @@ router.put("/:id", auth, CommentController.EditComment);
  *              404:
  *                  description: "**Not Found** — if the comment doesn't exist"
  */
-router.delete("/:id", auth, CommentController.RemoveComment);
+router.delete("/:id", auth, CommentController.removeComment);
 
 export default router;

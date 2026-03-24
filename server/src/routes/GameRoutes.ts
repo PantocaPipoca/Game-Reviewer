@@ -1,35 +1,59 @@
 ﻿import { Router } from "express";
 import { GameController } from "../controllers/GameController";
 import { ReviewController } from "../controllers/ReviewController";
-import { auth, optionalAuth } from "../utils/auth";
+import { auth, optionalAuth } from "../utils/Auth";
 
 // Router object
 const router: Router = Router({ mergeParams: true });
 
-// ===================== FIND GAMES =====================
-
-router.get("/id/:gameID/page", GameController.GetGamePage);
+// ===================== GAMES =====================
 
 /**
- * @swagger
- *  /games:
+ * swagger
+ * /games/id/:gameID:
  *      get:
  *          tags: [Games]
- *          summary: Search games using query params
+ *          summary: Returns Game IGDB info
  *          description: |
- *              Search games using query params.
- *              Example: `/games?name=elden`, `/games?tag=rpg`, `/games?name=elden&tag=rpg`
+ *              Returns detailed info about a specific game given in the params
+ *              Example: `/game/id/248567`
  *          parameters:
- *              - in: query
- *                name: name
- *                schema:
- *                  type: string
- *                description: Game name to search for
- *              - in: query
- *                name: tag
- *                schema:
- *                  type: string
- *                description: Game tag to filter by
+ *            - in: path
+ *              id: gameID
+ *              schema:
+ *                  type: number
+ *              description: game id of the game to get the info of
+ *          responses:
+ *              200:
+ *                  description: "**OK**"
+ *              400:
+ *                  description: "**Bad Request** - if given game id is invalid or no game has that id"
+ *              500:
+ *                  description: "**Internal Server Error** - if the game couldn't be retrieved"
+ *
+ */
+router.get("/id/:gameID", GameController.getGameInfo);
+
+/**
+ * swagger
+ *  /games/search:
+ *      post:
+ *          tags: [Games]
+ *          summary: Search games
+ *          description: |
+ *              Search games using both name and/or genres given in body
+ *              Example: `body = {name: celeste}`, `body = {genres: [8, 25]}`
+ *          requestBody:
+ *              required = true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              name:
+ *                                  type: string
+ *                              genres
+ *                                  type: number[]
  *          responses:
  *              200:
  *                  description: "**OK**"
@@ -44,17 +68,16 @@ router.get("/id/:gameID/page", GameController.GetGamePage);
  *              500:
  *                  description: "**Internal Server Error** - if the filters couldn't be retrieved"
  */
-// it's now a POST and /search so this documentation might be wrong 
-router.post("/search", GameController.SearchGames);
+router.post("/search", GameController.searchGames);
 
 /**
- * @swagger
+ * swagger
  *  /games/popular:
- *      get:
+ *      post:
  *          tags: [Games]
- *          summary: Returns popular games ordered by score or review count
+ *          summary: Returns popular games ordered by review count
  *          description: |
- *              Returns popular games ordered by score or review count.
+ *              Returns popular games ordered review count.
  *          responses:
  *              200:
  *                  description: "**OK**"
@@ -67,15 +90,32 @@ router.post("/search", GameController.SearchGames);
  *              500:
  *                  description: "**Internal Server Error** - if the games couldn't be retrieved"
  */
-// it's now a POST so this documentation might be wrong 
-router.post("/popular", GameController.GetPopularGames);
+router.post("/popular", GameController.getPopularGames);
+// it's now a POST so this documentation needs updating
 
-router.post("/recent", GameController.GetRecentGames);
+/**
+ * swagger
+ * /games/recent:
+ *      post:
+ *          tags: [Games]
+ *          summary: Returns recent games
+ *          description: |
+ *              Returns recently released games
+ *
+ */
+router.post("/recent", GameController.getRecentGames);
 
-router.post("/recommended", auth, GameController.GetRecommendedGames);
-
-
-
+/**
+ * swagger
+ * /games/recommended:
+ *      post:
+ *          tags: [Games]
+ *          summary: Returns recommended games
+ *          description: |
+ *              Returns recommended games the user might like based on the genres of the games they already liked
+ *
+ */
+router.post("/recommended", auth, GameController.getRecommendedGames);
 
 // ===================== GAME REVIEWS =====================
 
@@ -107,7 +147,7 @@ router.post("/recommended", auth, GameController.GetRecommendedGames);
  *              500:
  *                  description: "**Internal Server Error** - if the reviews couldn't be retrieved"
  */
-router.get("/:gameID/reviews", optionalAuth, ReviewController.GetReviewsByGame);
+router.get("/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
 
 /**
  * @swagger
@@ -155,7 +195,7 @@ router.get("/:gameID/reviews", optionalAuth, ReviewController.GetReviewsByGame);
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be published"
  */
-router.post("/:gameID/reviews", auth, ReviewController.PublishReview);
+router.post("/:gameID/reviews", auth, ReviewController.publishReview);
 
 /**
  * @swagger
@@ -201,7 +241,7 @@ router.post("/:gameID/reviews", auth, ReviewController.PublishReview);
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be updated"
  */
-router.put("/:gameID/reviews", auth, ReviewController.AlterReview);
+router.put("/:gameID/reviews", auth, ReviewController.alterReview);
 
 /**
  * @swagger
@@ -233,15 +273,10 @@ router.put("/:gameID/reviews", auth, ReviewController.AlterReview);
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be removed"
  */
-router.delete("/:gameID/reviews", auth, ReviewController.RemoveReview);
-
-// ===================== FIND GAME =====================
-
-
-// ===================== GAME REVIEWS =====================
+router.delete("/:gameID/reviews", auth, ReviewController.removeReview);
 
 /**
- * @swagger
+ * swagger
  *  /games/{gameID}:
  *      get:
  *          tags: [Games]
@@ -266,6 +301,7 @@ router.delete("/:gameID/reviews", auth, ReviewController.RemoveReview);
  *              404:
  *                  description: "**Not Found** - if the provided game doesn't exist"
  */
-router.get("/:gameID", GameController.GetGameById);
+// router.get("/:gameID", GameController.getGameById);
+// use this documentation as a base for the new /id/gameID and delete this route
 
 export default router;

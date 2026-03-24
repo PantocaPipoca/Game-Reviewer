@@ -1,0 +1,46 @@
+.wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.dropdown {
+    position: absolute;
+    z-index: 10000;
+    top: calc(100% + var(--spacingSmall));
+    width: 100%;
+    gap: var(--spacingSmall);
+    padding: var(--spacingSmall);
+    box-sizing: border-box;
+}
+
+.itemRow {
+    gap: var(--spacingSmall);
+    padding: var(--spacingSmall);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.cover {
+    width: 48px;
+    aspect-ratio: 3 / 4;
+    border: 1px solid var(--border);
+    object-fit: cover;
+}
+
+.name {
+    align-content: center;
+}
+
+.statusRow {
+    padding: var(--spacingSmall);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.viewAllButton {
+    padding: var(--spacingSmall);
+    background-color: var(--terciaryPanel);
+    text-align: center;
+    box-sizing: border-box;
+    width: 100%;
+}

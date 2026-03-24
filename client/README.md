@@ -1,3 +1,5 @@
+# Frontend Info
+
 This readme will explain all of the norms I setup for the frontend these **SHOULD be followed** so that we can keep a consistent enviroment.
 
 ## DO NOT USE THESE HTML TAGS
@@ -19,3 +21,15 @@ The CSS uses CSS modules mainly so try to keep it that way. Also notice that by 
 ## Formating
 
 Besides what was told install the prettier extension and set it up to **format on save**. Use this config {}.
+
+## Folder structure
+
+```
+src/
+├── API/          # All API calls. One file per resource. Nothing outside here uses axios directly.
+├── Assets/       # Self explanatory.
+├── Components/   # Reusable UI components, each in its own folder with its CSS module
+├── Pages/        # Self explanatory.
+├── Styles/       # Global styles.
+└── Types/        # Shared types and constants.
+```

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { FollowerController } from "../controllers/FollowerController";
-import { auth, optionalAuth } from "../utils/auth";
+import { auth, optionalAuth } from "../utils/Auth";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -35,7 +35,7 @@ const router: Router = Router({ mergeParams: true });
  *              404:
  *                  description: "**Not Found** — if the provided user name doesn't exist"
  */
-router.get("/", optionalAuth, FollowerController.GetFollowers);
+router.get("/", optionalAuth, FollowerController.getFollowers);
 
 // ===================== FOLLOW RELATION =====================
 
@@ -68,7 +68,7 @@ router.get("/", optionalAuth, FollowerController.GetFollowers);
  *              409:
  *                  description: "**Conflict** — if the user is trying to follow themselves, or if a follow request already exists"
  */
-router.post("/", auth, FollowerController.RequestFollower);
+router.post("/", auth, FollowerController.requestFollower);
 
 /**
  * @swagger
@@ -97,6 +97,6 @@ router.post("/", auth, FollowerController.RequestFollower);
  *              404:
  *                  description: "**Not Found** — if any of the provided user names don't exist, or if the first user name doesn't follow the second yet"
  */
-router.delete("/", auth, FollowerController.UnfollowUser);
+router.delete("/", auth, FollowerController.unfollowUser);
 
 export default router;

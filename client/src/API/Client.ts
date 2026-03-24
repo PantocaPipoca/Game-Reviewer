@@ -1,6 +1,6 @@
 import axios, { AxiosHeaders, type InternalAxiosRequestConfig } from "axios";
 
-const client = axios.create({
+const CLIENT = axios.create({
     baseURL: "http://localhost:3000/api/",
     headers: { "Content-Type": "application/json" },
     withCredentials: true,
@@ -8,10 +8,9 @@ const client = axios.create({
 
 let csrfToken: string | null = null;
 
-
 /**
  * Checks if the given HTTP method is unsafe (that require a CSRF token)
- * 
+ *
  * @param method - the HTTP method to check
  * @returns - true if the method is unsafe, false otherwise
  */
@@ -25,7 +24,7 @@ function isUnsafeMethod(method?: string): boolean {
  * Fetches the CSRF token from the server.
  * This function makes a GET request to '/api/csrf-token' with credentials
  * it expects the response to contain a 'csrfToken' property in its data
- * 
+ *
  * @returns - a promise which resolves to the CSRF token
  */
 async function fetchCsrfToken(): Promise<string> {
@@ -34,8 +33,7 @@ async function fetchCsrfToken(): Promise<string> {
     });
 
     const token = response.data?.data?.csrfToken;
-    if (!token || typeof token !== "string")
-        throw new Error("Failed to fetch CSRF token");
+    if (!token || typeof token !== "string") throw new Error("Failed to fetch CSRF token");
 
     csrfToken = token;
     return token;
@@ -44,44 +42,38 @@ async function fetchCsrfToken(): Promise<string> {
 /**
  * Interceptor for requests that add the CSRF token to the headers if the method is unsafe
  */
-client.interceptors.request.use(
-    async (config: InternalAxiosRequestConfig) => {
-        if (isUnsafeMethod(config.method)) {
-            if (!csrfToken)
-                await fetchCsrfToken();
+CLIENT.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+    if (isUnsafeMethod(config.method)) {
+        if (!csrfToken) await fetchCsrfToken();
 
-            if (!config.headers)
-                config.headers = new AxiosHeaders();
+        if (!config.headers) config.headers = new AxiosHeaders();
 
-            config.headers.set("x-csrf-token", csrfToken as string);
-        }
-
-        return config;
+        config.headers.set("x-csrf-token", csrfToken as string);
     }
-);
+
+    return config;
+});
 
 /**
  * Interceptor for responses that handles CSRF errors
  */
-client.interceptors.response.use((res) => res.data.data,
+CLIENT.interceptors.response.use(
+    (res) => res.data.data,
     async (error) => {
         const originalRequest = error.config;
 
-        const isCsrfError =
-            error?.response?.status === 403 &&
-            error?.response?.data?.message === "Invalid CSRF token";
+        const isCsrfError = error?.response?.status === 403 && error?.response?.data?.message === "Invalid CSRF token";
 
         if (isCsrfError && originalRequest && !originalRequest._csrfRetry) {
             originalRequest._csrfRetry = true;
             csrfToken = null;
             await fetchCsrfToken();
 
-            if (!originalRequest.headers)
-                originalRequest.headers = new AxiosHeaders();
-            
+            if (!originalRequest.headers) originalRequest.headers = new AxiosHeaders();
+
             if (csrfToken !== null) {
                 originalRequest.headers.set("x-csrf-token", csrfToken);
-                return client(originalRequest);
+                return CLIENT(originalRequest);
             }
         }
 
@@ -89,4 +81,4 @@ client.interceptors.response.use((res) => res.data.data,
     }
 );
 
-export default client;
+export default CLIENT;

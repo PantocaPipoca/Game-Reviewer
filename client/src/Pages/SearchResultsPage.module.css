@@ -1,0 +1,17 @@
+.mainPanel {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--borderWidth) * -1);
+}
+
+.resultsPanel {
+    gap: var(--spacingSmall);
+}
+
+.list {
+    justify-content: center;
+    gap: var(--spacingSmall);
+    padding: var(--spacingSmall);
+    flex-wrap: wrap;
+    width: 100%;
+}

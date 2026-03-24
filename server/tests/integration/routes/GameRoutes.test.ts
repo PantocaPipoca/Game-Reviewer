@@ -1,75 +1,83 @@
 import { describe, it, expect } from "@jest/globals";
 import request from "supertest";
-
-import { CreateApp } from "../../../src/app.ts";
+import { createApp } from "../../../src/App.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
-import { Register, CreateGame } from "../helper/helper.ts";
-import { AuthResponse } from "../../../src/types/Types.ts";
+import { register, createGame } from "../helper/helper.ts";
 
-const app: Express = CreateApp();
+const app: Express = createApp();
 
 const username = "user_" + Date.now();
 const password = "12345678";
 const displayName = "User Display Name";
 const email = username + "@test.com";
 
-
 // ===================== GET GAME BY ID =====================
+// describe("GET /api/games/:gameID", () => {
+//     it("returns BAD REQUEST if gameID is not a number", async () => {
+//         await request(app)
+//         .get("/api/games/not-a-number")
+//         .expect(StatusCodes.BAD_REQUEST);
+//     });
 
-describe("GET /api/games/:gameID", () => {
-    it("returns BAD REQUEST if gameID is not a number", async () => {
-        await request(app)
-            .get("/api/games/not-a-number")
-            .expect(StatusCodes.BAD_REQUEST);
-    });
+//     it("returns NOT FOUND if game doesn't exist", async () => {
+//         await request(app)
+//         .get("/api/games/99999")
+//         .expect(StatusCodes.NOT_FOUND);
+//     });
 
-    it("returns NOT FOUND if game doesn't exist", async () => {
-        await request(app)
-            .get("/api/games/99999")
-            .expect(StatusCodes.NOT_FOUND);
-    });
+//     it("returns OK and game data", async () => {
+//         const game = await CreateGame();
 
-    it("returns OK and game data", async () => {
-        const game = await CreateGame();
+//         const res = await request(app)
+//         .get("/api/games/" + game.gameID)
+//         .expect(StatusCodes.OK);
 
-        const res = await request(app)
-            .get("/api/games/" + game.gameID)
-            .expect(StatusCodes.OK);
+//         expect(res.body.status).toBe("success");
+//         expect(res.body.data.gameID).toBe(game.gameID);
+//         expect(res.body.data.gameName).toBeDefined();
+//     });
+// });
+// refactor this for IGDB
 
-        expect(res.body.status).toBe("success");
-        expect(res.body.data.gameID).toBe(game.gameID);
-        expect(res.body.data.gameName).toBeDefined();
-    });
+// ===================== IGDB REQUESTS (TODO) =====================
+
+describe("GET /api/games/id/:gameID", () => {
+    it.todo("returns OK and game data");
+    it.todo("returns BAD REQUEST if given GameID isn't a valid integer");
 });
 
-
-// ===================== SEARCH / POPULAR (TODO) =====================
-
-describe("GET /api/games (search)", () => {
+describe("POST /api/games/search", () => {
     it.todo("returns OK and matching games for a valid name query");
-    it.todo("returns OK and matching games for a valid tag query");
-    it.todo("returns OK and matching games for combined name and tag query");
+    it.todo("returns OK and matching games for a valid genre query");
+    it.todo("returns OK and matching games for combined name and genre query");
     it.todo("returns BAD REQUEST if query params are invalid");
 });
 
-describe("GET /api/games/popular", () => {
+describe("POST /api/games/popular", () => {
     it.todo("returns OK and list of popular games");
-    it.todo("respects orderBy and limit query params");
+    it.todo("returns BAD REQUEST if query params are invalid");
 });
 
+describe("POST /api/games/recent", () => {
+    it.todo("returns OK and list of recent games");
+    it.todo("returns BAD REQUEST if query params are invalid");
+});
+
+describe("POST /api/games/recommended", () => {
+    it.todo("returns OK and list of recommended games");
+    it.todo("returns BAD REQUEST if query params are invalid");
+});
 
 // ===================== GET REVIEWS BY GAME =====================
 
 describe("GET /api/games/:gameID/reviews", () => {
     it("returns NOT FOUND if game doesn't exist", async () => {
-        await request(app)
-            .get("/api/games/99999/reviews")
-            .expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/games/99999/reviews").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns OK and empty array if game has no reviews", async () => {
-        const game = await CreateGame();
+        const game = await createGame();
 
         const res = await request(app)
             .get("/api/games/" + game.gameID + "/reviews")
@@ -81,8 +89,8 @@ describe("GET /api/games/:gameID/reviews", () => {
     });
 
     it("returns OK and array with reviews (public user, no auth)", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -103,8 +111,8 @@ describe("GET /api/games/:gameID/reviews", () => {
     });
 
     it("hides reviews from private users that the viewer doesn't follow", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .put("/api/users/me")
@@ -127,10 +135,10 @@ describe("GET /api/games/:gameID/reviews", () => {
 
     it("shows reviews from private users to their accepted followers", async () => {
         const privName = "priv_" + Date.now();
-        const privateUser = await Register(app, privName, displayName, password, `${privName}@test.com`);
+        const privateUser = await register(app, privName, displayName, password, `${privName}@test.com`);
         const viewerName = "viewer_" + Date.now();
-        const viewer = await Register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
-        const game = await CreateGame();
+        const viewer = await register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
+        const game = await createGame();
 
         await request(app)
             .put("/api/users/me")
@@ -164,12 +172,11 @@ describe("GET /api/games/:gameID/reviews", () => {
     });
 });
 
-
 // ===================== PUBLISH REVIEW =====================
 
 describe("POST /api/games/:gameID/reviews", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
-        const game = await CreateGame();
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -178,7 +185,7 @@ describe("POST /api/games/:gameID/reviews", () => {
     });
 
     it("returns NOT FOUND if game doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
+        const user = await register(app, username, displayName, password, email);
 
         await request(app)
             .post("/api/games/99999/reviews")
@@ -188,8 +195,8 @@ describe("POST /api/games/:gameID/reviews", () => {
     });
 
     it("returns BAD REQUEST if text is missing", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -199,8 +206,8 @@ describe("POST /api/games/:gameID/reviews", () => {
     });
 
     it("returns BAD REQUEST if score is missing", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -210,8 +217,8 @@ describe("POST /api/games/:gameID/reviews", () => {
     });
 
     it("returns BAD REQUEST if score is above 10", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -221,8 +228,8 @@ describe("POST /api/games/:gameID/reviews", () => {
     });
 
     it("returns BAD REQUEST if score is below 0", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -232,8 +239,8 @@ describe("POST /api/games/:gameID/reviews", () => {
     });
 
     it("returns BAD REQUEST if score is not a number", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -243,8 +250,8 @@ describe("POST /api/games/:gameID/reviews", () => {
     });
 
     it("returns CONFLICT if user already reviewed this game", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -260,8 +267,8 @@ describe("POST /api/games/:gameID/reviews", () => {
     });
 
     it("returns CREATED with correct review data on success", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         const res = await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -280,12 +287,12 @@ describe("POST /api/games/:gameID/reviews", () => {
 
     it("accepts boundary score values (0 and 10)", async () => {
         const u1name = "u1_" + Date.now();
-        const u1 = await Register(app, u1name, displayName, password, `${u1name}@test.com`);
+        const u1 = await register(app, u1name, displayName, password, `${u1name}@test.com`);
         const u2name = "u2_" + Date.now();
-        const u2 = await Register(app, u2name, displayName, password, `${u2name}@test.com`);
+        const u2 = await register(app, u2name, displayName, password, `${u2name}@test.com`);
 
-        const game1 = await CreateGame();
-        const game2 = await CreateGame();
+        const game1 = await createGame();
+        const game2 = await createGame();
 
         await request(app)
             .post("/api/games/" + game1.gameID + "/reviews")
@@ -301,12 +308,11 @@ describe("POST /api/games/:gameID/reviews", () => {
     });
 });
 
-
 // ===================== ALTER REVIEW =====================
 
 describe("PUT /api/games/:gameID/reviews", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
-        const game = await CreateGame();
+        const game = await createGame();
 
         await request(app)
             .put("/api/games/" + game.gameID + "/reviews")
@@ -315,7 +321,7 @@ describe("PUT /api/games/:gameID/reviews", () => {
     });
 
     it("returns NOT FOUND if game doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
+        const user = await register(app, username, displayName, password, email);
 
         await request(app)
             .put("/api/games/99999/reviews")
@@ -325,8 +331,8 @@ describe("PUT /api/games/:gameID/reviews", () => {
     });
 
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .put("/api/games/" + game.gameID + "/reviews")
@@ -336,8 +342,8 @@ describe("PUT /api/games/:gameID/reviews", () => {
     });
 
     it("returns BAD REQUEST if score is out of range", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -353,8 +359,8 @@ describe("PUT /api/games/:gameID/reviews", () => {
     });
 
     it("returns ACCEPTED and updated review on success", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -376,12 +382,11 @@ describe("PUT /api/games/:gameID/reviews", () => {
     });
 });
 
-
 // ===================== REMOVE REVIEW =====================
 
 describe("DELETE /api/games/:gameID/reviews", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
-        const game = await CreateGame();
+        const game = await createGame();
 
         await request(app)
             .delete("/api/games/" + game.gameID + "/reviews")
@@ -389,7 +394,7 @@ describe("DELETE /api/games/:gameID/reviews", () => {
     });
 
     it("returns NOT FOUND if game doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
+        const user = await register(app, username, displayName, password, email);
 
         await request(app)
             .delete("/api/games/99999/reviews")
@@ -398,8 +403,8 @@ describe("DELETE /api/games/:gameID/reviews", () => {
     });
 
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .delete("/api/games/" + game.gameID + "/reviews")
@@ -408,8 +413,8 @@ describe("DELETE /api/games/:gameID/reviews", () => {
     });
 
     it("returns ACCEPTED and deleted review data on success", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")
@@ -428,8 +433,8 @@ describe("DELETE /api/games/:gameID/reviews", () => {
     });
 
     it("returns NOT FOUND if trying to delete the same review twice", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/games/" + game.gameID + "/reviews")

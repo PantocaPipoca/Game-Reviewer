@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { LikeController } from "../controllers/LikeController";
-import { auth } from "../utils/auth";
+import { auth } from "../utils/Auth";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -37,7 +37,7 @@ const router: Router = Router({ mergeParams: true });
  *              404:
  *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.get("/likes", LikeController.GetLikes);
+router.get("/likes", LikeController.getLikes);
 
 /**
  * @swagger
@@ -74,7 +74,7 @@ router.get("/likes", LikeController.GetLikes);
  *              404:
  *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.post("/likes", auth, LikeController.AddLike);
+router.post("/likes", auth, LikeController.addLike);
 
 // ===================== DISLIKES =====================
 
@@ -109,7 +109,7 @@ router.post("/likes", auth, LikeController.AddLike);
  *              404:
  *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.get("/dislikes", LikeController.GetDislikes);
+router.get("/dislikes", LikeController.getDislikes);
 
 /**
  * @swagger
@@ -146,7 +146,7 @@ router.get("/dislikes", LikeController.GetDislikes);
  *              404:
  *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.post("/dislikes", auth, LikeController.AddDislike);
+router.post("/dislikes", auth, LikeController.addDislike);
 
 // ===================== BOTH =====================
 
@@ -185,6 +185,6 @@ router.post("/dislikes", auth, LikeController.AddDislike);
  *              404:
  *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
  */
-router.delete("/reacts", auth, LikeController.RemoveReactions);
+router.delete("/reacts", auth, LikeController.removeReactions);
 
 export default router;

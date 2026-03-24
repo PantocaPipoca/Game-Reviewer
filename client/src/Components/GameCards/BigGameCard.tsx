@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
 import style from "./BigGameCard.module.css";
@@ -11,6 +12,7 @@ export type BigGameCardProps = {
     genres?: string[];
     developer?: string;
     collage?: string[];
+    gameID: number;
 };
 
 function BigGameCard({
@@ -19,29 +21,35 @@ function BigGameCard({
     genres = ["###", "###"],
     developer = "###",
     collage = [NOT_FOUND_IMAGE, NOT_FOUND_IMAGE, NOT_FOUND_IMAGE, NOT_FOUND_IMAGE],
+    gameID,
 }: BigGameCardProps) {
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        navigate(`/game/${gameID}`);
+    };
     return (
-        <div className={style.Frame}>
-            <Panel type="secondary" direction="row" interactive>
-                <img src={cover} className={style.KeyArt} />
-                <div className={style.Details}>
+        <div className={style.frame}>
+            <Panel type="secondary" direction="row" interactive onClick={handleClick}>
+                <img src={cover} className={style.keyArt} />
+                <div className={style.details}>
                     <Text variant="h2">{name}</Text>
                     <div>
                         <Text variant="body">Genre: </Text>
-                        <Text variant="body" className={style.Value}>
+                        <Text variant="body" className={style.value}>
                             {genres.join(", ")}
                         </Text>
                     </div>
 
                     <div>
                         <Text variant="body">Developer: </Text>
-                        <Text variant="body" className={style.Value}>
+                        <Text variant="body" className={style.value}>
                             {developer}
                         </Text>
                     </div>
-                    <div className={style.Collage}>
+                    <div className={style.collage}>
                         {collage.map((image) => (
-                            <img src={image} className={style.Image} />
+                            <img src={image} className={style.image} />
                         ))}
                     </div>
                 </div>
