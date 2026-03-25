@@ -465,7 +465,56 @@ router.put("/me/followers/requests/received/:username", auth, FollowerController
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.delete("/me/followers/requests/received/:username", auth, FollowerController.rejectFollowerRequest);
+router.delete("/me/followers/requests/received/:username", auth, FollowerController.removeFollowerOrRejectRequest);
+
+/**
+ * @swagger
+ *  /users/me/followers/{username}:
+ *      delete:
+ *          tags: [Followers]
+ *          summary: Removes a follower from the current user's followers list
+ *          description: Removes a user from the current user's followers. Works for both accepted followers and pending requests.
+ *          security:
+ *              - bearerAuth: []
+ *          parameters:
+ *              - in: path
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
+ *          responses:
+ *              202:
+ *                  description: "**Accepted** — follower removed successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Follower'
+ *              400:
+ *                  description: "**Bad Request** — if the username is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** — if either user doesn't exist, or if the user is not a follower"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.delete("/me/followers/:username", auth, FollowerController.removeFollowerOrRejectRequest);
 
 // ===================== SEARCH USERS =====================
 

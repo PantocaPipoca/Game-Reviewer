@@ -27,15 +27,28 @@ export class FollowerController {
     });
 
     /**
-     * Removes a follower request to an account
+     * Unfollow / Removes a follower request to an account
      * Used by DELETE /api/users/:username/followers/
      */
-    static unfollowUser = asyncHandler(async (req: AuthRequest, res: Response) => {
+    static unfollowOrCancelFollowRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
         const username: string = extractUsername(req);
 
         // remove relation: follows=currentUser, followed=username
         const result = await FollowerService.removeFollower(currentUser, username);
+        return makeSuccess(res, StatusCodes.ACCEPTED, result);
+    });
+
+    /**
+     * Removes a follower from the current user's followers
+     * Used by DELETE /api/users/me/followers/:username
+     */
+    static removeFollowerOrRejectRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = extractLoggedUser(req);
+        const username: string = extractUsername(req);
+
+        // remove relation: follows=username, followed=currentUser
+        const result = await FollowerService.removeFollower(username, currentUser);
         return makeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 
@@ -48,19 +61,6 @@ export class FollowerController {
         const username: string = extractUsername(req);
 
         const result = await FollowerService.acceptFollower(currentUser, username);
-        return makeSuccess(res, StatusCodes.ACCEPTED, result);
-    });
-
-    /**
-     * Removes a follower to an account
-     * Used by DELETE /api/users/me/followers/requests/received/:username
-     */
-    static rejectFollowerRequest: any = asyncHandler(async (req: AuthRequest, res: Response) => {
-        const currentUser: string = extractLoggedUser(req);
-        const username: string = extractUsername(req);
-
-        // delete relation: follows=username, followed=currentUser (pending request)
-        const result = await FollowerService.removeFollower(username, currentUser, false);
         return makeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 

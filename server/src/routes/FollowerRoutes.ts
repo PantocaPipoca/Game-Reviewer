@@ -159,6 +159,6 @@ router.post("/", auth, FollowerController.requestFollower);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.delete("/", auth, FollowerController.unfollowUser);
+router.delete("/", auth, FollowerController.unfollowOrCancelFollowRequest);
 
 export default router;
