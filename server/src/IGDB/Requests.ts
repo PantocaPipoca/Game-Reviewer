@@ -40,8 +40,13 @@ export class IGDB {
     private static usedTypes: string = "(0, 1, 2, 4, 6, 8, 9, 10, 11, 12, 13)";
 
     // avoid getting 429'd during tests
+    private static lastQueryTime: number = 0;
     private static async sleep() {
-        new Promise((resolve) => setTimeout(resolve, 300));
+        const now = Date.now();
+        const timeSinceLastQuery = now - this.lastQueryTime;
+        if (now - this.lastQueryTime < 2600) {
+            new Promise((resolve) => setTimeout(resolve, 2600 - timeSinceLastQuery));
+        }
     }
 
     private static async getNewToken(): Promise<void> {
@@ -137,6 +142,7 @@ export class IGDB {
 
                 where
                     game_type = ${IGDB.usedTypes} &
+                    cover != null &
                     id = ${ID}
                 ;
             `,
@@ -172,7 +178,7 @@ export class IGDB {
                     cover != null
                     ${genresString}
                 ;
-                
+                sort id asc;
                 offset ${offset};
                 limit ${amount};
             `,
@@ -278,14 +284,17 @@ export class IGDB {
 
 // tests
 
-// let output: any = await IGDB.searchGames("the sims", [], 0, 5);
+// let output: any = await IGDB.searchGames("terraria", [], 0, 5);
 // console.log(JSON.stringify(output, null, 2));
 
-// let output2: any = await IGDB.getGameByID(235102);
+// let output2: any = await IGDB.getGameByID(26226);
 // console.log(JSON.stringify(output2, null, 2));
 
 // let output3: any = await IGDB.getRecentGames(15, 1);
 // console.log(JSON.stringify(output3, null, 2));
+
+let output4: any = await IGDB.getGenresOfGames([1, 1879, 26226]);
+console.log(JSON.stringify(output4, null, 2));
 
 // let outputN: any = await IGDB.getAllTypes();
 // console.log(JSON.stringify(outputN, null, 2));

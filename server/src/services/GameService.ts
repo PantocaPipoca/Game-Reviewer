@@ -29,7 +29,7 @@ export class GameService {
      * @param gameID the ID of the game we want to make a page for
      * @returns detailed info for the game in json format
      */
-    static async getGamePage(gameID: GamePK): Promise<any[]> {
+    static async getGameInfo(gameID: GamePK): Promise<any[]> {
         return IGDB.getGameByID(gameID);
     }
 
@@ -64,7 +64,7 @@ export class GameService {
      * @returns array of enough game info to make a cover
      */
     static async getRecentGames(offset: number, amount: number): Promise<GameCover[]> {
-        return IGDB.getRecentGames(amount, offset);
+        return IGDB.getRecentGames(offset, amount);
     }
 
     /**
