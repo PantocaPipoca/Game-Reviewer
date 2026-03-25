@@ -6,11 +6,9 @@ const router: Router = Router({ mergeParams: true });
 
 // ===================== MANAGE COMMENTS =====================
 
-// ===================== MANAGE COMMENTS =====================
-
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/comments:
+ *  /reviews/{reviewer}/on/{reviewed}/comments:
  *      get:
  *          tags: [Comments]
  *          summary: Gets the comments of a review
@@ -46,7 +44,7 @@ router.get("/", optionalAuth, CommentController.getComments);
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/comments:
+ *  /reviews/{reviewer}/on/{reviewed}/comments:
  *      post:
  *          tags: [Comments]
  *          summary: Adds a comment to a review
@@ -92,7 +90,7 @@ router.post("/", auth, CommentController.addComment);
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/comments/{id}:
+ *  /reviews/{reviewer}/on/{reviewed}/comments/{id}:
  *      put:
  *          tags: [Comments]
  *          summary: Edits a comment on a review
@@ -143,7 +141,7 @@ router.put("/:id", auth, CommentController.editComment);
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/comments/{id}:
+ *  /reviews/{reviewer}/on/{reviewed}/comments/{id}:
  *      delete:
  *          tags: [Comments]
  *          summary: Deletes a comment from a review

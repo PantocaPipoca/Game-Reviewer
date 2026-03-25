@@ -188,7 +188,7 @@ export class AccountService {
      */
     static async alterUser(
         currentUser: UserPK,
-        profilePic?: string | null,
+        profilePic?: Uint8Array<ArrayBuffer> | null,
         isPrivate?: boolean,
         password?: string,
         email?: string,

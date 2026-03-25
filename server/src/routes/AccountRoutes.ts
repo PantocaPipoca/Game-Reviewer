@@ -12,45 +12,6 @@ const router: Router = Router({ mergeParams: true });
 
 /**
  * @swagger
- *  /users:
- *      post:
- *          tags: [Users]
- *          summary: Registers a new account
- *          description: Registers a new account
- *          requestBody:
- *              required: true
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          required: [accountName, displayName, password, email]
- *                          properties:
- *                              accountName:
- *                                  type: string
- *                              displayName:
- *                                  type: string
- *                              password:
- *                                  type: string
- *                              email:
- *                                  type: string
- *          responses:
- *              201:
- *                  description: "**Created** - account registered successfully"
- *                  content:
- *                      application/json:
- *                          schema:
- *                              $ref: '#/components/schemas/AuthResponse'
- *              400:
- *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 characters, if the password is shorter than 8 characters, or if the email provided is invalid"
- *              409:
- *                  description: "**Conflict** — if the account name or email provided already exists"
- *              500:
- *                  description: "**Internal Server Error** — if the account could not be created"
- */
-router.post("/", AccountController.register);
-
-/**
- * @swagger
  *  /users/login:
  *      post:
  *          tags: [Users]
@@ -322,12 +283,12 @@ router.get("/search", optionalAuth, AccountController.search);
 
 // ===================== USER SUB-RESOURCES =====================
 
-// api/users/:username/followers routes are handled by FollowerRoutes
-router.use("/:username/followers", FollowerRoutes);
+// api/users/id/:username/followers routes are handled by FollowerRoutes
+router.use("/id/:username/followers", FollowerRoutes);
 
 /**
  * @swagger
- *  /users/{username}/following:
+ *  /users/id/{username}/following:
  *      get:
  *          tags: [Followers]
  *          summary: Gets the users followed by a user
@@ -354,11 +315,11 @@ router.use("/:username/followers", FollowerRoutes);
  *              404:
  *                  description: "**Not Found** — if the provided user name doesn't exist"
  */
-router.get("/:username/following", optionalAuth, FollowerController.getFollowingByUser);
+router.get("/id/:username/following", optionalAuth, FollowerController.getFollowingByUser);
 
 /**
  * @swagger
- *  /users/{username}/reviews:
+ *  /users/id/{username}/reviews:
  *      get:
  *          tags: [Reviews]
  *          summary: Gets the reviews of a user
@@ -385,13 +346,13 @@ router.get("/:username/following", optionalAuth, FollowerController.getFollowing
  *              404:
  *                  description: "**Not Found** — if the provided user name doesn't exist"
  */
-router.get("/:username/reviews", optionalAuth, ReviewController.getReviewsByUser);
+router.get("/id/:username/reviews", optionalAuth, ReviewController.getReviewsByUser);
 
 // ===================== FIND USER PROFILE =====================
 
 /**
  * @swagger
- *  /users/{username}:
+ *  /users/id/{username}:
  *      get:
  *          tags: [Users]
  *          summary: Finds an account by its name
@@ -417,6 +378,45 @@ router.get("/:username/reviews", optionalAuth, ReviewController.getReviewsByUser
  *              404:
  *                  description: "**Not Found** — if the provided account's name doesn't exist"
  */
-router.get("/:username", optionalAuth, AccountController.findByUsername);
+router.get("/id/:username", optionalAuth, AccountController.findByUsername);
+
+/**
+ * @swagger
+ *  /users:
+ *      post:
+ *          tags: [Users]
+ *          summary: Registers a new account
+ *          description: Registers a new account
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [accountName, displayName, password, email]
+ *                          properties:
+ *                              accountName:
+ *                                  type: string
+ *                              displayName:
+ *                                  type: string
+ *                              password:
+ *                                  type: string
+ *                              email:
+ *                                  type: string
+ *          responses:
+ *              201:
+ *                  description: "**Created** - account registered successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/AuthResponse'
+ *              400:
+ *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 characters, if the password is shorter than 8 characters, or if the email provided is invalid"
+ *              409:
+ *                  description: "**Conflict** — if the account name or email provided already exists"
+ *              500:
+ *                  description: "**Internal Server Error** — if the account could not be created"
+ */
+router.post("/", AccountController.register);
 
 export default router;

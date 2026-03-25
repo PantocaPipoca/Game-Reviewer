@@ -18,7 +18,12 @@ describe("UserRepository (integration)", () => {
     }
 
     // Auxiliary function, checks a user's data against expected values
-    function checkUserAux(user: UserFull | null, name: string, email: string, pfp: string | null): void {
+    function checkUserAux(
+        user: UserFull | null,
+        name: string,
+        email: string,
+        pfp: Uint8Array<ArrayBuffer> | null
+    ): void {
         expect(user).not.toBeNull();
         expect(user?.accountName).toBe(name);
         expect(user?.email).toBe(email);
@@ -74,7 +79,7 @@ describe("UserRepository (integration)", () => {
     it("Inserts and deletes a user", async () => {
         // Inserts user
         const user: UserFull = await insertAux();
-        const newProfilePic: string = "FAKE PROFILE PIC LINK";
+        const newProfilePic: Uint8Array<ArrayBuffer> = new Uint8Array([-3, 7, 9, 1, 124]);
         await AccountService.alterUser(user.accountName, newProfilePic);
 
         // Deletes user and checks if the data matches the old

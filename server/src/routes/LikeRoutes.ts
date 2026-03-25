@@ -8,7 +8,7 @@ const router: Router = Router({ mergeParams: true });
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/likes:
+ *  /reviews/{reviewer}/on/{reviewed}/likes:
  *      get:
  *          tags: [Reactions]
  *          summary: Gets the likes of a review
@@ -41,7 +41,7 @@ router.get("/likes", LikeController.getLikes);
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/likes:
+ *  /reviews/{reviewer}/on/{reviewed}/likes:
  *      post:
  *          tags: [Reactions]
  *          summary: Adds a like to a review
@@ -80,7 +80,7 @@ router.post("/likes", auth, LikeController.addLike);
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/dislikes:
+ *  /reviews/{reviewer}/on/{reviewed}/dislikes:
  *      get:
  *          tags: [Reactions]
  *          summary: Gets the dislikes of a review
@@ -113,7 +113,7 @@ router.get("/dislikes", LikeController.getDislikes);
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/dislikes:
+ *  /reviews/{reviewer}/on/{reviewed}/dislikes:
  *      post:
  *          tags: [Reactions]
  *          summary: Adds a dislike to a review
@@ -152,7 +152,7 @@ router.post("/dislikes", auth, LikeController.addDislike);
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/reacts:
+ *  /reviews/{reviewer}/on/{reviewed}/reacts:
  *      delete:
  *          tags: [Reactions]
  *          summary: Deletes likes and dislikes to a review

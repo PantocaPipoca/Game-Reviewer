@@ -8,16 +8,16 @@ import { auth, optionalAuth } from "../utils/Auth";
 const router: Router = Router({ mergeParams: true });
 
 // COMMENTS
-router.use("/:reviewer/:reviewed/comments", CommentRoutes);
+router.use("/:reviewer/on/:reviewed/comments", CommentRoutes);
 
 // REACTIONS (LIKES/DISLIKES)
-router.use("/:reviewer/:reviewed/", LikeRoutes);
+router.use("/:reviewer/on/:reviewed/", LikeRoutes);
 
 // ===================== GET REVIEW =====================
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}:
+ *  /reviews/{reviewer}/on/{reviewed}:
  *      get:
  *          tags: [Reviews]
  *          summary: Finds a user's review on a game
@@ -48,6 +48,6 @@ router.use("/:reviewer/:reviewed/", LikeRoutes);
  *              404:
  *                  description: "**Not Found** - if the provided user or game doesn't exist, or if the user didn't review the game"
  */
-router.get("/:reviewer/:reviewed/", optionalAuth, ReviewController.getReview);
+router.get("/:reviewer/on/:reviewed/", optionalAuth, ReviewController.getReview);
 
 export default router;

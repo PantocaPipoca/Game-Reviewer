@@ -5,7 +5,7 @@ import { createApp } from "../../../src/App.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { register, createGame } from "../helper/helper.ts";
-import { AuthResponse, UserData, UserFull } from "../../../src/types/Types.ts";
+import { AuthResponse, GameFull, UserData, UserFull } from "../../../src/types/Types.ts";
 import { fetchFullUser } from "../../../src/services/AccountService.ts";
 
 const app: Express = createApp();
@@ -80,7 +80,7 @@ describe("POST /api/users (register)", () => {
         });
 
         it("password shorter than 8", async () => {
-            const u = "user_shortpw" + Date.now();
+            const u: string = "user_shortpw" + Date.now();
             await request(app)
                 .post("/api/users")
                 .send({
@@ -226,7 +226,7 @@ describe("GET /api/users/me", () => {
     });
 });
 
-describe("PUT /api/users/me (alter)", () => {
+describe("PUT /api/users/me", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
         await request(app).put("/api/users/me").expect(StatusCodes.UNAUTHORIZED);
     });
@@ -332,20 +332,20 @@ describe("DELETE /api/users/me", () => {
 
 // ========== SEARCH ==========
 
-describe("GET /api/users/:username (find profile)", () => {
+describe("GET /api/users/id/:username (find profile)", () => {
     it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
-        await request(app).get("/api/users/").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns OK and full public data if user is public (no auth)", async () => {
         const u: AuthResponse = await register(app, username, displayName, password, email);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -364,7 +364,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -384,7 +384,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .set("Authorization", "Bearer " + u.token)
             .expect(StatusCodes.OK);
 
@@ -403,7 +403,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/users/" + u.accountName + "/followers/")
+            .post("/api/users/id/" + u.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
@@ -414,7 +414,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.OK);
 
@@ -490,8 +490,8 @@ describe("GET /api/users/me/followers/requests/sent", () => {
     });
 
     it("returns 200 and current user data with Bearer token", async () => {
-        const user = await register(app, username, displayName, password, email);
-        const token = user.token;
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+        const token: string = user.token;
 
         await request(app)
             .get("/api/users/me/followers/requests/sent")
@@ -549,7 +549,7 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
 
         // user sends request to user2
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user.token);
 
         //user2 accepts request
@@ -577,7 +577,7 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
 
         // user sends request to user2
         const res = await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user.token);
 
         expect(res.status).toBe(StatusCodes.CREATED);
@@ -614,55 +614,55 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
     });
 
     it("returns 404 if user didn't request", async () => {
-        const target: AuthResponse = await register(app, username, displayName, password, email);
+        const user: AuthResponse = await register(app, username, displayName, password, email);
         const follower: AuthResponse = await register(app, "user2", "user2", "sspassword", "u2@email.com");
 
         await request(app)
             .delete("/api/users/me/followers/requests/received/" + follower.accountName)
-            .set("Authorization", "Bearer " + target.token)
+            .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns 202 when rejecting an existing request", async () => {
-        const target = await register(app, username, displayName, password, email);
-        const follower = await register(app, "user2", "user2", "sspassword", "u2@email.com");
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+        const follower: AuthResponse = await register(app, "user2", "user2", "sspassword", "u2@email.com");
 
         await request(app)
             .put("/api/users/me")
-            .set("Authorization", "Bearer " + target.token)
+            .set("Authorization", "Bearer " + user.token)
             .send({ isPrivate: true })
             .expect(StatusCodes.OK);
 
         // follower request to target
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + user.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         // target rejects
         await request(app)
             .delete("/api/users/me/followers/requests/received/" + follower.accountName)
-            .set("Authorization", "Bearer " + target.token)
+            .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.ACCEPTED);
     });
 });
 
 describe("GET /api/users/:username/following", () => {
     it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
-        await request(app).get("/api/users/").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user/following").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user/following").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns FORBIDDEN if user is private and not authenticated", async () => {
-        const user1 = await register(app, username, displayName, password, email);
-        const user2name = "user2_" + Date.now();
-        const user2 = await register(app, user2name, "user2", "sspassword", `${user2name}@email.com`);
+        const user1: AuthResponse = await register(app, username, displayName, password, email);
+        const user2name: string = "user2_" + Date.now();
+        const user2: AuthResponse = await register(app, user2name, "user2", "sspassword", `${user2name}@email.com`);
 
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
@@ -674,23 +674,23 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .get("/api/users/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.accountName + "/following")
             .expect(StatusCodes.FORBIDDEN);
     });
 
     it("returns OK and following list for public user (no auth)", async () => {
-        const user1 = await register(app, username, displayName, password, email);
-        const user2name = "user2_" + Date.now();
-        const user2 = await register(app, user2name, "user2", "sspassword", `${user2name}@email.com`);
+        const user1: AuthResponse = await register(app, username, displayName, password, email);
+        const user2name: string = "user2_" + Date.now();
+        const user2: AuthResponse = await register(app, user2name, "user2", "sspassword", `${user2name}@email.com`);
 
         // user1 follows user2
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.accountName + "/following")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -701,13 +701,13 @@ describe("GET /api/users/:username/following", () => {
     });
 
     it("returns OK and following list for private user (self auth)", async () => {
-        const user1 = await register(app, username, displayName, password, email);
-        const user2name = "user2_" + Date.now();
-        const user2 = await register(app, user2name, "user2", "sspassword", `${user2name}@email.com`);
+        const user1: AuthResponse = await register(app, username, displayName, password, email);
+        const user2name: string = "user2_" + Date.now();
+        const user2: AuthResponse = await register(app, user2name, "user2", "sspassword", `${user2name}@email.com`);
 
         // user1 follows user2
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
@@ -719,7 +719,7 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.accountName + "/following")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.OK);
 
@@ -731,9 +731,9 @@ describe("GET /api/users/:username/following", () => {
     });
 
     it("returns OK and following list for private user (viewer is accepted follower)", async () => {
-        const target = await register(app, username, displayName, password, email);
-        const viewerName = "viewer_" + Date.now();
-        const viewer = await register(app, viewerName, "viewer", "sspassword", `${viewerName}@email.com`);
+        const target: AuthResponse = await register(app, username, displayName, password, email);
+        const viewerName: string = "viewer_" + Date.now();
+        const viewer: AuthResponse = await register(app, viewerName, "viewer", "sspassword", `${viewerName}@email.com`);
 
         // target private
         await request(app)
@@ -743,17 +743,23 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.OK);
 
         // someone that target follows
-        const someoneName = "someone_" + Date.now();
-        const someone = await register(app, someoneName, "someone", "sspassword", `${someoneName}@email.com`);
+        const someoneName: string = "someone_" + Date.now();
+        const someone: AuthResponse = await register(
+            app,
+            someoneName,
+            "someone",
+            "sspassword",
+            `${someoneName}@email.com`
+        );
 
         await request(app)
-            .post("/api/users/" + someone.accountName + "/followers/")
+            .post("/api/users/id/" + someone.accountName + "/followers/")
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.CREATED);
 
         // viewer requests follow
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
@@ -764,7 +770,7 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + target.accountName + "/following")
+            .get("/api/users/id/" + target.accountName + "/following")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -776,21 +782,21 @@ describe("GET /api/users/:username/following", () => {
 
 // =============== REVIEWS ===============
 
-describe("GET /api/users/:username/reviews", () => {
+describe("GET /api/users/id/:username/reviews", () => {
     it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
-        await request(app).get("/api/users/").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user/reviews").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user/reviews").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns OK and empty array when user has no reviews (public, no auth)", async () => {
-        const name = "u_" + Date.now();
-        const u = await register(app, name, displayName, password, name + "@test.com");
+        const name: string = "u_" + Date.now();
+        const user: AuthResponse = await register(app, name, displayName, password, name + "@test.com");
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + user.accountName + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -799,31 +805,30 @@ describe("GET /api/users/:username/reviews", () => {
     });
 
     it("returns OK and array with reviews (public, no auth)", async () => {
-        const name = "u_" + Date.now();
-        const u = await register(app, name, displayName, password, `${name}@test.com`);
-
-        const game = await createGame();
+        const name: string = "u_" + Date.now();
+        const user: AuthResponse = await register(app, name, displayName, password, `${name}@test.com`);
+        const game: GameFull = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
-            .set("Authorization", "Bearer " + u.token)
+            .post("/api/games/id/" + game.gameID + "/reviews")
+            .set("Authorization", "Bearer " + user.token)
             .send({ text: "nice", score: 8 })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + user.accountName + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
         expect(res.body.data.length).toBeGreaterThan(0);
-        expect(res.body.data[0].reviewer).toBe(u.accountName);
+        expect(res.body.data[0].reviewer).toBe(user.accountName);
         expect(res.body.data[0].reviewed).toBe(game.gameID);
     });
 
     it("returns FORBIDDEN and empty array if user is private and requester not allowed (no auth)", async () => {
-        const name = "priv_" + Date.now();
-        const u = await register(app, name, displayName, password, name + "@test.com");
+        const name: string = "priv_" + Date.now();
+        const u: AuthResponse = await register(app, name, displayName, password, name + "@test.com");
 
         await request(app)
             .put("/api/users/me")
@@ -831,25 +836,25 @@ describe("GET /api/users/:username/reviews", () => {
             .send({ isPrivate: true })
             .expect(StatusCodes.OK);
 
-        const game = await createGame();
+        const game: GameFull = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + u.token)
             .send({ text: "nice", score: 8 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .get("/api/users/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.accountName + "/reviews")
             .expect(StatusCodes.FORBIDDEN);
     });
 
     it("returns OK and reviews if user is private but requester is accepted follower", async () => {
-        const targetName = "target_" + Date.now();
-        const target = await register(app, targetName, displayName, password, `${targetName}@test.com`);
+        const targetName: string = "target_" + Date.now();
+        const target: AuthResponse = await register(app, targetName, displayName, password, `${targetName}@test.com`);
 
-        const viewerName = "viewer_" + Date.now();
-        const viewer = await register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
+        const viewerName: string = "viewer_" + Date.now();
+        const viewer: AuthResponse = await register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
 
         await request(app)
             .put("/api/users/me")
@@ -857,16 +862,16 @@ describe("GET /api/users/:username/reviews", () => {
             .send({ isPrivate: true })
             .expect(StatusCodes.OK);
 
-        const game = await createGame();
+        const game: GameFull = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + target.token)
             .send({ text: "private review", score: 7 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
@@ -876,7 +881,7 @@ describe("GET /api/users/:username/reviews", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + target.accountName + "/reviews")
+            .get("/api/users/id/" + target.accountName + "/reviews")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -888,19 +893,18 @@ describe("GET /api/users/:username/reviews", () => {
     });
 
     it("returns OK and reviews if viewer is also target", async () => {
-        const target = await register(app, username, displayName, password, email);
-
-        const game = await createGame();
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+        const game: GameFull = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
-            .set("Authorization", "Bearer " + target.token)
+            .post("/api/games/id/" + game.gameID + "/reviews")
+            .set("Authorization", "Bearer " + user.token)
             .send({ text: "private review", score: 7 })
             .expect(StatusCodes.CREATED);
 
-        const res = await request(app)
-            .get("/api/users/" + target.accountName + "/reviews")
-            .set("Authorization", "Bearer " + target.token)
+        await request(app)
+            .get("/api/users/id/" + user.accountName + "/reviews")
+            .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.OK);
     });
 });

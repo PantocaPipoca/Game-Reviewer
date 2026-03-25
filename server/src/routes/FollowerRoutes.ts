@@ -8,7 +8,7 @@ const router: Router = Router({ mergeParams: true });
 
 /**
  * @swagger
- *  /users/{username}/followers:
+ *  /users/id/{username}/followers:
  *      get:
  *          tags: [Followers]
  *          summary: Gets the followers of an account
@@ -41,7 +41,7 @@ router.get("/", optionalAuth, FollowerController.getFollowers);
 
 /**
  * @swagger
- *  /users/{username}/followers:
+ *  /users/id/{username}/followers:
  *      post:
  *          tags: [Followers]
  *          summary: Makes a follower request to user ":username" from current logged in user
@@ -72,7 +72,7 @@ router.post("/", auth, FollowerController.requestFollower);
 
 /**
  * @swagger
- *  /users/{username}/followers:
+ *  /users/id/{username}/followers:
  *      delete:
  *          tags: [Followers]
  *          summary: Unfollows/cancels request to :username

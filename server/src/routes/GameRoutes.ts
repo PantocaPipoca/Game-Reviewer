@@ -90,30 +90,50 @@ router.post("/search", GameController.searchGames);
  *              500:
  *                  description: "**Internal Server Error** - if the games couldn't be retrieved"
  */
+// it's now a POST so this documentation might be wrong
 router.post("/popular", GameController.getPopularGames);
-// it's now a POST so this documentation needs updating
 
 /**
- * swagger
- * /games/recent:
- *      post:
+ * @swagger
+ *  /games/recent:
+ *      get:
  *          tags: [Games]
- *          summary: Returns recent games
+ *          summary: Returns recently added games
  *          description: |
- *              Returns recently released games
- *
+ *              Returns recently added games.
+ *          responses:
+ *              200:
+ *                  description: "**OK**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: array
+ *                              items:
+ *                                  $ref: '#/components/schemas/Game'
+ *              500:
+ *                  description: "**Internal Server Error** - if the games couldn't be retrieved"
  */
 router.post("/recent", GameController.getRecentGames);
 
 /**
- * swagger
- * /games/recommended:
- *      post:
+ * @swagger
+ *  /games/recent:
+ *      get:
  *          tags: [Games]
- *          summary: Returns recommended games
+ *          summary: Returns recommended games games
  *          description: |
- *              Returns recommended games the user might like based on the genres of the games they already liked
- *
+ *              Returns recommended games games.
+ *          responses:
+ *              200:
+ *                  description: "**OK**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: array
+ *                              items:
+ *                                  $ref: '#/components/schemas/Game'
+ *              500:
+ *                  description: "**Internal Server Error** - if the games couldn't be retrieved"
  */
 router.post("/recommended", auth, GameController.getRecommendedGames);
 
@@ -121,7 +141,7 @@ router.post("/recommended", auth, GameController.getRecommendedGames);
 
 /**
  * @swagger
- *  /games/{gameID}/reviews:
+ *  /games/id/{gameID}/reviews:
  *      get:
  *          tags: [Reviews]
  *          summary: Gets the reviews of a game
@@ -147,11 +167,11 @@ router.post("/recommended", auth, GameController.getRecommendedGames);
  *              500:
  *                  description: "**Internal Server Error** - if the reviews couldn't be retrieved"
  */
-router.get("/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
+router.get("/id/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
 
 /**
  * @swagger
- *  /games/{gameID}/reviews:
+ *  /games/id/{gameID}/reviews:
  *      post:
  *          tags: [Reviews]
  *          summary: Publishes a new review
@@ -195,11 +215,11 @@ router.get("/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be published"
  */
-router.post("/:gameID/reviews", auth, ReviewController.publishReview);
+router.post("/id/:gameID/reviews", auth, ReviewController.publishReview);
 
 /**
  * @swagger
- *  /games/{gameID}/reviews:
+ *  /games/id/{gameID}/reviews:
  *      put:
  *          tags: [Reviews]
  *          summary: Updates a user's review
@@ -241,11 +261,11 @@ router.post("/:gameID/reviews", auth, ReviewController.publishReview);
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be updated"
  */
-router.put("/:gameID/reviews", auth, ReviewController.alterReview);
+router.put("/id/:gameID/reviews", auth, ReviewController.alterReview);
 
 /**
  * @swagger
- *  /games/{gameID}/reviews:
+ *  /games/id/{gameID}/reviews:
  *      delete:
  *          tags: [Reviews]
  *          summary: Removes a user's review
@@ -273,11 +293,13 @@ router.put("/:gameID/reviews", auth, ReviewController.alterReview);
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be removed"
  */
-router.delete("/:gameID/reviews", auth, ReviewController.removeReview);
+router.delete("/id/:gameID/reviews", auth, ReviewController.removeReview);
+
+// ===================== FIND GAME =====================
 
 /**
- * swagger
- *  /games/{gameID}:
+ * @swagger
+ *  /games/id/{gameID}:
  *      get:
  *          tags: [Games]
  *          summary: Finds a game by ID

@@ -4,22 +4,22 @@ import { createApp } from "../../../src/App.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { register, createGame } from "../helper/helper.ts";
-import { AuthResponse } from "../../../src/types/Types.ts";
+import { AuthResponse, GameFull } from "../../../src/types/Types.ts";
 
 const app: Express = createApp();
 
-const username = "user_" + Date.now();
-const password = "12345678";
-const displayName = "User Display Name";
-const email = username + "@test.com";
+const username: string = "user_" + Date.now();
+const password: string = "12345678";
+const displayName: string = "User Display Name";
+const email: string = username + "@test.com";
 
-describe("GET /api/reviews/:reviewer/:reviewed", () => {
+describe("GET /api/reviews/:reviewer/on/:reviewed", () => {
     it("returns BAD REQUEST if reviewed is not a number", async () => {
-        await request(app).get("/api/reviews/someuser/not-a-number").expect(StatusCodes.BAD_REQUEST);
+        await request(app).get("/api/reviews/someuser/on/not-a-number").expect(StatusCodes.BAD_REQUEST);
     });
 
     it("returns NOT FOUND if reviewer doesn't exist", async () => {
-        const game = await createGame();
+        const game: GameFull = await createGame();
 
         await request(app)
             .get("/api/reviews/not-existing-user/" + game.gameID)
@@ -27,34 +27,34 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
     });
 
     it("returns NOT FOUND if game doesn't exist", async () => {
-        const user = await register(app, username, displayName, password, email);
+        const user: AuthResponse = await register(app, username, displayName, password, email);
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/99999")
+            .get("/api/reviews/" + user.accountName + "/on/99999")
             .expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await register(app, username, displayName, password, email);
-        const game = await createGame();
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+        const game: GameFull = await createGame();
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + user.accountName + "/on/" + game.gameID)
             .expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns OK and review data (public user, no auth)", async () => {
-        const user = await register(app, username, displayName, password, email);
-        const game = await createGame();
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+        const game: GameFull = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "great game", score: 8 })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + user.accountName + "/on/" + game.gameID)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -67,11 +67,11 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
     });
 
     it("returns FORBIDDEN if reviewer is private and viewer is not following", async () => {
-        const user = await register(app, username, displayName, password, email);
-        const game = await createGame();
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+        const game: GameFull = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "private review", score: 6 })
             .expect(StatusCodes.CREATED);
@@ -83,18 +83,18 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + user.accountName + "/on/" + game.gameID)
             .expect(StatusCodes.FORBIDDEN);
     });
 
     it("returns FORBIDDEN if reviewer is private and viewer is authenticated but not following", async () => {
-        const reviewer = await register(app, username, displayName, password, email);
-        const viewerName = "viewer_" + Date.now();
-        const viewer = await register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
-        const game = await createGame();
+        const reviewer: AuthResponse = await register(app, username, displayName, password, email);
+        const viewerName: string = "viewer_" + Date.now();
+        const viewer: AuthResponse = await register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
+        const game: GameFull = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + reviewer.token)
             .send({ text: "private review", score: 6 })
             .expect(StatusCodes.CREATED);
@@ -106,19 +106,19 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + reviewer.accountName + "/on/" + game.gameID)
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.FORBIDDEN);
     });
 
     it("returns OK if reviewer is private but viewer is an accepted follower", async () => {
-        const reviewer = await register(app, username, displayName, password, email);
-        const viewerName = "viewer_" + Date.now();
-        const viewer = await register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
-        const game = await createGame();
+        const reviewer: AuthResponse = await register(app, username, displayName, password, email);
+        const viewerName: string = "viewer_" + Date.now();
+        const viewer: AuthResponse = await register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
+        const game: GameFull = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + reviewer.token)
             .send({ text: "private review", score: 6 })
             .expect(StatusCodes.CREATED);
@@ -130,7 +130,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/users/" + reviewer.accountName + "/followers/")
+            .post("/api/users/id/" + reviewer.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
@@ -140,7 +140,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + reviewer.accountName + "/on/" + game.gameID)
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -150,11 +150,11 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
     });
 
     it("returns OK if reviewer is private and viewer is the reviewer themselves", async () => {
-        const user = await register(app, username, displayName, password, email);
-        const game = await createGame();
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+        const game: GameFull = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "my review", score: 9 })
             .expect(StatusCodes.CREATED);
@@ -166,7 +166,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + user.accountName + "/on/" + game.gameID)
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.OK);
 
