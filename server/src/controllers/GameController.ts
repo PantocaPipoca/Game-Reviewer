@@ -15,7 +15,7 @@ type QueryBody = {
 
 const GENRES_SET: number[] = [2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36];
 
-function isValidOffset(num: unknown): boolean{
+function isValidOffset(num: unknown): boolean {
     return Number.isInteger(num) && (num as number) >= 0;
 }
 
@@ -60,7 +60,7 @@ export class GameController {
         } catch (e) {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_INVALID);
         }
-        const result = await GameService.getGamePage(gameID);
+        const result = await GameService.getGameInfo(gameID);
         if (result.length == 0) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NOT_FOUND);
         return makeSuccess(res, StatusCodes.OK, result);
     });
@@ -73,11 +73,12 @@ export class GameController {
         let { name, genres, offset, amount }: QueryBody = req.body;
         if (!isValidOffset(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
         if (!isValidAmount(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
-        if (!genres.every((x) => GENRES_SET.includes(x)))
+        if (name === undefined) name = "";
+        if (typeof name !== "string")
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_NAME_FORMAT_INVALID);
+        if (genres === undefined) genres = [] as number[];
+        if (!Array.isArray(genres) || !genres.every((x) => GENRES_SET.includes(x)))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GENRES_INVALID);
-
-        if (!name) name = "";
-        if (!genres) genres = [] as number[];
         const result = await GameService.searchGames(name, genres, offset, amount);
         return makeSuccess(res, StatusCodes.OK, result);
     });
