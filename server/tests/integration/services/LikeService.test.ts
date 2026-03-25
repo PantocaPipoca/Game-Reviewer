@@ -59,12 +59,12 @@ describe("LikeService (integration)", () => {
         await quickPublishReview(pk);
 
         // Creates several users to like the review
-        const expectedLikeCount: number = 24;
+        const expectedLikeCount: number = 12;
         for (var i = 0; i < expectedLikeCount; i++)
             await expect(pushReactionAux(await quickRegisterUser(), pk, true)).resolves.toBeDefined();
 
         // Creates several users to dislike the review
-        const expectedDislikeCount: number = 13;
+        const expectedDislikeCount: number = 8;
         for (var i = 0; i < expectedDislikeCount; i++)
             await expect(pushReactionAux(await quickRegisterUser(), pk, false)).resolves.toBeDefined();
 

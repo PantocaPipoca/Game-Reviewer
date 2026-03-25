@@ -872,4 +872,87 @@ describe("GET /api/users/:username/reviews", () => {
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.OK);
     });
+
+    describe("DELETE /api/users/me/followers/:username", () => {
+        it("returns UNAUTHORIZED if not authenticated", async () => {
+            await request(app).delete("/api/users/me/followers/someone").expect(StatusCodes.UNAUTHORIZED);
+        });
+
+        it("returns 404 if the target user doesn't exist", async () => {
+            const user = await register(app, username, displayName, password, email);
+
+            await request(app)
+                .delete("/api/users/me/followers/not-existing-user")
+                .set("Authorization", "Bearer " + user.token)
+                .expect(StatusCodes.NOT_FOUND);
+        });
+
+        it("returns 404 if the target user is not a follower", async () => {
+            const user = await register(app, username, displayName, password, email);
+            const otherName = "other_" + Date.now();
+            const other = await register(app, otherName, "Other", password, `${otherName}@test.com`);
+
+            await request(app)
+                .delete("/api/users/me/followers/" + other.accountName)
+                .set("Authorization", "Bearer " + user.token)
+                .expect(StatusCodes.NOT_FOUND);
+        });
+
+        it("returns 202 and removes an accepted follower", async () => {
+            const user = await register(app, username, displayName, password, email);
+            const followerName = "flwr_" + Date.now();
+            const follower = await register(app, followerName, "Follower", password, `${followerName}@test.com`);
+
+            // follower follows user (public account → auto-accepted)
+            await request(app)
+                .post("/api/users/" + user.accountName + "/followers/")
+                .set("Authorization", "Bearer " + follower.token)
+                .expect(StatusCodes.CREATED);
+
+            // user removes follower
+            const res = await request(app)
+                .delete("/api/users/me/followers/" + follower.accountName)
+                .set("Authorization", "Bearer " + user.token)
+                .expect(StatusCodes.ACCEPTED);
+
+            expect(res.body.status).toBe("success");
+            expect(res.body.data.follows).toBe(follower.accountName);
+            expect(res.body.data.followed).toBe(user.accountName);
+
+            // confirm they no longer appear in followers list
+            const followersRes = await request(app)
+                .get("/api/users/" + user.accountName + "/followers")
+                .expect(StatusCodes.OK);
+
+            expect(followersRes.body.data.find((f: any) => f.follows === follower.accountName)).toBeUndefined();
+        });
+
+        it("returns 202 and removes a pending follower request (private account)", async () => {
+            const user = await register(app, username, displayName, password, email);
+            const requesterName = "req_" + Date.now();
+            const requester = await register(app, requesterName, "Requester", password, `${requesterName}@test.com`);
+
+            // make user private
+            await request(app)
+                .put("/api/users/me")
+                .set("Authorization", "Bearer " + user.token)
+                .send({ isPrivate: true })
+                .expect(StatusCodes.OK);
+
+            // requester sends follow request (pending, not accepted)
+            await request(app)
+                .post("/api/users/" + user.accountName + "/followers/")
+                .set("Authorization", "Bearer " + requester.token)
+                .expect(StatusCodes.CREATED);
+
+            // user dismisses the pending request via this route
+            const res = await request(app)
+                .delete("/api/users/me/followers/" + requester.accountName)
+                .set("Authorization", "Bearer " + user.token)
+                .expect(StatusCodes.ACCEPTED);
+
+            expect(res.body.status).toBe("success");
+            expect(res.body.data.follows).toBe(requester.accountName);
+        });
+    });
 });

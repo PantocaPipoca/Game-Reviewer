@@ -248,13 +248,13 @@ export class AccountService {
         // check if currentUser can view this profile
         const canView: boolean = await canViewUser(user, currentUser);
 
-        if (await canViewUser(user, currentUser)) {
+        if (canView) {
             return {
                 accountName: user.accountName,
                 profilePic: user.profilePic,
                 isPrivate: user.isPrivate,
-                userData: canView ? (user.userData as UserData) : null,
-                createdAt: canView ? user.createdAt : null,
+                userData: user.userData as UserData,
+                createdAt: user.createdAt,
             } as UserPublic;
         } else {
             return {
