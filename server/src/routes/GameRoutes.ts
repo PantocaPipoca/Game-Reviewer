@@ -125,8 +125,7 @@ router.post("/recommended", auth, GameController.getRecommendedGames);
  *      get:
  *          tags: [Reviews]
  *          summary: Gets the reviews of a game
- *          description: |
- *              Gets the reviews of a game.
+ *          description: Gets the reviews of a game. Reviews from private accounts are only included if the current user follows them.
  *          parameters:
  *              - in: path
  *                name: gameID
@@ -135,17 +134,37 @@ router.post("/recommended", auth, GameController.getRecommendedGames);
  *                  type: integer
  *          responses:
  *              200:
- *                  description: "**OK**"
+ *                  description: "**OK** - reviews retrieved successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/Review'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/Review'
+ *              400:
+ *                  description: "**Bad Request** - if the gameID is invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** - if the provided game doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              500:
  *                  description: "**Internal Server Error** - if the reviews couldn't be retrieved"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.get("/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
 
@@ -154,9 +173,8 @@ router.get("/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
  *  /games/{gameID}/reviews:
  *      post:
  *          tags: [Reviews]
- *          summary: Publishes a new review
- *          description: |
- *              Publishes a new review.
+ *          summary: Publishes a new review for a game
+ *          description: Publishes a new review for a game
  *          security:
  *              - bearerAuth: []
  *          parameters:
@@ -181,19 +199,47 @@ router.get("/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
  *                                  maximum: 10
  *          responses:
  *              201:
- *                  description: "**Created**"
+ *                  description: "**Created** - review published successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Review'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Review'
  *              400:
  *                  description: "**Bad Request** - if any of the required fields are missing, or if the score is not a number or not in [0, 10]"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** - if the provided user or game doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              409:
  *                  description: "**Conflict** - if the user already reviewed the game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be published"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/:gameID/reviews", auth, ReviewController.publishReview);
 
@@ -202,9 +248,8 @@ router.post("/:gameID/reviews", auth, ReviewController.publishReview);
  *  /games/{gameID}/reviews:
  *      put:
  *          tags: [Reviews]
- *          summary: Updates a user's review
- *          description: |
- *              Updates a user's review.
+ *          summary: Updates the current user's review for a game
+ *          description: Updates the current user's review for a game. Both fields are optional — omitted fields keep their existing values.
  *          security:
  *              - bearerAuth: []
  *          parameters:
@@ -219,7 +264,7 @@ router.post("/:gameID/reviews", auth, ReviewController.publishReview);
  *                  application/json:
  *                      schema:
  *                          type: object
- *                          required: [text, score]
+ *                          required: [score]
  *                          properties:
  *                              text:
  *                                  type: string
@@ -229,17 +274,41 @@ router.post("/:gameID/reviews", auth, ReviewController.publishReview);
  *                                  maximum: 10
  *          responses:
  *              202:
- *                  description: "**Accepted**"
+ *                  description: "**Accepted** — review updated successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Review'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Review'
  *              400:
- *                  description: "**Bad Request** - if the gameID is invalid, or if the score is not a number or not in [0, 10]"
+ *                  description: "**Bad Request** — if the gameID is invalid, or if score is not in [0, 10]"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** - if the provided user or game doesn't exist, or if the user didn't review the game"
+ *                  description: "**Not Found** — if the user or game doesn't exist, or if the user hasn't reviewed this game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              500:
- *                  description: "**Internal Server Error** - if the review couldn't be updated"
+ *                  description: "**Internal Server Error** — if the review couldn't be updated"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.put("/:gameID/reviews", auth, ReviewController.alterReview);
 
@@ -248,9 +317,8 @@ router.put("/:gameID/reviews", auth, ReviewController.alterReview);
  *  /games/{gameID}/reviews:
  *      delete:
  *          tags: [Reviews]
- *          summary: Removes a user's review
- *          description: |
- *              Removes a user's review.
+ *          summary: Removes the current user's review for a game
+ *          description: Removes the current user's review for a game
  *          security:
  *              - bearerAuth: []
  *          parameters:
@@ -261,20 +329,43 @@ router.put("/:gameID/reviews", auth, ReviewController.alterReview);
  *                  type: integer
  *          responses:
  *              202:
- *                  description: "**Accepted**"
+ *                  description: "**Accepted** - review removed successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Review'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Review'
  *              400:
  *                  description: "**Bad Request** - if the gameID is invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** - if the provided user or game doesn't exist, or if the user didn't review the game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              500:
  *                  description: "**Internal Server Error** - if the review couldn't be removed"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.delete("/:gameID/reviews", auth, ReviewController.removeReview);
-
 /**
  * swagger
  *  /games/{gameID}:

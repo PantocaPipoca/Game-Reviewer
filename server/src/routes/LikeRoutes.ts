@@ -11,9 +11,8 @@ const router: Router = Router({ mergeParams: true });
  *  /reviews/{reviewer}/{reviewed}/likes:
  *      get:
  *          tags: [Reactions]
- *          summary: Gets the likes of a review
- *          description: |
- *              Gets the likes of a review.
+ *          summary: Gets the like count of a review
+ *          description: Gets the like count of a review
  *          parameters:
  *              - in: path
  *                name: reviewer
@@ -27,15 +26,29 @@ const router: Router = Router({ mergeParams: true });
  *                  type: integer
  *          responses:
  *              200:
- *                  description: "**OK** - number of likes"
+ *                  description: "**OK** — like count retrieved successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: integer
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: integer
  *              400:
- *                  description: "**Bad Request** - if any of the required fields are missing"
+ *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
+ *                  description: "**Not Found** — if the user or game doesn't exist, or if the user hasn't reviewed this game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.get("/likes", LikeController.getLikes);
 
@@ -44,9 +57,8 @@ router.get("/likes", LikeController.getLikes);
  *  /reviews/{reviewer}/{reviewed}/likes:
  *      post:
  *          tags: [Reactions]
- *          summary: Adds a like to a review
- *          description: |
- *              Adds a like to a review.
+ *          summary: Adds or updates a like on a review
+ *          description: Adds a like to a review. If the user already reacted, the existing reaction is updated to a like.
  *          security:
  *              - bearerAuth: []
  *          parameters:
@@ -62,17 +74,35 @@ router.get("/likes", LikeController.getLikes);
  *                  type: integer
  *          responses:
  *              202:
- *                  description: "**Accepted**"
+ *                  description: "**Accepted** — like added successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Like'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Like'
  *              400:
- *                  description: "**Bad Request** - if any of the required fields are missing"
+ *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              401:
- *                  description: "**Unauthorized** - if no account is logged in"
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
+ *                  description: "**Not Found** — if the user or game doesn't exist, or if the user hasn't reviewed this game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/likes", auth, LikeController.addLike);
 
@@ -83,9 +113,8 @@ router.post("/likes", auth, LikeController.addLike);
  *  /reviews/{reviewer}/{reviewed}/dislikes:
  *      get:
  *          tags: [Reactions]
- *          summary: Gets the dislikes of a review
- *          description: |
- *              Gets the dislikes of a review.
+ *          summary: Gets the dislike count of a review
+ *          description: Gets the dislike count of a review
  *          parameters:
  *              - in: path
  *                name: reviewer
@@ -99,15 +128,29 @@ router.post("/likes", auth, LikeController.addLike);
  *                  type: integer
  *          responses:
  *              200:
- *                  description: "**OK** - number of dislikes"
+ *                  description: "**OK** — dislike count retrieved successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: integer
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: integer
  *              400:
- *                  description: "**Bad Request** - if any of the required fields are missing"
+ *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
+ *                  description: "**Not Found** — if the user or game doesn't exist, or if the user hasn't reviewed this game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.get("/dislikes", LikeController.getDislikes);
 
@@ -116,9 +159,8 @@ router.get("/dislikes", LikeController.getDislikes);
  *  /reviews/{reviewer}/{reviewed}/dislikes:
  *      post:
  *          tags: [Reactions]
- *          summary: Adds a dislike to a review
- *          description: |
- *              Adds a dislike to a review.
+ *          summary: Adds or updates a dislike on a review
+ *          description: Adds a dislike to a review. If the user already reacted, the existing reaction is updated to a dislike.
  *          security:
  *              - bearerAuth: []
  *          parameters:
@@ -134,17 +176,35 @@ router.get("/dislikes", LikeController.getDislikes);
  *                  type: integer
  *          responses:
  *              202:
- *                  description: "**Accepted**"
+ *                  description: "**Accepted** — dislike added successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Like'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Like'
  *              400:
- *                  description: "**Bad Request** - if any of the required fields are missing"
+ *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              401:
- *                  description: "**Unauthorized** - if no account is logged in"
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
+ *                  description: "**Not Found** — if the user or game doesn't exist, or if the user hasn't reviewed this game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/dislikes", auth, LikeController.addDislike);
 
@@ -155,9 +215,8 @@ router.post("/dislikes", auth, LikeController.addDislike);
  *  /reviews/{reviewer}/{reviewed}/reacts:
  *      delete:
  *          tags: [Reactions]
- *          summary: Deletes likes and dislikes to a review
- *          description: |
- *              Deletes likes and dislikes to a review.
+ *          summary: Removes the current user's reaction from a review
+ *          description: Removes the current user's like or dislike from a review
  *          security:
  *              - bearerAuth: []
  *          parameters:
@@ -173,17 +232,35 @@ router.post("/dislikes", auth, LikeController.addDislike);
  *                  type: integer
  *          responses:
  *              202:
- *                  description: "**Accepted**"
+ *                  description: "**Accepted** — reaction removed successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Like'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Like'
  *              400:
- *                  description: "**Bad Request** - if any of the required fields are missing"
+ *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              401:
- *                  description: "**Unauthorized** - if no account is logged in"
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** - if the provided user doesn't exist, if the provided game doesn't exist, or if the user didn't review the game"
+ *                  description: "**Not Found** — if the user or game doesn't exist, the user hasn't reviewed this game, or no reaction exists"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.delete("/reacts", auth, LikeController.removeReactions);
 
