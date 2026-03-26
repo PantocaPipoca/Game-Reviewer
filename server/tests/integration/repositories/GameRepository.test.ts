@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import { GameRepository } from "../../../src/Repository/GameRepository";
-import { GameFull } from "../../../src/types/Types";
+import { GameCover, GameFull } from "../../../src/types/Types";
 import { InputJsonValue, JsonValue } from "@prisma/client/runtime/client";
 import { createGame } from "../helper/helper";
 import { IGDB } from "../../../src/IGDB/Requests";
@@ -86,7 +86,12 @@ describe("IGDB requests (integration)", () => {
     }, 15000);
 
     it("checks if getGivenGames is working correctly", async () => {
-        "TODO";
+        const gameIDs: number[] = [121, 1879, 14593, 26226];
+        const games: GameCover[] = await IGDB.getGivenGames(gameIDs);
+        expect(games.length).toBe(gameIDs.length);
+        for (const game of games) {
+            expect(gameIDs).toContain(game.id);
+        }
     });
 
     it("checks if getRecentGames is working correctly", async () => {

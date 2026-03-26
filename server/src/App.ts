@@ -11,7 +11,6 @@ import rateLimit from "express-rate-limit";
 import { doubleCsrf } from "csrf-csrf";
 import { middleware as openAPIValidator } from "express-openapi-validator";
 
-
 export function createApp(): Express {
     const app: Express = express();
 
@@ -85,6 +84,7 @@ export function createApp(): Express {
             apiSpec: SWAGGER_SPEC as any,
             validateRequests: true,
             validateResponses: true,
+            validateSecurity: false,
         })
     );
 

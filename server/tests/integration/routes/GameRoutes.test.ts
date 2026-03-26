@@ -41,7 +41,7 @@ const email = username + "@test.com";
 // });
 // refactor this for IGDB
 
-// ===================== IGDB REQUESTS (TODO) =====================
+// ===================== IGDB REQUESTS =====================
 
 describe("GET /api/games/id/:gameID", () => {
     it("returns OK if given gameID is a valid integer and corresponds to an existing game in IGDB", async () => {
@@ -58,32 +58,32 @@ describe("GET /api/games/id/:gameID", () => {
 
 describe("POST /api/games/search", () => {
     it("returns OK if searching parameters are valid (only name)", async () => {
-        const name = "minecraf";
-        const offset = 0;
-        const amount = 5;
+        const name: string = "minecraf";
+        const offset: number = 0;
+        const amount: number = 5;
         await request(app).post("/api/games/search").send({ name, offset, amount }).expect(StatusCodes.OK);
     });
 
     it("returns OK if searching parameters are valid (only genres)", async () => {
-        const genres = [8, 32];
-        const offset = 0;
-        const amount = 5;
+        const genres: number[] = [8, 32];
+        const offset: number = 0;
+        const amount: number = 5;
         await request(app).post("/api/games/search").send({ genres, offset, amount }).expect(StatusCodes.OK);
     });
 
     it("returns OK if searching parameters are valid (name + genres)", async () => {
-        const name = "celes";
-        const genres = [8, 32];
-        const offset = 0;
-        const amount = 5;
+        const name: string = "celes";
+        const genres: number[] = [8, 32];
+        const offset: number = 0;
+        const amount: number = 5;
         await request(app).post("/api/games/search").send({ name, genres, offset, amount }).expect(StatusCodes.OK);
     });
 
     it("returns BAD REQUEST if query params are invalid", async () => {
-        const name = "celes";
-        const genres = [8, 32];
-        const offset = 0;
-        const amount = 5;
+        const name: string = "celes";
+        const genres: number[] = [8, 32];
+        const offset: number = 0;
+        const amount: number = 5;
         await request(app)
             .post("/api/games/search")
             .send({ name, genres, offset: -1, amount })
@@ -104,20 +104,32 @@ describe("POST /api/games/search", () => {
 });
 
 describe("POST /api/games/popular", () => {
-    it.todo("returns OK if query params are valid");
-    it.todo("returns BAD REQUEST if query params are invalid");
+    it("returns OK if query params are valid", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        await request(app).post("/api/games/popular").send({ offset, amount }).expect(StatusCodes.OK);
+    });
+
+    it("returns BAD REQUEST if query params are invalid", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        await request(app).post("/api/games/popular").send({ offset: -1, amount }).expect(StatusCodes.BAD_REQUEST);
+        await request(app).post("/api/games/popular").send({ offset: 5.3, amount }).expect(StatusCodes.BAD_REQUEST);
+        await request(app).post("/api/games/popular").send({ offset, amount: 3.6 }).expect(StatusCodes.BAD_REQUEST);
+        await request(app).post("/api/games/popular").send({ offset, amount: 0 }).expect(StatusCodes.BAD_REQUEST);
+    });
 });
 
 describe("POST /api/games/recent", () => {
     it("returns OK if query params are valid", async () => {
-        const offset = 0;
-        const amount = 3;
+        const offset: number = 0;
+        const amount: number = 3;
         await request(app).post("/api/games/recent").send({ offset, amount }).expect(StatusCodes.OK);
     });
 
     it("returns BAD REQUEST if query params are invalid", async () => {
-        const offset = 0;
-        const amount = 3;
+        const offset: number = 0;
+        const amount: number = 3;
         await request(app).post("/api/games/recent").send({ offset: -1, amount }).expect(StatusCodes.BAD_REQUEST);
         await request(app).post("/api/games/recent").send({ offset: 5.3, amount }).expect(StatusCodes.BAD_REQUEST);
         await request(app).post("/api/games/recent").send({ offset, amount: 3.6 }).expect(StatusCodes.BAD_REQUEST);
@@ -126,8 +138,47 @@ describe("POST /api/games/recent", () => {
 });
 
 describe("POST /api/games/recommended", () => {
-    it.todo("returns OK if query params are valid");
-    it.todo("returns BAD REQUEST if query params are invalid");
+    it("returns OK if query params are valid and user is authenticated", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        const testUser = await register(app, "testUsername", "testDisplayName", "testPassword", "test@email.com");
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset, amount })
+            .expect(StatusCodes.OK);
+    });
+    it("returns BAD REQUEST if query params are invalid", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        const testUser = await register(app, "testUsername", "testDisplayName", "testPassword", "test@email.com");
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset: -4, amount })
+            .expect(StatusCodes.BAD_REQUEST);
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset: 3.2, amount })
+            .expect(StatusCodes.BAD_REQUEST);
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset, amount: 0 })
+            .expect(StatusCodes.BAD_REQUEST);
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset, amount: 4.5 })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    it("returns BAD REQUEST if user isn't authenticated", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        await request(app).post("/api/games/recommended").send({ offset, amount }).expect(StatusCodes.UNAUTHORIZED);
+    });
 });
 
 // ===================== GET REVIEWS BY GAME =====================

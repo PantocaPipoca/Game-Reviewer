@@ -44,8 +44,8 @@ export class IGDB {
     private static async sleep() {
         const now = Date.now();
         const timeSinceLastQuery = now - this.lastQueryTime;
-        if (now - this.lastQueryTime < 2600) {
-            new Promise((resolve) => setTimeout(resolve, 2600 - timeSinceLastQuery));
+        if (timeSinceLastQuery < 2600) {
+            await new Promise((resolve) => setTimeout(resolve, 2600 - timeSinceLastQuery));
         }
     }
 
@@ -284,7 +284,7 @@ export class IGDB {
 
 // tests
 
-// let output: any = await IGDB.searchGames("terraria", [], 0, 5);
+// let output: any = await IGDB.searchGames("celeste", [], 0, 5);
 // console.log(JSON.stringify(output, null, 2));
 
 // let output2: any = await IGDB.getGameByID(26226);
@@ -293,8 +293,8 @@ export class IGDB {
 // let output3: any = await IGDB.getRecentGames(15, 1);
 // console.log(JSON.stringify(output3, null, 2));
 
-let output4: any = await IGDB.getGenresOfGames([1, 1879, 26226]);
-console.log(JSON.stringify(output4, null, 2));
+// let output4: any = await IGDB.getGenresOfGames([1, 1879, 26226]);
+// console.log(JSON.stringify(output4, null, 2));
 
 // let outputN: any = await IGDB.getAllTypes();
 // console.log(JSON.stringify(outputN, null, 2));
