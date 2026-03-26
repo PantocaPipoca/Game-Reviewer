@@ -1,0 +1,58 @@
+.panel {
+    width: 100%;
+}
+
+.seeMore {
+    text-decoration: none;
+    margin-right: auto;
+}
+
+.upVote {
+    height: 24px;
+    aspect-ratio: 1 / 1;
+}
+
+.infoColumn {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--spacingSmall);
+}
+
+.topRow {
+    display: flex;
+    flex-direction: row;
+}
+
+.bottomRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingSmall);
+}
+.cover {
+    margin: var(--spacingSmall);
+    width: 150px;
+    aspect-ratio: 3 / 4;
+    cursor: pointer;
+}
+
+.stars {
+    display: flex;
+    gap: var(--spacingSmall);
+    margin-left: auto;
+}
+
+.avatar {
+    margin: var(--spacingSmall);
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.userBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacingSmall);
+    width: 150px;
+}
