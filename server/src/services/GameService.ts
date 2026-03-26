@@ -52,9 +52,8 @@ export class GameService {
      * @returns array of enough game info to make a cover
      */
     static async getPopularGames(offset: number, amount: number): Promise<GameCover[]> {
-        const popularGamesEntriesRaw = await GameRepository.getPopularGames(offset, amount);
-        const popularGamesEntriesArr = popularGamesEntriesRaw.map((g) => g.gameID);
-        return IGDB.getGivenGames(popularGamesEntriesArr);
+        const popularGames: number[] = await GameRepository.getPopularGames(offset, amount);
+        return IGDB.getGivenGames(popularGames);
     }
 
     /**
@@ -75,12 +74,11 @@ export class GameService {
      * @returns array of enough game info to make a cover
      */
     static async getRecommendedGames(userPK: UserPK, offset: number, amount: number): Promise<GameCover[]> {
-        const likedGamesRaw = await GameRepository.getGamesUserLikes(userPK);
-        if (likedGamesRaw.length < 1) {
+        const likedGames: number[] = await GameRepository.getGamesUserLikes(userPK);
+        if (likedGames.length < 1) {
             return GameService.getPopularGames(offset, amount);
         }
-        const likedGamesParsed: number[] = likedGamesRaw.map((g) => g.gameID);
-        const likedGenres: number[] = await IGDB.getGenresOfGames(likedGamesParsed);
+        const likedGenres: number[] = await IGDB.getGenresOfGames(likedGames);
         return IGDB.searchGames("", likedGenres, offset, amount);
     }
 

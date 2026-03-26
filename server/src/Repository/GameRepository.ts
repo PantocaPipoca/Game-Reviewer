@@ -53,7 +53,7 @@ export class GameRepository {
      * @param offset the number of games first on the list that are skipped
      * @returns a promise of an array of entries with the popular games' gameID
      */
-    public static getPopularGames(offset: number, amount: number): Promise<{ gameID: GamePK }[]> {
+    public static getPopularGames(offset: number, amount: number): Promise<GamePK[]> {
         return PRISMA.review
             .groupBy({
                 by: ["reviewed"],
@@ -73,7 +73,7 @@ export class GameRepository {
                 skip: offset,
                 take: amount,
             })
-            .then((results) => results.map((x) => ({ gameID: x.reviewed })));
+            .then((results) => results.map((x) => x.reviewed));
     }
 
     /**
@@ -81,7 +81,7 @@ export class GameRepository {
      * @param userPK primary key of the user we want the liked games
      * @returns a promise of an array of entries with the user liked games' gameID
      */
-    public static getGamesUserLikes(userPK: UserPK): Promise<{ gameID: GamePK }[]> {
+    public static getGamesUserLikes(userPK: UserPK): Promise<GamePK[]> {
         return PRISMA.review
             .findMany({
                 where: {
@@ -98,6 +98,6 @@ export class GameRepository {
                 },
                 take: 20,
             })
-            .then((results) => results.map((x) => ({ gameID: x.reviewed })));
+            .then((results) => results.map((x) => x.reviewed));
     }
 }
