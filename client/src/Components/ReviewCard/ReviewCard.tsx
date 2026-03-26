@@ -4,9 +4,6 @@ import Text from "../Text/Text";
 import Star from "../Star/Star";
 
 const MAX_STARS = 5;
-const STAR_FULL = "https://cdn-icons-png.flaticon.com/512/1828/1828884.png";
-const STAR_HALF = "https://cdn-icons-png.flaticon.com/512/1828/1828885.png";
-const STAR_EMPTY = "https://cdn-icons-png.flaticon.com/512/1828/1828970.png";
 
 export type ReviewCardProps = {
     cover?: string;

@@ -72,6 +72,6 @@ input {
 hr {
     border: none;
     border-top: 3px solid var(--separator);
-    width: 100%;
-    margin: var(--spacingMedium);
+    width: calc(100% - (var(--spacingMedium) * 2));
+    margin: var(--spacingMedium) auto;
 }

@@ -1,0 +1,78 @@
+.mainPanel {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--borderWidth) * -1);
+}
+
+.content {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacingMedium);
+}
+
+.coverPanel {
+    display: flex;
+    flex-direction: column;
+}
+
+.gameName {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(-1 * var(--spacingSmall));
+    margin-bottom: var(--spacingSmall);
+}
+
+.cover {
+    margin: var(--spacingSmall);
+}
+
+.media {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+    width: 225px;
+    gap: var(--spacingMedium);
+}
+
+.leftColumn > * {
+    width: 100%;
+}
+
+.ratingContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.ratingRow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.bottomLeftRow {
+    padding-top: var(--spacingMedium);
+}
+
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingMedium);
+}
+
+.rightColumn > *:not(:first-child) {
+    width: 100%;
+}
+
+.description {
+    padding: var(--spacingSmall);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingSmall);
+}
