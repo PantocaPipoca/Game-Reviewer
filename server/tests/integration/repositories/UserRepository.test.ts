@@ -84,7 +84,7 @@ describe("UserRepository (integration)", () => {
         // Inserts user
         const user: UserFull = await insertAux();
         const newProfilePic: Uint8Array<ArrayBuffer> = new Uint8Array([-3, 7, 9, 1, 124]);
-        await AccountService.ChangePicture(user.accountName, newProfilePic);
+        await AccountService.changePicture(user.accountName, newProfilePic);
 
         // Deletes user and checks if the data matches the old
         const found: UserFull = await UserRepository.deleteUser(user.accountName);

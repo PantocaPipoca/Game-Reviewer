@@ -22,6 +22,6 @@ export class GameAPI {
     }
 
     static async getById(gameID: number): Promise<GameFull> {
-        return CLIENT.get("/games/" + gameID);
+        return CLIENT.get("/games/id/" + gameID);
     }
 }
