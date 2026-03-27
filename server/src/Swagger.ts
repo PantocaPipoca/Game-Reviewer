@@ -27,16 +27,18 @@ const OPTIONS: swaggerJsdoc.Options = {
                     type: "object",
                     properties: {
                         accountName: { type: "string" },
+                        profilePic: { type: "string", nullable: true },
                         isPrivate: { type: "boolean" },
                         userData: {
                             type: "object",
+                            nullable: true, // userPrivate
                             properties: {
                                 displayName: { type: "string" },
                                 gender: { type: "string", nullable: true },
                                 bio: { type: "string", nullable: true },
                             },
                         },
-                        createdAt: { type: "string", format: "date-time" },
+                        createdAt: { type: "string", format: "date-time", nullable: true },
                     },
                 },
                 AuthResponse: {

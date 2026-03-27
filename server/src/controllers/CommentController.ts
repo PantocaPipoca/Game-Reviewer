@@ -16,7 +16,7 @@ export class CommentController {
         const { reviewer, reviewed }: ReviewPrimaryKey = extractReviewPK(req);
 
         const result = await CommentService.getComments(reviewer, reviewed, currentUser);
-        return makeSuccess(res, StatusCodes.OK, result);
+        return makeSuccess(res, StatusCodes.OK, result.map(c => ({ ...c, id: c.id.toString() })));
     });
 
     /**
@@ -29,8 +29,8 @@ export class CommentController {
         const { reviewer, reviewed }: ReviewPrimaryKey = extractReviewPK(req);
         const { text } = req.body;
         if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_TEXT_REQUIRED);
-        const result: any = await CommentService.publishComment(currentUser, reviewer, reviewed, text);
-        return makeSuccess(res, StatusCodes.CREATED, result);
+        const result = await CommentService.publishComment(currentUser, reviewer, reviewed, text);
+        return makeSuccess(res, StatusCodes.CREATED, { ...result, id: result.id.toString() });
     });
 
     /**
@@ -53,8 +53,8 @@ export class CommentController {
         } catch (_) {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_ID_INVALID);
         }
-        const result: any = await CommentService.editComment(currentUser, id, text);
-        return makeSuccess(res, StatusCodes.ACCEPTED, result);
+        const result = await CommentService.editComment(currentUser, id, text);
+        return makeSuccess(res, StatusCodes.ACCEPTED, { ...result, id: result.id.toString() });
     });
 
     /**
@@ -75,7 +75,7 @@ export class CommentController {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_ID_INVALID);
         }
 
-        const result: any = await CommentService.removeComment(currentUser, id);
-        return makeSuccess(res, StatusCodes.ACCEPTED, result);
+        const result = await CommentService.removeComment(currentUser, id);
+        return makeSuccess(res, StatusCodes.ACCEPTED, { ...result, id: result.id.toString() });
     });
 }

@@ -9,7 +9,8 @@ import SWAGGER_SPEC from "./Swagger.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { doubleCsrf } from "csrf-csrf";
-import { middleware } from "express-openapi-validator";
+import { middleware as openAPIValidator } from "express-openapi-validator";
+
 
 export function createApp(): Express {
     const app: Express = express();
@@ -78,16 +79,14 @@ export function createApp(): Express {
         app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(SWAGGER_SPEC));
     }
 
-    /*
-    // contract validator
+    // Contract validator
     app.use(
-        middleware({
+        openAPIValidator({
             apiSpec: SWAGGER_SPEC as any,
             validateRequests: true,
             validateResponses: true,
         })
-    )
-    */
+    );
 
     // App routes
     app.use("/api", router);
@@ -99,19 +98,57 @@ export function createApp(): Express {
 
     // Error handler
     app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+        const isProd = process.env["NODE_ENV"] === "production";
+
         if (err?.code === "EBADCSRFTOKEN") {
-            return res.status(StatusCodes.FORBIDDEN).json({ status: "error", message: "Invalid CSRF token" });
+            return res.status(StatusCodes.FORBIDDEN).json({
+                status: "error",
+                message: "Invalid CSRF token",
+            });
         }
 
         if (err instanceof AppError) {
-            return res.status(err.statusCode).json({ status: "error", message: err.message });
+            return res.status(err.status).json({
+                status: "error",
+                message: err.message,
+            });
+        }
+
+        if (typeof err?.status === "number") {
+            return res.status(err.status).json({
+                status: "error",
+                message: isProd ? safeMessage(err.status) : (err.message ?? "Request failed"),
+            });
         }
 
         console.error(err);
-        return res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json({ status: "error", message: "Internal server error" });
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            status: "error",
+            message: "Internal server error",
+        });
     });
 
     return app;
+}
+
+function safeMessage(status: number): string {
+    switch (status) {
+        case 400:
+            return "Bad request";
+        case 401:
+            return "Unauthorized";
+        case 403:
+            return "Forbidden";
+        case 404:
+            return "Not found";
+        case 405:
+            return "Method not allowed";
+        case 409:
+            return "Conflict";
+        case 429:
+            return "Too many requests";
+        default:
+            return "Request failed";
+    }
 }
