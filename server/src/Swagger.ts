@@ -27,7 +27,7 @@ const OPTIONS: swaggerJsdoc.Options = {
                     type: "object",
                     properties: {
                         accountName: { type: "string" },
-                        profilePic: { type: "string", nullable: true },
+                        profilePic: { type: "object", nullable: true },
                         isPrivate: { type: "boolean" },
                         userData: {
                             type: "object",

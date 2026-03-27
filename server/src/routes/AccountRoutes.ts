@@ -147,11 +147,25 @@ router.get("/me", auth, AccountController.getCurrentUser);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/UserPublic'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/UserPublic'
  *              400:
  *                  description: "**Bad Request** — if the profile picture field is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the provided account's name doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.put("/me/pfp", auth, express.raw({ type: "*/*" }), AccountController.changePic);
 
@@ -165,7 +179,7 @@ router.put("/me/pfp", auth, express.raw({ type: "*/*" }), AccountController.chan
  *          security:
  *              - bearerAuth: []
  *          requestBody:
- *              required: true
+ *              required: false
  *              content:
  *                  application/json:
  *                      schema:
@@ -659,13 +673,31 @@ router.get("/id/:username", optionalAuth, AccountController.findByUsername);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/AuthResponse'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/AuthResponse'
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 characters, if the password is shorter than 8 characters, or if the email provided is invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              409:
  *                  description: "**Conflict** — if the account name or email provided already exists"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              500:
  *                  description: "**Internal Server Error** — if the account could not be created"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/", AccountController.register);
 

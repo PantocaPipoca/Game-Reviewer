@@ -198,7 +198,7 @@ export class AccountService {
 
         let updatedEmail: string = email ?? user.email;
 
-        if (email) {
+        if (email && email !== user.email) {
             const existingUser: UserFull | null = await UserRepository.selectUserByEmail(email);
             if (existingUser) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
         }
@@ -227,7 +227,7 @@ export class AccountService {
      * @param profilePic - the new profile picture for the user
      * @returns updated user data
      */
-    static async changePicture(currentUser: UserPK, profilePic: Uint8Array<ArrayBuffer> | null) {
+    static async changePicture(currentUser: UserPK, profilePic: Uint8Array<ArrayBuffer> | null): Promise<UserPublic> {
         await fetchFullUser(currentUser);
         const updated: UserFull = await UserRepository.changeProfilePictureOfUser(currentUser, profilePic);
         return userFullToPublic(updated);
