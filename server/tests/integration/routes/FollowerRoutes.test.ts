@@ -106,7 +106,7 @@ describe("POST /api/users/id/:username/followers", () => {
     it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
         const user: AuthResponse = await register(app, username, displayName, password, email);
         await request(app)
-            .post("/api/users//followers")
+            .post("/api/users/id//followers")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });

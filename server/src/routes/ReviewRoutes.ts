@@ -2,7 +2,7 @@
 import { ReviewController } from "../controllers/ReviewController";
 import CommentRoutes from "./CommentRoutes";
 import LikeRoutes from "./LikeRoutes";
-import { auth, optionalAuth } from "../utils/Auth";
+import { optionalAuth } from "../utils/Auth";
 
 // Router object
 const router: Router = Router({ mergeParams: true });

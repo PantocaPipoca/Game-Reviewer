@@ -70,10 +70,11 @@ describe("AccountService (integration)", () => {
         const prevPassHash: string | undefined = dbUser1?.passwordHash;
 
         // Alter user data and check the returned object
-        const altered: UserPublic = await AccountService.alterUser(user.accountName, undefined, true, pass, user.email);
+        const altered: UserPublic = await AccountService.alterUser(user.accountName, true, pass, user.email);
         expect(altered).not.toBeNull();
         expect(altered.accountName).toBe(user.accountName);
         expect(altered.isPrivate).toBe(true);
+        expect(altered.profilePic).toBeNull();
 
         // Check if data in the database matches expectations
         const dbUser2: UserFull | null = await UserRepository.selectUser(user.accountName);
@@ -83,9 +84,19 @@ describe("AccountService (integration)", () => {
         // Fails, duplicate email
         const otherEmail: string = "otheremail@test.com";
         await AccountService.registerUser("username2", "OTHER USER", "18273645", otherEmail);
-        await expect(
-            AccountService.alterUser(user.accountName, undefined, true, pass, otherEmail)
-        ).rejects.toBeDefined();
+        await expect(AccountService.alterUser(user.accountName, true, pass, otherEmail)).rejects.toBeDefined();
+
+        // Alter profile pic
+        const pfp: Uint8Array<ArrayBuffer> = new Uint8Array([0, 1, 3, 4]);
+        const res = await AccountService.changePicture(user.accountName, pfp);
+        expect(res.profilePic).toStrictEqual(pfp);
+
+        // Remove profile pic
+        const res2 = await AccountService.changePicture(user.accountName, null);
+        expect(res2.profilePic).toBeNull();
+
+        // Fails, missing user
+        await expect(AccountService.changePicture("username4234", pfp)).rejects.toBeDefined();
     });
 
     it("DeleteUser removes a user", async () => {

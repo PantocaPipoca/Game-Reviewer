@@ -50,8 +50,8 @@ describe("FollowerRepository (integration)", () => {
         // Creates two private users
         const user1: string = (await insertUserAux()).accountName;
         const user2: string = (await insertUserAux()).accountName;
-        await AccountService.alterUser(user1, undefined, true);
-        await AccountService.alterUser(user2, undefined, true);
+        await AccountService.alterUser(user1, true);
+        await AccountService.alterUser(user2, true);
 
         // Inserts a follow request
         const f1: FollowerFull = await insertFollowerAux(user1, user2);
@@ -69,8 +69,8 @@ describe("FollowerRepository (integration)", () => {
         // Creates two private users
         const user1: string = (await insertUserAux()).accountName;
         const user2: string = (await insertUserAux()).accountName;
-        await AccountService.alterUser(user1, undefined, true);
-        await AccountService.alterUser(user2, undefined, true);
+        await AccountService.alterUser(user1, true);
+        await AccountService.alterUser(user2, true);
 
         // Fails, not yet requested
         await expect(updateFollowerAux(user1, user2)).rejects.toBeDefined();
@@ -86,8 +86,8 @@ describe("FollowerRepository (integration)", () => {
         // Creates two private users
         const user1: string = (await insertUserAux()).accountName;
         const user2: string = (await insertUserAux()).accountName;
-        await AccountService.alterUser(user1, undefined, true);
-        await AccountService.alterUser(user2, undefined, true);
+        await AccountService.alterUser(user1, true);
+        await AccountService.alterUser(user2, true);
 
         // Fails, not yet requested
         await expect(deleteFollowerAux(user1, user2)).rejects.toBeDefined();

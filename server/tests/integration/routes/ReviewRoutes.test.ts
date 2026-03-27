@@ -22,7 +22,7 @@ describe("GET /api/reviews/:reviewer/on/:reviewed", () => {
         const game: GameFull = await createGame();
 
         await request(app)
-            .get("/api/reviews/not-existing-user/" + game.gameID)
+            .get("/api/reviews/not-existing-user/on/" + game.gameID)
             .expect(StatusCodes.NOT_FOUND);
     });
 

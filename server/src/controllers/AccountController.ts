@@ -8,6 +8,7 @@ import { AuthRequest, clearAuthCookie, extractLoggedUser, setAuthCookie } from "
 import { sanitizeString } from "../utils/Sanitize";
 
 // REGEX that tests whether an email is valid
+const USER_REGEX: RegExp = /^[a-zA-Z0-9_]+$/;
 const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export class AccountController {
@@ -24,6 +25,8 @@ export class AccountController {
         if (!email) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_REQUIRED);
         if (accountName.length < 3) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_SHORT);
         if (password.length < 8) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
+        if (!USER_REGEX.test(accountName))
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_INVALID);
         if (!EMAIL_REGEX.test(email)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
         const result: AuthResponse = await AccountService.registerUser(accountName, displayName, password, email);
@@ -32,7 +35,7 @@ export class AccountController {
     });
 
     /**
-     * Logins a new user
+     * Logs in a user
      * Used by POST /api/users/login
      * Does not require previous authentication
      */
@@ -48,7 +51,7 @@ export class AccountController {
     });
 
     /**
-     * Logouts a user
+     * Logs out a user
      * Used by POST /api/users/logout
      * Requires previous authentication
      */
@@ -64,35 +67,39 @@ export class AccountController {
      */
     static getCurrentUser: any = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
-
         const result: UserPublic = await AccountService.getCurrentUser(currentUser);
         return makeSuccess(res, StatusCodes.OK, result);
     });
 
     /**
-     * Changes a user information
+     * Changes user data
      * Used by PUT /api/users/me
      * Requires previous authentication
      */
     static alter: any = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
 
-        const { profilePic, isPrivate, password, email, userData } = req.body;
-        if (password != undefined) {
-            if (typeof password !== "string" || password.length < 8)
-                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
-        }
+        const { isPrivate, password, email, userData } = req.body;
+        if (password != undefined && (typeof password !== "string" || password.length < 8))
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
         if (email != undefined && (typeof email !== "string" || !EMAIL_REGEX.test(email)))
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
-        const result: UserPublic = await AccountService.alterUser(
-            currentUser,
-            profilePic,
-            isPrivate,
-            password,
-            email,
-            userData
-        );
+        const result: UserPublic = await AccountService.alterUser(currentUser, isPrivate, password, email, userData);
+        return makeSuccess(res, StatusCodes.OK, result);
+    });
+
+    /**
+     * Changes a user's profile picture
+     * Used by PUT /api/users/me/pfp
+     * Requires previous authentication
+     */
+    static changePic: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = extractLoggedUser(req);
+        const profilePic: Uint8Array<ArrayBuffer> | null | undefined = req.body.bytes;
+        if (profilePic === undefined) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PROFILE_PIC_REQUIRED);
+
+        const result: UserPublic = await AccountService.changePicture(currentUser, profilePic);
         return makeSuccess(res, StatusCodes.OK, result);
     });
 
@@ -103,7 +110,6 @@ export class AccountController {
      */
     static remove: any = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
-
         const result: UserPublic = await AccountService.removeUser(currentUser);
         return makeSuccess(res, StatusCodes.OK, result);
     });

@@ -4,6 +4,7 @@ import { ReviewController } from "../controllers/ReviewController";
 import { optionalAuth, auth } from "../utils/Auth";
 import { FollowerController } from "../controllers/FollowerController";
 import FollowerRoutes from "./FollowerRoutes";
+import express from "express";
 
 // Router object
 const router: Router = Router({ mergeParams: true });
@@ -83,6 +84,38 @@ router.get("/me", auth, AccountController.getCurrentUser);
 
 /**
  * @swagger
+ *  /users/me/pfp:
+ *      put:
+ *          tags: [Users]
+ *          summary: Alters profile picture in an existing account
+ *          description: Alters profile picture in an existing account
+ *          security:
+ *              - bearerAuth: []
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              profilePic:
+ *                                  type: object
+ *          responses:
+ *              200:
+ *                  description: "**OK** — profile picture updated successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/UserPublic'
+ *              400:
+ *                  description: "**Bad Request** — if the profile picture field is missing"
+ *              404:
+ *                  description: "**Not Found** — if the provided account's name doesn't exist"
+ */
+router.put("/me/pfp", auth, express.raw({ type: "*/*" }), AccountController.changePic);
+
+/**
+ * @swagger
  *  /users/me:
  *      put:
  *          tags: [Users]
@@ -99,8 +132,6 @@ router.get("/me", auth, AccountController.getCurrentUser);
  *                          properties:
  *                              accountName:
  *                                  type: string
- *                              profilePic:
- *                                  type: bytes
  *                              isPrivate:
  *                                  type: boolean
  *                              password:

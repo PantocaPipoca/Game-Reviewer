@@ -11,6 +11,11 @@ const router: Router = Router({ mergeParams: true });
 /**
  * swagger
  * /games/id/:gameID:
+ */
+
+/*
+ * @swagger
+ *  /games/search:
  *      get:
  *          tags: [Games]
  *          summary: Returns Game IGDB info
@@ -92,6 +97,52 @@ router.post("/search", GameController.searchGames);
  */
 // it's now a POST so this documentation might be wrong
 router.post("/popular", GameController.getPopularGames);
+
+/**
+ * @swagger
+ *  /games/recent:
+ *      get:
+ *          tags: [Games]
+ *          summary: Returns recent games
+ *          description: |
+ *              Returns recent games.
+ *          responses:
+ *              200:
+ *                  description: "**OK**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: array
+ *                              items:
+ *                                  $ref: '#/components/schemas/Game'
+ *              500:
+ *                  description: "**Internal Server Error** - if the games couldn't be retrieved"
+ */
+// it's now a POST so this documentation might be wrong
+router.post("/recent", GameController.getRecentGames);
+
+/**
+ * @swagger
+ *  /games/recommended:
+ *      get:
+ *          tags: [Games]
+ *          summary: Returns recommended games
+ *          description: |
+ *              Returns recommended games
+ *          responses:
+ *              200:
+ *                  description: "**OK**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: array
+ *                              items:
+ *                                  $ref: '#/components/schemas/Game'
+ *              500:
+ *                  description: "**Internal Server Error** - if the games couldn't be retrieved"
+ */
+// it's now a POST so this documentation might be wrong
+router.post("/recommended", auth, GameController.getRecommendedGames);
 
 /**
  * @swagger

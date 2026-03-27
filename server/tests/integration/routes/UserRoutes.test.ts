@@ -92,6 +92,27 @@ describe("POST /api/users (register)", () => {
                 .expect(StatusCodes.BAD_REQUEST);
         });
 
+        it("invalid name", async () => {
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: "user_/b",
+                    displayName,
+                    password,
+                    email: "not-an-email",
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: "aabb12314.643664135useruseruser",
+                    displayName,
+                    password,
+                    email: "not-an-email",
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+        });
+
         it("invalid email", async () => {
             await request(app)
                 .post("/api/users")
@@ -226,7 +247,7 @@ describe("GET /api/users/me", () => {
     });
 });
 
-describe("PUT /api/users/me", () => {
+describe("PUT /api/users/me (alter) and /api/users/me/pfp (change pfp)", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
         await request(app).put("/api/users/me").expect(StatusCodes.UNAUTHORIZED);
     });
@@ -296,6 +317,50 @@ describe("PUT /api/users/me", () => {
 
         expect(res.body.data.isPrivate).toBe(true);
         expect(res.body.data.userData.displayName).toBe(newDisplayName);
+    });
+
+    it("BAD REQUEST if no profile picture was given", async () => {
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+        await request(app)
+            .put("/api/users/me/pfp")
+            .set("Authorization", "Bearer " + user.token)
+            .send({})
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    it("OK when updating the profile picture", async () => {
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+
+        const res1 = await request(app)
+            .get("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.OK);
+        expect(res1.body.data.profilePic).toBe(null);
+
+        const bytes: Uint8Array<ArrayBuffer> = new Uint8Array([1, 4, 7, 8]);
+        await request(app)
+            .put("/api/users/me/pfp")
+            .set("Authorization", "Bearer " + user.token)
+            .send({ bytes })
+            .expect(StatusCodes.OK);
+
+        const res2 = await request(app)
+            .get("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.OK);
+        expect(new Uint8Array(Object.values(res2.body.data.profilePic))).toStrictEqual(bytes);
+
+        await request(app)
+            .put("/api/users/me/pfp")
+            .set("Authorization", "Bearer " + user.token)
+            .send({ bytes: null })
+            .expect(StatusCodes.OK);
+
+        const res3 = await request(app)
+            .get("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.OK);
+        expect(res3.body.data.profilePic).toBe(null);
     });
 });
 
@@ -647,7 +712,7 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
     });
 });
 
-describe("GET /api/users/:username/following", () => {
+describe("GET /api/users/id/:username/following", () => {
     it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
         await request(app).get("/api/users/id/").expect(StatusCodes.NOT_FOUND);
     });
