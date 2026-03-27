@@ -41,6 +41,25 @@ const OPTIONS: swaggerJsdoc.Options = {
                         createdAt: { type: "string", format: "date-time", nullable: true },
                     },
                 },
+                UserMe: {
+                    type: "object",
+                    properties: {
+                        accountName: { type: "string" },
+                        email: { type: "string", format: "email" },
+                        profilePic: { type: "string", nullable: true },
+                        isPrivate: { type: "boolean" },
+                        userData: {
+                            type: "object",
+                            properties: {
+                                displayName: { type: "string" },
+                                gender: { type: "string", nullable: true },
+                                bio: { type: "string", nullable: true },
+                            },
+                            required: ["displayName"],
+                        },
+                        createdAt: { type: "string", format: "date-time" },
+                    },
+                },
                 AuthResponse: {
                     allOf: [
                         { $ref: "#/components/schemas/UserPublic" },

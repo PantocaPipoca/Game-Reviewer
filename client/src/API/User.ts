@@ -1,5 +1,5 @@
 import CLIENT from "./Client";
-import type { AuthResponse, UserPublic } from "./Types";
+import type { AuthResponse, UserMe, UserPublic } from "./Types";
 
 export class UserAPI {
     static async register(data: {
@@ -21,15 +21,15 @@ export class UserAPI {
         await CLIENT.post("/users/logout");
     }
 
-    static async getMe(): Promise<UserPublic> {
+    static async getMe(): Promise<UserMe> {
         return CLIENT.get("/users/me");
     }
 
     static async updateMe(data: {
-        isPrivate?: boolean;
+        isPrivate: boolean;
+        email: string;
+        userData: { displayName: string; gender: string; bio: string };
         password?: string;
-        email?: string;
-        userData?: object;
     }): Promise<UserPublic> {
         return CLIENT.put("/users/me", data);
     }

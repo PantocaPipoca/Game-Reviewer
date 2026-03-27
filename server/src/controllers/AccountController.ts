@@ -3,7 +3,7 @@ import { AppError, asyncHandler, makeSuccess } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
 import { StatusCodes } from "http-status-codes";
 import { AccountService } from "../services/AccountService";
-import { AuthResponse, UserPrivate, UserPublic } from "../types/Types";
+import { AuthResponse, UserMe, UserPrivate, UserPublic } from "../types/Types";
 import { AuthRequest, clearAuthCookie, extractLoggedUser, setAuthCookie } from "../utils/Auth";
 import { sanitizeString } from "../utils/Sanitize";
 
@@ -65,7 +65,7 @@ export class AccountController {
     static getCurrentUser: any = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
 
-        const result: UserPublic = await AccountService.getCurrentUser(currentUser);
+        const result: UserMe = await AccountService.getCurrentUser(currentUser);
         return makeSuccess(res, StatusCodes.OK, result);
     });
 
@@ -76,22 +76,24 @@ export class AccountController {
      */
     static alter: any = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
-
         const { profilePic, isPrivate, password, email, userData } = req.body;
-        if (password != undefined) {
+
+        if (isPrivate === undefined || email === undefined || userData === undefined)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        if (typeof email !== "string" || !EMAIL_REGEX.test(email))
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
+        if (password !== undefined) {
             if (typeof password !== "string" || password.length < 8)
                 throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
         }
-        if (email != undefined && (typeof email !== "string" || !EMAIL_REGEX.test(email)))
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
-        const result: UserPublic = await AccountService.alterUser(
+        const result: UserMe = await AccountService.alterUser(
             currentUser,
-            profilePic,
             isPrivate,
-            password,
             email,
-            userData
+            userData,
+            password,
+            profilePic
         );
         return makeSuccess(res, StatusCodes.OK, result);
     });

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import { AccountService } from "../../../src/services/AccountService";
-import { AuthResponse, UserFull, UserPrivate, UserPublic } from "../../../src/types/Types";
+import { AuthResponse, UserFull, UserMe, UserPrivate, UserPublic } from "../../../src/types/Types";
 import { makeSomeUser, UserMicro } from "../helper/helper";
 import { UserRepository } from "../../../src/Repository/UserRepository";
 
@@ -70,7 +70,13 @@ describe("AccountService (integration)", () => {
         const prevPassHash: string | undefined = dbUser1?.passwordHash;
 
         // Alter user data and check the returned object
-        const altered: UserPublic = await AccountService.alterUser(user.accountName, undefined, true, pass, user.email);
+        const altered: UserMe = await AccountService.alterUser(
+            user.accountName,
+            true,
+            user.email,
+            { displayName, gender: null, bio: null },
+            pass
+        );
         expect(altered).not.toBeNull();
         expect(altered.accountName).toBe(user.accountName);
         expect(altered.isPrivate).toBe(true);
@@ -84,7 +90,7 @@ describe("AccountService (integration)", () => {
         const otherEmail: string = "otheremail@test.com";
         await AccountService.registerUser("username2", "OTHER USER", "18273645", otherEmail);
         await expect(
-            AccountService.alterUser(user.accountName, undefined, true, pass, otherEmail)
+            AccountService.alterUser(user.accountName, true, otherEmail, { displayName, gender: null, bio: null }, pass)
         ).rejects.toBeDefined();
     });
 

@@ -228,7 +228,11 @@ describe("GET /api/users/me", () => {
 
 describe("PUT /api/users/me (alter)", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
-        await request(app).put("/api/users/me").expect(StatusCodes.UNAUTHORIZED);
+        await request(app)
+            .put("/api/users/me")
+            .set("Content-Type", "application/json")
+            .send({ isPrivate: false, email: email, userData: { displayName, gender: null, bio: null } })
+            .expect(StatusCodes.UNAUTHORIZED);
     });
 
     it("BAD REQUEST if password is shorter than 8", async () => {
@@ -237,7 +241,12 @@ describe("PUT /api/users/me (alter)", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + user.token)
-            .send({ password: "1234567" })
+            .send({
+                isPrivate: true,
+                email: email,
+                userData: { displayName, gender: null, bio: null },
+                password: "1234567",
+            })
             .expect(StatusCodes.BAD_REQUEST);
     });
 
@@ -247,7 +256,11 @@ describe("PUT /api/users/me (alter)", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + user.token)
-            .send({ email: "not-an-email" })
+            .send({
+                isPrivate: true,
+                email: "invalid-email",
+                userData: { displayName, gender: null, bio: null },
+            })
             .expect(StatusCodes.BAD_REQUEST);
     });
 
@@ -258,13 +271,22 @@ describe("PUT /api/users/me (alter)", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + token)
-            .send({ password: 12345678 })
+            .send({
+                isPrivate: true,
+                email: "invalid-email",
+                userData: { displayName, gender: null, bio: null },
+                password: 12345678,
+            })
             .expect(StatusCodes.BAD_REQUEST);
 
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + token)
-            .send({ email: 12312 })
+            .send({
+                isPrivate: true,
+                email: 12345679,
+                userData: { displayName, gender: null, bio: null },
+            })
             .expect(StatusCodes.BAD_REQUEST);
     });
 
@@ -279,9 +301,9 @@ describe("PUT /api/users/me (alter)", () => {
             .set("Authorization", "Bearer " + user.token)
             .send({
                 isPrivate: true,
-                password: newPassword,
                 email: newEmail,
-                userData: { displayName: newDisplayName },
+                password: newPassword,
+                userData: { displayName: newDisplayName, gender: null, bio: null },
             })
             .expect(StatusCodes.OK);
 
@@ -356,7 +378,11 @@ describe("GET /api/users/:username (find profile)", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + u.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         const res = await request(app)
@@ -376,7 +402,11 @@ describe("GET /api/users/:username (find profile)", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + u.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         const res = await request(app)
@@ -395,7 +425,11 @@ describe("GET /api/users/:username (find profile)", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + u.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         await request(app)
@@ -448,7 +482,11 @@ describe("GET /api/users/search?query=...", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + u.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         const res = await request(app)
@@ -530,7 +568,11 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + user2.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email: "u2@email.com",
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         // user sends request to user2
@@ -558,7 +600,11 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + user2.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email: "u2@email.com",
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         // user sends request to user2
@@ -607,7 +653,11 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + target.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         // follower request to target
@@ -643,7 +693,11 @@ describe("GET /api/users/:username/following", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + user1.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         await request(app)
@@ -688,7 +742,11 @@ describe("GET /api/users/:username/following", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + user1.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         const res = await request(app)
@@ -712,7 +770,11 @@ describe("GET /api/users/:username/following", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + target.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         // someone that target follows
@@ -797,7 +859,11 @@ describe("GET /api/users/:username/reviews", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + u.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         const game = await createGame();
@@ -823,7 +889,11 @@ describe("GET /api/users/:username/reviews", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", `Bearer ${target.token}`)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         const game = await createGame();
@@ -936,7 +1006,11 @@ describe("GET /api/users/:username/reviews", () => {
             await request(app)
                 .put("/api/users/me")
                 .set("Authorization", "Bearer " + user.token)
-                .send({ isPrivate: true })
+                .send({
+                    isPrivate: true,
+                    email,
+                    userData: { displayName, gender: "", bio: "" },
+                })
                 .expect(StatusCodes.OK);
 
             // requester sends follow request (pending, not accepted)
