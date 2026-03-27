@@ -4,7 +4,7 @@ import SignupButton from "../Buttons/SignupButton";
 import Search from "../InputField/Search";
 import Text from "../Text/Text";
 import style from "./Navbar.module.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { isAuthenticated } from "../../API/Auth";
 import { UserAPI } from "../../API/User";
 import { FollowerAPI } from "../../API/Follower";
