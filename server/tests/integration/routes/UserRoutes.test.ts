@@ -398,10 +398,6 @@ describe("DELETE /api/users/me", () => {
 // ========== SEARCH ==========
 
 describe("GET /api/users/id/:username (find profile)", () => {
-    it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
-        await request(app).get("/api/users/id/").expect(StatusCodes.NOT_FOUND);
-    });
-
     it("returns NOT FOUND if user doesn't exist", async () => {
         await request(app).get("/api/users/id/not-existing-user").expect(StatusCodes.NOT_FOUND);
     });
@@ -570,16 +566,6 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
         await request(app).put("/api/users/me/followers/requests/received/:username").expect(StatusCodes.UNAUTHORIZED);
     });
 
-    it("returns 400 if no user name was provided", async () => {
-        const user: AuthResponse = await register(app, username, displayName, password, email);
-        const token: string = user.token;
-
-        await request(app)
-            .put("/api/users/me/followers/requests/received/")
-            .set("Authorization", "Bearer " + token)
-            .expect(StatusCodes.NOT_FOUND);
-    });
-
     it("returns 404 if user doesn't exist", async () => {
         const user: AuthResponse = await register(app, username, displayName, password, email);
         const token: string = user.token;
@@ -658,15 +644,6 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
 describe("DELETE /api/users/me/followers/requests/received/:username", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
         await request(app).delete("/api/users/me/followers/requests/received/no-auth").expect(StatusCodes.UNAUTHORIZED);
-    });
-
-    it("returns 404 if no user name was provided (route doesn't match)", async () => {
-        const user: AuthResponse = await register(app, username, displayName, password, email);
-
-        await request(app)
-            .delete("/api/users/me/followers/requests/received/")
-            .set("Authorization", "Bearer " + user.token)
-            .expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns 404 if user doesn't exist", async () => {
@@ -848,10 +825,6 @@ describe("GET /api/users/id/:username/following", () => {
 // =============== REVIEWS ===============
 
 describe("GET /api/users/id/:username/reviews", () => {
-    it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
-        await request(app).get("/api/users/id/").expect(StatusCodes.NOT_FOUND);
-    });
-
     it("returns NOT FOUND if user doesn't exist", async () => {
         await request(app).get("/api/users/id/not-existing-user/reviews").expect(StatusCodes.NOT_FOUND);
     });

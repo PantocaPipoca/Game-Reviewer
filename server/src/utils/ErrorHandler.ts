@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 export class AppError extends Error {
     constructor(
-        public statusCode: number,
+        public status: number,
         message: string
     ) {
         super(message);
@@ -10,8 +10,10 @@ export class AppError extends Error {
     }
 }
 
-export const asyncHandler: any = (fn: Function) => {
-    return (req: Request, res: Response, next: NextFunction) => Promise.resolve(fn(req, res, next)).catch(next);
+export const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>) => {
+    return (req: Request, res: Response, next: NextFunction): void => {
+        Promise.resolve(fn(req, res, next)).catch(next);
+    };
 };
 
 export function makeSuccess(res: Response, code: number, result: any): Response {

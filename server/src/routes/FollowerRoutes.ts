@@ -12,7 +12,7 @@ const router: Router = Router({ mergeParams: true });
  *      get:
  *          tags: [Followers]
  *          summary: Gets the followers of an account
- *          description: Gets the followers of an account
+ *          description: Gets the followers of an account, if the account is private, only returns results if the current user follows it
  *          parameters:
  *              - in: path
  *                name: username
@@ -25,15 +25,33 @@ const router: Router = Router({ mergeParams: true });
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/Follower'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/Follower'
  *              400:
  *                  description: "**Bad Request** — if no user name was provided"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              403:
  *                  description: "**Forbidden** — if the account is private and the current user doesn't follow it"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the provided user name doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.get("/", optionalAuth, FollowerController.getFollowers);
 
@@ -60,13 +78,37 @@ router.get("/", optionalAuth, FollowerController.getFollowers);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Follower'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Follower'
  *              400:
  *                  description: "**Bad Request** — if the username is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if any of the provided user names don't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              409:
  *                  description: "**Conflict** — if the user is trying to follow themselves, or if a follow request already exists"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/", auth, FollowerController.requestFollower);
 
@@ -91,11 +133,31 @@ router.post("/", auth, FollowerController.requestFollower);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Follower'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Follower'
  *              400:
  *                  description: "**Bad Request** — if the username is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if any of the provided user names don't exist, or if the first user name doesn't follow the second yet"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.delete("/", auth, FollowerController.unfollowUser);
 
