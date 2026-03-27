@@ -169,7 +169,7 @@ router.post("/logout", auth, AccountController.logout);
  *                                      type: string
  *                                      example: success
  *                                  data:
- *                                      $ref: '#/components/schemas/UserPublic'
+ *                                      $ref: '#/components/schemas/UserMe'
  *              401:
  *                  description: "**Unauthorized** — if the authenticated user doesn't exist"
  *                  content:
@@ -202,6 +202,7 @@ router.get("/me", auth, AccountController.getCurrentUser);
  *                                  type: boolean
  *                              password:
  *                                  type: string
+ *                                  nullable: true
  *                              email:
  *                                  type: string
  *                              userData:

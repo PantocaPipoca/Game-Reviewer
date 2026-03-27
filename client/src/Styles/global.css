@@ -27,6 +27,7 @@
 
     --spacingSmall: 8px;
     --spacingMedium: 20px;
+    --spacingLarge: 40px;
 
     font-family: "IBM Plex Mono";
     font-weight: var(--weightRegular);
