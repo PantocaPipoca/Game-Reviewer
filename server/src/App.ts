@@ -11,7 +11,6 @@ import rateLimit from "express-rate-limit";
 import { doubleCsrf } from "csrf-csrf";
 import { middleware as openAPIValidator } from "express-openapi-validator";
 
-
 export function createApp(): Express {
     const app: Express = express();
 
@@ -30,7 +29,7 @@ export function createApp(): Express {
     // limiter
     const limiter = rateLimit({
         windowMs: 15 * 60 * 1000,
-        max: parseInt(process.env["RATE_LIMIT_MAX"] ?? "1000"),
+        max: parseInt(process.env["RATE_LIMIT_MAX"] ?? "100"),
         standardHeaders: true,
         legacyHeaders: false,
         handler: (_req, res) => {
@@ -39,7 +38,7 @@ export function createApp(): Express {
     });
     app.use(limiter);
 
-    const { generateCsrfToken, doubleCsrfProtection, invalidCsrfTokenError } = doubleCsrf({
+    const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
         getSecret: () => process.env["CSRF_SECRET"]!,
         getSessionIdentifier: (req) => req.cookies["token"] ?? "",
         cookieName: "csrf-token",
@@ -49,6 +48,7 @@ export function createApp(): Express {
             httpOnly: true,
         },
         ignoredMethods: ["GET", "HEAD", "OPTIONS"],
+
         getCsrfTokenFromRequest: (req) => {
             const headerToken = req.headers["x-csrf-token"];
             return typeof headerToken === "string" ? headerToken : "";
@@ -85,7 +85,6 @@ export function createApp(): Express {
             apiSpec: SWAGGER_SPEC as any,
             validateRequests: true,
             validateResponses: true,
-            validateSecurity: false,
         })
     );
 
