@@ -75,10 +75,9 @@ function UserPage() {
                     const reviewsWithGames = await Promise.all(
                         reviewData.map(async (review) => {
                             try {
-                                const gameData = await GameAPI.getById(review.reviewed);
-                                return { ...review, gameName: gameData.gameName, gameCover: undefined };
+                                return review as ReviewWithGame;
                             } catch {
-                                return review;
+                                return review as ReviewWithGame;
                             }
                         })
                     );
