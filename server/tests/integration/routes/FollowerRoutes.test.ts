@@ -35,7 +35,11 @@ describe("GET /api/users/:username/followers", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + target.token)
-            .send({ isPrivate: true });
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
 
         await request(app)
             .get("/api/users/" + target.accountName + "/followers")
@@ -51,7 +55,11 @@ describe("GET /api/users/:username/followers", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + target.token)
-            .send({ isPrivate: true });
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
 
         // follower follows target
         await request(app)
@@ -166,7 +174,11 @@ describe("POST /api/users/:username/followers", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + target.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         const res = await request(app)

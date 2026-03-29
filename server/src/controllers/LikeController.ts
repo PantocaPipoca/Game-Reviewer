@@ -72,7 +72,7 @@ export class LikeController {
      * Adds a dislike to a review
      * Used by POST /api/reviews/:reviewer/:reviewed/dislikes
      */
-    static addDislike: any = asyncHandler(async (req: Request, res: Response) => {
+    static addDislike: any = asyncHandler(async (req: AuthRequest, res: Response) => {
         return await pushReaction(req, res, false);
     });
 

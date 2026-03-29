@@ -18,10 +18,10 @@ export class GameAPI {
     }
 
     static async getPopular(): Promise<GameFull[]> {
-        return CLIENT.get("/games/popular");
+        return CLIENT.post("/games/popular");
     }
 
     static async getById(gameID: number): Promise<GameFull> {
-        return CLIENT.get("/games/" + gameID);
+        return CLIENT.get("/games/id/" + gameID);
     }
 }

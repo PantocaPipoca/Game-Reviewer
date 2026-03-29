@@ -4,7 +4,7 @@ import * as ErrorMessage from "../utils/ErrorMessage";
 import { AppError } from "../utils/ErrorHandler";
 import { generateToken } from "../utils/Auth";
 import { UserRepository } from "../Repository/UserRepository";
-import { UserData, UserFull, UserPK, AuthResponse, UserPublic, UserPrivate } from "../types/Types";
+import { UserData, UserFull, UserPK, AuthResponse, UserPublic, UserPrivate, UserMe } from "../types/Types";
 import { FollowerRepository } from "../Repository/FollowerRepository";
 
 const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
@@ -168,12 +168,17 @@ export class AccountService {
      * @param currentUser - username of the currently authenticated user (from JWT)
      * @returns User object
      */
-    static async getCurrentUser(currentUser: UserPK): Promise<UserPublic> {
+    static async getCurrentUser(currentUser: UserPK): Promise<UserMe> {
         const user: UserFull | null = await UserRepository.selectUser(currentUser);
-
         if (!user) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
-
-        return userFullToPublic(user);
+        return {
+            accountName: user.accountName,
+            email: user.email,
+            profilePic: user.profilePic,
+            isPrivate: user.isPrivate,
+            userData: user.userData as UserData,
+            createdAt: user.createdAt,
+        } as UserMe;
     }
 
     /**
@@ -186,19 +191,19 @@ export class AccountService {
      */
     static async alterUser(
         currentUser: UserPK,
-        profilePic?: string | null,
-        isPrivate?: boolean,
+        isPrivate: boolean,
+        email: string,
+        userData: UserData,
         password?: string,
-        email?: string,
-        userData?: Partial<UserData>
-    ): Promise<UserPublic> {
+        profilePic?: string | null
+    ): Promise<UserMe> {
         const user: UserFull = await fetchFullUser(currentUser);
 
         const passwordHash: string = password ? await bcrypt.hash(password, SALT_ROUNDS) : user.passwordHash;
 
         let updatedEmail: string = email ?? user.email;
 
-        if (email) {
+        if (email && email !== user.email) {
             const existingUser: UserFull | null = await UserRepository.selectUserByEmail(email);
             if (existingUser) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
         }
@@ -219,7 +224,7 @@ export class AccountService {
             email: updatedEmail,
         });
 
-        return userFullToPublic(updated);
+        return updated as UserMe;
     }
 
     /**
@@ -248,13 +253,13 @@ export class AccountService {
         // check if currentUser can view this profile
         const canView: boolean = await canViewUser(user, currentUser);
 
-        if (await canViewUser(user, currentUser)) {
+        if (canView) {
             return {
                 accountName: user.accountName,
                 profilePic: user.profilePic,
                 isPrivate: user.isPrivate,
-                userData: canView ? (user.userData as UserData) : null,
-                createdAt: canView ? user.createdAt : null,
+                userData: user.userData as UserData,
+                createdAt: user.createdAt,
             } as UserPublic;
         } else {
             return {

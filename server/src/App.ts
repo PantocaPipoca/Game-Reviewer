@@ -38,7 +38,7 @@ export function createApp(): Express {
     });
     app.use(limiter);
 
-    const { generateCsrfToken, doubleCsrfProtection, invalidCsrfTokenError } = doubleCsrf({
+    const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
         getSecret: () => process.env["CSRF_SECRET"]!,
         getSessionIdentifier: (req) => req.cookies["token"] ?? "",
         cookieName: "csrf-token",
@@ -48,6 +48,7 @@ export function createApp(): Express {
             httpOnly: true,
         },
         ignoredMethods: ["GET", "HEAD", "OPTIONS"],
+
         getCsrfTokenFromRequest: (req) => {
             const headerToken = req.headers["x-csrf-token"];
             return typeof headerToken === "string" ? headerToken : "";

@@ -75,7 +75,14 @@ describe("UserRepository (integration)", () => {
         // Inserts user
         const user: UserFull = await insertAux();
         const newProfilePic: string = "FAKE PROFILE PIC LINK";
-        await AccountService.alterUser(user.accountName, newProfilePic);
+        await AccountService.alterUser(
+            user.accountName,
+            true,
+            user.email,
+            { displayName: "name", gender: null, bio: null },
+            undefined,
+            newProfilePic
+        );
 
         // Deletes user and checks if the data matches the old
         const found: UserFull = await UserRepository.deleteUser(user.accountName);

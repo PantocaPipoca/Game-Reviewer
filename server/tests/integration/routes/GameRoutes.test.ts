@@ -229,7 +229,11 @@ describe("GET /api/games/:gameID/reviews", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + user.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         await request(app)
@@ -255,7 +259,11 @@ describe("GET /api/games/:gameID/reviews", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + privateUser.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         await request(app)
