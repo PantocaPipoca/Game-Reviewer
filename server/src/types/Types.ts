@@ -6,7 +6,6 @@ export type UserData = {
     displayName: string;
     gender: string | null;
     bio: string | null;
-    // other fields can be added here
 };
 
 export type UserFull = User;
@@ -15,10 +14,11 @@ export type UserShort = Omit<UserFull, "createdAt" | "updatedAt" | "userData"> &
     userData: Prisma.InputJsonValue;
 };
 
-export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "createdAt" | "updatedAt" | "userData"> & {
-    userData: UserData | null;
-    createdAt: Date | null;
+export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "updatedAt" | "userData"> & {
+    userData: UserData;
 };
+
+export type UserMe = Omit<UserFull, "passwordHash" | "updatedAt" | "createdAt">;
 
 export type UserPrivate = Omit<UserPublic, "userData" | "createdAt">;
 

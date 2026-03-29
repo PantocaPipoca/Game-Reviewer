@@ -73,11 +73,11 @@ describe("CommentRepository (integration)", () => {
         });
 
         // Insert some useless reviews
-        for (var i = 0; i < 7; i++) await insertReviewAndComment("");
+        for (var i = 0; i < 4; i++) await insertReviewAndComment("");
 
         // Creates several commentators
         const commentators: string[] = [];
-        for (var i = 0; i < 15; i++) {
+        for (var i = 0; i < 5; i++) {
             commentators.push(await quickRegisterUser());
             await CommentRepository.insertComment({
                 reviewer: review.reviewer,

@@ -79,7 +79,11 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + user.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         await request(app)
@@ -102,7 +106,11 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + reviewer.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         await request(app)
@@ -126,7 +134,11 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + reviewer.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         await request(app)
@@ -162,7 +174,11 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + user.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         const res = await request(app)

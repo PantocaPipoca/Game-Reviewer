@@ -78,7 +78,7 @@ export class FollowerService {
         const existing: FollowerFull | null = await FollowerRepository.selectFollower({ follows, followed });
         if (!existing) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.FOLLOWER_NOT_FOUND);
 
-        if (expectedAccepted !== undefined && existing.accepted !== expectedAccepted) {
+        if (expectedAccepted !== undefined && existing.accepted !== expectedAccepted) { // not used anymore but kept for backwards compatibility
             throw new AppError(
                 StatusCodes.NOT_FOUND,
                 expectedAccepted ? ErrorMessage.FOLLOWER_NOT_FOUND : ErrorMessage.FOLLOW_REQUEST_NOT_FOUND

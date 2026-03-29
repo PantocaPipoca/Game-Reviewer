@@ -63,8 +63,8 @@ export class GameService {
      * @param amount total number of games we want
      * @returns array of enough game info to make a cover
      */
-    static async getRecentGames(amount: number, offset: number): Promise<GameCover[]> {
-        return IGDB.getRecentGames(offset, amount);
+    static async getRecentGames(offset: number, amount: number): Promise<GameCover[]> {
+        return IGDB.getRecentGames(amount, offset);
     }
 
     /**

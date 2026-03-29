@@ -1,0 +1,152 @@
+.mainPanel {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--borderWidth) * -1);
+    min-height: 80vh;
+}
+
+.panel {
+    min-width: 550px;
+    height: auto;
+    align-self: stretch;
+}
+.fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    padding: var(--spacingMedium) 0;
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingSmall);
+    width: 100%;
+}
+
+.textareaWrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacingSmall);
+    border: var(--borderWidth) solid var(--border);
+    background-color: var(--secondaryPanel);
+    padding: 6px 10px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--mainText);
+    resize: none;
+    font-family: inherit;
+    line-height: 1.5;
+    padding: 0;
+    width: 100%;
+}
+
+.textarea::placeholder {
+    color: var(--mutedText);
+}
+
+.toggleRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingSmall);
+    cursor: pointer;
+    width: fit-content;
+    padding: 4px 0;
+}
+
+.toggle {
+    width: 36px;
+    height: 18px;
+    border: var(--borderWidth) solid var(--border);
+    background-color: var(--secondaryPanel);
+    position: relative;
+    flex-shrink: 0;
+    transition: border-color 0.15s ease;
+}
+
+.toggle::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--mutedText);
+    transition:
+        transform 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.toggleOn {
+    border-color: var(--cyan);
+}
+
+.toggleOn::after {
+    transform: translateX(18px);
+    background-color: var(--cyan);
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: var(--spacingSmall);
+}
+
+.cancelButton {
+    padding: 0.8em 1.7em;
+    color: var(--pink);
+    background-color: var(--secondaryPanel);
+}
+
+.cancelButton:hover {
+    border-color: var(--pink) !important;
+}
+
+.saveButton {
+    padding: 0.8em 1.7em;
+    background-color: var(--secondaryPanel);
+}
+
+.popUpOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.popUpConfirmBox {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingMedium);
+    padding: var(--spacingMedium);
+    min-width: 320px;
+    max-width: 420px;
+}
+
+.popUpConfirmActions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.popUpConfirmButton {
+    padding: 0.8em 1.7em;
+    background-color: var(--secondaryPanel);
+    border-color: var(--cyan) !important;
+}
+
+.popUpConfirmButton:hover {
+    opacity: 0.8;
+}
