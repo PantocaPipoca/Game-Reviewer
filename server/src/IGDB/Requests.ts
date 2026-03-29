@@ -64,18 +64,25 @@ export class IGDB {
     }
 
     private static async handleToken(): Promise<void> {
-        await IGDB.sleep();
         if (!IGDB.readToken) {
-            const fileContent = fs.readFileSync(FILE_PATH, "utf-8");
-            const fileData: TokenData = JSON.parse(fileContent);
-            IGDB.tokenInfo.access_token = fileData.access_token;
-            IGDB.tokenInfo.expires_at = fileData.expires_at;
+            try {
+                const fileContent = fs.readFileSync(FILE_PATH, "utf-8");
+                const fileData: TokenData = JSON.parse(fileContent);
+                IGDB.tokenInfo = fileData;
+            } catch {
+                const fileData: TokenData = {
+                    access_token: "placeholder",
+                    expires_at: 0,
+                };
+                IGDB.tokenInfo = fileData;
+            }
             IGDB.readToken = true;
         }
 
         const expires_at = IGDB.tokenInfo.expires_at;
         const now = Math.floor(Date.now() / 1000);
         if (now > expires_at) await IGDB.getNewToken();
+        await IGDB.sleep();
     }
 
     // DONE
