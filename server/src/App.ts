@@ -101,11 +101,17 @@ export function createApp(): Express {
         const isProd = process.env["NODE_ENV"] === "production";
 
         if (err?.code === "EBADCSRFTOKEN") {
-            return res.status(StatusCodes.FORBIDDEN).json({ status: "error", message: "Invalid CSRF token" });
+            return res.status(StatusCodes.FORBIDDEN).json({
+                status: "error",
+                message: "Invalid CSRF token",
+            });
         }
 
         if (err instanceof AppError) {
-            return res.status(err.status).json({ status: "error", message: err.message });
+            return res.status(err.status).json({
+                status: "error",
+                message: err.message,
+            });
         }
 
         if (typeof err?.status === "number") {
@@ -116,9 +122,11 @@ export function createApp(): Express {
         }
 
         console.error(err);
-        return res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json({ status: "error", message: "Internal server error" });
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            status: "error",
+            message: "Internal server error",
+        });
     });
 
     return app;

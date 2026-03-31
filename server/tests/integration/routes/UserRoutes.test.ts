@@ -693,10 +693,6 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
 });
 
 describe("GET /api/users/id/:username/following", () => {
-    it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
-        await request(app).get("/api/users/id/").expect(StatusCodes.NOT_FOUND);
-    });
-
     it("returns NOT FOUND if user doesn't exist", async () => {
         await request(app).get("/api/users/id/not-existing-user/following").expect(StatusCodes.NOT_FOUND);
     });

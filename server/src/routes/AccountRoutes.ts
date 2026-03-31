@@ -171,8 +171,6 @@ router.put("/me/pfp", auth, express.raw({ type: "*/*" }), AccountController.chan
  *                      schema:
  *                          type: object
  *                          properties:
- *                              accountName:
- *                                  type: string
  *                              isPrivate:
  *                                  type: boolean
  *                              password:
