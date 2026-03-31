@@ -160,8 +160,8 @@ router.put("/me/pfp", auth, express.raw({ type: "*/*" }), AccountController.chan
  *  /users/me:
  *      put:
  *          tags: [Users]
- *          summary: Alters the currently logged in user account
- *          description: Alters the currently logged in user account
+ *          summary: Alters profile picture in an existing account
+ *          description: Alters profile picture in an existing account
  *          security:
  *              - bearerAuth: []
  *          requestBody:
@@ -657,13 +657,31 @@ router.get("/id/:username", optionalAuth, AccountController.findByUsername);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/AuthResponse'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/AuthResponse'
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 characters, if the password is shorter than 8 characters, or if the email provided is invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              409:
  *                  description: "**Conflict** — if the account name or email provided already exists"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              500:
  *                  description: "**Internal Server Error** — if the account could not be created"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/", AccountController.register);
 
