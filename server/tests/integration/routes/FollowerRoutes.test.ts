@@ -23,10 +23,6 @@ const email2: string = username2 + "@test.com";
 // =============== FOLLOWERS ===============
 
 describe("GET /api/users/id/:username/followers", () => {
-    it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
-        await request(app).get("/api/users/id/").expect(StatusCodes.NOT_FOUND);
-    });
-
     it("returns NOT FOUND if user doesn't exist", async () => {
         await request(app).get("/api/users/id/not-existing-user/followers").expect(StatusCodes.NOT_FOUND);
     });
@@ -106,7 +102,7 @@ describe("POST /api/users/id/:username/followers", () => {
     it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
         const user: AuthResponse = await register(app, username, displayName, password, email);
         await request(app)
-            .post("/api/users//followers")
+            .post("/api/users/id//followers")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });

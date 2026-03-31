@@ -18,16 +18,10 @@ describe("UserRepository (integration)", () => {
     }
 
     // Auxiliary function, checks a user's data against expected values
-    function checkUserAux(
-        user: UserFull | null,
-        name: string,
-        email: string,
-        pfp: Uint8Array<ArrayBuffer> | null
-    ): void {
+    function checkUserAux(user: UserFull | null, name: string, email: string): void {
         expect(user).not.toBeNull();
         expect(user?.accountName).toBe(name);
         expect(user?.email).toBe(email);
-        expect(user?.profilePic).toStrictEqual(pfp);
     }
 
     it("Inserts and selects a user", async () => {
@@ -36,7 +30,7 @@ describe("UserRepository (integration)", () => {
 
         // Checks whether the user exists and checks
         const found: UserFull | null = await UserRepository.selectUser(user.accountName);
-        checkUserAux(found, user.accountName, user.email, null);
+        checkUserAux(found, user.accountName, user.email);
 
         // Fails, duplicate user
         await expect(
@@ -54,37 +48,47 @@ describe("UserRepository (integration)", () => {
         const user: UserFull = await insertAux();
         const passwordHash: string = "newhash";
         const newEmail: string = "another@test.com";
-        const newProfilePic: Uint8Array<ArrayBuffer> = new Uint8Array([4, 7, 8, 1]);
 
         // Updates user with new data and checks
         const found: UserFull = await UserRepository.updateUser({
             accountName: user.accountName,
             passwordHash,
-            profilePic: newProfilePic,
             userData: { displayName: "Repo", gender: null, bio: null },
             isPrivate: true,
             email: newEmail,
         });
-        checkUserAux(found, user.accountName, newEmail, newProfilePic);
+        checkUserAux(found, user.accountName, newEmail);
         expect(found.passwordHash).toBe(passwordHash);
         expect(found.isPrivate).toBe(true);
 
         // Checks if the same is true for the result of selectUser
         const found2: UserFull | null = await UserRepository.selectUser(user.accountName);
-        checkUserAux(found2, user.accountName, newEmail, newProfilePic);
+        checkUserAux(found2, user.accountName, newEmail);
         expect(found2?.passwordHash).toBe(passwordHash);
         expect(found2?.isPrivate).toBe(true);
+        expect(found2?.profilePic).toBeNull();
+
+        const pfp: Uint8Array<ArrayBuffer> = new Uint8Array([4, 6, 7, 9, 10]);
+        const found3: UserFull = await UserRepository.changeProfilePictureOfUser(user.accountName, pfp);
+        expect(found3.profilePic).toStrictEqual(pfp);
+        const found4: UserFull | null = await UserRepository.selectUser(user.accountName);
+        expect(found4?.profilePic).toStrictEqual(pfp);
+
+        const found5: UserFull = await UserRepository.changeProfilePictureOfUser(user.accountName, null);
+        expect(found5.profilePic).toBeNull();
+        const found6: UserFull | null = await UserRepository.selectUser(user.accountName);
+        expect(found6?.profilePic).toBeNull();
     });
 
     it("Inserts and deletes a user", async () => {
         // Inserts user
         const user: UserFull = await insertAux();
         const newProfilePic: Uint8Array<ArrayBuffer> = new Uint8Array([-3, 7, 9, 1, 124]);
-        await AccountService.alterUser(user.accountName, newProfilePic);
+        await AccountService.changePicture(user.accountName, newProfilePic);
 
         // Deletes user and checks if the data matches the old
         const found: UserFull = await UserRepository.deleteUser(user.accountName);
-        checkUserAux(found, user.accountName, user.email, newProfilePic);
+        checkUserAux(found, user.accountName, user.email);
 
         // Checks whether the user doesn't exist
         const notFound: UserFull | null = await UserRepository.selectUser(user.accountName);

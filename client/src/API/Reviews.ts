@@ -9,7 +9,7 @@ export class ReviewAPI {
             score: number;
         }
     ): Promise<ReviewFull> {
-        return CLIENT.post("/games/" + gameID + "/reviews", data);
+        return CLIENT.post("/games/id/" + gameID + "/reviews", data);
     }
 
     static async update(
@@ -19,22 +19,22 @@ export class ReviewAPI {
             score?: number;
         }
     ): Promise<ReviewFull> {
-        return CLIENT.put("/games/" + gameID + "/reviews", data);
+        return CLIENT.put("/games/id/" + gameID + "/reviews", data);
     }
 
     static async remove(gameID: number): Promise<ReviewFull> {
-        return CLIENT.delete("/games/" + gameID + "/reviews");
+        return CLIENT.delete("/games/id/" + gameID + "/reviews");
     }
 
     static async getByGame(gameID: number): Promise<ReviewFull[]> {
-        return CLIENT.get("/games/" + gameID + "/reviews");
+        return CLIENT.get("/games/id/" + gameID + "/reviews");
     }
 
     static async getByUser(username: string): Promise<ReviewFull[]> {
-        return CLIENT.get("/users/" + username + "/reviews");
+        return CLIENT.get("/users/id/" + username + "/reviews");
     }
 
     static async get(reviewer: string, reviewed: number): Promise<ReviewFull> {
-        return CLIENT.get("/reviews/" + reviewer + "/" + reviewed);
+        return CLIENT.get("/reviews/" + reviewer + "/on/" + reviewed);
     }
 }

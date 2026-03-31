@@ -6,6 +6,7 @@ export type UserData = {
 
 export type UserPublic = {
     accountName: string;
+    profilePic: Uint8Array<ArrayBuffer> | null;
     isPrivate: boolean;
     userData: UserData | null;
     createdAt: string | null;

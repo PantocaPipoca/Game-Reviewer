@@ -3,22 +3,22 @@ import type { LikeShort } from "./Types";
 
 export class ReactionAPI {
     static async getLikes(reviewer: string, reviewed: number): Promise<number> {
-        return CLIENT.get("/reviews/" + reviewer + "/" + reviewed + "/likes");
+        return CLIENT.get("/reviews/" + reviewer + "/on/" + reviewed + "/likes");
     }
 
     static async getDislikes(reviewer: string, reviewed: number): Promise<number> {
-        return CLIENT.get("/reviews/" + reviewer + "/" + reviewed + "/dislikes");
+        return CLIENT.get("/reviews/" + reviewer + "/on/" + reviewed + "/dislikes");
     }
 
     static async like(reviewer: string, reviewed: number): Promise<LikeShort> {
-        return CLIENT.post("/reviews/" + reviewer + "/" + reviewed + "/likes");
+        return CLIENT.post("/reviews/" + reviewer + "/on/" + reviewed + "/likes");
     }
 
     static async dislike(reviewer: string, reviewed: number): Promise<LikeShort> {
-        return CLIENT.post("/reviews/" + reviewer + "/" + reviewed + "/dislikes");
+        return CLIENT.post("/reviews/" + reviewer + "/on/" + reviewed + "/dislikes");
     }
 
     static async removeReaction(reviewer: string, reviewed: number): Promise<LikeShort> {
-        return CLIENT.delete("/reviews/" + reviewer + "/" + reviewed + "/reacts");
+        return CLIENT.delete("/reviews/" + reviewer + "/on/" + reviewed + "/reacts");
     }
 }

@@ -29,16 +29,36 @@ export class UserRepository {
      * @param user json with all fields of User that need to be manually set
      * @returns a promise of the updated table entry of the User with the corresponding primary key
      */
-    public static updateUser(user: UserShort): Promise<UserFull> {
+    public static updateUser(user: Omit<UserShort, "profilePic">): Promise<UserFull> {
         return PRISMA.user.update({
             where: { accountName: user.accountName },
             data: {
                 passwordHash: user.passwordHash,
-                profilePic: user.profilePic,
                 userData: user.userData,
                 isPrivate: user.isPrivate,
                 email: user.email,
             },
+        });
+    }
+
+    /**
+     * @description Updates a User in the database with the primary key given in user, with the profile picture
+     * @param user User account name
+     * @param profilePic the new profile picture for the User
+     * @returns a promise of the updated table entry of the User with the corresponding primary key
+     */
+    public static changeProfilePictureOfUser(
+        user: UserPK,
+        profilePic: Uint8Array<ArrayBuffer> | null
+    ): Promise<UserFull> {
+        if (profilePic == null)
+            return PRISMA.user.update({
+                where: { accountName: user },
+                data: { profilePic: { set: null } },
+            });
+        return PRISMA.user.update({
+            where: { accountName: user },
+            data: { profilePic: { set: new Uint8Array(Object.values(profilePic)) } },
         });
     }
 

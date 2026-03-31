@@ -34,6 +34,10 @@ export class UserAPI {
         return CLIENT.put("/users/me", data);
     }
 
+    static async changePic(pfp: Uint8Array<ArrayBuffer>): Promise<UserPublic> {
+        return CLIENT.put("/users/me/pfp", { bytes: pfp });
+    }
+
     static async deleteMe(): Promise<UserPublic> {
         return CLIENT.delete("/users/me");
     }
@@ -43,6 +47,6 @@ export class UserAPI {
     }
 
     static async getByUsername(username: string): Promise<UserPublic> {
-        return CLIENT.get("/users/" + username);
+        return CLIENT.get("/users/id/" + username);
     }
 }

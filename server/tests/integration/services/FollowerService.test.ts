@@ -15,10 +15,10 @@ describe("FollowerService (integration)", () => {
     async function registerUsersAux(): Promise<UserMicroPair> {
         const user1: UserMicro = makeSomeUser();
         await AccountService.registerUser(user1.accountName, "USER1", "12345678", user1.email);
-        await AccountService.alterUser(user1.accountName, undefined, true);
+        await AccountService.alterUser(user1.accountName, true);
         const user2: UserMicro = makeSomeUser();
         await AccountService.registerUser(user2.accountName, "USER2", "87654321", user2.email);
-        await AccountService.alterUser(user2.accountName, undefined, true);
+        await AccountService.alterUser(user2.accountName, true);
         return { user1, user2 } as UserMicroPair;
     }
 
@@ -106,7 +106,7 @@ describe("FollowerService (integration)", () => {
         const us1: string = user.accountName;
         await AccountService.registerUser(us1, "USER1", "12345678", user.email);
         // Make target user private
-        await AccountService.alterUser(us1, undefined, true);
+        await AccountService.alterUser(us1, true);
 
         // Registers a number of users to follow the target user
         const followers: string[] = [];
@@ -154,7 +154,7 @@ describe("FollowerService (integration)", () => {
             const f: UserMicro = makeSomeUser();
             followed.push(f.accountName);
             await AccountService.registerUser(f.accountName, "FOLLOWED" + i, "12345678", f.email);
-            await AccountService.alterUser(f.accountName, undefined, true);
+            await AccountService.alterUser(f.accountName, true);
             await FollowerService.requestFollower(us1, f.accountName);
             await FollowerService.acceptFollower(f.accountName, us1);
         }
@@ -165,7 +165,7 @@ describe("FollowerService (integration)", () => {
             const d: UserMicro = makeSomeUser();
             requests.push(d.accountName);
             await AccountService.registerUser(d.accountName, "DUMMY" + i, "12345678", d.email);
-            await AccountService.alterUser(d.accountName, undefined, true);
+            await AccountService.alterUser(d.accountName, true);
             await FollowerService.requestFollower(us1, d.accountName);
         }
 

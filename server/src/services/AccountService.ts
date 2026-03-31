@@ -179,7 +179,6 @@ export class AccountService {
     /**
      * Updates user account information
      * @param currentUser - username of the currently authenticated user (from JWT)
-     * @param profilePic - the profile picture of the user (optional)
      * @param isPrivate - whether or not the user's account is private (optional)
      * @param password - new password (optional)
      * @param email - new email (optional)
@@ -188,7 +187,6 @@ export class AccountService {
      */
     static async alterUser(
         currentUser: UserPK,
-        profilePic?: Uint8Array<ArrayBuffer> | null,
         isPrivate?: boolean,
         password?: string,
         email?: string,
@@ -214,13 +212,24 @@ export class AccountService {
 
         const updated: UserFull = await UserRepository.updateUser({
             accountName: currentUser,
-            profilePic: profilePic ?? user.profilePic,
             isPrivate: isPrivate ?? user.isPrivate,
             passwordHash,
             userData: updatedUserData,
             email: updatedEmail,
         });
 
+        return userFullToPublic(updated);
+    }
+
+    /**
+     * Updates a user's profile picture
+     * @param currentUser - username of the currently authenticated user (from JWT)
+     * @param profilePic - the new profile picture for the user
+     * @returns updated user data
+     */
+    static async changePicture(currentUser: UserPK, profilePic: Uint8Array<ArrayBuffer> | null) {
+        await fetchFullUser(currentUser);
+        const updated: UserFull = await UserRepository.changeProfilePictureOfUser(currentUser, profilePic);
         return userFullToPublic(updated);
     }
 
