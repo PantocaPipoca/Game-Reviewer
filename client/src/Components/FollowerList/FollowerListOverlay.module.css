@@ -1,0 +1,75 @@
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.overlayWrapper {
+    width: 460px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel {
+    position: relative;
+    background-color: var(--mainPanel);
+    border: var(--borderWidth) solid var(--border);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 80vh;
+    box-sizing: border-box;
+}
+
+.closeButton {
+    position: absolute;
+    top: var(--spacingSmall);
+    right: var(--spacingSmall);
+    padding: 0.3em 0.6em;
+    background-color: transparent;
+    z-index: 1;
+}
+
+.header {
+    padding: var(--spacingMedium) var(--spacingMedium) 0;
+    text-align: center;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: var(--borderWidth) solid var(--border);
+    margin-top: var(--spacingSmall);
+}
+
+.tab {
+    flex: 1;
+    padding: var(--spacingMedium);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: var(--borderWidth) solid transparent;
+    margin-bottom: -1px;
+}
+.tabActive {
+    border-bottom: var(--borderWidth) solid var(--mainText);
+}
+
+.listContainer {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.centerMessage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacingMedium);
+    min-height: 80px;
+}

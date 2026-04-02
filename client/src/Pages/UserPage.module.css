@@ -78,6 +78,12 @@
     background-color: var(--border);
     align-self: stretch;
 }
+.statClickable {
+    cursor: pointer;
+}
+.statClickable:hover * {
+    color: var(--mutedText) !important;
+}
 
 .infoPanel {
     flex: 1;
@@ -108,17 +114,26 @@
     flex: 1;
     padding: 0.8em 1.7em;
     background-color: var(--secondaryPanel);
+    box-sizing: border-box;
 }
+
+.followActiveButton {
+    border-color: var(--pink);
+}
+.followActiveButton:hover {
+    opacity: 0.8;
+}
+
 .unfollowButton {
     border-color: var(--pink);
 }
 .unfollowButton:hover {
-    border-color: var(--pink);
     opacity: 0.7;
 }
+
 .pendingButton {
     opacity: 0.6;
-    cursor: default;
+    cursor: not-allowed;
 }
 .reviewList {
     display: flex;

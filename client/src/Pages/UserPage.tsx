@@ -11,10 +11,11 @@ import defaultPfp from "../Assets/default-pfp.png";
 import Button from "../Components/Buttons/Button";
 import { FollowerAPI } from "../API/Follower";
 import { ReviewAPI } from "../API/Reviews";
-import { GameAPI } from "../API/Games";
+import FollowerListOverlay from "../Components/FollowerList/FollowerListOverlay";
 
 type ReviewWithGame = ReviewFull & { gameName?: string; gameCover?: string };
 type FollowState = "not_following" | "pending" | "following";
+type OverlayTab = "followers" | "following";
 
 function UserPage() {
     const { username } = useParams<{ username: string }>();
@@ -28,6 +29,7 @@ function UserPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [followState, setFollowState] = useState<FollowState>("not_following");
     const [followLoading, setFollowLoading] = useState(false);
+    const [followOverlay, setFollowOverlay] = useState<OverlayTab | null>(null);
 
     useEffect(() => {
         load();
@@ -117,6 +119,12 @@ function UserPage() {
         }
     }
 
+    // update stats in real time on remove
+    function handleOverlayRemove(type: OverlayTab) {
+        if (type === "followers") setStats((s) => ({ ...s, followers: Math.max(0, s.followers - 1) }));
+        if (type === "following") setStats((s) => ({ ...s, following: Math.max(0, s.following - 1) }));
+    }
+
     function renderFollowButton() {
         if (followState === "following") {
             return (
@@ -125,24 +133,24 @@ function UserPage() {
                     onClick={handleFollow}
                     disabled={followLoading}
                 >
-                    <Text color="var(--pink)">UNFOLLOW</Text>
+                    <Text color="var(--pink)">{`> UNFOLLOW`}</Text>
                 </Button>
             );
         }
         if (followState === "pending") {
             return (
-                <Button
-                    className={`${style.followButton} ${style.pendingButton}`}
-                    onClick={handleFollow}
-                    disabled={followLoading}
-                >
-                    <Text color="var(--mutedText)">PENDING...</Text>
+                <Button className={`${style.followButton} ${style.pendingButton}`} disabled>
+                    <Text color="var(--mutedText)">{`... PENDING`}</Text>
                 </Button>
             );
         }
         return (
-            <Button className={style.followButton} onClick={handleFollow} disabled={followLoading}>
-                <Text color="var(--pink)">FOLLOW</Text>
+            <Button
+                className={`${style.followButton} ${style.followActiveButton}`}
+                onClick={handleFollow}
+                disabled={followLoading}
+            >
+                <Text color="var(--pink)">{`> FOLLOW`}</Text>
             </Button>
         );
     }
@@ -173,13 +181,15 @@ function UserPage() {
         );
     }
 
-    const memberSince = profile.createdAt
-        ? new Date(profile.createdAt).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-          })
-        : null;
+    const memberSince =
+        profile.createdAt &&
+        new Date(profile.createdAt).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
+
+    const displayName = profile.userData?.displayName ?? profile.accountName;
 
     return (
         <div>
@@ -193,7 +203,7 @@ function UserPage() {
                                     <img src={defaultPfp} alt={profile.accountName} className={style.avatar} />
                                 </div>
                                 <Text variant="h3" color="var(--cyan)">
-                                    {profile.userData?.displayName ?? profile.accountName}
+                                    {displayName}
                                 </Text>
                             </Panel>
 
@@ -217,18 +227,26 @@ function UserPage() {
                                     </div>
 
                                     <div className={style.statDivider} />
-                                    <div className={style.statCell}>
-                                        <Text variant="body">Following</Text>
+
+                                    <div
+                                        className={`${style.statCell} ${style.statClickable}`}
+                                        onClick={() => setFollowOverlay("followers")}
+                                    >
+                                        <Text variant="body">Followers</Text>
                                         <Text variant="h2" color="var(--cyan)">
-                                            {stats.following}
+                                            {stats.followers}
                                         </Text>
                                     </div>
 
                                     <div className={style.statDivider} />
-                                    <div className={style.statCell}>
-                                        <Text variant="body">Followers</Text>
+
+                                    <div
+                                        className={`${style.statCell} ${style.statClickable}`}
+                                        onClick={() => setFollowOverlay("following")}
+                                    >
+                                        <Text variant="body">Following</Text>
                                         <Text variant="h2" color="var(--cyan)">
-                                            {stats.followers}
+                                            {stats.following}
                                         </Text>
                                     </div>
                                 </Panel>
@@ -263,6 +281,17 @@ function UserPage() {
                     ) : null}
                 </Panel>
             </div>
+
+            {followOverlay && (
+                <FollowerListOverlay
+                    initialTab={followOverlay}
+                    username={username!}
+                    displayName={displayName}
+                    isOwner={isOwner}
+                    onClose={() => setFollowOverlay(null)}
+                    onRemove={handleOverlayRemove}
+                />
+            )}
         </div>
     );
 }
