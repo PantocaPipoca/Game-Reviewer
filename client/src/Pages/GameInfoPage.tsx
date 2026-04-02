@@ -4,8 +4,19 @@ import Navbar from "../Components/Navbar/Navbar";
 import Text from "../Components/Text/Text";
 import Star from "../Components/Star/Star";
 import type { CssVar } from "../Types/Types";
+import ReviewCard from "../Components/ReviewCard/ReviewCard";
 
 type RatingType = "user" | "your" | "friends";
+
+type descriptionFieldProps = {
+    label: string;
+    value: string;
+};
+
+type infoItemProps = {
+    title: string;
+    items: string[];
+};
 
 function getRatingColor(type: RatingType): CssVar {
     if (type === "user") return "var(--cyan)";
@@ -36,6 +47,35 @@ function RatingRow({ type }: { type: RatingType }) {
     );
 }
 
+function DescriptionField({ label, value }: descriptionFieldProps) {
+    return (
+        <div>
+            <Text variant="body">{label}: </Text>
+            <Text variant="body" color="var(--cyan)">
+                {value}
+            </Text>
+        </div>
+    );
+}
+
+function InfoSection({ title, items }: infoItemProps) {
+    return (
+        <>
+            <hr />
+            <div className={style.infoSection}>
+                <Text variant="h2">{title}</Text>
+                <ul>
+                    {items.map((item) => (
+                        <li key={item}>
+                            <Text variant="body">{item}</Text>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </>
+    );
+}
+
 function GameInfoPage() {
     return (
         <div>
@@ -58,7 +98,13 @@ function GameInfoPage() {
                                 <RatingRow type="your" />
                                 <hr />
                                 <RatingRow type="friends" />
-                                <hr />
+                                <InfoSection
+                                    title="Alternative Titles"
+                                    items={["RE2 Remake", "REmake 2", "Resident Evil 2 Remake", "Biohazard RE:2"]}
+                                />
+                                <InfoSection title="Main Developers" items={["Capcom Development Division 1"]} />
+                                <InfoSection title="Supporting Devs" items={["K2", "NeoBards Entertainment"]} />
+                                <InfoSection title="Porting Developers" items={["NeoBards Entertainment"]} />
                             </Panel>
                         </div>
 
@@ -68,28 +114,12 @@ function GameInfoPage() {
                             </Panel>
                             <Panel type="secondary">
                                 <div className={style.description}>
-                                    <div>
-                                        <Text variant="body">Genre: </Text>
-                                        <Text variant="body" color="var(--cyan)">
-                                            Shooter, Adventure
-                                        </Text>
-                                    </div>
-
-                                    <div>
-                                        <Text variant="body">Platforms: </Text>
-                                        <Text variant="body" color="var(--cyan)">
-                                            iOS, Mac, PC (Microsoft Windows), PlayStation 4, PlayStation 5, Xbox One,
-                                            Xbox Series X|S
-                                        </Text>
-                                    </div>
-
-                                    <div>
-                                        <Text variant="body">Editions: </Text>
-                                        <Text variant="body" color="var(--cyan)">
-                                            See 8 more editions of this game
-                                        </Text>
-                                    </div>
-
+                                    <DescriptionField label="Genre" value="Shooter, Adventure" />
+                                    <DescriptionField
+                                        label="Platforms"
+                                        value="iOS, Mac, PC (Microsoft Windows), PlayStation 4, PlayStation 5, Xbox One, Xbox Series X|S"
+                                    />
+                                    <DescriptionField label="Editions" value="See 8 more editions of this game" />
                                     <Text variant="body">
                                         Resident Evil 2 is a remake of 1998's Resident Evil 2. The game was not
                                         developed with the intent of improving the original, but rather a reimagining of
@@ -99,6 +129,9 @@ function GameInfoPage() {
                                     </Text>
                                 </div>
                             </Panel>
+                            <ReviewCard />
+                            <ReviewCard />
+                            <ReviewCard />
                         </div>
                     </div>
                 </Panel>

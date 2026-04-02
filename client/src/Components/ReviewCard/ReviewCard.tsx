@@ -55,7 +55,7 @@ function ReviewCard({
 
     return (
         <div className={style.panel}>
-            <Panel type="secondary" direction="row">
+            <Panel type="secondary" direction="row" className={style.fullWidth}>
                 {showUser ? (
                     <div className={style.userBlock}>
                         <img src={userAvatar} className={style.avatar} />

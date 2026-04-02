@@ -76,3 +76,16 @@
     flex-direction: column;
     gap: var(--spacingSmall);
 }
+
+.infoSection {
+    padding: var(--spacingSmall) var(--spacingMedium);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingSmall);
+}
+
+.infoSection ul {
+    margin: calc(var(--spacingSmall) / 2) 0 0 var(--spacingSmall);
+    padding: 0;
+    list-style: disc;
+}
