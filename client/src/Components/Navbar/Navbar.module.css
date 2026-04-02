@@ -4,14 +4,88 @@
     min-height: 82px;
     display: flex;
     align-items: center;
-    gap: 41px;
-    padding: 0 54px;
+    gap: var(--spacingLarge);
+    padding: 0 var(--spacingLarge);
 }
 
-.profileLink {
-    display: block;
-    width: 48px;
-    background-color: var(--button);
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingMedium);
+    margin-left: auto;
+}
+
+.bellWrapper {
+    position: relative;
+}
+
+.bellButton {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: none;
+    color: var(--mutedText);
+    padding: 0;
+}
+
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--pink);
+    color: var(--reverseText);
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+}
+
+.profileArea {
+    position: relative;
+}
+.profileButton {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingSmall);
+    background: none;
+    color: var(--mainText);
+    padding: var(--spacingSmall) var(--spacingMedium);
+}
+.profileAvatar {
+    width: 22px;
+    height: 22px;
+    background-color: var(--border);
     flex-shrink: 0;
-    aspect-ratio: 1 / 1;
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    background-color: var(--mainPanel);
+    border: var(--borderWidth) solid var(--border);
+    min-width: 160px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+}
+.dropdownItem {
+    background: none;
+    border: none;
+    padding: var(--spacingSmall) var(--spacingMedium);
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+}
+.dropdownItem:hover {
+    background-color: var(--secondaryPanel);
+}
+.dropdownDivider {
+    height: var(--borderWidth);
+    background-color: var(--border);
 }

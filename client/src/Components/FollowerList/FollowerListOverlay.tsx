@@ -5,7 +5,7 @@ import FollowerItem from "../FollowerItem/FollowerItem";
 import { FollowerAPI } from "../../API/Follower";
 import type { FollowerFull } from "../../API/Types";
 import style from "./FollowerListOverlay.module.css";
-import { useCloseOverlay } from "../../hooks/CloseOverlay";
+import { useCloseOverlay } from "../../Hooks/CloseOverlay";
 
 type Tab = "followers" | "following";
 
