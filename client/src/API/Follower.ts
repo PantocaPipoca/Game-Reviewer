@@ -33,4 +33,8 @@ export class FollowerAPI {
     static async rejectRequest(username: string): Promise<FollowerFull> {
         return CLIENT.delete("/users/me/followers/requests/received/" + username);
     }
+
+    static async removeFollower(username: string): Promise<FollowerFull> {
+        return CLIENT.delete("/users/me/followers/" + username);
+    }
 }
