@@ -60,9 +60,9 @@ export class GameController {
         } catch (e) {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_INVALID);
         }
-        const result: any[] = await GameService.getGameInfo(gameID);
-        if (result.length == 0) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
-        makeSuccess(res, StatusCodes.OK, result[0]);
+        const result: any = await GameService.getGameInfo(gameID);
+        if (result === null) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
+        makeSuccess(res, StatusCodes.OK, result);
     });
 
     /**
