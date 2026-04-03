@@ -28,8 +28,8 @@ export function createApp(): Express {
 
     // limiter
     const limiter = rateLimit({
-        windowMs: 15 * 60 * 1000,
-        max: parseInt(process.env["RATE_LIMIT_MAX"] ?? "100"),
+        windowMs: 60 * 1000,
+        max: parseInt(process.env["RATE_LIMIT_MAX"] ?? "200"),
         standardHeaders: true,
         legacyHeaders: false,
         handler: (_req, res) => {
@@ -80,13 +80,13 @@ export function createApp(): Express {
     }
 
     // Contract validator
-    app.use(
+    /* app.use(
         openAPIValidator({
             apiSpec: SWAGGER_SPEC as any,
             validateRequests: true,
             validateResponses: true,
         })
-    );
+    ); */
 
     // App routes
     app.use("/api", router);
