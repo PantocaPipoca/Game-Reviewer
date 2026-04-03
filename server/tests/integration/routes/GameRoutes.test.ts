@@ -4,6 +4,7 @@ import { createApp } from "../../../src/App.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { register, createGame } from "../helper/helper.ts";
+import { IGDB } from "../../../src/IGDB/Requests.ts";
 
 const app: Express = createApp();
 
@@ -40,33 +41,144 @@ const email = username + "@test.com";
 // });
 // refactor this for IGDB
 
-// ===================== IGDB REQUESTS (TODO) =====================
+// ===================== IGDB REQUESTS =====================
 
 describe("GET /api/games/id/:gameID", () => {
-    it.todo("returns OK and game data");
-    it.todo("returns BAD REQUEST if given GameID isn't a valid integer");
+    it("returns OK if given gameID is a valid integer and corresponds to an existing game in IGDB", async () => {
+        await request(app).get("/api/games/id/26226").expect(StatusCodes.OK);
+    });
+
+    it("returns BAD REQUEST if given gameID isn't a valid integer or doesn't correspond to an existing game in IGDB", async () => {
+        await request(app).get("/api/games/id/0").expect(StatusCodes.BAD_REQUEST);
+        await request(app).get("/api/games/id/-26226").expect(StatusCodes.BAD_REQUEST);
+        await request(app).get("/api/games/id/262.26").expect(StatusCodes.BAD_REQUEST);
+        await request(app).get("/api/games/id/text").expect(StatusCodes.BAD_REQUEST);
+    });
 });
 
 describe("POST /api/games/search", () => {
-    it.todo("returns OK and matching games for a valid name query");
-    it.todo("returns OK and matching games for a valid genre query");
-    it.todo("returns OK and matching games for combined name and genre query");
-    it.todo("returns BAD REQUEST if query params are invalid");
+    it("returns OK if searching parameters are valid (only name)", async () => {
+        const name: string = "minecraf";
+        const offset: number = 0;
+        const amount: number = 5;
+        await request(app).post("/api/games/search").send({ name, offset, amount }).expect(StatusCodes.OK);
+    });
+
+    it("returns OK if searching parameters are valid (only genres)", async () => {
+        const genres: number[] = [8, 32];
+        const offset: number = 0;
+        const amount: number = 5;
+        await request(app).post("/api/games/search").send({ genres, offset, amount }).expect(StatusCodes.OK);
+    });
+
+    it("returns OK if searching parameters are valid (name + genres)", async () => {
+        const name: string = "celes";
+        const genres: number[] = [8, 32];
+        const offset: number = 0;
+        const amount: number = 5;
+        await request(app).post("/api/games/search").send({ name, genres, offset, amount }).expect(StatusCodes.OK);
+    });
+
+    it("returns BAD REQUEST if query params are invalid", async () => {
+        const name: string = "celes";
+        const genres: number[] = [8, 32];
+        const offset: number = 0;
+        const amount: number = 5;
+        await request(app)
+            .post("/api/games/search")
+            .send({ name, genres, offset: -1, amount })
+            .expect(StatusCodes.BAD_REQUEST);
+        await request(app)
+            .post("/api/games/search")
+            .send({ name, genres, offset, amount: 7.9 })
+            .expect(StatusCodes.BAD_REQUEST);
+        await request(app)
+            .post("/api/games/search")
+            .send({ name: 12, genres, offset, amount })
+            .expect(StatusCodes.BAD_REQUEST);
+        await request(app)
+            .post("/api/games/search")
+            .send({ name, genres: false, offset, amount })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
 });
 
 describe("POST /api/games/popular", () => {
-    it.todo("returns OK and list of popular games");
-    it.todo("returns BAD REQUEST if query params are invalid");
+    it("returns OK if query params are valid", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        await request(app).post("/api/games/popular").send({ offset, amount }).expect(StatusCodes.OK);
+    });
+
+    it("returns BAD REQUEST if query params are invalid", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        await request(app).post("/api/games/popular").send({ offset: -1, amount }).expect(StatusCodes.BAD_REQUEST);
+        await request(app).post("/api/games/popular").send({ offset: 5.3, amount }).expect(StatusCodes.BAD_REQUEST);
+        await request(app).post("/api/games/popular").send({ offset, amount: 3.6 }).expect(StatusCodes.BAD_REQUEST);
+        await request(app).post("/api/games/popular").send({ offset, amount: 0 }).expect(StatusCodes.BAD_REQUEST);
+    });
 });
 
 describe("POST /api/games/recent", () => {
-    it.todo("returns OK and list of recent games");
-    it.todo("returns BAD REQUEST if query params are invalid");
+    it("returns OK if query params are valid", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        await request(app).post("/api/games/recent").send({ offset, amount }).expect(StatusCodes.OK);
+    });
+
+    it("returns BAD REQUEST if query params are invalid", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        await request(app).post("/api/games/recent").send({ offset: -1, amount }).expect(StatusCodes.BAD_REQUEST);
+        await request(app).post("/api/games/recent").send({ offset: 5.3, amount }).expect(StatusCodes.BAD_REQUEST);
+        await request(app).post("/api/games/recent").send({ offset, amount: 3.6 }).expect(StatusCodes.BAD_REQUEST);
+        await request(app).post("/api/games/recent").send({ offset, amount: 0 }).expect(StatusCodes.BAD_REQUEST);
+    });
 });
 
 describe("POST /api/games/recommended", () => {
-    it.todo("returns OK and list of recommended games");
-    it.todo("returns BAD REQUEST if query params are invalid");
+    it("returns OK if query params are valid and user is authenticated", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        const testUser = await register(app, "testUsername", "testDisplayName", "testPassword", "test@email.com");
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset, amount })
+            .expect(StatusCodes.OK);
+    });
+    it("returns BAD REQUEST if query params are invalid", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        const testUser = await register(app, "testUsername", "testDisplayName", "testPassword", "test@email.com");
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset: -4, amount })
+            .expect(StatusCodes.BAD_REQUEST);
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset: 3.2, amount })
+            .expect(StatusCodes.BAD_REQUEST);
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset, amount: 0 })
+            .expect(StatusCodes.BAD_REQUEST);
+        await request(app)
+            .post("/api/games/recommended")
+            .set("Authorization", "Bearer " + testUser.token)
+            .send({ offset, amount: 4.5 })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    it("returns BAD REQUEST if user isn't authenticated", async () => {
+        const offset: number = 0;
+        const amount: number = 3;
+        await request(app).post("/api/games/recommended").send({ offset, amount }).expect(StatusCodes.UNAUTHORIZED);
+    });
 });
 
 // ===================== GET REVIEWS BY GAME =====================

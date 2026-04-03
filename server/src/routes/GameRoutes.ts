@@ -9,111 +9,243 @@ const router: Router = Router({ mergeParams: true });
 // ===================== GAMES =====================
 
 /**
- * swagger
- * /games/id/:gameID:
+ * @swagger
+ * /games/id/{gameID}:
  *      get:
  *          tags: [Games]
  *          summary: Returns Game IGDB info
- *          description: |
- *              Returns detailed info about a specific game given in the params
- *              Example: `/game/id/248567`
+ *          description: Returns detailed info about a specific game given in the params
  *          parameters:
- *            - in: path
- *              id: gameID
- *              schema:
- *                  type: number
- *              description: game id of the game to get the info of
+ *              - in: path
+ *                name: gameID
+ *                required: true
+ *                schema:
+ *                  type: integer
  *          responses:
  *              200:
  *                  description: "**OK**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Game'
  *              400:
- *                  description: "**Bad Request** - if given game id is invalid or no game has that id"
- *              500:
- *                  description: "**Internal Server Error** - if the game couldn't be retrieved"
- *
+ *                  description: "**Bad Request** - if any required path parameter is missing or invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** - if there is no Game associated with the given ID"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.get("/id/:gameID", GameController.getGameInfo);
 
 /**
- * swagger
+ * @swagger
  *  /games/search:
  *      post:
  *          tags: [Games]
  *          summary: Search games
  *          description: |
  *              Search games using both name and/or genres given in body
- *              Example: `body = {name: celeste}`, `body = {genres: [8, 25]}`
  *          requestBody:
- *              required = true
+ *              required: true
  *              content:
  *                  application/json:
  *                      schema:
  *                          type: object
+ *                          required: [offset, amount]
  *                          properties:
+ *                              offset:
+ *                                  type: number
+ *                                  minimum: 0
+ *                              amount:
+ *                                  type: number
+ *                                  minimum: 1
  *                              name:
  *                                  type: string
- *                              genres
- *                                  type: number[]
+ *                              genres:
+ *                                  type: array
+ *                                  items: {
+ *                                      type: integer
+ *                                  }
  *          responses:
  *              200:
  *                  description: "**OK**"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/Game'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: request
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/GameCover'
  *              400:
  *                  description: "**Bad Request** - if any of the query parameters are invalid"
- *              500:
- *                  description: "**Internal Server Error** - if the filters couldn't be retrieved"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/search", GameController.searchGames);
 
 /**
- * swagger
+ * @swagger
  *  /games/popular:
  *      post:
  *          tags: [Games]
  *          summary: Returns popular games ordered by review count
  *          description: |
  *              Returns popular games ordered review count.
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [offset, amount]
+ *                          properties:
+ *                              offset:
+ *                                  type: number
+ *                                  minimum: 0
+ *                              amount:
+ *                                  type: number
+ *                                  minimum: 1
  *          responses:
  *              200:
  *                  description: "**OK**"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/Game'
- *              500:
- *                  description: "**Internal Server Error** - if the games couldn't be retrieved"
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: request
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/GameCover'
+ *              400:
+ *                  description: "**Bad Request** - if any of the query parameters are invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/popular", GameController.getPopularGames);
 // it's now a POST so this documentation needs updating
 
 /**
- * swagger
- * /games/recent:
+ * @swagger
+ *  /games/recent:
  *      post:
  *          tags: [Games]
- *          summary: Returns recent games
+ *          summary: Return recent games
  *          description: |
- *              Returns recently released games
- *
+ *              Returns the most recently released games.
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [offset, amount]
+ *                          properties:
+ *                              offset:
+ *                                  type: number
+ *                                  minimum: 0
+ *                              amount:
+ *                                  type: number
+ *                                  minimum: 1
+ *          responses:
+ *              200:
+ *                  description: "**OK**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: request
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/GameCover'
+ *              400:
+ *                  description: "**Bad Request** - if any of the query parameters are invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/recent", GameController.getRecentGames);
 
 /**
- * swagger
- * /games/recommended:
+ * @swagger
+ *  /games/recommended:
  *      post:
  *          tags: [Games]
- *          summary: Returns recommended games
+ *          summary: Return recomended games
  *          description: |
- *              Returns recommended games the user might like based on the genres of the games they already liked
- *
+ *              Returns games based on the genres of liked games.
+ *              security:
+ *                  - bearerAuth: []
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [offset, amount]
+ *                          properties:
+ *                              offset:
+ *                                  type: number
+ *                                  minimum: 0
+ *                              amount:
+ *                                  type: number
+ *                                  minimum: 1
+ *          responses:
+ *              200:
+ *                  description: "**OK**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: request
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/GameCover'
+ *              400:
+ *                  description: "**Bad Request** - if any of the query parameters are invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
 router.post("/recommended", auth, GameController.getRecommendedGames);
 

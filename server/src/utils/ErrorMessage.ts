@@ -21,6 +21,7 @@ export const COMMENT_ID_REQUIRED: string = "Missing comment ID field";
 export const COMMENT_ID_INVALID: string = "Invalid comment ID field";
 
 export const GAME_ID_INVALID: string = "Invalid or missing GameID";
+export const GAME_NAME_FORMAT_INVALID: string = "Invalid or missing GameID";
 export const GENRES_INVALID: string = "One or more invalid genres";
 export const OFFSET_INVALID: string = "Invalid or missing offset";
 export const AMOUNT_INVALID: string = "Invalid or missing amount";

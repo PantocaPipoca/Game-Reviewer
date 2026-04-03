@@ -85,6 +85,7 @@ export function createApp(): Express {
             apiSpec: SWAGGER_SPEC as any,
             validateRequests: true,
             validateResponses: true,
+            validateSecurity: false,
         })
     );
 
