@@ -130,8 +130,9 @@ function GameInfoPage() {
                 ]);
 
                 if (gameResult.status === "fulfilled") {
-                    const rawGames = gameResult.value as unknown as unknown[];
-                    const igdbData = rawGames[0] ?? null;
+                    const igdbData = Array.isArray(gameResult.value)
+                        ? (gameResult.value[0] ?? null)
+                        : (gameResult.value ?? null);
                     setGame(igdbData);
                 } else {
                     setError(true);
