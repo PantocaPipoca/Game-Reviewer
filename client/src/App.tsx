@@ -5,6 +5,7 @@ import RegisterPage from "./Pages/RegisterPage";
 import SearchResultsPage from "./Pages/SearchResultsPage";
 import UserPage from "./Pages/UserPage";
 import EditProfilePage from "./Pages/EditProfilePage";
+import GameInfoPage from "./Pages/GameInfoPage";
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                 <Route path="search" element={<SearchResultsPage />} />
                 <Route path="/user/:username" element={<UserPage />} />
                 <Route path="/user/:username/edit" element={<EditProfilePage />} />
+                <Route path="/game/:gameID" element={<GameInfoPage />} />
             </Routes>
         </div>
     );

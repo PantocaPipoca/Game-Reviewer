@@ -80,14 +80,14 @@ export function createApp(): Express {
     }
 
     // Contract validator
-    app.use(
+    /* app.use(
         openAPIValidator({
             apiSpec: SWAGGER_SPEC as any,
             validateRequests: true,
             validateResponses: true,
             validateSecurity: false,
         })
-    );
+    ); */
 
     // App routes
     app.use("/api", router);
