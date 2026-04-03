@@ -54,9 +54,7 @@ describe("GameRepository (integration)", () => {
 
 describe("IGDB requests (integration)", () => {
     it("checks if getGameByID is working correctly", async () => {
-        const gameR: any[] = await IGDB.getGameByID(26226);
-        expect(gameR).toHaveLength(1);
-        const game = gameR[0];
+        const game: any = await IGDB.getGameByID(26226);
         expect(game).toHaveProperty("id");
         expect(game).toHaveProperty("cover");
         expect(game).toHaveProperty("first_release_date");
@@ -77,8 +75,8 @@ describe("IGDB requests (integration)", () => {
             expect(game).toHaveProperty("name");
 
             expect(game["name"]).toMatch(regex);
-            let gameFull: any[] = await IGDB.getGameByID(game["id"]);
-            let genresRaw = gameFull[0]["genres"] as { id: number }[];
+            let gameFull: any = await IGDB.getGameByID(game["id"]);
+            let genresRaw = gameFull["genres"] as { id: number }[];
             let genresParsed: number[] = genresRaw.map((elem) => elem.id);
             const hasMatch = genres.some((g) => genresParsed.includes(g));
             expect(hasMatch).toBe(true);
@@ -105,11 +103,11 @@ describe("IGDB requests (integration)", () => {
             expect(game).toHaveProperty("cover");
             expect(game).toHaveProperty("name");
 
-            let gameFull: any[] = await IGDB.getGameByID(game["id"]);
-            expect(gameFull[0]["first_release_date"]).toBeLessThan(Date.now() / 1000);
+            let gameFull: any = await IGDB.getGameByID(game["id"]);
+            expect(gameFull["first_release_date"]).toBeLessThan(Date.now() / 1000);
 
             const week = 7 * 24 * 60 * 60;
-            expect(gameFull[0]["first_release_date"]).toBeGreaterThan(Date.now() / 1000 - week);
+            expect(gameFull["first_release_date"]).toBeGreaterThan(Date.now() / 1000 - week);
         }
     }, 15000);
 
