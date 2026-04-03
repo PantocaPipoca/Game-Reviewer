@@ -29,7 +29,7 @@ export class GameService {
      * @param gameID the ID of the game we want to make a page for
      * @returns detailed info for the game in json format
      */
-    static async getGameInfo(gameID: GamePK): Promise<any[]> {
+    static async getGameInfo(gameID: GamePK): Promise<any> {
         return IGDB.getGameByID(gameID);
     }
 
@@ -78,7 +78,7 @@ export class GameService {
         if (likedGames.length < 1) {
             return GameService.getPopularGames(offset, amount);
         }
-        const likedGenres: number[] = await IGDB.getGenresOfGames(likedGames);
+        const likedGenres: number[] = await IGDB.getGenresOfGames(likedGames); // TODO: swap this function for ours
         return IGDB.searchGames("", likedGenres, offset, amount);
     }
 

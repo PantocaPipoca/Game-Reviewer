@@ -87,7 +87,7 @@ export class IGDB {
 
     // DONE
     // used for the game page
-    public static async getGameByID(ID: number): Promise<any[]> {
+    public static async getGameByID(ID: number): Promise<any> {
         await IGDB.handleToken();
         return fetch("https://api.igdb.com/v4/games", {
             method: "POST",
@@ -153,7 +153,9 @@ export class IGDB {
                     id = ${ID}
                 ;
             `,
-        }).then((res) => res.json() as Promise<any[]>);
+        })
+            .then((res) => res.json() as Promise<any[]>)
+            .then((arr) => (arr.length === 1 ? arr[0] : null) as any);
     }
 
     // DONE
@@ -211,7 +213,8 @@ export class IGDB {
                     cover.*
                 ;
 
-                where id = ${gameIDListString};
+                where id = ${gameIDListString} &
+                cover != null;
             `,
         }).then((res) => res.json() as Promise<GameCover[]>);
     }

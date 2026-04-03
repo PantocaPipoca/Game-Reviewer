@@ -1,10 +1,11 @@
 import { StatusCodes } from "http-status-codes";
 import { AppError } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
-import { GameFull, GamePK, ReviewFull, UserPK, UserPublic } from "../types/Types";
+import { GameFull, GamePK, GameShort, ReviewFull, UserPK, UserPublic } from "../types/Types";
 import { canViewUser, fetchPublicUser } from "./AccountService";
 import { GameRepository } from "../Repository/GameRepository";
 import { ReviewRepository } from "../Repository/ReviewRepository";
+import { IGDB } from "../IGDB/Requests";
 
 // Throws if the game doesn't exist
 async function fetchGame(gameID: number): Promise<GameFull> {
@@ -32,12 +33,25 @@ export class ReviewService {
         await fetchPublicUser(currentUser);
         await fetchGame(gameID);
 
-        // check if review already exists
-        const existing: ReviewFull | null = await ReviewRepository.selectReview({
-            reviewer: currentUser,
-            reviewed: gameID,
-        });
-        if (existing) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.REVIEW_ALREADY_EXISTS);
+        if ((await GameRepository.selectGame(gameID)) === null) {
+            let IGDBgame: any = await IGDB.getGameByID(gameID);
+            if (IGDBgame === null) {
+                throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
+            }
+            let dbGame: GameShort = {
+                gameID: gameID,
+                gameName: IGDBgame.name,
+                metadata: { genres: await IGDB.getGenresOfGames([gameID]) }, // TODO: swap this function for ours
+            };
+            GameRepository.insertGame(dbGame);
+        } else {
+            // check if review already exists
+            const existing: ReviewFull | null = await ReviewRepository.selectReview({
+                reviewer: currentUser,
+                reviewed: gameID,
+            });
+            if (existing) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.REVIEW_ALREADY_EXISTS);
+        }
 
         return (await ReviewRepository.insertReview({
             reviewer: currentUser,
