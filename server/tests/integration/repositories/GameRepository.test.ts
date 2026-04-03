@@ -1,8 +1,9 @@
 import { describe, it, expect } from "@jest/globals";
 import { GameRepository } from "../../../src/Repository/GameRepository";
-import { GameFull } from "../../../src/types/Types";
+import { GameCover, GameFull } from "../../../src/types/Types";
 import { InputJsonValue, JsonValue } from "@prisma/client/runtime/client";
 import { createGame } from "../helper/helper";
+import { IGDB } from "../../../src/IGDB/Requests";
 
 describe("GameRepository (integration)", () => {
     // Auxiliary function, checks a games's name, id and data against expected values
@@ -52,12 +53,70 @@ describe("GameRepository (integration)", () => {
 });
 
 describe("IGDB requests (integration)", () => {
-    it.todo(`
-        Checks if IGDB requests are all working correctly:
-            get game by id
-            search games
-            get given games
-            get recent games
-            get genres of games
-    `);
+    it("checks if getGameByID is working correctly", async () => {
+        const gameR: any[] = await IGDB.getGameByID(26226);
+        expect(gameR).toHaveLength(1);
+        const game = gameR[0];
+        expect(game).toHaveProperty("id");
+        expect(game).toHaveProperty("cover");
+        expect(game).toHaveProperty("first_release_date");
+        expect(game).toHaveProperty("name");
+    });
+
+    it("checks if searchGames is working correctly", async () => {
+        const name = "celes";
+        const genres = [8, 32];
+        const offset = 0;
+        const amount = 3;
+        const games: any[] = await IGDB.searchGames(name, genres, offset, amount);
+        expect(games).toHaveLength(amount);
+        const regex = new RegExp(name, "i");
+        for (const game of games) {
+            expect(game).toHaveProperty("id");
+            expect(game).toHaveProperty("cover");
+            expect(game).toHaveProperty("name");
+
+            expect(game["name"]).toMatch(regex);
+            let gameFull: any[] = await IGDB.getGameByID(game["id"]);
+            let genresRaw = gameFull[0]["genres"] as { id: number }[];
+            let genresParsed: number[] = genresRaw.map((elem) => elem.id);
+            const hasMatch = genres.some((g) => genresParsed.includes(g));
+            expect(hasMatch).toBe(true);
+        }
+    }, 15000);
+
+    it("checks if getGivenGames is working correctly", async () => {
+        const gameIDs: number[] = [121, 1879, 14593, 26226];
+        const games: GameCover[] = await IGDB.getGivenGames(gameIDs);
+        expect(games.length).toBe(gameIDs.length);
+        for (const game of games) {
+            expect(gameIDs).toContain(game.id);
+        }
+    });
+
+    it("checks if getRecentGames is working correctly", async () => {
+        const offset = 0;
+        const amount = 3;
+        const games: any[] = await IGDB.getRecentGames(offset, amount);
+        expect(games).toHaveLength(amount);
+
+        for (const game of games) {
+            expect(game).toHaveProperty("id");
+            expect(game).toHaveProperty("cover");
+            expect(game).toHaveProperty("name");
+
+            let gameFull: any[] = await IGDB.getGameByID(game["id"]);
+            expect(gameFull[0]["first_release_date"]).toBeLessThan(Date.now() / 1000);
+
+            const week = 7 * 24 * 60 * 60;
+            expect(gameFull[0]["first_release_date"]).toBeGreaterThan(Date.now() / 1000 - week);
+        }
+    }, 15000);
+
+    it("checks if getGenresOfGames is working correctly", async () => {
+        const games: number[] = [1, 1879, 26226];
+        const genres: number[] = await IGDB.getGenresOfGames(games);
+        expect(genres.length).toBeGreaterThanOrEqual(1);
+        expect(new Set(genres).size).toBe(genres.length); // no repeating elements
+    });
 });

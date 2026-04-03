@@ -23,9 +23,7 @@ import { GameService } from "../../../src/services/GameService";
 // won't be used
 
 describe("GameService (integration)", () => {
-    it.todo(`
-        check if all functions which have logic are correctly implemented:
-            popular games
-            recommended games
-    `);
+    it.todo("checks if popular games function is correctly implemented");
+
+    it.todo("checks if recommended games function is correctly implemented");
 });
