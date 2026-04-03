@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { GameAPI } from "../../API/Games";
-import type { GameSearchResult } from "../../API/Types";
+import { UserAPI } from "../../API/User";
+import type { GameSearchResult, UserPublic } from "../../API/Types";
+import defaultPfp from "../../Assets/default-pfp.png";
 import Button from "../Buttons/Button";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
@@ -9,14 +11,19 @@ import InputField from "./InputField";
 import style from "./Search.module.css";
 
 const DROPDOWN_LIMIT = 5;
-const MIN_QUERY_LENGTH = 2;
+const MIN_QUERY_LENGTH = 3;
 const DEBOUNCE_MS = 450;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const FALLBACK_COVER = "https://vglist.co/assets/no-cover-5b40e3b1.png";
 
-type CacheEntry = {
+type GameCacheEntry = {
     timestamp: number;
     data: GameSearchResult[];
+};
+
+type UserCacheEntry = {
+    timestamp: number;
+    data: UserPublic[];
 };
 
 function toCoverUrl(result: GameSearchResult): string {
@@ -31,16 +38,21 @@ function Search() {
     const [searchParams] = useSearchParams();
 
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<GameSearchResult[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const [gameResults, setGameResults] = useState<GameSearchResult[]>([]);
+    const [userResults, setUserResults] = useState<UserPublic[]>([]);
+    const [isLoadingGames, setIsLoadingGames] = useState(false);
+    const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+    const [gameError, setGameError] = useState(false);
+    const [userError, setUserError] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 
-    const cacheRef = useRef<Map<string, CacheEntry>>(new Map());
-    const requestIdRef = useRef(0);
+    const gameCacheRef = useRef<Map<string, GameCacheEntry>>(new Map());
+    const userCacheRef = useRef<Map<string, UserCacheEntry>>(new Map());
+    const gameRequestIdRef = useRef(0);
+    const userRequestIdRef = useRef(0);
 
     useEffect(() => {
-        if (location.pathname !== "/search") return;
+        if (location.pathname !== "/search/games" && location.pathname !== "/search/users") return;
         setQuery(searchParams.get("q") ?? "");
     }, [location.pathname, searchParams]);
 
@@ -48,41 +60,78 @@ function Search() {
         const normalizedQuery = query.trim();
 
         if (normalizedQuery.length < MIN_QUERY_LENGTH) {
-            setResults([]);
-            setIsLoading(false);
-            setError(false);
+            setGameResults([]);
+            setUserResults([]);
+            setIsLoadingGames(false);
+            setIsLoadingUsers(false);
+            setGameError(false);
+            setUserError(false);
             return;
         }
 
         const timeoutId = setTimeout(async () => {
-            const cachedResult = cacheRef.current.get(normalizedQuery);
+            const cachedGames = gameCacheRef.current.get(normalizedQuery);
+            const cachedUsers = userCacheRef.current.get(normalizedQuery);
 
-            if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_TTL_MS) {
-                setResults(cachedResult.data);
-                setError(false);
-                return;
+            const gameCacheIsValid = !!cachedGames && Date.now() - cachedGames.timestamp < CACHE_TTL_MS;
+            const userCacheIsValid = !!cachedUsers && Date.now() - cachedUsers.timestamp < CACHE_TTL_MS;
+
+            if (gameCacheIsValid) {
+                setGameResults(cachedGames.data);
+                setGameError(false);
             }
 
-            const requestId = ++requestIdRef.current;
-            setIsLoading(true);
-            try {
-                const response = await GameAPI.search({ name: normalizedQuery, limit: DROPDOWN_LIMIT });
-                if (requestIdRef.current !== requestId) return;
+            if (userCacheIsValid) {
+                setUserResults(cachedUsers.data);
+                setUserError(false);
+            }
 
-                setResults(response);
-                setError(false);
-                cacheRef.current.set(normalizedQuery, {
-                    timestamp: Date.now(),
-                    data: response,
-                });
-            } catch {
-                if (requestIdRef.current !== requestId) return;
-                setResults([]);
-                setError(true);
-            } finally {
-                if (requestIdRef.current === requestId) {
-                    setIsLoading(false);
+            if (gameCacheIsValid && userCacheIsValid) return;
+
+            const gameRequestId = ++gameRequestIdRef.current;
+            const userRequestId = ++userRequestIdRef.current;
+
+            if (!gameCacheIsValid) setIsLoadingGames(true);
+            if (!userCacheIsValid) setIsLoadingUsers(true);
+
+            const gamesPromise: Promise<GameSearchResult[]> = gameCacheIsValid
+                ? Promise.resolve(cachedGames!.data)
+                : GameAPI.search({ name: normalizedQuery, limit: DROPDOWN_LIMIT });
+
+            const usersPromise: Promise<UserPublic[]> = userCacheIsValid
+                ? Promise.resolve(cachedUsers!.data)
+                : UserAPI.search(normalizedQuery);
+
+            const [gamesResponse, usersResponse] = await Promise.allSettled([gamesPromise, usersPromise]);
+
+            if (!gameCacheIsValid && gameRequestIdRef.current === gameRequestId) {
+                if (gamesResponse.status === "fulfilled") {
+                    setGameResults(gamesResponse.value);
+                    setGameError(false);
+                    gameCacheRef.current.set(normalizedQuery, {
+                        timestamp: Date.now(),
+                        data: gamesResponse.value,
+                    });
+                } else {
+                    setGameResults([]);
+                    setGameError(true);
                 }
+                setIsLoadingGames(false);
+            }
+
+            if (!userCacheIsValid && userRequestIdRef.current === userRequestId) {
+                if (usersResponse.status === "fulfilled") {
+                    setUserResults(usersResponse.value.slice(0, DROPDOWN_LIMIT));
+                    setUserError(false);
+                    userCacheRef.current.set(normalizedQuery, {
+                        timestamp: Date.now(),
+                        data: usersResponse.value,
+                    });
+                } else {
+                    setUserResults([]);
+                    setUserError(true);
+                }
+                setIsLoadingUsers(false);
             }
         }, DEBOUNCE_MS);
 
@@ -92,7 +141,14 @@ function Search() {
     const goToSearchPage = () => {
         const normalizedQuery = query.trim();
         if (!normalizedQuery) return;
-        navigate(`/search?q=${encodeURIComponent(normalizedQuery)}`);
+        navigate(`/search/games?q=${encodeURIComponent(normalizedQuery)}`);
+        setIsFocused(false);
+    };
+
+    const goToUserSearchPage = () => {
+        const normalizedQuery = query.trim();
+        if (!normalizedQuery) return;
+        navigate(`/search/users?q=${encodeURIComponent(normalizedQuery)}`);
         setIsFocused(false);
     };
 
@@ -118,33 +174,33 @@ function Search() {
             {shouldShowDropdown && (
                 <div onMouseDown={(event) => event.preventDefault()}>
                     <Panel type="secondary" className={style.dropdown}>
-                        {isLoading && (
+                        {isLoadingGames && (
                             <Panel type="terciary" className={style.statusRow}>
                                 <Text variant="body" color="var(--mutedText)">
-                                    searching...
+                                    searching games...
                                 </Text>
                             </Panel>
                         )}
 
-                        {!isLoading && error && (
+                        {!isLoadingGames && gameError && (
                             <Panel type="terciary" className={style.statusRow}>
                                 <Text variant="body" color="var(--pink)">
-                                    error during search
+                                    error during game search
                                 </Text>
                             </Panel>
                         )}
 
-                        {!isLoading && !error && results.length === 0 && (
+                        {!isLoadingGames && !gameError && gameResults.length === 0 && (
                             <Panel type="terciary" className={style.statusRow}>
                                 <Text variant="body" color="var(--mutedText)">
-                                    no results
+                                    no games found
                                 </Text>
                             </Panel>
                         )}
 
-                        {!isLoading &&
-                            !error &&
-                            results.map((game) => (
+                        {!isLoadingGames &&
+                            !gameError &&
+                            gameResults.map((game) => (
                                 <Panel
                                     key={game.id}
                                     type="terciary"
@@ -163,10 +219,69 @@ function Search() {
                                 </Panel>
                             ))}
 
-                        {shouldShowDropdown && query.trim().length > MIN_QUERY_LENGTH && (
+                        {shouldShowDropdown && query.trim().length >= MIN_QUERY_LENGTH && (
                             <Button className={style.viewAllButton} onClick={goToSearchPage}>
                                 <Text variant="body" color="var(--pink)">
-                                    {`>`} See More
+                                    {`>`} See more games
+                                </Text>
+                            </Button>
+                        )}
+
+                        <hr />
+
+                        {isLoadingUsers && (
+                            <Panel type="terciary" className={style.statusRow}>
+                                <Text variant="body" color="var(--mutedText)">
+                                    searching users...
+                                </Text>
+                            </Panel>
+                        )}
+
+                        {!isLoadingUsers && userError && (
+                            <Panel type="terciary" className={style.statusRow}>
+                                <Text variant="body" color="var(--pink)">
+                                    error during user search
+                                </Text>
+                            </Panel>
+                        )}
+
+                        {!isLoadingUsers && !userError && userResults.length === 0 && (
+                            <Panel type="terciary" className={style.statusRow}>
+                                <Text variant="body" color="var(--mutedText)">
+                                    no users found
+                                </Text>
+                            </Panel>
+                        )}
+
+                        {!isLoadingUsers &&
+                            !userError &&
+                            userResults.slice(0, DROPDOWN_LIMIT).map((user) => (
+                                <Panel
+                                    key={user.accountName}
+                                    type="terciary"
+                                    className={style.itemRow}
+                                    direction="row"
+                                    interactive
+                                    onClick={() => {
+                                        navigate(`/user/${user.accountName}`);
+                                        setIsFocused(false);
+                                    }}
+                                >
+                                    <img
+                                        className={style.avatar}
+                                        src={user.profilePic ?? defaultPfp}
+                                        alt={user.accountName}
+                                    />
+                                    <Text className={style.name} variant="body">
+                                        {user.userData.displayName || user.accountName}
+                                    </Text>
+                                </Panel>
+                            ))}
+
+                        {shouldShowDropdown && query.trim().length >= MIN_QUERY_LENGTH && (
+                            <Button className={style.viewAllButton} onClick={goToUserSearchPage}>
+                                <Text variant="body" color="var(--pink)">
+                                    {`>`} See more users
                                 </Text>
                             </Button>
                         )}

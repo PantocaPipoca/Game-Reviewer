@@ -32,6 +32,10 @@
     border-color: var(--cyan);
 }
 
+.interactive {
+    cursor: pointer;
+}
+
 .interactive:active {
     border-color: var(--pink);
 }
