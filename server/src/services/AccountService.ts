@@ -217,7 +217,7 @@ export class AccountService {
 
         const updated: UserFull = await UserRepository.updateUser({
             accountName: currentUser,
-            profilePic: user.profilePic,
+            profilePic: profilePic ?? user.profilePic,
             isPrivate: isPrivate ?? user.isPrivate,
             passwordHash,
             userData: updatedUserData,
