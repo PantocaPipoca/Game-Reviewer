@@ -27,6 +27,13 @@
     object-fit: cover;
 }
 
+.avatar {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--border);
+    object-fit: cover;
+}
+
 .name {
     align-content: center;
 }

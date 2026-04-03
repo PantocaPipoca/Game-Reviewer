@@ -1,0 +1,37 @@
+.mainPanel {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--borderWidth) * -1);
+}
+
+.resultsPanel {
+    gap: var(--spacingSmall);
+}
+
+.list {
+    gap: var(--spacingSmall);
+    padding: var(--spacingSmall);
+    width: 100%;
+}
+
+.userRow {
+    width: 100%;
+    gap: var(--spacingMedium);
+    padding: var(--spacingSmall);
+    box-sizing: border-box;
+    align-items: center;
+}
+
+.avatar {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+}
+
+.userMeta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
