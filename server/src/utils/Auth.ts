@@ -78,9 +78,13 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction): void 
 export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction): void {
     const token = req.cookies?.["token"] || req.headers.authorization?.replace("Bearer ", "");
 
-    if (token) {
+    if (typeof token === "string" && token.length > 0) {
         try {
-            req.currentUser = jwt.verify(token, JWT_SECRET) as JwtPayload;
+            const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+
+            if (typeof decoded.username === "string") {
+                req.currentUser = decoded;
+            }
         } catch {}
     }
 
