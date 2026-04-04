@@ -63,25 +63,32 @@ export class IGDB {
         fs.writeFileSync(FILE_PATH, JSON.stringify(IGDB.tokenInfo, null, 2));
     }
 
+    private static get safeAccessToken(): string {
+        const token = IGDB.tokenInfo.access_token;
+        if (typeof token !== "string" || !/^[A-Za-z0-9_\-]+$/.test(token)) {
+            throw new Error("Invalid access token format");
+        }
+        return token;
+    }
+
     private static async handleToken(): Promise<void> {
         if (!IGDB.readToken) {
             try {
                 const fileContent = fs.readFileSync(FILE_PATH, "utf-8");
                 const fileData: TokenData = JSON.parse(fileContent);
-                IGDB.tokenInfo = fileData;
+
+                const token = typeof fileData.access_token === "string" ? fileData.access_token : "";
+                const expiresAt = typeof fileData.expires_at === "number" ? fileData.expires_at : 0;
+
+                IGDB.tokenInfo = { access_token: token, expires_at: expiresAt };
             } catch {
-                const fileData: TokenData = {
-                    access_token: "placeholder",
-                    expires_at: 0,
-                };
-                IGDB.tokenInfo = fileData;
+                IGDB.tokenInfo = { access_token: "", expires_at: 0 };
             }
             IGDB.readToken = true;
         }
 
-        const expires_at = IGDB.tokenInfo.expires_at;
         const now = Math.floor(Date.now() / 1000);
-        if (now > expires_at) await IGDB.getNewToken();
+        if (now > IGDB.tokenInfo.expires_at) await IGDB.getNewToken();
         await IGDB.sleep();
     }
 
@@ -93,7 +100,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
+                Authorization: `Bearer ${IGDB.safeAccessToken}`,
             },
             body: `
                 fields
@@ -172,7 +179,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
+                Authorization: `Bearer ${IGDB.safeAccessToken}`,
             },
             body: `
                 fields:
@@ -204,7 +211,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
+                Authorization: `Bearer ${IGDB.safeAccessToken}`,
             },
             body: `
                 fields
@@ -228,7 +235,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
+                Authorization: `Bearer ${IGDB.safeAccessToken}`,
             },
             body: `
                 fields
@@ -260,7 +267,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
+                Authorization: `Bearer ${IGDB.safeAccessToken}`,
             },
             body: `
                 fields genres;
@@ -283,7 +290,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
+                Authorization: `Bearer ${IGDB.safeAccessToken}`,
             },
             body: `
                     fields *;

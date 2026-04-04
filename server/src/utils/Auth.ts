@@ -76,13 +76,14 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction): void 
  * @returns    void (always calls next(), never sends response)
  */
 export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction): void {
-    const token = req.cookies?.["token"] || req.headers.authorization?.replace("Bearer ", "");
+    try {
+        const token = req.cookies?.["token"] ?? req.headers.authorization?.replace("Bearer ", "") ?? "";
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
 
-    if (token) {
-        try {
-            req.currentUser = jwt.verify(token, JWT_SECRET) as JwtPayload;
-        } catch {}
-    }
+        if (typeof decoded.username === "string" && decoded.username.length > 0) {
+            req.currentUser = { username: decoded.username };
+        }
+    } catch {}
 
     next();
 }
