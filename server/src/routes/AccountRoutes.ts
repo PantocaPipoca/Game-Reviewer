@@ -1,13 +1,11 @@
 ﻿import { Router } from "express";
 import { AccountController } from "../controllers/AccountController";
 import { ReviewController } from "../controllers/ReviewController";
-import { optionalAuth, auth } from "../utils/auth";
+import { optionalAuth, auth } from "../utils/Auth";
 import { FollowerController } from "../controllers/FollowerController";
 import FollowerRoutes from "./FollowerRoutes";
 
-// Router object
 const router: Router = Router({ mergeParams: true });
-
 
 // ===================== AUTHENTICATION =====================
 
@@ -16,8 +14,8 @@ const router: Router = Router({ mergeParams: true });
  *  /users:
  *      post:
  *          tags: [Users]
- *          summary: Registers a new account
- *          description: Registers a new account
+ *          summary: Registers a new user
+ *          description: Registers a new user
  *          requestBody:
  *              required: true
  *              content:
@@ -40,23 +38,41 @@ const router: Router = Router({ mergeParams: true });
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/AuthResponse'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/AuthResponse'
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 characters, if the password is shorter than 8 characters, or if the email provided is invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              409:
  *                  description: "**Conflict** — if the account name or email provided already exists"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              500:
  *                  description: "**Internal Server Error** — if the account could not be created"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.post("/", AccountController.Register);
+router.post("/", AccountController.register);
 
 /**
  * @swagger
  *  /users/login:
  *      post:
  *          tags: [Users]
- *          summary: Logs in an existing account
- *          description: Logs in an existing account
+ *          summary: Logs in an existing user account
+ *          description: Logs in an existing user account
  *          requestBody:
  *              required: true
  *              content:
@@ -75,28 +91,60 @@ router.post("/", AccountController.Register);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/AuthResponse'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/AuthResponse'
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              401:
  *                  description: "**Unauthorized** — if the provided credentials are invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.post('/login', AccountController.Login);
+router.post("/login", AccountController.login);
 
 /**
  * @swagger
  *  /users/logout:
  *      post:
  *          tags: [Users]
- *          summary: Logs out an existing account
- *          description: Logs out an existing account
+ *          summary: Logs out the current logged in user
+ *          description: Logs out the current logged in user
+ *          security:
+ *              - bearerAuth: []
  *          responses:
  *              200:
- *                  description: "**OK** — logged out successfully"
+ *                  description: "**OK** - logged out successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
+ *                                      nullable: true
+ *                                      example: null
  *              401:
- *                  description: "**Unauthorized** — if the authenticated user doesn't exist"
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.post('/logout', auth, AccountController.Logout);
+router.post("/logout", auth, AccountController.logout);
 
 // ===================== USER MANAGEMENT =====================
 
@@ -115,19 +163,29 @@ router.post('/logout', auth, AccountController.Logout);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/UserPublic'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/UserMe'
  *              401:
  *                  description: "**Unauthorized** — if the authenticated user doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.get("/me", auth, AccountController.GetCurrentUser);
+router.get("/me", auth, AccountController.getCurrentUser);
 
 /**
  * @swagger
  *  /users/me:
  *      put:
  *          tags: [Users]
- *          summary: Alters account details in an existing account
- *          description: Alters account details in an existing account
+ *          summary: Alters the currently logged in user account
+ *          description: Alters the currently logged in user account
  *          security:
  *              - bearerAuth: []
  *          requestBody:
@@ -137,12 +195,14 @@ router.get("/me", auth, AccountController.GetCurrentUser);
  *                      schema:
  *                          type: object
  *                          properties:
- *                              accountName:
+ *                              profilePic:
  *                                  type: string
+ *                                  nullable: true
  *                              isPrivate:
  *                                  type: boolean
  *                              password:
  *                                  type: string
+ *                                  nullable: true
  *                              email:
  *                                  type: string
  *                              userData:
@@ -153,23 +213,47 @@ router.get("/me", auth, AccountController.GetCurrentUser);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/UserPublic'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/UserPublic'
  *              400:
  *                  description: "**Bad Request** — if the password (if provided) is shorter than 8 characters, or if the email (if provided) is invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** — if the provided account's name doesn't exist"
+ *                  description: "**Not Found** - if the account doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              409:
- *                  description: "**Conflict** — if the email provided already exists"
+ *                  description: "**Conflict** - if the email provided already exists"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.put("/me", auth, AccountController.Alter);
+router.put("/me", auth, AccountController.alter);
 
 /**
  * @swagger
  *  /users/me:
  *      delete:
  *          tags: [Users]
- *          summary: Deletes an existing account
- *          description: Deletes an existing account
+ *          summary: Deletes the currently logged in user account
+ *          description: Deletes the currently logged in user account
  *          security:
  *              - bearerAuth: []
  *          responses:
@@ -178,19 +262,37 @@ router.put("/me", auth, AccountController.Alter);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/UserPublic'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/UserPublic'
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the authenticated user doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.delete("/me", auth, AccountController.Remove);
+router.delete("/me", auth, AccountController.remove);
+
+// ===================== FOLLOWER REQUESTS =====================
 
 /**
  * @swagger
  *  /users/me/followers/requests/received:
  *      get:
  *          tags: [Followers]
- *          summary: Gets the pending follower requests for a user (for private accounts)
- *          description: Gets the pending follower requests for a user (for private accounts)
+ *          summary: Gets the pending follower requests received by the current user
+ *          description: Gets the pending follower requests received by the current user (for private accounts)
  *          security:
  *              - bearerAuth: []
  *          responses:
@@ -199,13 +301,29 @@ router.delete("/me", auth, AccountController.Remove);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/Follower'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/Follower'
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** — if the authenticated user doesn't exist"
+ *                  description: "**Not Found** - if the account doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.get("/me/followers/requests/received", auth, FollowerController.GetPendingRequestsToUser);
+router.get("/me/followers/requests/received", auth, FollowerController.getPendingRequestsToUser);
 
 /**
  * @swagger
@@ -222,13 +340,29 @@ router.get("/me/followers/requests/received", auth, FollowerController.GetPendin
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/Follower'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/Follower'
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the authenticated user doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.get("/me/followers/requests/sent", auth, FollowerController.GetPendingRequestsFromUser);
+router.get("/me/followers/requests/sent", auth, FollowerController.getPendingRequestsFromUser);
 
 /**
  * @swagger
@@ -251,15 +385,39 @@ router.get("/me/followers/requests/sent", auth, FollowerController.GetPendingReq
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Follower'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Follower'
  *              400:
  *                  description: "**Bad Request** — if the username is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if any of the provided user names don't exist, or if the first user didn't request to follow the second"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              409:
  *                  description: "**Conflict** — if the second user already accepted the request"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.put("/me/followers/requests/received/:username", auth, FollowerController.AcceptFollowerRequest);
+router.put("/me/followers/requests/received/:username", auth, FollowerController.acceptFollowerRequest);
 
 /**
  * @swagger
@@ -282,13 +440,82 @@ router.put("/me/followers/requests/received/:username", auth, FollowerController
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Follower'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Follower'
  *              400:
  *                  description: "**Bad Request** — if the username is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if any of the provided user names don't exist, or if the follow request doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.delete("/me/followers/requests/received/:username", auth, FollowerController.RejectFollowerRequest);
+router.delete("/me/followers/requests/received/:username", auth, FollowerController.removeFollowerOrRejectRequest);
+
+/**
+ * @swagger
+ *  /users/me/followers/{username}:
+ *      delete:
+ *          tags: [Followers]
+ *          summary: Removes a follower from the current user's followers list
+ *          description: Removes a user from the current user's followers. Works for both accepted followers and pending requests.
+ *          security:
+ *              - bearerAuth: []
+ *          parameters:
+ *              - in: path
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
+ *          responses:
+ *              202:
+ *                  description: "**Accepted** — follower removed successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Follower'
+ *              400:
+ *                  description: "**Bad Request** — if the username is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** — if either user doesn't exist, or if the user is not a follower"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.delete("/me/followers/:username", auth, FollowerController.removeFollowerOrRejectRequest);
 
 // ===================== SEARCH USERS =====================
 
@@ -311,13 +538,23 @@ router.delete("/me/followers/requests/received/:username", auth, FollowerControl
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/UserPublic'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/UserPublic'
  *              400:
  *                  description: "**Bad Request** — if the query is invalid or empty"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.get("/search", optionalAuth, AccountController.Search);
+router.get("/search", optionalAuth, AccountController.search);
 
 // ===================== USER SUB-RESOURCES =====================
 
@@ -343,17 +580,35 @@ router.use("/:username/followers", FollowerRoutes);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/Follower'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/Follower'
  *              400:
  *                  description: "**Bad Request** — if no user name was provided"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              403:
  *                  description: "**Forbidden** — if the account is private and the current user doesn't follow it"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the provided user name doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:username/following", optionalAuth, FollowerController.GetFollowingByUser);
+router.get("/:username/following", optionalAuth, FollowerController.getFollowingByUser);
 
 /**
  * @swagger
@@ -361,7 +616,7 @@ router.get("/:username/following", optionalAuth, FollowerController.GetFollowing
  *      get:
  *          tags: [Reviews]
  *          summary: Gets the reviews of a user
- *          description: Gets the reviews of a user
+ *          description: Gets the reviews of a user, if the account is private, only returns results if the current user follows it.
  *          parameters:
  *              - in: path
  *                name: username
@@ -374,17 +629,35 @@ router.get("/:username/following", optionalAuth, FollowerController.GetFollowing
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/Review'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/Review'
  *              400:
  *                  description: "**Bad Request** — if no user name was provided"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              403:
  *                  description: "**Forbidden** — if the account is private and the current user doesn't follow it"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the provided user name doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:username/reviews", optionalAuth, ReviewController.GetReviewsByUser);
+router.get("/:username/reviews", optionalAuth, ReviewController.getReviewsByUser);
 
 // ===================== FIND USER PROFILE =====================
 
@@ -410,12 +683,26 @@ router.get("/:username/reviews", optionalAuth, ReviewController.GetReviewsByUser
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/UserPublic'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/UserPublic'
  *              400:
  *                  description: "**Bad Request** — if the account's name is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the provided account's name doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:username", optionalAuth, AccountController.FindByUsername);
+router.get("/:username", optionalAuth, AccountController.findByUsername);
 
 export default router;

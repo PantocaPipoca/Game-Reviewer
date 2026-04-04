@@ -1,5 +1,5 @@
-import client from "./Client";
-import type { AuthResponse, UserPublic } from "./Types";
+import CLIENT from "./Client";
+import type { AuthResponse, UserMe, UserPublic } from "./Types";
 
 export class UserAPI {
     static async register(data: {
@@ -8,41 +8,41 @@ export class UserAPI {
         password: string;
         email: string;
     }): Promise<AuthResponse> {
-        const response = (await client.post("/users", data)) as AuthResponse;
+        const response = (await CLIENT.post("/users", data)) as AuthResponse;
         return response;
     }
 
-    static async login(data: {accountName: string; password: string;}): Promise<AuthResponse> {
-        const response = (await client.post("/users/login", data)) as AuthResponse;
+    static async login(data: { accountName: string; password: string }): Promise<AuthResponse> {
+        const response = (await CLIENT.post("/users/login", data)) as AuthResponse;
         return response;
     }
 
     static async logout(): Promise<void> {
-        await client.post("/users/logout");
+        await CLIENT.post("/users/logout");
     }
 
-    static async getMe(): Promise<UserPublic>{
-        return client.get("/users/me");
+    static async getMe(): Promise<UserMe> {
+        return CLIENT.get("/users/me");
     }
 
     static async updateMe(data: {
-        isPrivate?: boolean;
+        isPrivate: boolean;
+        email: string;
+        userData: { displayName: string; gender: string; bio: string };
         password?: string;
-        email?: string;
-        userData?: object;
     }): Promise<UserPublic> {
-        return client.put("/users/me", data);
+        return CLIENT.put("/users/me", data);
     }
 
     static async deleteMe(): Promise<UserPublic> {
-        return client.delete("/users/me");
+        return CLIENT.delete("/users/me");
     }
 
     static async search(query: string): Promise<UserPublic[]> {
-        return client.get("/users/search", { params: { query } });
+        return CLIENT.get("/users/search", { params: { query } });
     }
 
-    static async getByUsername(username: string): Promise<UserPublic>{
-        return client.get("/users/" + username);
+    static async getByUsername(username: string): Promise<UserPublic> {
+        return CLIENT.get("/users/" + username);
     }
-};
+}

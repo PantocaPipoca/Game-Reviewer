@@ -1,6 +1,6 @@
-import {Request, Response, NextFunction} from "express"
-import jwt from "jsonwebtoken"
-import {StatusCodes} from "http-status-codes"
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { StatusCodes } from "http-status-codes";
 
 import { AppError } from "./ErrorHandler";
 import { UserPK } from "../types/Types";
@@ -8,17 +8,19 @@ import * as ErrorMessage from "./ErrorMessage";
 
 export type JwtPayload = {
     username: string;
-}
+};
 
 // Extended Request type with optional user info from JWT
 export type AuthRequest = Request & {
     currentUser?: JwtPayload;
-}
+};
 
 // env variables
-const JWT_SECRET: string = process.env["JWT_SECRET"] ?? (() => { 
-    throw new Error("JWT_SECRET must be set")
-})();
+const JWT_SECRET: string =
+    process.env["JWT_SECRET"] ??
+    (() => {
+        throw new Error("JWT_SECRET must be set");
+    })();
 
 const JWT_EXPIRES_IN: string = process.env["JWT_EXPIRES_IN"] || "7d";
 
@@ -26,14 +28,14 @@ const JWT_EXPIRES_IN: string = process.env["JWT_EXPIRES_IN"] || "7d";
  * Generates a JWT token for a given username and email
  * The token will contain the username and email in its payload and will be signed with a secret key
  * The token will also have an expiration time defined by JWT_EXPIRES_IN
- * @param username name of the user 
+ * @param username name of the user
  * @param email email of the user
  * @returns  the generated JWT token
  */
 export function generateToken(username: string): string {
     return jwt.sign(
-        {username},
-        JWT_SECRET, 
+        { username },
+        JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions // type assertion to satisfy TS
     );
 }
@@ -48,10 +50,10 @@ export function generateToken(username: string): string {
  * @returns    void (sends response if auth fails, otherwise calls next())
  */
 export function auth(req: AuthRequest, res: Response, next: NextFunction): void {
-    const token = req.cookies?.['token']  || req.headers.authorization?.replace('Bearer ', '');
+    const token = req.cookies?.["token"] || req.headers.authorization?.replace("Bearer ", "");
 
     if (!token) {
-        res.status(StatusCodes.UNAUTHORIZED).json({error: "Token required"});
+        res.status(StatusCodes.UNAUTHORIZED).json({ error: "Token required" });
         return;
     }
 
@@ -59,7 +61,7 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction): void 
         req.currentUser = jwt.verify(token, JWT_SECRET) as JwtPayload;
         next();
     } catch (error) {
-        res.status(StatusCodes.UNAUTHORIZED).json({error: "Invalid token"});
+        res.status(StatusCodes.UNAUTHORIZED).json({ error: "Invalid token" });
     }
 }
 
@@ -74,15 +76,16 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction): void 
  * @returns    void (always calls next(), never sends response)
  */
 export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction): void {
-    const token = req.cookies?.['token'] || req.headers.authorization?.replace('Bearer ', '');
-    
-    if (token) {
-        try {
-            req.currentUser = jwt.verify(token, JWT_SECRET) as JwtPayload;
-        } catch {}
-    }
-    
-    next()
+    try {
+        const token = req.cookies?.["token"] ?? req.headers.authorization?.replace("Bearer ", "") ?? "";
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+
+        if (typeof decoded.username === "string" && decoded.username.length > 0) {
+            req.currentUser = { username: decoded.username };
+        }
+    } catch {}
+
+    next();
 }
 
 /**
@@ -90,26 +93,34 @@ export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunctio
  * @param req - Request object
  * @returns username of the logged in user
  */
-export function ExtractLoggedUser(req: AuthRequest): UserPK {
+export function extractLoggedUser(req: AuthRequest): UserPK {
     const currentUser: string | undefined = req.currentUser?.username;
-    if (!currentUser) 
-        throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
+    if (!currentUser) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.UNAUTHORIZED_ACTION);
     return currentUser;
 }
-
 
 // Set cookies for authentication in HTTP responses
 
 const JWT_COOKIE_NAME = "token";
 
 export function setAuthCookie(res: Response, token: string): void {
+    const isProduction = process.env["NODE_ENV"] === "production";
+
     res.cookie(JWT_COOKIE_NAME, token, {
         httpOnly: true,
-        secure: false, // because we are not using HTTPS
+        secure: isProduction,
         sameSite: "strict",
+        path: "/",
     });
 }
 
 export function clearAuthCookie(res: Response): void {
-    res.clearCookie(JWT_COOKIE_NAME);
+    const isProduction = process.env["NODE_ENV"] === "production";
+
+    res.clearCookie(JWT_COOKIE_NAME, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: "strict",
+        path: "/",
+    });
 }

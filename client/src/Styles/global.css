@@ -24,7 +24,10 @@
     --weightBold: 700;
 
     --borderWidth: 3px;
+
     --spacingSmall: 8px;
+    --spacingMedium: 20px;
+    --spacingLarge: 40px;
 
     font-family: "IBM Plex Mono";
     font-weight: var(--weightRegular);
@@ -70,4 +73,6 @@ input {
 hr {
     border: none;
     border-top: 3px solid var(--separator);
+    width: calc(100% - (var(--spacingMedium) * 2));
+    margin: var(--spacingMedium) auto;
 }

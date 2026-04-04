@@ -1,11 +1,11 @@
-import bcrypt from "bcrypt"
-import {StatusCodes} from "http-status-codes"
+import bcrypt from "bcrypt";
+import { StatusCodes } from "http-status-codes";
 import * as ErrorMessage from "../utils/ErrorMessage";
-import {AppError} from "../utils/ErrorHandler"
-import {generateToken} from "../utils/auth"
-import {UserRepository} from "../Repository/UserRepository"
-import {UserData, UserFull, UserPK, AuthResponse, UserPublic} from "../types/Types"
-import {FollowerRepository} from "../Repository/FollowerRepository"
+import { AppError } from "../utils/ErrorHandler";
+import { generateToken } from "../utils/Auth";
+import { UserRepository } from "../Repository/UserRepository";
+import { UserData, UserFull, UserPK, AuthResponse, UserPublic, UserPrivate, UserMe } from "../types/Types";
+import { FollowerRepository } from "../Repository/FollowerRepository";
 
 const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
 
@@ -14,13 +14,12 @@ const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
  * @param username - username of the user to fetch
  * @returns Full User object if found
  * @throws AppError if the user doesn't exist (HTTP 404)
-*/
-export async function FetchFullUser(username: UserPK): Promise<UserFull> {
-    const user : UserFull | null = await UserRepository.SelectUser(username);
-    
-    if (!user)
-        throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
-    
+ */
+export async function fetchFullUser(username: UserPK): Promise<UserFull> {
+    const user: UserFull | null = await UserRepository.selectUser(username);
+
+    if (!user) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
+
     return user;
 }
 
@@ -29,12 +28,12 @@ export async function FetchFullUser(username: UserPK): Promise<UserFull> {
  * @param username - username of the user to fetch
  * @returns Public User object if found
  * @throws AppError if the user doesn't exist (HTTP 404)
- * 
+ *
  */
-export async function FetchPublicUser(username: UserPK): Promise<UserPublic> {
-    const user: UserFull = await FetchFullUser(username);
+export async function fetchPublicUser(username: UserPK): Promise<UserPublic> {
+    const user: UserFull = await fetchFullUser(username);
 
-    return UserFullToPublic(user);
+    return userFullToPublic(user);
 }
 
 /**
@@ -42,9 +41,10 @@ export async function FetchPublicUser(username: UserPK): Promise<UserPublic> {
  * @param user the user with all their info
  * @returns the user with only their public info
  */
-export function UserFullToPublic(user: UserFull): UserPublic {
+export function userFullToPublic(user: UserFull): UserPublic {
     return {
         accountName: user.accountName,
+        profilePic: user.profilePic,
         isPrivate: user.isPrivate,
         userData: user.userData as UserData,
         createdAt: user.createdAt,
@@ -57,35 +57,33 @@ export function UserFullToPublic(user: UserFull): UserPublic {
  * @param currentUser the user requesting (undefined if not authenticated) - confirmed by auth middleware
  * @returns true if user can view, false otherwise
  */
-export async function CanViewUser(targetUser: UserPublic, currentUser?: UserPK): Promise<boolean> {
+export async function canViewUser(targetUser: UserPublic, currentUser?: UserPK): Promise<boolean> {
     const isPrivate: boolean = targetUser.isPrivate;
-    
-    if (!isPrivate) // public account
+
+    if (!isPrivate)
+        // public account
         return true;
-    
+
     // not authenticated - cant view private accounts
-    if (!currentUser)
-        return false;
-    
+    if (!currentUser) return false;
+
     // own account - always visible
-    if (targetUser.accountName === currentUser)
-        return true;
-    
+    if (targetUser.accountName === currentUser) return true;
+
     // check if currentUser follows targetUser
-    const followRelation = await FollowerRepository.SelectFollower({
+    const followRelation = await FollowerRepository.selectFollower({
         follows: currentUser,
-        followed: targetUser.accountName
+        followed: targetUser.accountName,
     });
-    
+
     return followRelation !== null && followRelation.accepted; // has to be accepted
 }
 
 export class AccountService {
-
     // ===================== AUTHENTICATION =====================
 
     /**
-     * Creates a new user account with the provided information, 
+     * Creates a new user account with the provided information,
      * hashes the password, and generates a JWT token for authentication
      * @param username - username of the new account
      * @param displayName - display name for the user profile
@@ -93,42 +91,46 @@ export class AccountService {
      * @param email - email address of the user
      * @returns AuthResponse object with token and user data
      */
-    static async RegisterUser(username: UserPK, displayName: string, password: string, email: string): Promise<AuthResponse> {
+    static async registerUser(
+        username: UserPK,
+        displayName: string,
+        password: string,
+        email: string
+    ): Promise<AuthResponse> {
         // Check if username is being used
-        const existingUser: UserFull | null = await UserRepository.SelectUser(username);
-        if (existingUser)
-            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
+        const existingUser: UserFull | null = await UserRepository.selectUser(username);
+        if (existingUser) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
 
-        const existingEmail: UserFull | null = await UserRepository.SelectUserByEmail(email);
-        if (existingEmail)
-            throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
+        const existingEmail: UserFull | null = await UserRepository.selectUserByEmail(email);
+        if (existingEmail) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
 
-        const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+        const passwordHash: string = await bcrypt.hash(password, SALT_ROUNDS);
 
         // create userData JSON object
         const userData: UserData = {
             displayName: displayName,
             gender: null,
-            bio: null
+            bio: null,
         };
 
-        const newUser: UserFull = await UserRepository.InsertUser({
+        const newUser: UserFull = await UserRepository.insertUser({
             accountName: username,
+            profilePic: null,
             isPrivate: false, // default to public account
             passwordHash,
             userData,
-            email
+            email,
         });
 
         // generate JWT token
-        const token: string = generateToken(newUser.accountName); 
+        const token: string = generateToken(newUser.accountName);
 
         return {
             accountName: newUser.accountName,
             isPrivate: newUser.isPrivate,
             userData: newUser.userData as UserData,
             createdAt: newUser.createdAt,
-            token
+            token,
         } as AuthResponse;
     }
 
@@ -138,16 +140,14 @@ export class AccountService {
      * @param password - plaintext password to verify against stored hash
      * @returns AuthResponse object with token and user data
      */
-    static async LoginUser(username: UserPK, password: string): Promise<AuthResponse> {
-        const user : UserFull | null = await UserRepository.SelectUser(username);
+    static async loginUser(username: UserPK, password: string): Promise<AuthResponse> {
+        const user: UserFull | null = await UserRepository.selectUser(username);
         // verify user
-        if (!user)
-            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
-    
-        const isValid: boolean = await bcrypt.compare(password, user.passwordHash)
+        if (!user) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+
+        const isValid: boolean = await bcrypt.compare(password, user.passwordHash);
         // Verify password
-        if (!isValid)
-            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+        if (!isValid) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
 
         // Generate JWT token
         const token: string = generateToken(user.accountName);
@@ -157,11 +157,10 @@ export class AccountService {
             isPrivate: user.isPrivate,
             userData: user.userData as UserData,
             createdAt: user.createdAt,
-            token
+            token,
         } as AuthResponse;
     }
 
-    
     // ===================== USER MANAGEMENT =====================
 
     /**
@@ -169,13 +168,17 @@ export class AccountService {
      * @param currentUser - username of the currently authenticated user (from JWT)
      * @returns User object
      */
-    static async GetCurrentUser(currentUser: UserPK): Promise<UserPublic> {
-        const user: UserFull | null = await UserRepository.SelectUser(currentUser);
-
-        if (!user)
-            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
-
-        return UserFullToPublic(user);
+    static async getCurrentUser(currentUser: UserPK): Promise<UserMe> {
+        const user: UserFull | null = await UserRepository.selectUser(currentUser);
+        if (!user) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+        return {
+            accountName: user.accountName,
+            email: user.email,
+            profilePic: user.profilePic,
+            isPrivate: user.isPrivate,
+            userData: user.userData as UserData,
+            createdAt: user.createdAt,
+        } as UserMe;
     }
 
     /**
@@ -186,37 +189,42 @@ export class AccountService {
      * @param userData - partial user data updates (optional)
      * @returns updated user data
      */
-    static async AlterUser(currentUser: UserPK, isPrivate?: boolean, password?: string, email?: string, userData?: Partial<UserData>): Promise<UserPublic> {
-        const user: UserFull = await FetchFullUser(currentUser);
+    static async alterUser(
+        currentUser: UserPK,
+        isPrivate: boolean,
+        email: string,
+        userData: UserData,
+        password?: string,
+        profilePic?: string | null
+    ): Promise<UserMe> {
+        const user: UserFull = await fetchFullUser(currentUser);
 
-        const passwordHash: string = password
-            ? await bcrypt.hash(password, SALT_ROUNDS) 
-            : user.passwordHash;
+        const passwordHash: string = password ? await bcrypt.hash(password, SALT_ROUNDS) : user.passwordHash;
 
         let updatedEmail: string = email ?? user.email;
 
-        if (email) {
-            const existingUser: UserFull | null = await UserRepository.SelectUserByEmail(email);
-            if (existingUser)
-                throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
+        if (email && email !== user.email) {
+            const existingUser: UserFull | null = await UserRepository.selectUserByEmail(email);
+            if (existingUser) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
         }
 
         // merge current user data with provided user data updates
         const currentUserData: UserData = user.userData as UserData;
         const updatedUserData: UserData = {
             ...currentUserData,
-            ...userData  // only override provided fields
+            ...userData, // only override provided fields
         };
 
-        const updated: UserFull = await UserRepository.UpdateUser({
-            accountName: currentUser, 
+        const updated: UserFull = await UserRepository.updateUser({
+            accountName: currentUser,
+            profilePic: profilePic ?? user.profilePic,
             isPrivate: isPrivate ?? user.isPrivate,
-            passwordHash, 
-            userData: updatedUserData, 
-            email: updatedEmail
+            passwordHash,
+            userData: updatedUserData,
+            email: updatedEmail,
         });
 
-        return UserFullToPublic(updated);
+        return updated as UserMe;
     }
 
     /**
@@ -224,13 +232,12 @@ export class AccountService {
      * @param currentUser - username of the currently authenticated user (from JWT)
      * @returns the deleted user's data
      */
-    static async RemoveUser(currentUser: UserPK): Promise<UserPublic> {
-        const user: UserFull = await FetchFullUser(currentUser);
-        const deletedUser: UserFull = await UserRepository.DeleteUser(user.accountName);
+    static async removeUser(currentUser: UserPK): Promise<UserPublic> {
+        const user: UserFull = await fetchFullUser(currentUser);
+        const deletedUser: UserFull = await UserRepository.deleteUser(user.accountName);
 
-        return UserFullToPublic(deletedUser);
+        return userFullToPublic(deletedUser);
     }
-
 
     // ===================== SEARCH USERS =====================
 
@@ -240,21 +247,27 @@ export class AccountService {
      * @param currentUser - username of the currently authenticated user (optional)
      * @returns Full Public user object if is visible (public or followed), if it's not visible returns only the username
      */
-    static async FindByUsername(username: UserPK, currentUser?: UserPK): Promise<UserPublic> {
-        const user: UserPublic = await FetchPublicUser(username);
-        
+    static async findByUsername(username: UserPK, currentUser?: UserPK): Promise<UserPublic | UserPrivate> {
+        const user: UserPublic = await fetchPublicUser(username);
+
         // check if currentUser can view this profile
-        const canView: boolean = await CanViewUser(user, currentUser);
+        const canView: boolean = await canViewUser(user, currentUser);
 
-        // if user is private and currentUser is not following, return only the username
-        let out: UserPublic = {
-            accountName: user.accountName,
-            isPrivate: user.isPrivate,
-            userData: canView ? user.userData as UserData : null,
-            createdAt: canView ? user.createdAt : null
+        if (canView) {
+            return {
+                accountName: user.accountName,
+                profilePic: user.profilePic,
+                isPrivate: user.isPrivate,
+                userData: user.userData as UserData,
+                createdAt: user.createdAt,
+            } as UserPublic;
+        } else {
+            return {
+                accountName: user.accountName,
+                profilePic: user.profilePic,
+                isPrivate: user.isPrivate,
+            } as UserPrivate;
         }
-
-        return out;
     }
 
     /**
@@ -262,28 +275,26 @@ export class AccountService {
      * @param nameFilter - search string
      * @param currentUser - authenticated user making the request (optional)
      */
-    static async SearchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<UserPublic[]> {
-        const usersFull: UserFull[] = await UserRepository.SelectUsersOfSimilarName(nameFilter);
-        const users: UserPublic[] = usersFull.map(UserFullToPublic);
-        const canViewList: boolean[] = await Promise.all(
-            users.map(u => CanViewUser(u, currentUser))
-        );
+    static async searchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<(UserPublic | UserPrivate)[]> {
+        const usersFull: UserFull[] = await UserRepository.selectUsersOfSimilarName(nameFilter);
+        const users: UserPublic[] = usersFull.map(userFullToPublic);
+        const canViewList: boolean[] = await Promise.all(users.map((u) => canViewUser(u, currentUser)));
 
         return users.map((u, i) => {
             if (canViewList[i]) {
                 return {
                     accountName: u.accountName,
+                    profilePic: u.profilePic,
                     isPrivate: u.isPrivate,
                     userData: u.userData as UserData,
                     createdAt: u.createdAt,
-                };
+                } as UserPublic;
             }
             return {
                 accountName: u.accountName,
+                profilePic: u.profilePic,
                 isPrivate: u.isPrivate,
-                userData: null,
-                createdAt: null,
-            };
+            } as UserPrivate;
         });
     }
 }

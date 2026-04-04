@@ -2,6 +2,7 @@
     background-color: var(--terciaryPanel);
     border: 1px solid var(--separator);
     width: 100%;
+    box-sizing: border-box;
     padding: var(--spacingSmall) 10px;
     gap: var(--spacingSmall);
     display: flex;

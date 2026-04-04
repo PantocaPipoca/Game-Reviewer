@@ -1,0 +1,42 @@
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+}
+
+.panel {
+    background-color: var(--mainPanel);
+    border: var(--borderWidth) solid var(--border);
+    padding: var(--spacingLarge) calc(var(--spacingLarge) * 1.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacingMedium);
+    min-width: 320px;
+    text-align: center;
+}
+
+.actions {
+    display: flex;
+    gap: var(--spacingMedium);
+    margin-top: var(--spacingSmall);
+}
+
+.cancelButton {
+    padding: 0.6em 1.4em;
+    background-color: var(--secondaryPanel);
+}
+
+.confirmButton {
+    padding: 0.6em 1.4em;
+    background-color: var(--secondaryPanel);
+    border-color: var(--pink);
+}
+.confirmButton:hover {
+    opacity: 0.8;
+    border-color: var(--pink);
+}

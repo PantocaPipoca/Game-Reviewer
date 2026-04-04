@@ -1,12 +1,12 @@
 import { describe, it, expect } from "@jest/globals";
 import request from "supertest";
-import { createTestApp } from "../helper/app.ts";
+import { createApp } from "../../../src/App.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
-import { Register, CreateGame } from "../helper/helper.ts";
+import { register, createGame } from "../helper/helper.ts";
 import { AuthResponse } from "../../../src/types/Types.ts";
 
-const app: Express = createTestApp();
+const app: Express = createApp();
 
 const username = "user_" + Date.now();
 const password = "12345678";
@@ -20,8 +20,8 @@ const email2 = username2 + "@test.com";
 
 /** Creates a user, a game, and a review. Returns the reviewer and the gameID. */
 async function setupReview(): Promise<{ reviewer: AuthResponse; gameID: number }> {
-    const reviewer = await Register(app, username, displayName, password, email);
-    const game = await CreateGame();
+    const reviewer = await register(app, username, displayName, password, email);
+    const game = await createGame();
 
     await request(app)
         .post("/api/games/" + game.gameID + "/reviews")
@@ -32,13 +32,12 @@ async function setupReview(): Promise<{ reviewer: AuthResponse; gameID: number }
     return { reviewer, gameID: game.gameID };
 }
 
-
 // ===================== GET LIKES =====================
 
 describe("GET /api/reviews/:reviewer/:reviewed/likes", () => {
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .get("/api/reviews/" + user.accountName + "/" + game.gameID + "/likes")
@@ -58,7 +57,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/likes", () => {
 
     it("returns OK with correct like count after liking", async () => {
         const { reviewer, gameID } = await setupReview();
-        const liker = await Register(app, username2, displayName2, password2, email2);
+        const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
@@ -73,7 +72,6 @@ describe("GET /api/reviews/:reviewer/:reviewed/likes", () => {
     });
 });
 
-
 // ===================== ADD LIKE =====================
 
 describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
@@ -86,9 +84,9 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
     });
 
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
-        const liker = await Register(app, username2, displayName2, password2, email2);
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
+        const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + user.accountName + "/" + game.gameID + "/likes")
@@ -98,7 +96,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
 
     it("returns ACCEPTED with like data on success", async () => {
         const { reviewer, gameID } = await setupReview();
-        const liker = await Register(app, username2, displayName2, password2, email2);
+        const liker = await register(app, username2, displayName2, password2, email2);
 
         const res = await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
@@ -114,7 +112,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
 
     it("updates reaction to like if user had previously disliked", async () => {
         const { reviewer, gameID } = await setupReview();
-        const liker = await Register(app, username2, displayName2, password2, email2);
+        const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
@@ -149,13 +147,12 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
     });
 });
 
-
 // ===================== GET DISLIKES =====================
 
 describe("GET /api/reviews/:reviewer/:reviewed/dislikes", () => {
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .get("/api/reviews/" + user.accountName + "/" + game.gameID + "/dislikes")
@@ -175,7 +172,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/dislikes", () => {
 
     it("returns OK with correct dislike count after disliking", async () => {
         const { reviewer, gameID } = await setupReview();
-        const liker = await Register(app, username2, displayName2, password2, email2);
+        const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
@@ -190,7 +187,6 @@ describe("GET /api/reviews/:reviewer/:reviewed/dislikes", () => {
     });
 });
 
-
 // ===================== ADD DISLIKE =====================
 
 describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
@@ -203,9 +199,9 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
     });
 
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
-        const liker = await Register(app, username2, displayName2, password2, email2);
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
+        const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + user.accountName + "/" + game.gameID + "/dislikes")
@@ -215,7 +211,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
 
     it("returns ACCEPTED with dislike data on success", async () => {
         const { reviewer, gameID } = await setupReview();
-        const liker = await Register(app, username2, displayName2, password2, email2);
+        const liker = await register(app, username2, displayName2, password2, email2);
 
         const res = await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
@@ -231,7 +227,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
 
     it("updates reaction to dislike if user had previously liked", async () => {
         const { reviewer, gameID } = await setupReview();
-        const liker = await Register(app, username2, displayName2, password2, email2);
+        const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
@@ -254,7 +250,6 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
     });
 });
 
-
 // ===================== REMOVE REACTION =====================
 
 describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
@@ -267,9 +262,9 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
     });
 
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
-        const reactor = await Register(app, username2, displayName2, password2, email2);
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
+        const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .delete("/api/reviews/" + user.accountName + "/" + game.gameID + "/reacts")
@@ -279,7 +274,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
 
     it("returns NOT FOUND if user hasn't reacted to the review", async () => {
         const { reviewer, gameID } = await setupReview();
-        const reactor = await Register(app, username2, displayName2, password2, email2);
+        const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reacts")
@@ -289,7 +284,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
 
     it("returns ACCEPTED after removing a like", async () => {
         const { reviewer, gameID } = await setupReview();
-        const reactor = await Register(app, username2, displayName2, password2, email2);
+        const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
@@ -315,7 +310,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
 
     it("returns ACCEPTED after removing a dislike", async () => {
         const { reviewer, gameID } = await setupReview();
-        const reactor = await Register(app, username2, displayName2, password2, email2);
+        const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
@@ -341,7 +336,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
 
     it("returns NOT FOUND if trying to remove a reaction that was already removed", async () => {
         const { reviewer, gameID } = await setupReview();
-        const reactor = await Register(app, username2, displayName2, password2, email2);
+        const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")

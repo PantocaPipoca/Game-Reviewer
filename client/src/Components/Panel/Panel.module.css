@@ -4,7 +4,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: fit-content;
+    width: 960px;
+    box-sizing: border-box;
     height: fit-content;
     padding: 25px 50px;
 }
@@ -29,6 +30,10 @@
 
 .interactive:hover {
     border-color: var(--cyan);
+}
+
+.interactive {
+    cursor: pointer;
 }
 
 .interactive:active {

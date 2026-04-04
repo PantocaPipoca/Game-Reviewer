@@ -1,0 +1,89 @@
+name: Tests - Unit & Integration
+
+on:
+    push:
+        branches: ["main", "dev", "tests"]
+    pull_request:
+        branches: ["main", "dev", "tests"]
+    schedule:
+        - cron: "0 17 * * 5"
+
+# workflow
+permissions:
+    contents: read
+
+jobs:
+    backend:
+        name: Backend CI
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: server
+
+        services:
+            postgres:
+                image: postgres:17
+                env:
+                    POSTGRES_USER: admin
+                    POSTGRES_PASSWORD: admin123
+                    POSTGRES_DB: test_db
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd="pg_isready -U admin -d test_db"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=5
+
+        env:
+            DATABASE_URL: postgresql://admin:admin123@localhost:5432/test_db
+            JWT_SECRET: ${{ secrets.JWT_SECRET }}
+            JWT_EXPIRES_IN: 7d
+            RATE_LIMIT_MAX: "10000"
+            CSRF_SECRET: test_secret
+            NODE_ENV: test
+            IGDB_CLIENT_ID: ${{ secrets.IGDB_CLIENT_ID }}
+            IGDB_CLIENT_SECRET: ${{ secrets.IGDB_CLIENT_SECRET }}
+
+        steps:
+            - uses: actions/checkout@v5
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+                  cache-dependency-path: server/package-lock.json
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Remove local env files
+              run: rm -f .env .env.test ../.env ../.env.test
+
+            - name: Run tests
+              run: npm run test:ci
+
+    frontend:
+        name: Frontend CI
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: client
+
+        steps:
+            - uses: actions/checkout@v5
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+                  cache-dependency-path: client/package-lock.json
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build
+              run: npm run build
+
+            - name: Run tests
+              run: npm test --if-present

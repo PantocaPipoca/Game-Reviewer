@@ -78,12 +78,8 @@ function Carousel<T>({
                 </Button>
             </div>
 
-            <div
-                className={`${style.row} ${isFadingOut ? style.transparent : ""}`}
-            >
-                {items
-                    .slice(start, start + pageSize)
-                    .map((item) => renderItem(item))}
+            <div className={`${style.row} ${isFadingOut ? style.transparent : ""}`}>
+                {items.slice(start, start + pageSize).map((item) => renderItem(item))}
             </div>
 
             <div className={`${style.navButtonRight}`}>

@@ -1,11 +1,11 @@
 import request from "supertest";
-import type {Express} from "express";
-import {StatusCodes} from "http-status-codes";
-import type {UserPK, AuthResponse, GameFull} from "../../../src/types/Types";
-import {prisma} from "../../../src/prisma";
-import {AccountService} from "../../../src/services/AccountService";
+import type { Express } from "express";
+import { StatusCodes } from "http-status-codes";
+import type { UserPK, AuthResponse, GameFull } from "../../../src/types/Types";
+import { PRISMA } from "../../../src/Prisma";
+import { AccountService } from "../../../src/services/AccountService";
 
-export async function Register(
+export async function register(
     app: Express,
     accountName: UserPK,
     displayName: string,
@@ -22,26 +22,27 @@ export async function Register(
 
 // Username-email pair utility
 export interface UserMicro {
-    accountName: string; email: string;
+    accountName: string;
+    email: string;
 }
 
 // Prepares a username and email
-export function MakeSomeUser(): UserMicro {
+export function makeSomeUser(): UserMicro {
     const accountName: string = `svc_login_${Date.now()}`;
     const email: string = `${accountName}@test.com`;
-    return {accountName, email} as UserMicro
+    return { accountName, email } as UserMicro;
 }
 
 // Short-hand for registering a user, for tests
-export async function QuickRegisterUser(): Promise<string> {
-    const user: UserMicro = MakeSomeUser();
-    await AccountService.RegisterUser(user.accountName, "", "aaaaaaaa", user.email);
+export async function quickRegisterUser(): Promise<string> {
+    const user: UserMicro = makeSomeUser();
+    await AccountService.registerUser(user.accountName, "", "aaaaaaaa", user.email);
     return user.accountName;
 }
 
 // Short-hand for creating a game, for tests
-export async function CreateGame(): Promise<GameFull> {
-    return prisma.game.create({
+export async function createGame(): Promise<GameFull> {
+    return PRISMA.game.create({
         data: {
             gameID: Math.floor(Math.random() * 1000000),
             gameName: "game_" + Date.now(),

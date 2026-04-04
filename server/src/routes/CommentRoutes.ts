@@ -1,10 +1,8 @@
 import { Router } from "express";
 import { CommentController } from "../controllers/CommentController";
-import { auth, optionalAuth } from "../utils/auth";
+import { auth, optionalAuth } from "../utils/Auth";
 
 const router: Router = Router({ mergeParams: true });
-
-// ===================== MANAGE COMMENTS =====================
 
 // ===================== MANAGE COMMENTS =====================
 
@@ -32,17 +30,35 @@ const router: Router = Router({ mergeParams: true });
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: array
- *                              items:
- *                                  $ref: '#/components/schemas/Comment'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/Comment'
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              403:
  *                  description: "**Forbidden** — if the reviewer's account is private and the current user doesn't follow it"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the user didn't review the game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.get("/", optionalAuth, CommentController.GetComments);
+router.get("/", optionalAuth, CommentController.getComments);
 
 /**
  * @swagger
@@ -80,13 +96,33 @@ router.get("/", optionalAuth, CommentController.GetComments);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Comment'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Comment'
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the user didn't review the game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.post("/", auth, CommentController.AddComment);
+router.post("/", auth, CommentController.addComment);
 
 // ===================== COMMENTS BY ID =====================
 
@@ -96,7 +132,7 @@ router.post("/", auth, CommentController.AddComment);
  *      put:
  *          tags: [Comments]
  *          summary: Edits a comment on a review
- *          description: Edits a comment on a review
+ *          description: Edits a comment on a review. Only the comments author can edit it.
  *          security:
  *              - bearerAuth: []
  *          parameters:
@@ -131,15 +167,39 @@ router.post("/", auth, CommentController.AddComment);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Comment'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Comment'
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              403:
  *                  description: "**Forbidden** — if the current user is not the comment author"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the comment doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.put("/:id", auth, CommentController.EditComment);
+router.put("/:id", auth, CommentController.editComment);
 
 /**
  * @swagger
@@ -172,14 +232,38 @@ router.put("/:id", auth, CommentController.EditComment);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Comment'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Comment'
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              403:
  *                  description: "**Forbidden** — if the current user is not the comment author"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**Not Found** — if the comment doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.delete("/:id", auth, CommentController.RemoveComment);
+router.delete("/:id", auth, CommentController.removeComment);
 
 export default router;

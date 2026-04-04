@@ -2,9 +2,8 @@
 import { ReviewController } from "../controllers/ReviewController";
 import CommentRoutes from "./CommentRoutes";
 import LikeRoutes from "./LikeRoutes";
-import { auth, optionalAuth } from "../utils/auth";
+import { optionalAuth } from "../utils/Auth";
 
-// Router object
 const router: Router = Router({ mergeParams: true });
 
 // COMMENTS
@@ -22,7 +21,7 @@ router.use("/:reviewer/:reviewed/", LikeRoutes);
  *          tags: [Reviews]
  *          summary: Finds a user's review on a game
  *          description: |
- *              Finds a user's review on a game.
+ *              Finds a user's review on a game, if the reviewer's account is private and the current user doesn't follow it, returns 403.
  *          parameters:
  *              - in: path
  *                name: reviewer
@@ -38,16 +37,36 @@ router.use("/:reviewer/:reviewed/", LikeRoutes);
  *                description: The reviewed game's ID
  *          responses:
  *              200:
- *                  description: "**OK**"
+ *                  description: "**OK** - review found successfully"
  *                  content:
  *                      application/json:
  *                          schema:
- *                              $ref: '#/components/schemas/Review'
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      $ref: '#/components/schemas/Review'
  *              400:
- *                  description: "**Bad Request** - if any of the required fields are missing"
+ *                  description: "**Bad Request** - if any required path parameter is missing or invalid"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              403:
+ *                  description: "**Forbidden** — if the reviewer's account is private and the current user doesn't follow it"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** - if the provided user or game doesn't exist, or if the user didn't review the game"
+ *                  description: "**Not Found** - if the user or game doesn't exist, or if the user hasn't reviewed this game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:reviewer/:reviewed/", optionalAuth, ReviewController.GetReview);
+router.get("/:reviewer/:reviewed/", optionalAuth, ReviewController.getReview);
 
 export default router;

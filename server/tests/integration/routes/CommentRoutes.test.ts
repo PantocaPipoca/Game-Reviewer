@@ -1,12 +1,12 @@
 import { describe, it, expect } from "@jest/globals";
 import request from "supertest";
-import { createTestApp } from "../helper/app.ts";
+import { createApp } from "../../../src/App.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
-import { Register, CreateGame } from "../helper/helper.ts";
+import { register, createGame } from "../helper/helper.ts";
 import { AuthResponse } from "../../../src/types/Types.ts";
 
-const app: Express = createTestApp();
+const app: Express = createApp();
 
 const username = "user_" + Date.now();
 const password = "12345678";
@@ -20,8 +20,8 @@ const email2 = username2 + "@test.com";
 
 // Creates a review and returns the reviewer's AuthResponse and the gameID
 async function setupReview(): Promise<{ reviewer: AuthResponse; gameID: number }> {
-    const reviewer = await Register(app, username, displayName, password, email);
-    const game = await CreateGame();
+    const reviewer = await register(app, username, displayName, password, email);
+    const game = await createGame();
 
     await request(app)
         .post("/api/games/" + game.gameID + "/reviews")
@@ -32,13 +32,12 @@ async function setupReview(): Promise<{ reviewer: AuthResponse; gameID: number }
     return { reviewer, gameID: game.gameID };
 }
 
-
 // ===================== GET COMMENTS =====================
 
 describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .get("/api/reviews/" + user.accountName + "/" + game.gameID + "/comments")
@@ -59,7 +58,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
 
     it("returns OK and array with comments (no auth)", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
@@ -86,7 +85,11 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + reviewer.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         await request(app)
@@ -97,12 +100,16 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
     it("returns OK if reviewer is private but viewer is an accepted follower", async () => {
         const { reviewer, gameID } = await setupReview();
         const viewerName = "viewer_" + Date.now();
-        const viewer = await Register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
+        const viewer = await register(app, viewerName, "Viewer", password, `${viewerName}@test.com`);
 
         await request(app)
             .put("/api/users/me")
             .set("Authorization", "Bearer " + reviewer.token)
-            .send({ isPrivate: true })
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: "", bio: "" },
+            })
             .expect(StatusCodes.OK);
 
         await request(app)
@@ -125,7 +132,6 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
     });
 });
 
-
 // ===================== ADD COMMENT =====================
 
 describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
@@ -139,8 +145,8 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
     });
 
     it("returns NOT FOUND if review doesn't exist", async () => {
-        const user = await Register(app, username, displayName, password, email);
-        const game = await CreateGame();
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
 
         await request(app)
             .post("/api/reviews/" + user.accountName + "/" + game.gameID + "/comments")
@@ -151,7 +157,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
 
     it("returns BAD REQUEST if text is missing", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
@@ -162,7 +168,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
 
     it("returns CREATED with comment data on success", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         const res = await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
@@ -193,7 +199,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
 
     it("allows multiple comments from different users on the same review", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
@@ -215,7 +221,6 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
     });
 });
 
-
 // ===================== EDIT COMMENT =====================
 
 describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
@@ -230,7 +235,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns BAD REQUEST if comment id is not a number", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/not-a-number")
@@ -241,7 +246,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns NOT FOUND if comment doesn't exist", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/99999")
@@ -252,7 +257,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns FORBIDDEN if user is not the comment author", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
@@ -272,7 +277,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns BAD REQUEST if text is missing", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
@@ -291,7 +296,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns ACCEPTED and updated comment on success", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
@@ -314,7 +319,6 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
     });
 });
 
-
 // ===================== DELETE COMMENT =====================
 
 describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
@@ -328,7 +332,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns BAD REQUEST if comment id is not a number", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/not-a-number")
@@ -338,7 +342,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns NOT FOUND if comment doesn't exist", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
             .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/99999")
@@ -348,7 +352,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns FORBIDDEN if user is not the comment author", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
@@ -366,7 +370,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns ACCEPTED and deleted comment data on success", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
@@ -389,7 +393,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
     it("returns NOT FOUND if trying to delete the same comment twice", async () => {
         const { reviewer, gameID } = await setupReview();
-        const commenter = await Register(app, username2, displayName2, password2, email2);
+        const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
             .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")

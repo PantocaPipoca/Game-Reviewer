@@ -1,10 +1,10 @@
-import {Request, Response} from "express"
-import {AsyncHandler, MakeSuccess} from "../utils/ErrorHandler"
+import { Request, Response } from "express";
+import { asyncHandler, makeSuccess } from "../utils/ErrorHandler";
 import { LikeShort, ReviewPK, ReactionResponse } from "../types/Types";
 import { LikeService } from "../services/LikeService";
-import { ExtractReviewPK } from "./ReviewController";
+import { extractReviewPK } from "./ReviewController";
 import { StatusCodes } from "http-status-codes";
-import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth";
+import { AuthRequest, extractLoggedUser } from "../utils/Auth";
 
 /**
  * Counts the amount of likes or dislikes of a review
@@ -14,10 +14,10 @@ import { AuthRequest, ExtractLoggedUser, JwtPayload } from "../utils/auth";
  * @returns the amount of likes/dislikes of a review
  * @throws AppError if there is no such game, user or review
  */
-async function CountReactions(req: Request, res: Response, reaction: boolean): Promise<Response> {
-    const {reviewer, reviewed}: ReviewPK = ExtractReviewPK(req);
-    const result: ReactionResponse = await LikeService.GetReactionsByReview(reviewer, reviewed);
-    return MakeSuccess(res, StatusCodes.OK, reaction ? result.likes : result.dislikes);
+async function countReactions(req: Request, res: Response, reaction: boolean): Promise<Response> {
+    const { reviewer, reviewed }: ReviewPK = extractReviewPK(req);
+    const result: ReactionResponse = await LikeService.getReactionsByReview(reviewer, reviewed);
+    return makeSuccess(res, StatusCodes.OK, reaction ? result.likes : result.dislikes);
 }
 
 /**
@@ -28,12 +28,12 @@ async function CountReactions(req: Request, res: Response, reaction: boolean): P
  * @returns a Response object with the result of the instruction
  * @throws AppError if there is no such game, user or review
  */
-async function PushReaction(req: AuthRequest, res: Response, reaction: boolean): Promise<Response> {
-    const currentUser: string = ExtractLoggedUser(req);
-    
-    const {reviewer, reviewed}: ReviewPK = ExtractReviewPK(req);
-    const result: LikeShort = await LikeService.ReactReview(currentUser, reviewer, reviewed, reaction);
-    return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+async function pushReaction(req: AuthRequest, res: Response, reaction: boolean): Promise<Response> {
+    const currentUser: string = extractLoggedUser(req);
+
+    const { reviewer, reviewed }: ReviewPK = extractReviewPK(req);
+    const result: LikeShort = await LikeService.reactReview(currentUser, reviewer, reviewed, reaction);
+    return makeSuccess(res, StatusCodes.ACCEPTED, result);
 }
 
 export class LikeController {
@@ -43,20 +43,20 @@ export class LikeController {
      * Gets the likes of a review
      * Used by GET /api/reviews/:reviewer/:reviewed/likes
      */
-    static GetLikes: any = AsyncHandler(async (req: Request, res: Response) => {
-        return await CountReactions(req, res, true);
+    static getLikes: any = asyncHandler(async (req: Request, res: Response) => {
+        return await countReactions(req, res, true);
     });
 
     /**
      * Adds a like to a review
      * Used by POST /api/reviews/:reviewer/:reviewed/likes
      */
-    static AddLike: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        return await PushReaction(req, res, true);
+    static addLike: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+        return await pushReaction(req, res, true);
     });
 
     // TODO LATER
-    static GetLikesByUser: any = AsyncHandler(async (req: Request, res: Response) => {});
+    static getLikesByUser: any = asyncHandler(async (req: Request, res: Response) => {});
 
     // ===================== DISLIKES =====================
 
@@ -64,20 +64,20 @@ export class LikeController {
      * Gets the dislikes of a review
      * Used by GET /api/reviews/:reviewer/:reviewed/dislikes
      */
-    static GetDislikes: any = AsyncHandler(async (req: Request, res: Response) => {
-        return await CountReactions(req, res, false);
+    static getDislikes: any = asyncHandler(async (req: Request, res: Response) => {
+        return await countReactions(req, res, false);
     });
 
     /**
      * Adds a dislike to a review
      * Used by POST /api/reviews/:reviewer/:reviewed/dislikes
      */
-    static AddDislike: any = AsyncHandler(async (req: Request, res: Response) => {
-        return await PushReaction(req, res, false);
+    static addDislike: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+        return await pushReaction(req, res, false);
     });
 
     // TODO LATER
-    static GetDislikesByUser: any = AsyncHandler(async (req: Request, res: Response) => {});
+    static getDislikesByUser: any = asyncHandler(async (req: Request, res: Response) => {});
 
     // ===================== INDEPENDENT =====================
 
@@ -85,10 +85,10 @@ export class LikeController {
      * Deletes likes and dislikes to a review
      * Used by DELETE /api/reviews/:reviewer/:reviewed/reacts
      */
-    static RemoveReactions: any = AsyncHandler(async (req: AuthRequest, res: Response) => {
-        const currentUser: string = ExtractLoggedUser(req);
-        const {reviewer, reviewed}: ReviewPK = ExtractReviewPK(req);
-        const result: LikeShort = await LikeService.RemoveReactionFromReview(currentUser, reviewer, reviewed);
-        return MakeSuccess(res, StatusCodes.ACCEPTED, result);
+    static removeReactions: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser: string = extractLoggedUser(req);
+        const { reviewer, reviewed }: ReviewPK = extractReviewPK(req);
+        const result: LikeShort = await LikeService.removeReactionFromReview(currentUser, reviewer, reviewed);
+        return makeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 }
