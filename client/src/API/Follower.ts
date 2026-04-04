@@ -3,21 +3,17 @@ import type { FollowerFull } from "./Types";
 
 export class FollowerAPI {
     static async getFollowers(username: string): Promise<FollowerFull[]> {
-        return CLIENT.get("/users/" + username + "/followers");
+        return CLIENT.get("/users/id/" + username + "/followers");
     }
-
     static async follow(username: string): Promise<FollowerFull> {
-        return CLIENT.post("/users/" + username + "/followers");
+        return CLIENT.post("/users/id/" + username + "/followers");
     }
-
     static async unfollow(username: string): Promise<FollowerFull> {
-        return CLIENT.delete("/users/" + username + "/followers");
+        return CLIENT.delete("/users/id/" + username + "/followers");
     }
-
     static async getFollowing(username: string): Promise<FollowerFull[]> {
-        return CLIENT.get("/users/" + username + "/following");
+        return CLIENT.get("/users/id/" + username + "/following");
     }
-
     static async getRequestsReceived(): Promise<FollowerFull[]> {
         return CLIENT.get("/users/me/followers/requests/received");
     }

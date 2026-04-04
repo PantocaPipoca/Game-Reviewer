@@ -19,6 +19,6 @@ export class ReactionAPI {
     }
 
     static async removeReaction(reviewer: string, reviewed: number): Promise<LikeShort> {
-        return CLIENT.delete("/reviews/" + reviewer + "/" + reviewed + "/reacts");
+        return CLIENT.delete("/reviews/" + reviewer + "/" + reviewed + "/reaction");
     }
 }

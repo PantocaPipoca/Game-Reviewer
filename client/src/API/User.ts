@@ -43,6 +43,6 @@ export class UserAPI {
     }
 
     static async getByUsername(username: string): Promise<UserPublic> {
-        return CLIENT.get("/users/" + username);
+        return CLIENT.get("/users/id/" + username);
     }
 }

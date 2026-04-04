@@ -146,7 +146,7 @@ router.post("/login", AccountController.login);
  */
 router.post("/logout", auth, AccountController.logout);
 
-// ===================== USER MANAGEMENT =====================
+// ===================== CURRENT USER MANAGEMENT =====================
 
 /**
  * @swagger
@@ -284,7 +284,7 @@ router.put("/me", auth, AccountController.alter);
  */
 router.delete("/me", auth, AccountController.remove);
 
-// ===================== FOLLOWER REQUESTS =====================
+// ===================== CURRENT USER FOLLOWER MANAGEMENT =====================
 
 /**
  * @swagger
@@ -330,8 +330,8 @@ router.get("/me/followers/requests/received", auth, FollowerController.getPendin
  *  /users/me/followers/requests/sent:
  *      get:
  *          tags: [Followers]
- *          summary: Gets the pending follower requests made by a user (for private accounts)
- *          description: Gets the pending follower requests made by a user (for private accounts)
+ *          summary: Gets the pending follower requests made by the current user
+ *          description: Gets the pending follower requests made by the current user
  *          security:
  *              - bearerAuth: []
  *          responses:
@@ -558,12 +558,12 @@ router.get("/search", optionalAuth, AccountController.search);
 
 // ===================== USER SUB-RESOURCES =====================
 
-// api/users/:username/followers routes are handled by FollowerRoutes
-router.use("/:username/followers", FollowerRoutes);
+// api/users/id/:username/followers routes are handled by FollowerRoutes
+router.use("/id/:username/followers", FollowerRoutes);
 
 /**
  * @swagger
- *  /users/{username}/following:
+ *  /users/id/{username}/following:
  *      get:
  *          tags: [Followers]
  *          summary: Gets the users followed by a user
@@ -608,11 +608,11 @@ router.use("/:username/followers", FollowerRoutes);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:username/following", optionalAuth, FollowerController.getFollowingByUser);
+router.get("/id/:username/following", optionalAuth, FollowerController.getFollowingByUser);
 
 /**
  * @swagger
- *  /users/{username}/reviews:
+ *  /users/id/{username}/reviews:
  *      get:
  *          tags: [Reviews]
  *          summary: Gets the reviews of a user
@@ -657,13 +657,11 @@ router.get("/:username/following", optionalAuth, FollowerController.getFollowing
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:username/reviews", optionalAuth, ReviewController.getReviewsByUser);
-
-// ===================== FIND USER PROFILE =====================
+router.get("/id/:username/reviews", optionalAuth, ReviewController.getReviewsByUser);
 
 /**
  * @swagger
- *  /users/{username}:
+ *  /users/id/{username}:
  *      get:
  *          tags: [Users]
  *          summary: Finds an account by its name
@@ -703,6 +701,6 @@ router.get("/:username/reviews", optionalAuth, ReviewController.getReviewsByUser
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:username", optionalAuth, AccountController.findByUsername);
+router.get("/id/:username", optionalAuth, AccountController.findByUsername);
 
 export default router;

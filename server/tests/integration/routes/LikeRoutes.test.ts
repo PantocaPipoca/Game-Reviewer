@@ -24,7 +24,7 @@ async function setupReview(): Promise<{ reviewer: AuthResponse; gameID: number }
     const game = await createGame();
 
     await request(app)
-        .post("/api/games/" + game.gameID + "/reviews")
+        .post("/api/games/id/" + game.gameID + "/reviews")
         .set("Authorization", "Bearer " + reviewer.token)
         .send({ text: "a review", score: 7 })
         .expect(StatusCodes.CREATED);
@@ -252,12 +252,12 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
 
 // ===================== REMOVE REACTION =====================
 
-describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
+describe("DELETE /api/reviews/:reviewer/:reviewed/reaction", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
         const { reviewer, gameID } = await setupReview();
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reacts")
+            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reaction")
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
@@ -267,7 +267,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/reviews/" + user.accountName + "/" + game.gameID + "/reacts")
+            .delete("/api/reviews/" + user.accountName + "/" + game.gameID + "/reaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -277,7 +277,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reacts")
+            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -292,7 +292,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reacts")
+            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
@@ -318,7 +318,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reacts")
+            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
@@ -344,12 +344,12 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/reacts", () => {
             .expect(StatusCodes.ACCEPTED);
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reacts")
+            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reacts")
+            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/reaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.NOT_FOUND);
     });
