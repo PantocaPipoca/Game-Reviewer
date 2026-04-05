@@ -354,16 +354,16 @@ describe("DELETE /api/users/me", () => {
 
 // ========== SEARCH ==========
 
-describe("GET /api/users/:username (find profile)", () => {
+describe("GET /api/users/id/:username (find profile)", () => {
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns OK and full public data if user is public (no auth)", async () => {
         const u: AuthResponse = await register(app, username, displayName, password, email);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -386,7 +386,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -410,7 +410,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .set("Authorization", "Bearer " + u.token)
             .expect(StatusCodes.OK);
 
@@ -433,7 +433,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/users/" + u.accountName + "/followers/")
+            .post("/api/users/id/" + u.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
@@ -444,7 +444,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.OK);
 
@@ -453,6 +453,8 @@ describe("GET /api/users/:username (find profile)", () => {
         expect(res.body.data.createdAt).toBeDefined();
     });
 });
+
+// ========== SEARCH ==========
 
 describe("GET /api/users/search?query=...", () => {
     it("returns 400 if query is missing", async () => {
@@ -577,7 +579,7 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
 
         // user sends request to user2
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user.token);
 
         //user2 accepts request
@@ -609,7 +611,7 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
 
         // user sends request to user2
         const res = await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user.token);
 
         expect(res.status).toBe(StatusCodes.CREATED);
@@ -662,7 +664,7 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
 
         // follower request to target
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
@@ -674,9 +676,9 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
     });
 });
 
-describe("GET /api/users/:username/following", () => {
+describe("GET /api/users/id/:username/following", () => {
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user/following").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user/following").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns FORBIDDEN if user is private and not authenticated", async () => {
@@ -685,7 +687,7 @@ describe("GET /api/users/:username/following", () => {
         const user2 = await register(app, user2name, "user2", "sspassword", `${user2name}@email.com`);
 
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
@@ -701,7 +703,7 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .get("/api/users/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.accountName + "/following")
             .expect(StatusCodes.FORBIDDEN);
     });
 
@@ -712,12 +714,12 @@ describe("GET /api/users/:username/following", () => {
 
         // user1 follows user2
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.accountName + "/following")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -734,7 +736,7 @@ describe("GET /api/users/:username/following", () => {
 
         // user1 follows user2
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
@@ -750,7 +752,7 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.accountName + "/following")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.OK);
 
@@ -782,13 +784,13 @@ describe("GET /api/users/:username/following", () => {
         const someone = await register(app, someoneName, "someone", "sspassword", `${someoneName}@email.com`);
 
         await request(app)
-            .post("/api/users/" + someone.accountName + "/followers/")
+            .post("/api/users/id/" + someone.accountName + "/followers/")
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.CREATED);
 
         // viewer requests follow
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
@@ -799,7 +801,7 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + target.accountName + "/following")
+            .get("/api/users/id/" + target.accountName + "/following")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -811,9 +813,9 @@ describe("GET /api/users/:username/following", () => {
 
 // =============== REVIEWS ===============
 
-describe("GET /api/users/:username/reviews", () => {
+describe("GET /api/users/id/:username/reviews", () => {
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user/reviews").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user/reviews").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns OK and empty array when user has no reviews (public, no auth)", async () => {
@@ -821,7 +823,7 @@ describe("GET /api/users/:username/reviews", () => {
         const u = await register(app, name, displayName, password, name + "@test.com");
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.accountName + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -836,13 +838,13 @@ describe("GET /api/users/:username/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + u.token)
             .send({ text: "nice", score: 8 })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.accountName + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -869,13 +871,13 @@ describe("GET /api/users/:username/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + u.token)
             .send({ text: "nice", score: 8 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .get("/api/users/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.accountName + "/reviews")
             .expect(StatusCodes.FORBIDDEN);
     });
 
@@ -899,13 +901,13 @@ describe("GET /api/users/:username/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + target.token)
             .send({ text: "private review", score: 7 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
@@ -915,7 +917,7 @@ describe("GET /api/users/:username/reviews", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + target.accountName + "/reviews")
+            .get("/api/users/id/" + target.accountName + "/reviews")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -932,13 +934,13 @@ describe("GET /api/users/:username/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + target.token)
             .send({ text: "private review", score: 7 })
             .expect(StatusCodes.CREATED);
 
-        const res = await request(app)
-            .get("/api/users/" + target.accountName + "/reviews")
+        await request(app)
+            .get("/api/users/id/" + target.accountName + "/reviews")
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.OK);
     });
@@ -975,7 +977,7 @@ describe("GET /api/users/:username/reviews", () => {
 
             // follower follows user (public account → auto-accepted)
             await request(app)
-                .post("/api/users/" + user.accountName + "/followers/")
+                .post("/api/users/id/" + user.accountName + "/followers/")
                 .set("Authorization", "Bearer " + follower.token)
                 .expect(StatusCodes.CREATED);
 
@@ -991,7 +993,7 @@ describe("GET /api/users/:username/reviews", () => {
 
             // confirm they no longer appear in followers list
             const followersRes = await request(app)
-                .get("/api/users/" + user.accountName + "/followers")
+                .get("/api/users/id/" + user.accountName + "/followers")
                 .expect(StatusCodes.OK);
 
             expect(followersRes.body.data.find((f: any) => f.follows === follower.accountName)).toBeUndefined();
@@ -1015,7 +1017,7 @@ describe("GET /api/users/:username/reviews", () => {
 
             // requester sends follow request (pending, not accepted)
             await request(app)
-                .post("/api/users/" + user.accountName + "/followers/")
+                .post("/api/users/id/" + user.accountName + "/followers/")
                 .set("Authorization", "Bearer " + requester.token)
                 .expect(StatusCodes.CREATED);
 

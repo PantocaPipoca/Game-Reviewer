@@ -13,34 +13,6 @@ const password = "12345678";
 const displayName = "User Display Name";
 const email = username + "@test.com";
 
-// ===================== GET GAME BY ID =====================
-// describe("GET /api/games/:gameID", () => {
-//     it("returns BAD REQUEST if gameID is not a number", async () => {
-//         await request(app)
-//         .get("/api/games/not-a-number")
-//         .expect(StatusCodes.BAD_REQUEST);
-//     });
-
-//     it("returns NOT FOUND if game doesn't exist", async () => {
-//         await request(app)
-//         .get("/api/games/99999")
-//         .expect(StatusCodes.NOT_FOUND);
-//     });
-
-//     it("returns OK and game data", async () => {
-//         const game = await CreateGame();
-
-//         const res = await request(app)
-//         .get("/api/games/" + game.gameID)
-//         .expect(StatusCodes.OK);
-
-//         expect(res.body.status).toBe("success");
-//         expect(res.body.data.gameID).toBe(game.gameID);
-//         expect(res.body.data.gameName).toBeDefined();
-//     });
-// });
-// refactor this for IGDB
-
 // ===================== IGDB REQUESTS =====================
 
 describe("GET /api/games/id/:gameID", () => {
@@ -148,6 +120,7 @@ describe("POST /api/games/recommended", () => {
             .send({ offset, amount })
             .expect(StatusCodes.OK);
     });
+
     it("returns BAD REQUEST if query params are invalid", async () => {
         const offset: number = 0;
         const amount: number = 3;
@@ -183,16 +156,16 @@ describe("POST /api/games/recommended", () => {
 
 // ===================== GET REVIEWS BY GAME =====================
 
-describe("GET /api/games/:gameID/reviews", () => {
+describe("GET /api/games/id/:gameID/reviews", () => {
     it("returns NOT FOUND if game doesn't exist", async () => {
-        await request(app).get("/api/games/99999/reviews").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/games/id/99999/reviews").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns OK and empty array if game has no reviews", async () => {
         const game = await createGame();
 
         const res = await request(app)
-            .get("/api/games/" + game.gameID + "/reviews")
+            .get("/api/games/id/" + game.gameID + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -205,13 +178,13 @@ describe("GET /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "great game", score: 9 })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/games/" + game.gameID + "/reviews")
+            .get("/api/games/id/" + game.gameID + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -237,13 +210,13 @@ describe("GET /api/games/:gameID/reviews", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "hidden review", score: 5 })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/games/" + game.gameID + "/reviews")
+            .get("/api/games/id/" + game.gameID + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.data).toHaveLength(0);
@@ -267,13 +240,13 @@ describe("GET /api/games/:gameID/reviews", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + privateUser.token)
             .send({ text: "private review", score: 7 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/" + privateUser.accountName + "/followers/")
+            .post("/api/users/id/" + privateUser.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
@@ -283,7 +256,7 @@ describe("GET /api/games/:gameID/reviews", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/games/" + game.gameID + "/reviews")
+            .get("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -294,12 +267,12 @@ describe("GET /api/games/:gameID/reviews", () => {
 
 // ===================== PUBLISH REVIEW =====================
 
-describe("POST /api/games/:gameID/reviews", () => {
+describe("POST /api/games/id/:gameID/reviews", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .send({ text: "great", score: 8 })
             .expect(StatusCodes.UNAUTHORIZED);
     });
@@ -308,7 +281,7 @@ describe("POST /api/games/:gameID/reviews", () => {
         const user = await register(app, username, displayName, password, email);
 
         await request(app)
-            .post("/api/games/99999/reviews")
+            .post("/api/games/id/99999/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "great", score: 8 })
             .expect(StatusCodes.NOT_FOUND);
@@ -319,7 +292,7 @@ describe("POST /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ score: 8 })
             .expect(StatusCodes.BAD_REQUEST);
@@ -330,7 +303,7 @@ describe("POST /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "great" })
             .expect(StatusCodes.BAD_REQUEST);
@@ -341,7 +314,7 @@ describe("POST /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "great", score: 11 })
             .expect(StatusCodes.BAD_REQUEST);
@@ -352,7 +325,7 @@ describe("POST /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "great", score: -1 })
             .expect(StatusCodes.BAD_REQUEST);
@@ -363,7 +336,7 @@ describe("POST /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "great", score: "eight" })
             .expect(StatusCodes.BAD_REQUEST);
@@ -374,13 +347,13 @@ describe("POST /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "first review", score: 8 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "second review", score: 7 })
             .expect(StatusCodes.CONFLICT);
@@ -391,7 +364,7 @@ describe("POST /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         const res = await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "great game", score: 8 })
             .expect(StatusCodes.CREATED);
@@ -415,13 +388,13 @@ describe("POST /api/games/:gameID/reviews", () => {
         const game2 = await createGame();
 
         await request(app)
-            .post("/api/games/" + game1.gameID + "/reviews")
+            .post("/api/games/id/" + game1.gameID + "/reviews")
             .set("Authorization", "Bearer " + u1.token)
             .send({ text: "terrible", score: 0 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/games/" + game2.gameID + "/reviews")
+            .post("/api/games/id/" + game2.gameID + "/reviews")
             .set("Authorization", "Bearer " + u2.token)
             .send({ text: "perfect", score: 10 })
             .expect(StatusCodes.CREATED);
@@ -430,12 +403,12 @@ describe("POST /api/games/:gameID/reviews", () => {
 
 // ===================== ALTER REVIEW =====================
 
-describe("PUT /api/games/:gameID/reviews", () => {
+describe("PUT /api/games/id/:gameID/reviews", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
         const game = await createGame();
 
         await request(app)
-            .put("/api/games/" + game.gameID + "/reviews")
+            .put("/api/games/id/" + game.gameID + "/reviews")
             .send({ text: "updated", score: 7 })
             .expect(StatusCodes.UNAUTHORIZED);
     });
@@ -444,7 +417,7 @@ describe("PUT /api/games/:gameID/reviews", () => {
         const user = await register(app, username, displayName, password, email);
 
         await request(app)
-            .put("/api/games/99999/reviews")
+            .put("/api/games/id/99999/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "updated", score: 7 })
             .expect(StatusCodes.NOT_FOUND);
@@ -455,7 +428,7 @@ describe("PUT /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .put("/api/games/" + game.gameID + "/reviews")
+            .put("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "updated", score: 7 })
             .expect(StatusCodes.NOT_FOUND);
@@ -466,13 +439,13 @@ describe("PUT /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "original", score: 5 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .put("/api/games/" + game.gameID + "/reviews")
+            .put("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "updated", score: 15 })
             .expect(StatusCodes.BAD_REQUEST);
@@ -483,13 +456,13 @@ describe("PUT /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "original", score: 5 })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .put("/api/games/" + game.gameID + "/reviews")
+            .put("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "updated review", score: 7 })
             .expect(StatusCodes.ACCEPTED);
@@ -504,12 +477,12 @@ describe("PUT /api/games/:gameID/reviews", () => {
 
 // ===================== REMOVE REVIEW =====================
 
-describe("DELETE /api/games/:gameID/reviews", () => {
+describe("DELETE /api/games/id/:gameID/reviews", () => {
     it("returns UNAUTHORIZED if not authenticated", async () => {
         const game = await createGame();
 
         await request(app)
-            .delete("/api/games/" + game.gameID + "/reviews")
+            .delete("/api/games/id/" + game.gameID + "/reviews")
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
@@ -517,7 +490,7 @@ describe("DELETE /api/games/:gameID/reviews", () => {
         const user = await register(app, username, displayName, password, email);
 
         await request(app)
-            .delete("/api/games/99999/reviews")
+            .delete("/api/games/id/99999/reviews")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -527,7 +500,7 @@ describe("DELETE /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .delete("/api/games/" + game.gameID + "/reviews")
+            .delete("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -537,13 +510,13 @@ describe("DELETE /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "to be deleted", score: 5 })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .delete("/api/games/" + game.gameID + "/reviews")
+            .delete("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.ACCEPTED);
 
@@ -557,18 +530,18 @@ describe("DELETE /api/games/:gameID/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "to be deleted", score: 5 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .delete("/api/games/" + game.gameID + "/reviews")
+            .delete("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.ACCEPTED);
 
         await request(app)
-            .delete("/api/games/" + game.gameID + "/reviews")
+            .delete("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });

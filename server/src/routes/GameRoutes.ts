@@ -3,7 +3,6 @@ import { GameController } from "../controllers/GameController";
 import { ReviewController } from "../controllers/ReviewController";
 import { auth, optionalAuth } from "../utils/Auth";
 
-// Router object
 const router: Router = Router({ mergeParams: true });
 
 // ===================== GAMES =====================
@@ -88,7 +87,7 @@ router.get("/id/:gameID", GameController.getGameInfo);
  *                              properties:
  *                                  status:
  *                                      type: string
- *                                      example: request
+ *                                      example: success
  *                                  data:
  *                                      type: array
  *                                      items:
@@ -109,7 +108,7 @@ router.post("/search", GameController.searchGames);
  *          tags: [Games]
  *          summary: Returns popular games ordered by review count
  *          description: |
- *              Returns popular games ordered review count.
+ *              Returns popular games ordered by review count.
  *          requestBody:
  *              required: true
  *              content:
@@ -134,7 +133,7 @@ router.post("/search", GameController.searchGames);
  *                              properties:
  *                                  status:
  *                                      type: string
- *                                      example: request
+ *                                      example: success
  *                                  data:
  *                                      type: array
  *                                      items:
@@ -147,7 +146,6 @@ router.post("/search", GameController.searchGames);
  *                              $ref: '#/components/schemas/Error'
  */
 router.post("/popular", GameController.getPopularGames);
-// it's now a POST so this documentation needs updating
 
 /**
  * @swagger
@@ -181,7 +179,7 @@ router.post("/popular", GameController.getPopularGames);
  *                              properties:
  *                                  status:
  *                                      type: string
- *                                      example: request
+ *                                      example: success
  *                                  data:
  *                                      type: array
  *                                      items:
@@ -229,7 +227,7 @@ router.post("/recent", GameController.getRecentGames);
  *                              properties:
  *                                  status:
  *                                      type: string
- *                                      example: request
+ *                                      example: success
  *                                  data:
  *                                      type: array
  *                                      items:
@@ -253,7 +251,7 @@ router.post("/recommended", auth, GameController.getRecommendedGames);
 
 /**
  * @swagger
- *  /games/{gameID}/reviews:
+ *  /games/id/{gameID}/reviews:
  *      get:
  *          tags: [Reviews]
  *          summary: Gets the reviews of a game
@@ -298,11 +296,11 @@ router.post("/recommended", auth, GameController.getRecommendedGames);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
+router.get("/id/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
 
 /**
  * @swagger
- *  /games/{gameID}/reviews:
+ *  /games/id/{gameID}/reviews:
  *      post:
  *          tags: [Reviews]
  *          summary: Publishes a new review for a game
@@ -373,11 +371,11 @@ router.get("/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGame);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.post("/:gameID/reviews", auth, ReviewController.publishReview);
+router.post("/id/:gameID/reviews", auth, ReviewController.publishReview);
 
 /**
  * @swagger
- *  /games/{gameID}/reviews:
+ *  /games/id/{gameID}/reviews:
  *      put:
  *          tags: [Reviews]
  *          summary: Updates the current user's review for a game
@@ -442,11 +440,11 @@ router.post("/:gameID/reviews", auth, ReviewController.publishReview);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.put("/:gameID/reviews", auth, ReviewController.alterReview);
+router.put("/id/:gameID/reviews", auth, ReviewController.alterReview);
 
 /**
  * @swagger
- *  /games/{gameID}/reviews:
+ *  /games/id/{gameID}/reviews:
  *      delete:
  *          tags: [Reviews]
  *          summary: Removes the current user's review for a game
@@ -497,34 +495,6 @@ router.put("/:gameID/reviews", auth, ReviewController.alterReview);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.delete("/:gameID/reviews", auth, ReviewController.removeReview);
-/**
- * swagger
- *  /games/{gameID}:
- *      get:
- *          tags: [Games]
- *          summary: Finds a game by ID
- *          description: |
- *              Finds a game by ID.
- *          parameters:
- *              - in: path
- *                name: gameID
- *                required: true
- *                schema:
- *                  type: integer
- *          responses:
- *              200:
- *                  description: "**OK**"
- *                  content:
- *                      application/json:
- *                          schema:
- *                              $ref: '#/components/schemas/Game'
- *              400:
- *                  description: "**Bad Request** - if the gameID is invalid"
- *              404:
- *                  description: "**Not Found** - if the provided game doesn't exist"
- */
-// router.get("/:gameID", GameController.getGameById);
-// use this documentation as a base for the new /id/gameID and delete this route
+router.delete("/id/:gameID/reviews", auth, ReviewController.removeReview);
 
 export default router;

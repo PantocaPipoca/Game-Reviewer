@@ -24,7 +24,7 @@ async function setupReview(): Promise<{ reviewer: AuthResponse; gameID: number }
     const game = await createGame();
 
     await request(app)
-        .post("/api/games/" + game.gameID + "/reviews")
+        .post("/api/games/id/" + game.gameID + "/reviews")
         .set("Authorization", "Bearer " + reviewer.token)
         .send({ text: "a review", score: 7 })
         .expect(StatusCodes.CREATED);
@@ -113,7 +113,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/users/" + reviewer.accountName + "/followers/")
+            .post("/api/users/id/" + reviewer.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 

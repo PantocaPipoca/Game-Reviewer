@@ -212,7 +212,7 @@ router.post("/dislikes", auth, LikeController.addDislike);
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/reacts:
+ *  /reviews/{reviewer}/{reviewed}/reaction:
  *      delete:
  *          tags: [Reactions]
  *          summary: Removes the current user's reaction from a review
@@ -262,6 +262,6 @@ router.post("/dislikes", auth, LikeController.addDislike);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.delete("/reacts", auth, LikeController.removeReactions);
+router.delete("/reaction", auth, LikeController.removeReactions);
 
 export default router;
