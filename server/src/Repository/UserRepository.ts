@@ -1,5 +1,8 @@
 import { PRISMA } from "../Prisma";
 import { UserFull, UserShort, UserPK } from "../types/Types";
+import { randomInt } from "node:crypto";
+
+// userData: { path: ["verificationNumber"], equals: 0 }
 
 export class UserRepository {
     /**
@@ -20,7 +23,7 @@ export class UserRepository {
      */
     public static insertUser(user: UserShort): Promise<UserFull> {
         return PRISMA.user.create({
-            data: user,
+            data: { ...user, emailValidation: randomInt(0, 999999) },
         });
     }
 
@@ -56,6 +59,38 @@ export class UserRepository {
     public static deleteUser(userPK: UserPK): Promise<UserFull> {
         return PRISMA.user.delete({
             where: { accountName: userPK },
+        });
+    }
+
+    /**
+     * @description verifies a User in the database
+     * @param accountName primary key of User
+     * @param codeNum secret code that proves the email is valid
+     * @returns a promise of the verified User
+     */
+    public static verify(accountName: UserPK, codeNum: number): Promise<UserFull> {
+        return PRISMA.user.update({
+            where: { accountName: accountName, emailValidation: codeNum },
+            data: {
+                emailValidation: null,
+            },
+        });
+    }
+
+    /**
+     * @description clears non verified users that are older than timeLimit
+     */
+    public static cleanupNonVerifiedUsers(): void {
+        const timeLimit = 60 * 60 * 1000;
+        PRISMA.user.deleteMany({
+            where: {
+                emailValidation: {
+                    not: null,
+                },
+                createdAt: {
+                    lt: new Date(Date.now() - timeLimit),
+                },
+            },
         });
     }
 

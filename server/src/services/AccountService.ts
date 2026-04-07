@@ -92,6 +92,8 @@ export class AccountService {
      * @returns AuthResponse object with token and user data
      */
     static async registerUser(
+        // this will create a pending user instead
+        // there will be a new route to officialize that user
         username: UserPK,
         displayName: string,
         password: string,
@@ -122,8 +124,11 @@ export class AccountService {
             email,
         });
 
+        // send email to newUser.email with newUser.emailValidation
+
         // generate JWT token
         const token: string = generateToken(newUser.accountName);
+        // dont generate token tho
 
         return {
             accountName: newUser.accountName,
@@ -132,6 +137,28 @@ export class AccountService {
             createdAt: newUser.createdAt,
             token,
         } as AuthResponse;
+        // return `a confirmation has been sent to ${newUser.email}`
+    }
+
+    /**
+     * Verifies a user
+     * @returns auth response with token or failed verification
+     */
+    static async verify(accountName: string, codeNum: number) {
+        await UserRepository.verify(accountName, codeNum)
+            .then((validatedUser) => {
+                const token = generateToken(validatedUser.accountName);
+                return {
+                    accountName: validatedUser.accountName,
+                    isPrivate: validatedUser.isPrivate,
+                    userData: validatedUser.userData as UserData,
+                    createdAt: validatedUser.createdAt,
+                    token,
+                } as AuthResponse;
+            })
+            .catch((err) => {
+                throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.INVALID_CREDENTIALS);
+            });
     }
 
     /**

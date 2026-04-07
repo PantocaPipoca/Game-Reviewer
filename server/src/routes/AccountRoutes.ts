@@ -65,6 +65,14 @@ const router: Router = Router({ mergeParams: true });
  *                              $ref: '#/components/schemas/Error'
  */
 router.post("/", AccountController.register);
+// will not return a token and will just return a message that states a confirmation code has been sent to the given email
+
+/**
+ * TODO: swagger
+ *  /users/verification
+ *      get:
+ */
+router.get("/verification", AccountController.verify);
 
 /**
  * @swagger
