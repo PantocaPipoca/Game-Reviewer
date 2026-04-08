@@ -31,7 +31,6 @@ export class ReviewService {
 
     static async publishReview(currentUser: UserPK, gameID: GamePK, text: string, score: number): Promise<ReviewFull> {
         await fetchPublicUser(currentUser);
-        await fetchGame(gameID);
 
         if ((await GameRepository.selectGame(gameID)) === null) {
             let IGDBgame: any = await IGDB.getGameByID(gameID);
@@ -43,7 +42,7 @@ export class ReviewService {
                 gameName: IGDBgame.name,
                 metadata: { genres: await IGDB.getGenresOfGames([gameID]) }, // TODO: swap this function for ours
             };
-            GameRepository.insertGame(dbGame);
+            await GameRepository.insertGame(dbGame);
         } else {
             // check if review already exists
             const existing: ReviewFull | null = await ReviewRepository.selectReview({
