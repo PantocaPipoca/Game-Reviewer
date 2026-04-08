@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import style from "./GameInfoPage.module.css";
 import Panel from "../Components/Panel/Panel";
 import Navbar from "../Components/Navbar/Navbar";
@@ -7,6 +7,7 @@ import Text from "../Components/Text/Text";
 import Star from "../Components/Star/Star";
 import type { CssVar } from "../Types/Types";
 import ReviewCard from "../Components/ReviewCard/ReviewCard";
+import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
 import type { ReviewFull } from "../API/Types";
@@ -46,7 +47,7 @@ function RatingRow({ type, value }: { type: RatingType; value?: number }) {
 
             <div className={style.ratingContent}>
                 <Star type="full" size={46} color={color} />
-                {isYourRating ? <button>+</button> : <Text variant="h1">{displayValue.toFixed(1)}</Text>}
+                {isYourRating ? <CreateReviewButton /> : <Text variant="h1">{displayValue.toFixed(1)}</Text>}
             </div>
         </div>
     );
