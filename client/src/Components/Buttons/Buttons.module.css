@@ -28,6 +28,17 @@
     color: var(--mainText);
 }
 
+.edit {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background-color: var(--transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
 .button:hover {
     border-color: var(--cyan);
 }
