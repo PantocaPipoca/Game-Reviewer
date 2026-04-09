@@ -7,6 +7,21 @@ import { UserRepository } from "../Repository/UserRepository";
 import { UserData, UserFull, UserPK, AuthResponse, UserPublic, UserPrivate, UserMe } from "../types/Types";
 import { FollowerRepository } from "../Repository/FollowerRepository";
 
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
+
+const EMAIL = process.env["EMAIL"];
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: EMAIL,
+        pass: process.env["EMAIL_PASSWORD"],
+    },
+});
+
 const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
 
 /**
@@ -91,14 +106,7 @@ export class AccountService {
      * @param email - email address of the user
      * @returns AuthResponse object with token and user data
      */
-    static async registerUser(
-        // this will create a pending user instead
-        // there will be a new route to officialize that user
-        username: UserPK,
-        displayName: string,
-        password: string,
-        email: string
-    ): Promise<AuthResponse> {
+    static async registerUser(username: UserPK, displayName: string, password: string, email: string): Promise<string> {
         // Check if username is being used
         const existingUser: UserFull | null = await UserRepository.selectUser(username);
         if (existingUser) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
@@ -125,40 +133,38 @@ export class AccountService {
         });
 
         // send email to newUser.email with newUser.emailValidation
+        try {
+            await transporter.sendMail({
+                from: process.env["EMAIL"],
+                to: newUser.email,
+                subject: "GameReviewer+ registration",
+                text: newUser.emailValidation?.toString(),
+            });
+        } catch (err) {
+            console.log(err); // broooo ta a dar timeout
+        }
 
-        // generate JWT token
-        const token: string = generateToken(newUser.accountName);
-        // dont generate token tho
-
-        return {
-            accountName: newUser.accountName,
-            isPrivate: newUser.isPrivate,
-            userData: newUser.userData as UserData,
-            createdAt: newUser.createdAt,
-            token,
-        } as AuthResponse;
-        // return `a confirmation has been sent to ${newUser.email}`
+        return `a code has been sent to ${newUser.email}`;
     }
 
     /**
      * Verifies a user
-     * @returns auth response with token or failed verification
+     * @returns auth response with token
      */
-    static async verify(accountName: string, codeNum: number) {
-        await UserRepository.verify(accountName, codeNum)
-            .then((validatedUser) => {
-                const token = generateToken(validatedUser.accountName);
-                return {
-                    accountName: validatedUser.accountName,
-                    isPrivate: validatedUser.isPrivate,
-                    userData: validatedUser.userData as UserData,
-                    createdAt: validatedUser.createdAt,
-                    token,
-                } as AuthResponse;
-            })
-            .catch((err) => {
-                throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.INVALID_CREDENTIALS);
-            });
+    static async verify(accountName: string, codeNum: number): Promise<AuthResponse> {
+        try {
+            const validatedUser: UserFull = await UserRepository.verify(accountName, codeNum);
+            const token = generateToken(validatedUser.accountName);
+            return {
+                accountName: validatedUser.accountName,
+                isPrivate: validatedUser.isPrivate,
+                userData: validatedUser.userData as UserData,
+                createdAt: validatedUser.createdAt,
+                token,
+            } as AuthResponse;
+        } catch (err) {
+            throw new AppError(StatusCodes.NOT_FOUND, "wrong code");
+        }
     }
 
     /**

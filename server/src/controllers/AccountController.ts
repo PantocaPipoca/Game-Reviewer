@@ -26,8 +26,7 @@ export class AccountController {
         if (password.length < 8) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
         if (!EMAIL_REGEX.test(email)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
-        const result: AuthResponse = await AccountService.registerUser(accountName, displayName, password, email);
-        setAuthCookie(res, result.token); // remove this
+        const result: string = await AccountService.registerUser(accountName, displayName, password, email);
         return makeSuccess(res, StatusCodes.CREATED, result);
     });
 
@@ -37,14 +36,15 @@ export class AccountController {
     static verify = asyncHandler(async (req: Request, res: Response) => {
         const { user, code } = req.query;
         if (typeof user !== "string" || typeof code !== "string") {
-            return makeSuccess(res, StatusCodes.BAD_REQUEST, "invalid parameters");
+            throw new AppError(StatusCodes.BAD_REQUEST, "invalid parameters");
         }
         try {
-            const codeNum = Number.parseInt(code);
-            const result = AccountService.verify(user, codeNum);
+            const codeNum: number = Number.parseInt(code);
+            const result: AuthResponse = await AccountService.verify(user, codeNum);
+            setAuthCookie(res, result.token);
             return makeSuccess(res, StatusCodes.OK, result);
         } catch {
-            return makeSuccess(res, StatusCodes.BAD_REQUEST, "invalid parameters");
+            throw new AppError(StatusCodes.BAD_REQUEST, "invalid parameters");
         }
     });
 
