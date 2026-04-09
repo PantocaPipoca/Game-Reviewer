@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Panel from "../Components/Panel/Panel";
 import Text from "../Components/Text/Text";
@@ -18,10 +18,6 @@ type GameLike = {
     cover?: { url?: string };
     platforms?: { name?: string }[];
     summary?: string;
-};
-
-type LocationState = {
-    game?: GameLike | null;
 };
 
 const MAX_STARS = 5;
@@ -46,11 +42,9 @@ function getStars(score: number): ("full" | "half" | "empty")[] {
 function CreateReviewPage() {
     const navigate = useNavigate();
     const { gameID } = useParams<{ gameID: string }>();
-    const location = useLocation();
-    const locationState = location.state as LocationState | null;
 
-    const [game, setGame] = useState<GameLike | null>(locationState?.game ?? null);
-    const [loading, setLoading] = useState(!locationState?.game);
+    const [game, setGame] = useState<GameLike | null>(null);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
@@ -66,11 +60,9 @@ function CreateReviewPage() {
         async function load() {
             if (!gameID) return;
             try {
-                if (!locationState?.game) {
-                    const loadedGame = (await GameAPI.getById(Number(gameID))) as unknown as GameLike | GameLike[];
-                    const normalizedGame = Array.isArray(loadedGame) ? (loadedGame[0] ?? null) : loadedGame;
-                    setGame(normalizedGame ?? null);
-                }
+                const loadedGame = (await GameAPI.getById(Number(gameID))) as unknown as GameLike | GameLike[];
+                const normalizedGame = Array.isArray(loadedGame) ? (loadedGame[0] ?? null) : loadedGame;
+                setGame(normalizedGame ?? null);
             } catch {
                 setError(true);
             } finally {
@@ -78,7 +70,7 @@ function CreateReviewPage() {
             }
         }
         load();
-    }, [gameID, locationState?.game]);
+    }, [gameID]);
 
     useEffect(() => {
         const availablePlatforms = game?.platforms ?? [];
