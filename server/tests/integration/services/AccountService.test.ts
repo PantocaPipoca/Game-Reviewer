@@ -48,6 +48,17 @@ describe("AccountService (integration)", () => {
         ).rejects.toBeDefined();
     });
 
+    it("Checks if email verification is working", async () => {
+        const user: UserMicro = makeSomeUser();
+        await AccountService.registerUser(user.accountName, displayName, pass, user.email, true);
+
+        const userFull = await UserRepository.selectUser(user.accountName);
+        expect(userFull?.emailValidation).not.toBeNull();
+        expect(await AccountService.verify(user.accountName, -1)).toThrow();
+        expect(await AccountService.verify(user.accountName, userFull?.emailValidation as number)).not.toThrow();
+        expect(userFull?.emailValidation).toBeNull();
+    });
+
     it("LoginUser fails with wrong passwords and non-existent users", async () => {
         // Register user
         const user: UserMicro = await makeSomeUserAndRegister();

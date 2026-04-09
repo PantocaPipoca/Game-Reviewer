@@ -26,7 +26,13 @@ export class AccountController {
         if (password.length < 8) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
         if (!EMAIL_REGEX.test(email)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
-        const result: string = await AccountService.registerUser(accountName, displayName, password, email);
+        const result: string = (await AccountService.registerUser(
+            accountName,
+            displayName,
+            password,
+            email,
+            true
+        )) as string;
         return makeSuccess(res, StatusCodes.CREATED, result);
     });
 

@@ -14,8 +14,8 @@ dotenv.config();
 const EMAIL = process.env["EMAIL"];
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true,
     auth: {
         user: EMAIL,
         pass: process.env["EMAIL_PASSWORD"],
@@ -106,7 +106,13 @@ export class AccountService {
      * @param email - email address of the user
      * @returns AuthResponse object with token and user data
      */
-    static async registerUser(username: UserPK, displayName: string, password: string, email: string): Promise<string> {
+    static async registerUser(
+        username: UserPK,
+        displayName: string,
+        password: string,
+        email: string,
+        requiresValidation: boolean
+    ): Promise<AuthResponse | string> {
         // Check if username is being used
         const existingUser: UserFull | null = await UserRepository.selectUser(username);
         if (existingUser) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
@@ -133,18 +139,23 @@ export class AccountService {
         });
 
         // send email to newUser.email with newUser.emailValidation
-        try {
-            await transporter.sendMail({
-                from: process.env["EMAIL"],
-                to: newUser.email,
-                subject: "GameReviewer+ registration",
-                text: newUser.emailValidation?.toString(),
-            });
-        } catch (err) {
-            console.log(err); // broooo ta a dar timeout
+        if (requiresValidation) {
+            try {
+                await transporter.sendMail({
+                    to: newUser.email,
+                    subject: "GameReviewer+ registration",
+                    html: `<h1>${newUser.emailValidation}</h1>`,
+                });
+            } catch (err) {
+                throw new AppError(
+                    StatusCodes.SERVICE_UNAVAILABLE,
+                    "gmail or connection to it is having some problems"
+                );
+            }
+            return `a code has been sent to ${newUser.email}`;
+        } else {
+            return AccountService.verify(newUser.accountName, newUser.emailValidation as number);
         }
-
-        return `a code has been sent to ${newUser.email}`;
     }
 
     /**
@@ -177,6 +188,10 @@ export class AccountService {
         const user: UserFull | null = await UserRepository.selectUser(username);
         // verify user
         if (!user) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+
+        if (user.emailValidation != null) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, "user not validated");
+        }
 
         const isValid: boolean = await bcrypt.compare(password, user.passwordHash);
         // Verify password
