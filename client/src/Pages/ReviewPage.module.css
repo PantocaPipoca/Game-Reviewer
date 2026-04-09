@@ -80,6 +80,7 @@
 }
 
 .avatar {
+    border: var(--borderWidth) solid var(--border);
     width: 160px;
     aspect-ratio: 1 / 1;
 }
