@@ -269,6 +269,8 @@ function GameInfoPage() {
                                     rating={review.score}
                                     showUser
                                     userName={review.reviewer}
+                                    reviewer={review.reviewer}
+                                    reviewed={review.reviewed}
                                 />
                             ))}
 
