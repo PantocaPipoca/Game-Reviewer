@@ -8,9 +8,11 @@ import style from "./ReviewPage.module.css";
 import Panel from "../Components/Panel/Panel";
 import Navbar from "../Components/Navbar/Navbar";
 import Text from "../Components/Text/Text";
-import Star from "../Components/Star/Star";
+import Star from "../Components/SVGs/Star";
 import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
 import EditButton from "../Components/Buttons/EditButton";
+import Upvote from "../Components/SVGs/Upvote";
+import Downvote from "../Components/SVGs/Downvote";
 
 const MAX_STARS = 5;
 
@@ -153,7 +155,7 @@ function ReviewPage() {
                                 <div className={style.yourRatingContent}>
                                     <Star type="full" size={46} color="var(--pink)" />
                                     {myReview ? (
-                                        <Text variant="h1">{myReview.score.toFixed(1)}</Text>
+                                        <Text variant="h1">{normalizeRating(myReview.score).toFixed(1)}</Text>
                                     ) : (
                                         <CreateReviewButton gameID={reviewed} />
                                     )}
@@ -174,24 +176,24 @@ function ReviewPage() {
                                     <div className={style.metaCol}>
                                         <div className={style.stars}>
                                             {stars.map((type, i) => (
-                                                <Star key={i} type={type} size={64} color="var(--green)" />
+                                                <Star key={i} type={type} size={48} color="var(--green)" />
                                             ))}
                                         </div>
-                                        <Text variant="h3">
+                                        <Text variant="body">
                                             Played:{" "}
-                                            <Text variant="h3" color="var(--cyan)">
+                                            <Text variant="body" color="var(--cyan)">
                                                 {played}
                                             </Text>
                                         </Text>
-                                        <Text variant="h3">
+                                        <Text variant="body">
                                             Hours Played:{" "}
-                                            <Text variant="h3" color="var(--cyan)">
+                                            <Text variant="body" color="var(--cyan)">
                                                 {hoursPlayed}
                                             </Text>
                                         </Text>
-                                        <Text variant="h3">
+                                        <Text variant="body">
                                             Platform:{" "}
-                                            <Text variant="h3" color="var(--cyan)">
+                                            <Text variant="body" color="var(--cyan)">
                                                 {platform}
                                             </Text>
                                         </Text>
@@ -205,15 +207,9 @@ function ReviewPage() {
                                         <EditButton onClick={() => navigate(`/game/${reviewed}/review/edit`)} />
                                     )}
                                     <div className={style.voteActions}>
-                                        <img
-                                            src="https://cdn-icons-png.flaticon.com/512/889/889140.png"
-                                            className={style.voteIcon}
-                                        />
+                                        <Upvote className={style.voteIcon} />
                                         <Text variant="h3">{upvotes}</Text>
-                                        <img
-                                            src="https://cdn-icons-png.flaticon.com/512/8255/8255194.png"
-                                            className={style.voteIcon}
-                                        />
+                                        <Downvote className={style.voteIcon} />
                                         <Text variant="h3">{downvotes}</Text>
                                     </div>
                                 </div>
