@@ -207,9 +207,9 @@ function ReviewPage() {
                                         <EditButton onClick={() => navigate(`/game/${reviewed}/review/edit`)} />
                                     )}
                                     <div className={style.voteActions}>
-                                        <Upvote className={style.voteIcon} />
+                                        <Upvote className={style.voteIcon} color="var(--mainText)" />
                                         <Text variant="h3">{upvotes}</Text>
-                                        <Downvote className={style.voteIcon} />
+                                        <Downvote className={style.voteIcon} color="var(--mainText)" />
                                         <Text variant="h3">{downvotes}</Text>
                                     </div>
                                 </div>

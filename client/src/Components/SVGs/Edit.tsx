@@ -1,16 +1,19 @@
+import type { CssVar } from "../../Types/Types";
+
 type EditProps = {
     size?: number;
     className?: string;
+    color?: CssVar;
 };
 
-function Edit({ size = 18, className }: EditProps) {
+function Edit({ size = 18, className, color = "var(--mainText)" }: EditProps) {
     return (
         <svg
             width={size}
             height={size}
             viewBox="0 0 24 24"
             fill="none"
-            stroke="currentColor"
+            stroke={color}
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"

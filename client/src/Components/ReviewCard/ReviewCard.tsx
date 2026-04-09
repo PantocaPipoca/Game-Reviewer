@@ -92,9 +92,9 @@ function ReviewCard({
                             </Text>
                         </Link>
                         <div className={style.voteActions}>
-                            <Upvote className={style.upVote} />
+                            <Upvote className={style.upVote} color="var(--mainText)" />
                             <Text variant="h3">{upvotes}</Text>
-                            <Downvote className={style.upVote} />
+                            <Downvote className={style.upVote} color="var(--mainText)" />
                             <Text variant="h3">{downvotes}</Text>
                         </div>
                     </div>
