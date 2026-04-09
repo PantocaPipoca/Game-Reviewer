@@ -9,14 +9,8 @@ type EditButtonProps = {
 
 function EditButton({ onClick, disabled }: EditButtonProps) {
     return (
-        <Button
-            className={style.edit}
-            color="var(--transparent)"
-            tColor="var(--mutedText)"
-            onClick={onClick}
-            disabled={disabled}
-        >
-            <Edit />
+        <Button className={style.edit} color="var(--transparent)" onClick={onClick} disabled={disabled}>
+            <Edit color="var(--mainText)" />
         </Button>
     );
 }

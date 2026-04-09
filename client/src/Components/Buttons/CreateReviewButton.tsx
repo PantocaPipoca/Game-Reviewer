@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "./Button";
 import Text from "../Text/Text";
-import style from "./CreateReviewButton.module.css";
+import style from "./Buttons.module.css";
 
 type CreateReviewButtonProps = {
     gameID?: number | string;
@@ -20,7 +20,7 @@ function CreateReviewButton({ gameID, size = "default" }: CreateReviewButtonProp
 
     return (
         <Button
-            className={`${style.createReviewButton} ${size === "full" ? style.full : ""}`}
+            className={`${style.createReview} ${size === "full" ? style.createReviewFull : ""}`}
             color="var(--transparent)"
             onClick={handleClick}
             aria-label="Create Review"
