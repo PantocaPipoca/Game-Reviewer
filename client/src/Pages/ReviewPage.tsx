@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
 import { UserAPI } from "../API/User";
@@ -10,6 +10,7 @@ import Navbar from "../Components/Navbar/Navbar";
 import Text from "../Components/Text/Text";
 import Star from "../Components/Star/Star";
 import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
+import EditButton from "../Components/Buttons/EditButton";
 
 const MAX_STARS = 5;
 
@@ -36,10 +37,12 @@ function getCoverUrl(game: any): string {
 
 function ReviewPage() {
     const { reviewer, reviewed } = useParams<{ reviewer: string; reviewed: string }>();
+    const navigate = useNavigate();
 
     const [game, setGame] = useState<any>(null);
     const [review, setReview] = useState<ReviewFull | null>(null);
     const [myReview, setMyReview] = useState<ReviewFull | null>(null);
+    const [isOwnReview, setIsOwnReview] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -49,6 +52,7 @@ function ReviewPage() {
             setLoading(true);
             setError(false);
             setMyReview(null);
+            setIsOwnReview(false);
             try {
                 const reviewedNum = parseInt(reviewed!);
                 if (Number.isNaN(reviewedNum)) {
@@ -73,8 +77,13 @@ function ReviewPage() {
 
                 try {
                     const me = await UserAPI.getMe();
-                    const ownReview = await ReviewAPI.get(me.accountName, reviewedNum);
-                    setMyReview(ownReview);
+                    if (me.accountName === reviewer) {
+                        setIsOwnReview(true);
+                        setMyReview(reviewResult.status === "fulfilled" ? reviewResult.value : null);
+                    } else {
+                        const ownReview = await ReviewAPI.get(me.accountName, reviewedNum);
+                        setMyReview(ownReview);
+                    }
                 } catch {
                     setMyReview(null);
                 }
@@ -192,16 +201,21 @@ function ReviewPage() {
                                     {reviewText}
                                 </Text>
                                 <div className={style.voteRow}>
-                                    <img
-                                        src="https://cdn-icons-png.flaticon.com/512/889/889140.png"
-                                        className={style.voteIcon}
-                                    />
-                                    <Text variant="h3">{upvotes}</Text>
-                                    <img
-                                        src="https://cdn-icons-png.flaticon.com/512/8255/8255194.png"
-                                        className={style.voteIcon}
-                                    />
-                                    <Text variant="h3">{downvotes}</Text>
+                                    {isOwnReview && (
+                                        <EditButton onClick={() => navigate(`/game/${reviewed}/review/edit`)} />
+                                    )}
+                                    <div className={style.voteActions}>
+                                        <img
+                                            src="https://cdn-icons-png.flaticon.com/512/889/889140.png"
+                                            className={style.voteIcon}
+                                        />
+                                        <Text variant="h3">{upvotes}</Text>
+                                        <img
+                                            src="https://cdn-icons-png.flaticon.com/512/8255/8255194.png"
+                                            className={style.voteIcon}
+                                        />
+                                        <Text variant="h3">{downvotes}</Text>
+                                    </div>
                                 </div>
                             </Panel>
                         </div>

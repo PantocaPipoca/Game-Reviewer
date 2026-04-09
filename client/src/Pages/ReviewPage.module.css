@@ -102,9 +102,14 @@
 .voteRow {
     display: flex;
     align-items: center;
-    gap: var(--spacingSmall);
+    justify-content: space-between;
     margin-top: auto;
-    justify-content: flex-end;
+}
+
+.voteActions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingSmall);
 }
 
 .voteIcon {
