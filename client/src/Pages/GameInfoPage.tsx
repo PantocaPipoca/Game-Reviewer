@@ -4,12 +4,13 @@ import style from "./GameInfoPage.module.css";
 import Panel from "../Components/Panel/Panel";
 import Navbar from "../Components/Navbar/Navbar";
 import Text from "../Components/Text/Text";
-import Star from "../Components/Star/Star";
+import Star from "../Components/SVGs/Star";
 import type { CssVar } from "../Types/Types";
 import ReviewCard from "../Components/ReviewCard/ReviewCard";
 import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
+import { UserAPI } from "../API/User";
 import type { ReviewFull } from "../API/Types";
 
 type RatingType = "user" | "your" | "friends";
@@ -33,7 +34,8 @@ function getRatingColor(type: RatingType): CssVar {
 function RatingRow({ type, value }: { type: RatingType; value?: number }) {
     const color: CssVar = getRatingColor(type);
     const isYourRating: boolean = type === "your";
-    const displayValue: number = value ?? 0;
+    const hasValue: boolean = value !== undefined;
+    const displayValue: number = (value ?? 0) / 2;
 
     const titleMap: Record<RatingType, string> = {
         user: "User Ratings",
@@ -47,7 +49,15 @@ function RatingRow({ type, value }: { type: RatingType; value?: number }) {
 
             <div className={style.ratingContent}>
                 <Star type="full" size={46} color={color} />
-                {isYourRating ? <CreateReviewButton /> : <Text variant="h1">{displayValue.toFixed(1)}</Text>}
+                {isYourRating ? (
+                    hasValue ? (
+                        <Text variant="h1">{displayValue.toFixed(1)}</Text>
+                    ) : (
+                        <CreateReviewButton />
+                    )
+                ) : (
+                    <Text variant="h1">{displayValue.toFixed(1)}</Text>
+                )}
             </div>
         </div>
     );
@@ -114,6 +124,7 @@ function GameInfoPage() {
 
     const [game, setGame] = useState<any | null>(null);
     const [reviews, setReviews] = useState<ReviewFull[]>([]);
+    const [myReview, setMyReview] = useState<ReviewFull | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -123,11 +134,18 @@ function GameInfoPage() {
         async function load() {
             setLoading(true);
             setError(false);
+            setMyReview(null);
             try {
                 const id = parseInt(gameID!);
-                const [gameResult, reviewResult] = await Promise.allSettled([
+                if (Number.isNaN(id)) {
+                    setError(true);
+                    return;
+                }
+
+                const [gameResult, reviewResult, ownReviewResult] = await Promise.allSettled([
                     GameAPI.getById(id),
                     ReviewAPI.getByGame(id),
+                    UserAPI.getMe().then((me) => ReviewAPI.get(me.accountName, id)),
                 ]);
 
                 if (gameResult.status === "fulfilled") {
@@ -141,6 +159,10 @@ function GameInfoPage() {
 
                 if (reviewResult.status === "fulfilled") {
                     setReviews(reviewResult.value);
+                }
+
+                if (ownReviewResult.status === "fulfilled") {
+                    setMyReview(ownReviewResult.value);
                 }
             } catch {
                 setError(true);
@@ -233,7 +255,7 @@ function GameInfoPage() {
                             <Panel type="secondary" className={style.bottomLeftRow}>
                                 <RatingRow type="user" value={averageScore} />
                                 <hr />
-                                <RatingRow type="your" />
+                                <RatingRow type="your" value={myReview?.score} />
                                 <hr />
                                 <RatingRow type="friends" value={0} />
 
@@ -264,7 +286,6 @@ function GameInfoPage() {
                             {reviews.map((review) => (
                                 <ReviewCard
                                     key={`${review.reviewer}-${review.reviewed}`}
-                                    title={review.reviewer}
                                     description={review.text}
                                     rating={review.score}
                                     showUser

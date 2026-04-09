@@ -1,14 +1,15 @@
 import style from "./ReviewCard.module.css";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
-import Star from "../Star/Star";
-import { useNavigate } from "react-router-dom";
+import Star from "../SVGs/Star";
+import Upvote from "../SVGs/Upvote";
+import Downvote from "../SVGs/Downvote";
+import { Link, useNavigate } from "react-router-dom";
 
 const MAX_STARS = 5;
 
 export type ReviewCardProps = {
     cover?: string;
-    title?: string;
     description?: string;
     upvotes?: number;
     downvotes?: number;
@@ -43,7 +44,6 @@ function getStars(rating: number): ("full" | "half" | "empty")[] {
 
 function ReviewCard({
     cover = "https://vglist.co/assets/no-cover-5b40e3b1.png",
-    title = "###",
     description = "###",
     upvotes = 0,
     downvotes = 0,
@@ -58,41 +58,45 @@ function ReviewCard({
     const stars = getStars(normalizedRating);
     const navigate = useNavigate();
 
-    const handleClick = () => {
-        navigate(`/review/${reviewer}/${reviewed}`);
-    };
+    function handleUserClick() {
+        navigate(`/user/${reviewer}`);
+    }
 
     return (
-        <div className={style.panel} onClick={handleClick} style={{ cursor: "pointer" }}>
+        <div className={style.panel}>
             <Panel type="secondary" direction="row" className={style.fullWidth}>
                 {showUser ? (
-                    <div className={style.userBlock}>
+                    <div className={style.userBlock} onClick={handleUserClick} role="button" tabIndex={0}>
                         <img src={userAvatar} className={style.avatar} />
-                        <Text variant="body">{userName}</Text>
+                        <Text variant="h3">{userName}</Text>
                     </div>
                 ) : (
                     <img src={cover} className={style.cover} />
                 )}
 
                 <div className={style.infoColumn}>
-                    <div className={style.topRow}>
-                        <Text variant="h2">{title}</Text>
-
-                        <div className={style.stars}>
-                            {stars.map((type, index) => (
-                                <Star key={index} type={type} size={18} />
-                            ))}
-                        </div>
+                    <div className={style.stars}>
+                        {stars.map((type, index) => (
+                            <Star key={index} type={type} size={32} />
+                        ))}
                     </div>
 
-                    <Text variant="body">{description}</Text>
+                    <Text variant="body" className={style.description}>
+                        {description}
+                    </Text>
 
                     <div className={style.bottomRow}>
-                        <Text color="var(--pink)">{`> `}See More</Text>
-                        <img src="https://cdn-icons-png.flaticon.com/512/889/889140.png" className={style.upVote} />
-                        <Text variant="h3">{upvotes}</Text>
-                        <img src="https://cdn-icons-png.flaticon.com/512/8255/8255194.png" className={style.upVote} />
-                        <Text variant="h3">{downvotes}</Text>
+                        <Link to={`/review/${reviewer}/${reviewed}`} className={style.seeMore}>
+                            <Text variant="h3" color="var(--pink)">
+                                {`> `}See More
+                            </Text>
+                        </Link>
+                        <div className={style.voteActions}>
+                            <Upvote className={style.upVote} />
+                            <Text variant="h3">{upvotes}</Text>
+                            <Downvote className={style.upVote} />
+                            <Text variant="h3">{downvotes}</Text>
+                        </div>
                     </div>
                 </div>
             </Panel>
