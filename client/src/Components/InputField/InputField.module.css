@@ -14,6 +14,15 @@
     align-items: flex-start;
 }
 
+.promptMarker {
+    flex-shrink: 0;
+}
+
+.inputFieldMultiline .promptMarker {
+    line-height: 1.5;
+    margin-top: 2px;
+}
+
 .input {
     background: none;
     border: none;
