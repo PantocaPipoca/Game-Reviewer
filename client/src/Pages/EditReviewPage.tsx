@@ -204,6 +204,7 @@ function EditReviewPage() {
                             className={style.deleteButton}
                             onClick={() => setShowDeleteConfirm(true)}
                             disabled={deleting}
+                            color="var(--transparent)"
                         >
                             <Text variant="h3" color="var(--pink)">{`> DELETE`}</Text>
                         </Button>
@@ -327,7 +328,12 @@ function EditReviewPage() {
                         <Text variant="h2">DELETE REVIEW?</Text>
                         <Text color="var(--mutedText)">This action cannot be undone.</Text>
                         <div className={style.confirmButtons}>
-                            <Button className={style.confirmDeleteButton} onClick={handleDelete} disabled={deleting}>
+                            <Button
+                                className={style.confirmDeleteButton}
+                                onClick={handleDelete}
+                                disabled={deleting}
+                                color="var(--transparent)"
+                            >
                                 <Text variant="h3" color="var(--pink)">
                                     {deleting ? `> DELETING...` : `> YES, DELETE`}
                                 </Text>
@@ -336,6 +342,7 @@ function EditReviewPage() {
                                 className={style.cancelButton}
                                 onClick={() => setShowDeleteConfirm(false)}
                                 disabled={deleting}
+                                color="var(--transparent)"
                             >
                                 <Text variant="h3">{`> CANCEL`}</Text>
                             </Button>

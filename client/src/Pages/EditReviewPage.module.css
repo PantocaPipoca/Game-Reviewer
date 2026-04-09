@@ -74,7 +74,7 @@
 }
 .starButton {
     border: none;
-    background: transparent;
+    background: none;
     padding: 0;
     display: flex;
     align-items: center;
@@ -147,7 +147,6 @@
     margin-bottom: var(--spacingMedium);
 }
 .deleteButton {
-    background: none;
     border-color: var(--pink);
     padding: var(--spacingSmall) var(--spacingMedium);
 }
@@ -175,11 +174,11 @@
 .confirmDeleteButton {
     flex: 1;
     border-color: var(--pink);
-    background: none;
     padding: var(--spacingSmall) var(--spacingMedium);
+    white-space: nowrap;
 }
 .cancelButton {
     flex: 1;
-    background: none;
     padding: var(--spacingSmall) var(--spacingMedium);
+    white-space: nowrap;
 }
