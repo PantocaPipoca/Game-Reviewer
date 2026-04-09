@@ -6,7 +6,7 @@ import Text from "../Components/Text/Text";
 import InputField from "../Components/InputField/InputField";
 import Dropdown from "../Components/InputField/Dropdown";
 import Button from "../Components/Buttons/Button";
-import Star from "../Components/Star/Star";
+import Star from "../Components/SVGs/Star";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
 import defaultPfp from "../Assets/default-pfp.png";
@@ -160,107 +160,109 @@ function CreateReviewPage() {
             <Navbar />
             <div className={style.mainPanel}>
                 <Panel type="main">
-                    <div style={{ display: "flex", flexDirection: "row", gap: "var(--spacingMedium)" }}>
+                    <div className={style.topRow}>
                         <div className={style.leftColumn}>
-                            <Panel type="secondary" direction="column">
+                            <Panel type="secondary" direction="column" className={style.coverPanel}>
                                 <img src={coverUrl} className={style.cover} />
                                 <hr />
                                 <Text className={style.gameName}>{gameName}</Text>
                             </Panel>
                         </div>
 
-                        <Panel type="secondary" className={style.rightPanel}>
-                            <div className={style.topBlock}>
-                                <div className={style.avatarBlock}>
-                                    <img src={defaultPfp} className={style.avatar} />
-                                    <Text variant="body" color="var(--mutedText)">
-                                        you
-                                    </Text>
-                                </div>
-
-                                <div className={style.metaStack}>
-                                    <div className={style.fieldRow}>
-                                        <Text variant="body" className={style.fieldLabel}>
-                                            Rating:
+                        <div className={style.rightPanelWrapper}>
+                            <Panel type="secondary" className={style.rightPanel}>
+                                <div className={style.topBlock}>
+                                    <div className={style.avatarBlock}>
+                                        <img src={defaultPfp} className={style.avatar} />
+                                        <Text variant="body" color="var(--mutedText)">
+                                            you
                                         </Text>
-                                        <div className={style.fieldValue}>
-                                            <div className={style.starsRow}>
-                                                {getStars(displayScore).map((type, i) => (
-                                                    <button
-                                                        key={i}
-                                                        className={style.starButton}
-                                                        onClick={(e) =>
-                                                            handleStarClick(i + 1, e.clientX, e.currentTarget)
-                                                        }
-                                                        onMouseMove={(e) =>
-                                                            handleStarMouseMove(i + 1, e.clientX, e.currentTarget)
-                                                        }
-                                                        onMouseLeave={() => setHoverScore(null)}
-                                                    >
-                                                        <Star type={type} size={42} color="var(--green)" />
-                                                    </button>
-                                                ))}
+                                    </div>
+
+                                    <div className={style.metaStack}>
+                                        <div className={style.fieldRow}>
+                                            <Text variant="body" className={style.fieldLabel}>
+                                                Rating:
+                                            </Text>
+                                            <div className={style.fieldValue}>
+                                                <div className={style.starsRow}>
+                                                    {getStars(displayScore).map((type, i) => (
+                                                        <button
+                                                            key={i}
+                                                            className={style.starButton}
+                                                            onClick={(e) =>
+                                                                handleStarClick(i + 1, e.clientX, e.currentTarget)
+                                                            }
+                                                            onMouseMove={(e) =>
+                                                                handleStarMouseMove(i + 1, e.clientX, e.currentTarget)
+                                                            }
+                                                            onMouseLeave={() => setHoverScore(null)}
+                                                        >
+                                                            <Star type={type} size={42} color="var(--green)" />
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className={style.fieldRow}>
+                                            <Text variant="body" className={style.fieldLabel}>
+                                                Played:
+                                            </Text>
+                                            <div className={style.fieldValue}>
+                                                <div
+                                                    className={`${style.toggle} ${played ? style.toggleOn : ""}`}
+                                                    onClick={() => setPlayed((p) => !p)}
+                                                />
+                                                <Text variant="body" color={played ? "var(--green)" : "var(--pink)"}>
+                                                    {played ? "YES" : "NO"}
+                                                </Text>
+                                            </div>
+                                        </div>
+
+                                        <div className={style.fieldRow}>
+                                            <Text variant="body" className={style.fieldLabel}>
+                                                Hours Played:
+                                            </Text>
+                                            <div className={style.fieldValue}>
+                                                <InputField
+                                                    type="number"
+                                                    value={hoursPlayed}
+                                                    placeholder="0"
+                                                    onChange={(e) => setHoursPlayed(e.target.value.replace(/\D/g, ""))}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className={style.fieldRow}>
+                                            <Text variant="body" className={style.fieldLabel}>
+                                                Platform:
+                                            </Text>
+                                            <div className={style.fieldValue}>
+                                                <Dropdown
+                                                    value={platform}
+                                                    onChange={(value) => setPlatform(value)}
+                                                    options={
+                                                        platformOptions.length > 0
+                                                            ? platformOptions
+                                                            : [{ value: "", label: "No platforms available" }]
+                                                    }
+                                                />
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div className={style.fieldRow}>
-                                        <Text variant="body" className={style.fieldLabel}>
-                                            Played:
-                                        </Text>
-                                        <div className={style.fieldValue}>
-                                            <div
-                                                className={`${style.toggle} ${played ? style.toggleOn : ""}`}
-                                                onClick={() => setPlayed((p) => !p)}
-                                            />
-                                            <Text variant="body" color={played ? "var(--green)" : "var(--pink)"}>
-                                                {played ? "YES" : "NO"}
-                                            </Text>
-                                        </div>
-                                    </div>
-
-                                    <div className={style.fieldRow}>
-                                        <Text variant="body" className={style.fieldLabel}>
-                                            Hours Played:
-                                        </Text>
-                                        <div className={style.fieldValue}>
-                                            <InputField
-                                                type="number"
-                                                value={hoursPlayed}
-                                                placeholder="0"
-                                                onChange={(e) => setHoursPlayed(e.target.value.replace(/\D/g, ""))}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className={style.fieldRow}>
-                                        <Text variant="body" className={style.fieldLabel}>
-                                            Platform:
-                                        </Text>
-                                        <div className={style.fieldValue}>
-                                            <Dropdown
-                                                value={platform}
-                                                onChange={(value) => setPlatform(value)}
-                                                options={
-                                                    platformOptions.length > 0
-                                                        ? platformOptions
-                                                        : [{ value: "", label: "No platforms available" }]
-                                                }
-                                            />
-                                        </div>
-                                    </div>
                                 </div>
-                            </div>
 
-                            <div className={style.reviewInputStack}>
-                                <InputField
-                                    multiline
-                                    value={reviewText}
-                                    placeholder="write your review..."
-                                    onChange={(e) => setReviewText(e.target.value)}
-                                />
-                            </div>
-                        </Panel>
+                                <div className={style.reviewInputStack}>
+                                    <InputField
+                                        multiline
+                                        value={reviewText}
+                                        placeholder="write your review..."
+                                        onChange={(e) => setReviewText(e.target.value)}
+                                    />
+                                </div>
+                            </Panel>
+                        </div>
                     </div>
 
                     <Button className={style.submitButton} onClick={handleSubmit} disabled={submitting}>
