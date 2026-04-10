@@ -51,6 +51,18 @@ export class FollowerRepository {
         });
     }
 
+    public static acceptAllFollowerRequestsToUser(userPK: UserPK): Promise<{ count: number }> {
+        return PRISMA.follower.updateMany({
+            where: {
+                followed: userPK,
+                accepted: false,
+            },
+            data: {
+                accepted: true,
+            },
+        });
+    }
+
     /**
      * @description Selects all Followers of a given User
      * @param userPK primary key of the User we want the Followers of
