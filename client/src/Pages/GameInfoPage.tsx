@@ -10,6 +10,7 @@ import ReviewCard from "../Components/ReviewCard/ReviewCard";
 import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
+import { UserAPI } from "../API/User";
 import type { GameFull, ReviewFull } from "../API/Types";
 import Carousel, { EXPO_ART_TYPE, EXPO_VIDEO_TYPE } from "../Components/Carousel/Carousel";
 import type { GameExpoProps } from "../Components/GameCards/GameExpo";
