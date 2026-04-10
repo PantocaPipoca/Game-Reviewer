@@ -1,0 +1,157 @@
+.mainPanel {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--borderWidth) * -1);
+}
+
+.topRow {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacingMedium);
+    width: 100%;
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingMedium);
+    width: 225px;
+    flex-shrink: 0;
+}
+
+.leftColumn > * {
+    width: 100%;
+}
+
+.coverPanel {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.gameName {
+    width: 100%;
+    text-align: center;
+    margin-top: calc(-1 * var(--spacingSmall));
+    margin-bottom: var(--spacingSmall);
+}
+
+.cover {
+    aspect-ratio: 3 / 4;
+    margin: var(--spacingSmall);
+}
+
+.rightPanel {
+    padding: var(--spacingMedium);
+    gap: var(--spacingMedium);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.rightPanelWrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+.topBlock {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacingMedium);
+}
+
+.avatarBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacingSmall);
+}
+
+.avatar {
+    width: 140px;
+    aspect-ratio: 1 / 1;
+    border: var(--borderWidth) solid var(--border);
+}
+
+.starsRow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 42px;
+}
+
+.starButton {
+    border: none;
+    background: transparent;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.metaStack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingSmall);
+}
+
+.fieldRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingSmall);
+}
+
+.fieldLabel {
+    width: 150px;
+    flex-shrink: 0;
+}
+
+.fieldValue {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: var(--spacingSmall);
+}
+
+.toggle {
+    width: 36px;
+    height: 18px;
+    border: var(--borderWidth) solid var(--pink);
+    background-color: var(--terciaryPanel);
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.toggle::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--pink);
+    transition:
+        transform 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.toggleOn {
+    border-color: var(--green);
+}
+
+.toggleOn::after {
+    transform: translateX(18px);
+    background-color: var(--green);
+}
+
+.reviewInputStack {
+    width: 100%;
+}
+
+.submitButton {
+    width: 100%;
+    margin: var(--spacingMedium);
+}

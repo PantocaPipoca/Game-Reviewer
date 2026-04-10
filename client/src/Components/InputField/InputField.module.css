@@ -9,6 +9,20 @@
     align-items: center;
 }
 
+.inputFieldMultiline {
+    min-height: 205px;
+    align-items: flex-start;
+}
+
+.promptMarker {
+    flex-shrink: 0;
+}
+
+.inputFieldMultiline .promptMarker {
+    line-height: 1.5;
+    margin-top: 2px;
+}
+
 .input {
     background: none;
     border: none;
@@ -18,5 +32,24 @@
 }
 
 .input::placeholder {
+    color: var(--mutedText);
+}
+
+.textareaInput {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--mainText);
+    width: 100%;
+    min-height: 100%;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: none;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.textareaInput::placeholder {
     color: var(--mutedText);
 }

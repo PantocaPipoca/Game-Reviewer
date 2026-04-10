@@ -7,6 +7,10 @@ import SearchUsersPage from "./Pages/SearchUsersPage";
 import UserPage from "./Pages/UserPage";
 import EditProfilePage from "./Pages/EditProfilePage";
 import GameInfoPage from "./Pages/GameInfoPage";
+import CreateReviewPage from "./Pages/CreateReviewPage";
+import EditReviewPage from "./Pages/EditReviewPage";
+import ReviewPage from "./Pages/ReviewPage";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
     return (
@@ -20,6 +24,23 @@ function App() {
                 <Route path="/user/:username" element={<UserPage />} />
                 <Route path="/user/:username/edit" element={<EditProfilePage />} />
                 <Route path="/game/:gameID" element={<GameInfoPage />} />
+                <Route
+                    path="/game/:gameID/review/create"
+                    element={
+                        <ProtectedRoute>
+                            <CreateReviewPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/game/:gameID/review/edit"
+                    element={
+                        <ProtectedRoute>
+                            <EditReviewPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route path="/review/:reviewer/:reviewed" element={<ReviewPage />} />
             </Routes>
         </div>
     );
