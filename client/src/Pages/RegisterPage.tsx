@@ -52,13 +52,13 @@ function RegisterPage() {
 
         setLoading(true);
         try {
-            await UserAPI.register({
+            const name: string = await UserAPI.register({
                 accountName: userName,
                 displayName,
                 password,
                 email,
             });
-            navigate("/");
+            navigate(`/validation#${name}`);
         } catch (err: any) {
             const message = err.response?.data?.message || AUTH_ERRORS.registerFailed;
             setError(message);

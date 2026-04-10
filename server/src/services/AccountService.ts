@@ -153,7 +153,7 @@ export class AccountService {
                     "gmail or connection to it is having some problems"
                 );
             }
-            return `a code has been sent to ${newUser.email}`;
+            return newUser.accountName;
         } else {
             return AccountService.verify(newUser.accountName, newUser.emailValidation as number);
         }
@@ -192,13 +192,13 @@ export class AccountService {
         // verify user
         if (!user) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
 
-        if (user.emailValidation != null) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, "user not validated");
-        }
-
         const isValid: boolean = await bcrypt.compare(password, user.passwordHash);
         // Verify password
         if (!isValid) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+
+        if (user.emailValidation != null) {
+            throw new AppError(StatusCodes.PRECONDITION_REQUIRED, "user not validated");
+        }
 
         // Generate JWT token
         const token: string = generateToken(user.accountName);

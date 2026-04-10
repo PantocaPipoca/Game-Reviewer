@@ -6,7 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { register, createGame } from "../helper/helper.ts";
 import { AuthResponse, UserData, UserFull } from "../../../src/types/Types.ts";
-import { fetchFullUser } from "../../../src/services/AccountService.ts";
+import { AccountService, fetchFullUser } from "../../../src/services/AccountService.ts";
 import { UserRepository } from "../../../src/Repository/UserRepository.ts";
 
 const app: Express = createApp();
@@ -194,6 +194,14 @@ describe("POST /api/users/login", () => {
         expect(res.body.status).toBe("success");
         expect(res.body.data.accountName).toBe(username);
         expect(res.body.data.token).toBeDefined();
+    });
+
+    it("returns PRECONDITION REQUIRED (that being email validation)", async () => {
+        await AccountService.registerUser(username, displayName, password, email, true);
+        await request(app)
+            .post("/api/users/login")
+            .send({ accountName: username, password })
+            .expect(StatusCodes.PRECONDITION_REQUIRED);
     });
 
     describe("validation BAD REQUESTS (400)", () => {

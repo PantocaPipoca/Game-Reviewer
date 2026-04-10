@@ -159,6 +159,18 @@ router.get("/validation", AccountController.validate);
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
+ *              428:
+ *                  description: "**Precondition Required** — user still needs confirmation email"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
  */
 router.post("/login", AccountController.login);
 
