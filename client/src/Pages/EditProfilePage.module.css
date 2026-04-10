@@ -167,8 +167,8 @@
 }
 
 .avatarSquare {
-    width: 140px;
-    height: 140px;
+    width: 180px;
+    height: 180px;
     border: var(--borderWidth) solid var(--border);
     overflow: hidden;
     flex-shrink: 0;
@@ -182,14 +182,16 @@
 
 .avatarButton {
     width: 100%;
-    padding: 0.5em 0.8em;
+    padding: 0.8em 1.7em;
     background-color: var(--secondaryPanel);
     box-sizing: border-box;
+    color: var(--cyan)
 }
 
 .nameGenderGroup {
     display: flex;
     flex-direction: column;
+    margin-top: var(--spacingMedium);
     gap: 20px;
     flex: 1;
     min-width: 0;
