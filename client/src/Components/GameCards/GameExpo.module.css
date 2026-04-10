@@ -1,0 +1,11 @@
+.video {
+    width: 190%;
+    aspect-ratio: 18 / 9;
+    margin-left: 5%;
+}
+
+.media {
+    width: 90%;
+    aspect-ratio: 16 / 9;
+    margin-left: 5%;
+}
