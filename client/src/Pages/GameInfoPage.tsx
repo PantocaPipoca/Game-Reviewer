@@ -269,6 +269,7 @@ function GameInfoPage() {
                                     rating={review.score}
                                     showUser
                                     userName={review.reviewer}
+                                    userAvatar={null} // TODO: fetch avatar
                                 />
                             ))}
 

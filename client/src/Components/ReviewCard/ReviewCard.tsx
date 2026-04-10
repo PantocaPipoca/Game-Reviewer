@@ -2,6 +2,7 @@ import style from "./ReviewCard.module.css";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
 import Star from "../Star/Star";
+import defaultAvatar from "../../Assets/default-pfp.png";
 
 const MAX_STARS = 5;
 
@@ -15,7 +16,7 @@ export type ReviewCardProps = {
 
     showUser?: boolean;
     userName?: string;
-    userAvatar?: string;
+    userAvatar?: string | null;
 };
 
 function normalizeRating(rating: number) {
@@ -48,7 +49,7 @@ function ReviewCard({
     rating = 0,
     showUser = false,
     userName = "######",
-    userAvatar = "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
+    userAvatar = null,
 }: ReviewCardProps) {
     const normalizedRating = normalizeRating(rating);
     const stars = getStars(normalizedRating);
@@ -58,7 +59,7 @@ function ReviewCard({
             <Panel type="secondary" direction="row" className={style.fullWidth}>
                 {showUser ? (
                     <div className={style.userBlock}>
-                        <img src={userAvatar} className={style.avatar} />
+                        <img src={userAvatar ?? defaultAvatar} alt={userName} className={style.avatar} />
                         <Text variant="body">{userName}</Text>
                     </div>
                 ) : (

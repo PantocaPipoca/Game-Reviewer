@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Panel from "../Components/Panel/Panel";
@@ -10,6 +10,7 @@ import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
 import { AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
 import type { UserMe } from "../API/Types";
+import defaultPfp from "../Assets/default-pfp.png";
 
 function EditProfilePage() {
     const navigate = useNavigate();
@@ -17,6 +18,11 @@ function EditProfilePage() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
     const [showConfirm, setShowConfirm] = useState(false);
+    const [pendingAvatar, setPendingAvatar] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    const [currentUsername, setCurrentUsername] = useState("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [displayName, setDisplayName] = useState("");
     const [gender, setGender] = useState("");
@@ -38,6 +44,8 @@ function EditProfilePage() {
                 return;
             }
             const me: UserMe = await UserAPI.getMe();
+            setCurrentUsername(me.accountName);
+            setAvatarUrl(me.profilePic ?? null);
             setDisplayName(me.userData?.displayName ?? "");
             setGender(me.userData?.gender ?? "");
             setEmail(me.email ?? "");
@@ -48,6 +56,14 @@ function EditProfilePage() {
         } finally {
             setLoading(false);
         }
+    }
+
+    function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setPendingAvatar(file);
+        setAvatarPreview(URL.createObjectURL(file));
+        if (fileInputRef.current) fileInputRef.current.value = "";
     }
 
     function handleSaveClick() {
@@ -71,14 +87,15 @@ function EditProfilePage() {
         setSaving(true);
         setShowConfirm(false);
         try {
+            if (pendingAvatar) {
+                const result = await UserAPI.uploadAvatar(pendingAvatar);
+                setAvatarUrl(result.url);
+                setPendingAvatar(null);
+            }
             await UserAPI.updateMe({
                 isPrivate,
                 email,
-                userData: {
-                    displayName,
-                    gender,
-                    bio,
-                },
+                userData: { displayName, gender, bio },
                 ...(password ? { password } : {}),
             });
             navigate(-1);
@@ -89,7 +106,7 @@ function EditProfilePage() {
         }
     }
 
-    if (loading) {
+    if (loading)
         return (
             <div>
                 <Navbar />
@@ -100,7 +117,6 @@ function EditProfilePage() {
                 </div>
             </div>
         );
-    }
 
     return (
         <div>
@@ -112,35 +128,61 @@ function EditProfilePage() {
                     </Text>
 
                     <div className={style.fields}>
-                        <div className={style.fieldGroup}>
-                            <Text>display name</Text>
-                            <InputField
-                                value={displayName}
-                                placeholder="display name..."
-                                onChange={(e) => setDisplayName(e.target.value)}
-                            />
-                        </div>
-                        <div className={style.fieldGroup}>
-                            <Text>gender</Text>
-                            <InputField
-                                value={gender}
-                                placeholder="gender (optional)..."
-                                onChange={(e) => setGender(e.target.value)}
-                            />
-                        </div>
-                        <div className={style.fieldGroup}>
-                            <Text>bio</Text>
-                            <div className={style.textareaWrapper}>
-                                <Text color="var(--mainText)">{`>`}</Text>
-                                <textarea
-                                    className={`body ${style.textarea}`}
-                                    value={bio}
-                                    placeholder="bio (optional)..."
-                                    onChange={(e) => setBio(e.target.value)}
-                                    rows={4}
+                        {/* Avatar + displayName + gender row */}
+                        <div className={style.topRow}>
+                            <div className={style.avatarSection}>
+                                <div className={style.avatarSquare}>
+                                    <img
+                                        src={avatarPreview ?? avatarUrl ?? defaultPfp}
+                                        alt="profile"
+                                        className={style.avatarImg}
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = defaultPfp;
+                                        }}
+                                    />
+                                </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    style={{ display: "none" }}
+                                    onChange={handleAvatarChange}
                                 />
+                                <Button className={style.avatarButton} onClick={() => fileInputRef.current?.click()}>
+                                    <Text>{`> CHANGE PIC`}</Text>
+                                </Button>
+                            </div>
+
+                            <div className={style.nameGenderGroup}>
+                                <div className={style.fieldGroup}>
+                                    <Text>display name</Text>
+                                    <InputField
+                                        value={displayName}
+                                        placeholder="display name..."
+                                        onChange={(e) => setDisplayName(e.target.value)}
+                                    />
+                                </div>
+                                <div className={style.fieldGroup}>
+                                    <Text>gender</Text>
+                                    <InputField
+                                        value={gender}
+                                        placeholder="gender (optional)..."
+                                        onChange={(e) => setGender(e.target.value)}
+                                    />
+                                </div>
                             </div>
                         </div>
+
+                        <div className={style.fieldGroup}>
+                            <Text>bio</Text>
+                            <InputField
+                                value={bio}
+                                placeholder="bio (optional)..."
+                                onChange={(e) => setBio(e.target.value)}
+                                multiline
+                            />
+                        </div>
+
                         <div className={style.fieldGroup}>
                             <Text>email</Text>
                             <InputField
@@ -168,6 +210,7 @@ function EditProfilePage() {
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                             />
                         </div>
+
                         <div className={style.fieldGroup}>
                             <Text>privacy</Text>
                             <div className={style.toggleRow} onClick={() => setIsPrivate((p) => !p)}>

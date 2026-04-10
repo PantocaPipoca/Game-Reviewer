@@ -12,7 +12,7 @@ import LogoutConfirmOverlay from "../LogoutConfirm/LogoutConfirm";
 import NotificationsOverlay from "../Notifications/NotificationsOverlay";
 import Button from "../Buttons/Button";
 import { useCloseOverlay } from "../../Hooks/CloseOverlay";
-
+import defaultPfp from "../../Assets/default-pfp.png";
 function BellIcon() {
     return (
         <svg
@@ -42,6 +42,7 @@ function Navbar() {
     const [showNotifications, setShowNotifications] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
     const bellRef = useRef<HTMLDivElement>(null);
+    const [avatar, setAvatar] = useState<string | null>(null);
 
     useCloseOverlay(() => setShowNotifications(false), bellRef);
     useCloseOverlay(() => setShowDropdown(false), profileRef);
@@ -55,6 +56,7 @@ function Navbar() {
                 if (authenticated) {
                     const me = await UserAPI.getMe();
                     setUsername(me.accountName);
+                    setAvatar(me.avatar ?? null);
                     try {
                         const pending = await FollowerAPI.getRequestsReceived();
                         setPendingCount(pending.length);
@@ -121,7 +123,14 @@ function Navbar() {
                                     setShowNotifications(false);
                                 }}
                             >
-                                <div className={style.profileAvatar} />
+                                <img
+                                    src={avatar ?? defaultPfp}
+                                    alt={username}
+                                    className={style.profileAvatar}
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).src = defaultPfp;
+                                    }}
+                                />
                                 <Text color="var(--mainText)">{username}</Text>
                             </Button>
 

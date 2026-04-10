@@ -45,4 +45,13 @@ export class UserAPI {
     static async getByUsername(username: string): Promise<UserPublic> {
         return CLIENT.get("/users/id/" + username);
     }
+
+    // accepts any file object from an <input type="file">
+    static async uploadAvatar(file: File): Promise<{ url: string }> {
+        const formData = new FormData();
+        formData.append("avatar", file);
+        return CLIENT.put("/users/me/avatar", formData, {
+            headers: { "Content-Type": undefined },
+        });
+    }
 }
