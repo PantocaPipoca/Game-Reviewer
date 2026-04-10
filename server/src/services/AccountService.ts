@@ -99,12 +99,13 @@ export class AccountService {
 
     /**
      * Creates a new user account with the provided information,
-     * hashes the password, and generates a JWT token for authentication
+     * hashes the password, and sends an email with the code for the verification process
      * @param username - username of the new account
      * @param displayName - display name for the user profile
      * @param password - plaintext password to be hashed and stored
      * @param email - email address of the user
-     * @returns AuthResponse object with token and user data
+     * @param requiresValidation - if false skips the verification and returns as a successful verification
+     * @returns string stating an email has been sent or AuthResponse object with token and user data during certain tests
      */
     static async registerUser(
         username: UserPK,
@@ -159,7 +160,9 @@ export class AccountService {
     }
 
     /**
-     * Verifies a user
+     * Verifies a previously registered user and returns an AuthResponse object with token
+     * @param username - username of the new account
+     * @param codeNum - code previously sent by email
      * @returns auth response with token
      */
     static async verify(accountName: string, codeNum: number): Promise<AuthResponse> {
@@ -179,7 +182,7 @@ export class AccountService {
     }
 
     /**
-     * Login user by verifying password and generating JWT token
+     * Login user by verifying password and if account is validated and generating JWT token
      * @param username - username of the account to login
      * @param password - plaintext password to verify against stored hash
      * @returns AuthResponse object with token and user data

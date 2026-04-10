@@ -7,6 +7,7 @@ import { Express } from "express";
 import { register, createGame } from "../helper/helper.ts";
 import { AuthResponse, UserData, UserFull } from "../../../src/types/Types.ts";
 import { fetchFullUser } from "../../../src/services/AccountService.ts";
+import { UserRepository } from "../../../src/Repository/UserRepository.ts";
 
 const app: Express = createApp();
 
@@ -27,7 +28,7 @@ describe("POST /api/users (register)", () => {
                 accountName: username,
                 displayName,
                 password,
-                email,
+                email: "support.gamereviewer@gmail.com",
             })
             .expect(StatusCodes.CREATED);
 
@@ -134,6 +135,48 @@ describe("POST /api/users (register)", () => {
                 })
                 .expect(StatusCodes.CONFLICT);
         });
+    });
+});
+
+// ============ Validation =============
+
+describe("GET /api/users/validation", () => {
+    it("returns OK and a token on correct parameters", async () => {
+        await request(app).post("/api/users").send({
+            accountName: username,
+            displayName,
+            password,
+            email: "support.gamereviewer@gmail.com",
+        });
+        const userFull = await UserRepository.selectUser(username);
+        await request(app)
+            .get(`/api/users/validation`)
+            .query({
+                user: username,
+                code: userFull?.emailValidation?.toString(),
+            })
+            .expect(StatusCodes.OK);
+    });
+    it("returns BAD REQUEST on wrong format parameters", async () => {
+        await request(app)
+            .get(`/api/users/validation`)
+            .query({
+                user: username,
+                code: "NaN",
+            })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+    it("returns BAD REQUEST on wrong missing parameters", async () => {
+        await request(app).get(`/api/users/validation`).expect(StatusCodes.BAD_REQUEST);
+    });
+    it("returns NOT FOUND on no match", async () => {
+        await request(app)
+            .get(`/api/users/validation`)
+            .query({
+                user: "IdontExist",
+                code: "123456",
+            })
+            .expect(StatusCodes.NOT_FOUND);
     });
 });
 

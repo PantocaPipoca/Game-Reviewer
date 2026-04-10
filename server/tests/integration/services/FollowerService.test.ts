@@ -14,7 +14,7 @@ describe("FollowerService (integration)", () => {
     // Auxiliary function, creates two private users, registers them and returns their usernames and emails
     async function registerUsersAux(): Promise<UserMicroPair> {
         const user1: UserMicro = makeSomeUser();
-        await AccountService.registerUser(user1.accountName, "USER1", "12345678", user1.email);
+        await AccountService.registerUser(user1.accountName, "USER1", "12345678", user1.email, false);
         await AccountService.alterUser(user1.accountName, true, user1.email, {
             displayName: "name",
             gender: null,
@@ -22,7 +22,7 @@ describe("FollowerService (integration)", () => {
         });
 
         const user2: UserMicro = makeSomeUser();
-        await AccountService.registerUser(user2.accountName, "USER2", "87654321", user2.email);
+        await AccountService.registerUser(user2.accountName, "USER2", "87654321", user2.email, false);
         await AccountService.alterUser(user2.accountName, true, user2.email, {
             displayName: "name2",
             gender: null,
@@ -114,7 +114,7 @@ describe("FollowerService (integration)", () => {
         // Register a target user
         const user: UserMicro = makeSomeUser();
         const us1: string = user.accountName;
-        await AccountService.registerUser(us1, "USER1", "12345678", user.email);
+        await AccountService.registerUser(us1, "USER1", "12345678", user.email, false);
         // Make target user private
         await AccountService.alterUser(us1, true, "1234email@email.com", {
             displayName: "USER1",
@@ -127,7 +127,7 @@ describe("FollowerService (integration)", () => {
         for (var i = 0; i < 8; i++) {
             const f: UserMicro = makeSomeUser();
             followers.push(f.accountName);
-            await AccountService.registerUser(f.accountName, "FOLLOWER" + i, "12345678", f.email);
+            await AccountService.registerUser(f.accountName, "FOLLOWER" + i, "12345678", f.email, false);
             await FollowerService.requestFollower(f.accountName, us1);
             await FollowerService.acceptFollower(us1, f.accountName);
         }
@@ -137,7 +137,7 @@ describe("FollowerService (integration)", () => {
         for (var i = 0; i < 6; i++) {
             const d: UserMicro = makeSomeUser();
             requests.push(d.accountName);
-            await AccountService.registerUser(d.accountName, "DUMMY" + i, "12345678", d.email);
+            await AccountService.registerUser(d.accountName, "DUMMY" + i, "12345678", d.email, false);
             await FollowerService.requestFollower(d.accountName, us1);
         }
 
@@ -160,14 +160,14 @@ describe("FollowerService (integration)", () => {
         // Registers a target user
         const user: UserMicro = makeSomeUser();
         const us1: string = user.accountName;
-        await AccountService.registerUser(us1, "USER1", "12345678", "us1@test.com");
+        await AccountService.registerUser(us1, "USER1", "12345678", "us1@test.com", false);
 
         // Registers a number of (private) users for the target user to follow
         const followed: string[] = [];
         for (var i = 0; i < 7; i++) {
             const f: UserMicro = makeSomeUser();
             followed.push(f.accountName);
-            await AccountService.registerUser(f.accountName, "FOLLOWED" + i, "12345678", f.email);
+            await AccountService.registerUser(f.accountName, "FOLLOWED" + i, "12345678", f.email, false);
             await AccountService.alterUser(f.accountName, true, f.email, {
                 displayName: "name",
                 gender: null,
@@ -182,7 +182,7 @@ describe("FollowerService (integration)", () => {
         for (var i = 0; i < 5; i++) {
             const d: UserMicro = makeSomeUser();
             requests.push(d.accountName);
-            await AccountService.registerUser(d.accountName, "DUMMY" + i, "12345678", d.email);
+            await AccountService.registerUser(d.accountName, "DUMMY" + i, "12345678", d.email, false);
             await AccountService.alterUser(d.accountName, true, d.email, {
                 displayName: "name",
                 gender: null,

@@ -37,21 +37,21 @@ export class AccountController {
     });
 
     /**
-     *
+     * Validates a registered user
+     * Used by GET /api/users/verification
+     * Does not require previous authentication
      */
-    static verify = asyncHandler(async (req: Request, res: Response) => {
+    static validate = asyncHandler(async (req: Request, res: Response) => {
         const { user, code } = req.query;
-        if (typeof user !== "string" || typeof code !== "string") {
+        if (typeof user !== "string" || typeof code !== "number") {
             throw new AppError(StatusCodes.BAD_REQUEST, "invalid parameters");
         }
-        try {
-            const codeNum: number = Number.parseInt(code);
-            const result: AuthResponse = await AccountService.verify(user, codeNum);
-            setAuthCookie(res, result.token);
-            return makeSuccess(res, StatusCodes.OK, result);
-        } catch {
-            throw new AppError(StatusCodes.BAD_REQUEST, "invalid parameters");
-        }
+
+        const codeNum: number = Number.parseInt(code);
+        if (!Number.isInteger(codeNum)) throw new AppError(StatusCodes.BAD_REQUEST, "invalid parameters");
+        const result: AuthResponse = await AccountService.verify(user, codeNum);
+        setAuthCookie(res, result.token);
+        return makeSuccess(res, StatusCodes.OK, result);
     });
 
     /**
