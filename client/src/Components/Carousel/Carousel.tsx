@@ -3,10 +3,17 @@ import Button from "../Buttons/Button";
 import style from "./Carousel.module.css";
 
 const FADE_TIME: number = 300;
+export const EXPO_VIDEO_TYPE: number = 1;
+export const EXPO_ART_TYPE: number = 2;
+
+type CarouselPort = {
+    node: ReactNode;
+    type?: number;
+};
 
 type CarouselProps<T> = {
     items: T[];
-    renderItem: (item: T) => ReactNode;
+    renderItem: (item: T) => CarouselPort;
     pageSize?: number;
     hasMore?: boolean;
     isLoading?: boolean;
@@ -30,7 +37,6 @@ function Carousel<T>({
     if (pageSize <= 0) pageSize = 1;
 
     const maxPage: number = Math.max(1, Math.ceil(items.length / pageSize));
-
     const canPrev: boolean = page > 1 && !isAnimating;
     const canNext: boolean = page < maxPage && !isAnimating;
 
@@ -69,20 +75,26 @@ function Carousel<T>({
     }
 
     const start: number = (page - 1) * pageSize;
+    const slice: CarouselPort[] = items.slice(start, start + pageSize).map((item) => renderItem(item));
+    const pickedStyle: number = slice.length != 1 || slice[0].type === undefined ? 0 : slice[0].type;
 
     return (
         <div className={style.frame}>
-            <div className={`${style.navButtonLeft}`}>
+            <div
+                className={`${pickedStyle == 0 ? style.navButtonLeft : pickedStyle == 1 ? style.navButtonLeftVideo : style.navButtonLeftArt}`}
+            >
                 <Button onClick={goPrev} disabled={!canPrev}>
                     {"<"}
                 </Button>
             </div>
 
             <div className={`${style.row} ${isFadingOut ? style.transparent : ""}`}>
-                {items.slice(start, start + pageSize).map((item) => renderItem(item))}
+                {slice.map((port) => port.node)}
             </div>
 
-            <div className={`${style.navButtonRight}`}>
+            <div
+                className={`${pickedStyle == 0 ? style.navButtonRight : pickedStyle == 1 ? style.navButtonRightVideo : style.navButtonRightArt}`}
+            >
                 <Button onClick={goNext} disabled={!canNext}>
                     {">"}
                 </Button>
