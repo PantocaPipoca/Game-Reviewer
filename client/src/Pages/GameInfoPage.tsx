@@ -10,8 +10,12 @@ import ReviewCard from "../Components/ReviewCard/ReviewCard";
 import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
-import { UserAPI } from "../API/User";
-import type { ReviewFull } from "../API/Types";
+import type { GameFull, ReviewFull } from "../API/Types";
+import Carousel, { EXPO_ART_TYPE, EXPO_VIDEO_TYPE } from "../Components/Carousel/Carousel";
+import type { GameExpoProps } from "../Components/GameCards/GameExpo";
+import GameExpo from "../Components/GameCards/GameExpo";
+
+const noCoverUrl: string = "https://vglist.co/assets/no-cover-5b40e3b1.png";
 
 type RatingType = "user" | "your" | "friends";
 
@@ -94,28 +98,38 @@ function InfoSection({ title, items }: infoItemProps) {
 
 function getCoverUrl(game: any): string {
     const url: string | undefined = game?.cover?.url;
-    if (!url) return "https://vglist.co/assets/no-cover-5b40e3b1.png";
-    const full = url.startsWith("//") ? `https:${url}` : url;
+    if (!url) return noCoverUrl;
+    const full: string = url.startsWith("//") ? `https:${url}` : url;
     return full.replace("t_thumb", "t_cover_big");
 }
 
 function getScreenshotUrl(screenshot: any): string {
     const url: string | undefined = screenshot?.url;
-    if (!url) return "https://vglist.co/assets/no-cover-5b40e3b1.png";
-    const full = url.startsWith("//") ? `https:${url}` : url;
+    if (!url) return noCoverUrl;
+    const full: string = url.startsWith("//") ? `https:${url}` : url;
     return full.replace("t_thumb", "t_screenshot_big");
 }
 
 function getArtworkUrl(artwork: any): string {
     const url: string | undefined = artwork?.url;
-    if (!url) return "https://vglist.co/assets/no-cover-5b40e3b1.png";
-    const full = url.startsWith("//") ? `https:${url}` : url;
+    if (!url) return noCoverUrl;
+    const full: string = url.startsWith("//") ? `https:${url}` : url;
     return full.replace("t_thumb", "t_1080p");
+}
+
+function getVideoObject(video: any): GameExpoProps {
+    const url: string | undefined = video?.video_id;
+    const name: string | undefined = video?.name;
+    if (!url || !name || url.startsWith("//")) return { url: noCoverUrl, isVideo: false } as GameExpoProps;
+    return {
+        url: `https://www.youtube.com/embed/${url}?enablejsapi=1`,
+        isVideo: true,
+    } as GameExpoProps;
 }
 
 function computeAverageScore(reviews: ReviewFull[]): number {
     if (reviews.length === 0) return 0;
-    const total = reviews.reduce((sum, r) => sum + r.score, 0);
+    const total: number = reviews.reduce((sum, r) => sum + r.score, 0);
     return parseFloat((total / reviews.length).toFixed(1));
 }
 
@@ -149,7 +163,7 @@ function GameInfoPage() {
                 ]);
 
                 if (gameResult.status === "fulfilled") {
-                    const igdbData = Array.isArray(gameResult.value)
+                    const igdbData: GameFull | null = Array.isArray(gameResult.value)
                         ? (gameResult.value[0] ?? null)
                         : (gameResult.value ?? null);
                     setGame(igdbData);
@@ -202,15 +216,17 @@ function GameInfoPage() {
         .map((ic: any) => ic.company?.name as string)
         .filter(Boolean);
 
-    // First artwork, then first screenshot
+    // Videos, followed by artworks, and finally screenshots
+    const videos: any[] = game?.videos ?? [];
     const artworks: any[] = game?.artworks ?? [];
     const screenshots: any[] = game?.screenshots ?? [];
-    const mediaUrl: string =
-        artworks.length > 0
-            ? getArtworkUrl(artworks[0])
-            : screenshots.length > 0
-              ? getScreenshotUrl(screenshots[0])
-              : "https://vglist.co/assets/no-cover-5b40e3b1.png";
+    let carouselItems: GameExpoProps[] = [];
+    videos.forEach((v) => carouselItems.push(getVideoObject(v)));
+    artworks.forEach((a) => carouselItems.push({ url: getArtworkUrl(a), isVideo: false }));
+    screenshots.forEach((s) => carouselItems.push({ url: getScreenshotUrl(s), isVideo: false }));
+
+    // If no media was found, insert no cover
+    if (carouselItems.length === 0) carouselItems.push({ url: noCoverUrl, isVideo: false });
 
     const averageScore: number = computeAverageScore(reviews);
 
@@ -270,9 +286,14 @@ function GameInfoPage() {
                         </div>
 
                         <div className={style.rightColumn}>
-                            <Panel type="secondary">
-                                <img src={mediaUrl} className={style.media} />
-                            </Panel>
+                            <Carousel
+                                items={carouselItems}
+                                pageSize={1}
+                                renderItem={(url) => ({
+                                    node: GameExpo(url),
+                                    type: url.isVideo ? EXPO_VIDEO_TYPE : EXPO_ART_TYPE,
+                                })}
+                            ></Carousel>
                             <Panel type="secondary">
                                 <div className={style.description}>
                                     {genres.length > 0 && <DescriptionField label="Genre" value={genres.join(", ")} />}

@@ -19,7 +19,7 @@ const POPULAR_GAMES: BigGameCardProps[] = [
             "https://images.igdb.com/igdb/image/upload/t_720p/fkbchtayhzmfnljfusel.webp",
             "https://images.igdb.com/igdb/image/upload/t_720p/loakfrjghok9fxnh59lt.webp",
         ],
-        gameID: 1,
+        gameID: 26226,
     },
     {
         name: "Hades",
@@ -32,7 +32,7 @@ const POPULAR_GAMES: BigGameCardProps[] = [
             "https://images.igdb.com/igdb/image/upload/t_720p/sc8lin.webp",
             "https://images.igdb.com/igdb/image/upload/t_720p/sc8lij.webp",
         ],
-        gameID: 2,
+        gameID: 113112,
     },
 ];
 
@@ -41,85 +41,85 @@ const RECOMENDED: GameCardProps[] = [
         name: "Blasphemous",
         rating: 5.0,
         cover: "https://upload.wikimedia.org/wikipedia/en/c/cd/Blasphemous_%28video_game%29.jpg",
-        gameID: 3,
+        gameID: 26820,
     },
     {
-        name: "Hollow Knight",
+        name: "Hollow Knight: Lifeblood",
         rating: 4.9,
         cover: "https://m.media-amazon.com/images/M/MV5BMGIyYmJmZDgtOWQ1Ny00NDFiLTk2OTgtM2Q2ZWQ4OWIxZjg3XkEyXkFqcGc@._V1_.jpg",
-        gameID: 4,
+        gameID: 14593,
     },
     {
         name: "Celeste",
         rating: 4.8,
         cover: "https://upload.wikimedia.org/wikipedia/commons/0/0f/Celeste_box_art_full.png",
-        gameID: 1,
+        gameID: 26226,
     },
     {
         name: "Dead Cells",
         rating: 4.7,
         cover: "https://upload.wikimedia.org/wikipedia/en/thumb/1/1f/Dead_cells_cover_art.png/250px-Dead_cells_cover_art.png",
-        gameID: 5,
+        gameID: 26855,
     },
     {
         name: "Hades",
         rating: 4.9,
         cover: "https://upload.wikimedia.org/wikipedia/en/c/cc/Hades_cover_art.jpg",
-        gameID: 2,
+        gameID: 113112,
     },
     {
         name: "Ori and the Will of the Wisps",
         rating: 4.8,
         cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2e1l.webp",
-        gameID: 6,
+        gameID: 37001,
     },
     {
         name: "Shovel Knight",
         rating: 4.7,
         cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/cobaa7.webp",
-        gameID: 7,
+        gameID: 7444,
     },
     {
         name: "Stardew Valley",
         rating: 4.9,
         cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/coa93h.webp",
-        gameID: 8,
+        gameID: 17000,
     },
     {
         name: "Undertale",
         rating: 4.8,
         cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/cob1t2.webp",
-        gameID: 9,
+        gameID: 12517,
     },
     {
         name: "Katana ZERO",
         rating: 4.7,
         cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1isp.webp",
-        gameID: 10,
+        gameID: 20150,
     },
     {
         name: "Axiom Verge",
         rating: 4.6,
         cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1kml.webp",
-        gameID: 11,
+        gameID: 8652,
     },
     {
         name: "Rain World",
         rating: 4.6,
         cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co24pm.webp",
-        gameID: 12,
+        gameID: 14761,
     },
     {
         name: "Hyper Light Drifter",
         rating: 4.7,
         cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2edn.webp",
-        gameID: 13,
+        gameID: 9806,
     },
     {
         name: "Dandara",
         rating: 4.5,
         cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1tvu.webp",
-        gameID: 14,
+        gameID: 27435,
     },
 ];
 
@@ -128,31 +128,31 @@ const FRIEND_RECOMENDED: GameCardProps[] = [
         name: "Elden Ring",
         rating: 4.9,
         cover: "https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring_Box_art.jpg",
-        gameID: 15,
+        gameID: 119133,
     },
     {
         name: "Dark Souls III",
         rating: 4.8,
         cover: "https://m.media-amazon.com/images/M/MV5BNzQzODQ3YzktNTM1Yy00NmNmLTk3NTItNGVlY2M1MzI4MjQ0XkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg",
-        gameID: 16,
+        gameID: 11133,
     },
     {
-        name: "Sekiro",
+        name: "Sekiro: Shadows Die Twice",
         rating: 4.8,
         cover: "https://upload.wikimedia.org/wikipedia/en/6/6e/Sekiro_art.jpg",
-        gameID: 17,
+        gameID: 76882,
     },
     {
         name: "Cuphead",
         rating: 4.7,
         cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm4TDov1aLCggQZLcimMB2D-i36w1lkfN_0w&s",
-        gameID: 18,
+        gameID: 9061,
     },
     {
         name: "Disco Elysium",
         rating: 4.9,
         cover: "https://upload.wikimedia.org/wikipedia/en/0/0d/Disco_Elysium_Poster.jpeg",
-        gameID: 19,
+        gameID: 26472,
     },
 ];
 
@@ -180,18 +180,21 @@ function MainPage() {
                         <Carousel
                             items={POPULAR_GAMES}
                             pageSize={1}
-                            renderItem={(game) => <BigGameCard key={game.name} {...game} />}
+                            renderItem={(game) => ({ node: <BigGameCard key={game.name} {...game} /> })}
                         />
                     </Section>
                     <hr />
                     <Section title="Recomended to you" href="#">
-                        <Carousel items={RECOMENDED} renderItem={(game) => <GameCard key={game.name} {...game} />} />
+                        <Carousel
+                            items={RECOMENDED}
+                            renderItem={(game) => ({ node: <GameCard key={game.name} {...game} /> })}
+                        />
                     </Section>
                     <hr />
                     <Section title="Popular with your friends" href="#">
                         <Carousel
                             items={FRIEND_RECOMENDED}
-                            renderItem={(game) => <GameCard key={game.name} {...game} />}
+                            renderItem={(game) => ({ node: <GameCard key={game.name} {...game} /> })}
                         />
                     </Section>
                 </Panel>
