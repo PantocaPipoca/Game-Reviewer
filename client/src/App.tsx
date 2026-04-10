@@ -8,6 +8,8 @@ import UserPage from "./Pages/UserPage";
 import EditProfilePage from "./Pages/EditProfilePage";
 import GameInfoPage from "./Pages/GameInfoPage";
 import CreateReviewPage from "./Pages/CreateReviewPage";
+import EditReviewPage from "./Pages/EditReviewPage";
+import ReviewPage from "./Pages/ReviewPage";
 import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
@@ -30,6 +32,15 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="/game/:gameID/review/edit"
+                    element={
+                        <ProtectedRoute>
+                            <EditReviewPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route path="/review/:reviewer/:reviewed" element={<ReviewPage />} />
             </Routes>
         </div>
     );

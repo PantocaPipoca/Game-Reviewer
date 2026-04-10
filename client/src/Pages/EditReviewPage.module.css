@@ -35,12 +35,10 @@
     margin-top: calc(-1 * var(--spacingSmall));
     margin-bottom: var(--spacingSmall);
 }
-
 .cover {
     aspect-ratio: 3 / 4;
     margin: var(--spacingSmall);
 }
-
 .rightPanel {
     padding: var(--spacingMedium);
     gap: var(--spacingMedium);
@@ -52,60 +50,51 @@
     flex: 1;
     min-width: 0;
 }
-
 .topBlock {
     display: flex;
     flex-direction: row;
     gap: var(--spacingMedium);
 }
-
 .avatarBlock {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--spacingSmall);
 }
-
 .avatar {
     width: 140px;
     aspect-ratio: 1 / 1;
     border: var(--borderWidth) solid var(--border);
 }
-
 .starsRow {
     display: flex;
     align-items: center;
     gap: 4px;
     height: 42px;
 }
-
 .starButton {
     border: none;
-    background: transparent;
+    background: none;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
 }
-
 .metaStack {
     display: flex;
     flex-direction: column;
     gap: var(--spacingSmall);
 }
-
 .fieldRow {
     display: flex;
     align-items: center;
     gap: var(--spacingSmall);
 }
-
 .fieldLabel {
     width: 150px;
     flex-shrink: 0;
 }
-
 .fieldValue {
     flex: 1;
     display: flex;
@@ -113,7 +102,6 @@
     min-width: 0;
     gap: var(--spacingSmall);
 }
-
 .toggle {
     width: 36px;
     height: 18px;
@@ -124,7 +112,6 @@
     cursor: pointer;
     transition: border-color 0.15s ease;
 }
-
 .toggle::after {
     content: "";
     position: absolute;
@@ -137,21 +124,61 @@
         transform 0.15s ease,
         background-color 0.15s ease;
 }
-
 .toggleOn {
     border-color: var(--green);
 }
-
 .toggleOn::after {
     transform: translateX(18px);
     background-color: var(--green);
 }
-
 .reviewInputStack {
     width: 100%;
 }
-
 .submitButton {
     width: 100%;
     margin: var(--spacingMedium);
+}
+
+.headerRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: var(--spacingMedium);
+}
+.deleteButton {
+    border-color: var(--pink);
+    padding: var(--spacingSmall) var(--spacingMedium);
+}
+.overlayBackdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+}
+.confirmPanel {
+    width: 420px !important;
+    gap: var(--spacingMedium);
+    align-items: flex-start;
+}
+.confirmButtons {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacingMedium);
+    margin-top: var(--spacingSmall);
+    width: 100%;
+}
+.confirmDeleteButton {
+    flex: 1;
+    border-color: var(--pink);
+    padding: var(--spacingSmall) var(--spacingMedium);
+    white-space: nowrap;
+}
+.cancelButton {
+    flex: 1;
+    padding: var(--spacingSmall) var(--spacingMedium);
+    white-space: nowrap;
 }

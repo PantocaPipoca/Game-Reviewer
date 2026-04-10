@@ -1,22 +1,24 @@
 import style from "./ReviewCard.module.css";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
-import Star from "../Star/Star";
-import defaultAvatar from "../../Assets/default-pfp.png";
+import Star from "../SVGs/Star";
+import Upvote from "../SVGs/Upvote";
+import Downvote from "../SVGs/Downvote";
+import { Link, useNavigate } from "react-router-dom";
 
 const MAX_STARS = 5;
 
 export type ReviewCardProps = {
     cover?: string;
-    title?: string;
     description?: string;
     upvotes?: number;
     downvotes?: number;
     rating?: number;
-
     showUser?: boolean;
     userName?: string;
-    userAvatar?: string | null;
+    userAvatar?: string;
+    reviewer: string;
+    reviewed: number;
 };
 
 function normalizeRating(rating: number) {
@@ -42,52 +44,59 @@ function getStars(rating: number): ("full" | "half" | "empty")[] {
 
 function ReviewCard({
     cover = "https://vglist.co/assets/no-cover-5b40e3b1.png",
-    title = "###",
     description = "###",
     upvotes = 0,
     downvotes = 0,
     rating = 0,
     showUser = false,
     userName = "######",
-    userAvatar = null,
+    userAvatar = "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
+    reviewer,
+    reviewed,
 }: ReviewCardProps) {
     const normalizedRating = normalizeRating(rating);
     const stars = getStars(normalizedRating);
+    const navigate = useNavigate();
+
+    function handleUserClick() {
+        navigate(`/user/${reviewer}`);
+    }
 
     return (
         <div className={style.panel}>
             <Panel type="secondary" direction="row" className={style.fullWidth}>
                 {showUser ? (
-                    <div className={style.userBlock}>
-                        <img src={userAvatar ?? defaultAvatar} alt={userName} className={style.avatar} />
-                        <Text variant="body">{userName}</Text>
+                    <div className={style.userBlock} onClick={handleUserClick} role="button" tabIndex={0}>
+                        <img src={userAvatar} className={style.avatar} />
+                        <Text variant="h3">{userName}</Text>
                     </div>
                 ) : (
                     <img src={cover} className={style.cover} />
                 )}
 
                 <div className={style.infoColumn}>
-                    <div className={style.topRow}>
-                        <Text variant="h2">{title}</Text>
-
-                        <div className={style.stars}>
-                            {stars.map((type, index) => (
-                                <Star key={index} type={type} size={18} />
-                            ))}
-                        </div>
+                    <div className={style.stars}>
+                        {stars.map((type, index) => (
+                            <Star key={index} type={type} size={32} />
+                        ))}
                     </div>
 
-                    <Text variant="body">{description}</Text>
+                    <Text variant="body" className={style.description}>
+                        {description}
+                    </Text>
 
                     <div className={style.bottomRow}>
-                        <a href="/review/yah" className={style.seeMore}>
-                            <Text color="var(--pink)">{`> `}See More</Text>
-                        </a>
-
-                        <img src="https://cdn-icons-png.flaticon.com/512/889/889140.png" className={style.upVote} />
-                        <Text variant="h3">{upvotes}</Text>
-                        <img src="https://cdn-icons-png.flaticon.com/512/8255/8255194.png" className={style.upVote} />
-                        <Text variant="h3">{downvotes}</Text>
+                        <Link to={`/review/${reviewer}/${reviewed}`} className={style.seeMore}>
+                            <Text variant="h3" color="var(--pink)">
+                                {`> `}See More
+                            </Text>
+                        </Link>
+                        <div className={style.voteActions}>
+                            <Upvote className={style.upVote} color="var(--mainText)" />
+                            <Text variant="h3">{upvotes}</Text>
+                            <Downvote className={style.upVote} color="var(--mainText)" />
+                            <Text variant="h3">{downvotes}</Text>
+                        </div>
                     </div>
                 </div>
             </Panel>

@@ -4,7 +4,11 @@
 }
 
 .navButtonLeft,
-.navButtonRight {
+.navButtonRight,
+.navButtonLeftVideo,
+.navButtonLeftArt,
+.navButtonRight,
+.navButtonRightArt {
     position: absolute;
     top: 50%;
 }
@@ -28,4 +32,24 @@
 
 .transparent {
     opacity: 0;
+}
+
+.navButtonLeftVideo {
+    left: 0px;
+    transform: translate(-10%, -100%);
+}
+
+.navButtonRightVideo {
+    right: 0px;
+    transform: translate(192%, -346%);
+}
+
+.navButtonLeftArt {
+    left: 0px;
+    transform: translate(-10%, -50%);
+}
+
+.navButtonRightArt {
+    right: 0px;
+    transform: translate(10%, -50%);
 }
