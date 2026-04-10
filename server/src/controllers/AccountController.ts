@@ -159,4 +159,19 @@ export class AccountController {
         const result: (UserPublic | UserPrivate)[] = await AccountService.searchUsersByName(sanitized, currentUser);
         return makeSuccess(res, StatusCodes.OK, result);
     });
+
+    static uploadAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser = extractLoggedUser(req);
+        if (!req.file) throw new AppError(StatusCodes.BAD_REQUEST, "No file provided");
+        const url = await AccountService.uploadAvatar(currentUser, req.file.buffer);
+        return makeSuccess(res, StatusCodes.OK, { url });
+    });
+
+    static getAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const username = req.params["username"];
+        if (!username || typeof username !== "string")
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        const url = await AccountService.getAvatar(username);
+        res.redirect(url);
+    });
 }

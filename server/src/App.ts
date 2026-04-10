@@ -86,6 +86,7 @@ export function createApp(): Express {
             validateRequests: true,
             validateResponses: true,
             validateSecurity: false,
+            ignorePaths: /\/users\/(me\/avatar|id\/.*\/avatar)/, // ignore /users/me/avatar and /users/id/{id}/avatar
         })
     );
 
