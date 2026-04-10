@@ -10,7 +10,7 @@ function GameExpo({ isVideo, url }: GameExpoProps) {
         // Handles videos
         return (
             <div className={style.video}>
-                <iframe className={style.video} width="640" height="220%" src={url}></iframe>
+                <iframe className={style.video} src={url}></iframe>
             </div>
         );
     } else {
