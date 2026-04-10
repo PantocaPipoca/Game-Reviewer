@@ -11,6 +11,7 @@ import { isAuthenticated } from "../API/Auth";
 import { AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
 import type { UserMe } from "../API/Types";
 import defaultPfp from "../Assets/default-pfp.png";
+import { sanitizeImageUrl } from "../Utils";
 
 function EditProfilePage() {
     const navigate = useNavigate();
@@ -45,7 +46,7 @@ function EditProfilePage() {
             }
             const me: UserMe = await UserAPI.getMe();
             setCurrentUsername(me.accountName);
-            setAvatarUrl(me.profilePic ?? null);
+            setAvatarUrl(sanitizeImageUrl(me.avatar) ?? null);
             setDisplayName(me.userData?.displayName ?? "");
             setGender(me.userData?.gender ?? "");
             setEmail(me.email ?? "");

@@ -269,7 +269,7 @@ function Search() {
                                 >
                                     <img
                                         className={style.avatar}
-                                        src={user.profilePic ?? defaultPfp}
+                                        src={user.avatar ?? defaultPfp}
                                         alt={user.accountName}
                                     />
                                     <Text className={style.name} variant="body">
