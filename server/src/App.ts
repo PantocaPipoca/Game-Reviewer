@@ -12,6 +12,7 @@ import { doubleCsrf } from "csrf-csrf";
 import { middleware as openAPIValidator } from "express-openapi-validator";
 import pinoHttp from "pino-http";
 import logger from "./Logger.js";
+import { register, httpRequestDuration, httpRequestsTotal } from "./utils/Metrics.js";
 
 export function createApp(): Express {
     const app: Express = express();
@@ -25,6 +26,18 @@ export function createApp(): Express {
             },
         })
     );
+
+    app.use((req, res, next) => {
+        const start = Date.now();
+        res.on("finish", () => {
+            const duration = (Date.now() - start) / 1000;
+            const route = req.route?.path ?? req.path;
+            const labels = { method: req.method, route, status_code: res.statusCode };
+            httpRequestDuration.observe(labels, duration);
+            httpRequestsTotal.inc(labels);
+        });
+        next();
+    });
 
     app.use(
         cors({
@@ -82,8 +95,12 @@ export function createApp(): Express {
     // Big int to string
     app.set("json replacer", (_key: string, value: any) => (typeof value === "bigint" ? value.toString() : value));
 
-    // Health check
     app.get("/api/health", (_, res) => res.json({ status: "ok", message: "Game Reviewer API" }));
+
+    app.get("/api/metrics", async (_req, res) => {
+        res.set("Content-Type", register.contentType);
+        res.end(await register.metrics());
+    });
 
     // Swagger docs
     if (process.env["NODE_ENV"] !== "production") {
