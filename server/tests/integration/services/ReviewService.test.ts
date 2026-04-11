@@ -107,7 +107,7 @@ describe("ReviewService (integration)", () => {
         const game: GameFull = await createGame();
         for (var i = 0; i < 5; i++) {
             await createGame();
-            await AccountService.registerUser("user" + i, "", "12345678", `username${i}@gmail.com`);
+            await AccountService.registerUser("user" + i, "", "12345678", `username${i}@gmail.com`, false);
             await ReviewService.publishReview("user" + i, game.gameID, "" + i, i);
         }
 

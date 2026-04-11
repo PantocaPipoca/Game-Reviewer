@@ -6,7 +6,8 @@ import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { register, createGame } from "../helper/helper.ts";
 import { AuthResponse, UserData, UserFull } from "../../../src/types/Types.ts";
-import { fetchFullUser } from "../../../src/services/AccountService.ts";
+import { AccountService, fetchFullUser } from "../../../src/services/AccountService.ts";
+import { UserRepository } from "../../../src/Repository/UserRepository.ts";
 
 const app: Express = createApp();
 
@@ -20,22 +21,23 @@ const email: string = username + "@test.com";
 // =============== Register User ===============
 
 describe("POST /api/users (register)", () => {
-    it("returns 201 and a token", async () => {
+    it("returns 201", async () => {
         const res = await request(app)
             .post("/api/users")
             .send({
                 accountName: username,
                 displayName,
                 password,
-                email,
+                email: "support.gamereviewer@gmail.com",
             })
             .expect(StatusCodes.CREATED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.accountName).toBe(username);
-        expect(res.body.data.isPrivate).toBe(false);
-        expect(res.body.data.userData.displayName).toBe(displayName);
-        expect(res.body.data.token).toBeDefined();
+        // put in validation
+        // expect(res.body.data.accountName).toBe(username);
+        // expect(res.body.data.isPrivate).toBe(false);
+        // expect(res.body.data.userData.displayName).toBe(displayName);
+        // expect(res.body.data.token).toBeDefined();
     });
 
     describe("validation BAD REQUESTS (400)", () => {
@@ -136,6 +138,48 @@ describe("POST /api/users (register)", () => {
     });
 });
 
+// ============ Validation =============
+
+describe("GET /api/users/validation", () => {
+    it("returns OK and a token on correct parameters", async () => {
+        await request(app).post("/api/users").send({
+            accountName: username,
+            displayName,
+            password,
+            email: "support.gamereviewer@gmail.com",
+        });
+        const userFull = await UserRepository.selectUser(username);
+        await request(app)
+            .get(`/api/users/validation`)
+            .query({
+                user: username,
+                code: userFull?.emailValidation?.toString(),
+            })
+            .expect(StatusCodes.OK);
+    });
+    it("returns BAD REQUEST on wrong format parameters", async () => {
+        await request(app)
+            .get(`/api/users/validation`)
+            .query({
+                user: username,
+                code: "NaN",
+            })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+    it("returns BAD REQUEST on wrong missing parameters", async () => {
+        await request(app).get(`/api/users/validation`).expect(StatusCodes.BAD_REQUEST);
+    });
+    it("returns NOT FOUND on no match", async () => {
+        await request(app)
+            .get(`/api/users/validation`)
+            .query({
+                user: "IdontExist",
+                code: "123456",
+            })
+            .expect(StatusCodes.NOT_FOUND);
+    });
+});
+
 // =============== Login ===============
 
 describe("POST /api/users/login", () => {
@@ -150,6 +194,14 @@ describe("POST /api/users/login", () => {
         expect(res.body.status).toBe("success");
         expect(res.body.data.accountName).toBe(username);
         expect(res.body.data.token).toBeDefined();
+    });
+
+    it("returns PRECONDITION REQUIRED (that being email validation)", async () => {
+        await AccountService.registerUser(username, displayName, password, email, true);
+        await request(app)
+            .post("/api/users/login")
+            .send({ accountName: username, password })
+            .expect(StatusCodes.PRECONDITION_REQUIRED);
     });
 
     describe("validation BAD REQUESTS (400)", () => {

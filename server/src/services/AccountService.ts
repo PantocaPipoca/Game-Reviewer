@@ -8,6 +8,21 @@ import { UserData, UserFull, UserPK, AuthResponse, UserPublic, UserPrivate, User
 import { FollowerRepository } from "../Repository/FollowerRepository";
 import { uploadAvatar } from "../utils/Cloudinary";
 
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
+
+const EMAIL = process.env["EMAIL"];
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: EMAIL,
+        pass: process.env["EMAIL_PASSWORD"],
+    },
+});
+
 const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
 
 /**
@@ -85,21 +100,21 @@ export class AccountService {
 
     /**
      * Creates a new user account with the provided information,
-     * hashes the password, and generates a JWT token for authentication
+     * hashes the password, and sends an email with the code for the verification process
      * @param username - username of the new account
      * @param displayName - display name for the user profile
      * @param password - plaintext password to be hashed and stored
      * @param email - email address of the user
-     * @returns AuthResponse object with token and user data
+     * @param requiresValidation - if false skips the verification and returns as a successful verification
+     * @returns string stating an email has been sent or AuthResponse object with token and user data during certain tests
      */
     static async registerUser(
-        // this will create a pending user instead
-        // there will be a new route to officialize that user
         username: UserPK,
         displayName: string,
         password: string,
-        email: string
-    ): Promise<AuthResponse> {
+        email: string,
+        requiresValidation: boolean
+    ): Promise<AuthResponse | string> {
         // Check if username is being used
         const existingUser: UserFull | null = await UserRepository.selectUser(username);
         if (existingUser) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.ACCOUNT_ALREADY_EXISTS);
@@ -126,44 +141,49 @@ export class AccountService {
         });
 
         // send email to newUser.email with newUser.emailValidation
-
-        // generate JWT token
-        const token: string = generateToken(newUser.accountName);
-        // dont generate token tho
-
-        return {
-            accountName: newUser.accountName,
-            isPrivate: newUser.isPrivate,
-            userData: newUser.userData as UserData,
-            createdAt: newUser.createdAt,
-            token,
-        } as AuthResponse;
-        // return `a confirmation has been sent to ${newUser.email}`
+        if (requiresValidation) {
+            try {
+                await transporter.sendMail({
+                    to: newUser.email,
+                    subject: "GameReviewer+ registration",
+                    html: `<h1>${newUser.emailValidation}</h1>`,
+                });
+            } catch (err) {
+                throw new AppError(
+                    StatusCodes.SERVICE_UNAVAILABLE,
+                    "gmail or connection to it is having some problems"
+                );
+            }
+            return newUser.accountName;
+        } else {
+            return AccountService.verify(newUser.accountName, newUser.emailValidation as number);
+        }
     }
 
     /**
-     * Verifies a user
-     * @returns auth response with token or failed verification
+     * Verifies a previously registered user and returns an AuthResponse object with token
+     * @param username - username of the new account
+     * @param codeNum - code previously sent by email
+     * @returns auth response with token
      */
-    static async verify(accountName: string, codeNum: number) {
-        await UserRepository.verify(accountName, codeNum)
-            .then((validatedUser) => {
-                const token = generateToken(validatedUser.accountName);
-                return {
-                    accountName: validatedUser.accountName,
-                    isPrivate: validatedUser.isPrivate,
-                    userData: validatedUser.userData as UserData,
-                    createdAt: validatedUser.createdAt,
-                    token,
-                } as AuthResponse;
-            })
-            .catch((err) => {
-                throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.INVALID_CREDENTIALS);
-            });
+    static async verify(accountName: string, codeNum: number): Promise<AuthResponse> {
+        try {
+            const validatedUser: UserFull = await UserRepository.verify(accountName, codeNum);
+            const token = generateToken(validatedUser.accountName);
+            return {
+                accountName: validatedUser.accountName,
+                isPrivate: validatedUser.isPrivate,
+                userData: validatedUser.userData as UserData,
+                createdAt: validatedUser.createdAt,
+                token,
+            } as AuthResponse;
+        } catch (err) {
+            throw new AppError(StatusCodes.NOT_FOUND, "wrong code");
+        }
     }
 
     /**
-     * Login user by verifying password and generating JWT token
+     * Login user by verifying password and if account is validated and generating JWT token
      * @param username - username of the account to login
      * @param password - plaintext password to verify against stored hash
      * @returns AuthResponse object with token and user data
@@ -176,6 +196,10 @@ export class AccountService {
         const isValid: boolean = await bcrypt.compare(password, user.passwordHash);
         // Verify password
         if (!isValid) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+
+        if (user.emailValidation != null) {
+            throw new AppError(StatusCodes.PRECONDITION_REQUIRED, "user not validated");
+        }
 
         // Generate JWT token
         const token: string = generateToken(user.accountName);

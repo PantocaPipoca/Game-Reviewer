@@ -46,6 +46,8 @@ jobs:
             NODE_ENV: test
             IGDB_CLIENT_ID: ${{ secrets.IGDB_CLIENT_ID }}
             IGDB_CLIENT_SECRET: ${{ secrets.IGDB_CLIENT_SECRET }}
+            EMAIL: ${{ secrets.EMAIL }}
+            EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
             CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
             CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
             CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}

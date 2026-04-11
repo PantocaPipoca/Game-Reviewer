@@ -12,12 +12,13 @@ export async function register(
     password: string,
     email: string
 ): Promise<AuthResponse> {
-    const res = await request(app)
-        .post("/api/users")
-        .send({ accountName, displayName, password, email })
-        .expect(StatusCodes.CREATED);
+    return (await AccountService.registerUser(accountName, displayName, password, email, false)) as AuthResponse;
+    // const res = await request(app)
+    //     .post("/api/users")
+    //     .send({ accountName, displayName, password, email })
+    //     .expect(StatusCodes.CREATED);
 
-    return res.body.data as AuthResponse;
+    // return res.body.data as AuthResponse;
 }
 
 // Username-email pair utility
@@ -36,7 +37,7 @@ export function makeSomeUser(): UserMicro {
 // Short-hand for registering a user, for tests
 export async function quickRegisterUser(): Promise<string> {
     const user: UserMicro = makeSomeUser();
-    await AccountService.registerUser(user.accountName, "", "aaaaaaaa", user.email);
+    await AccountService.registerUser(user.accountName, "", "aaaaaaaa", user.email, false);
     return user.accountName;
 }
 

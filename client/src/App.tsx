@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import LoginPage from "./Pages/LoginPage";
 import MainPage from "./Pages/MainPage";
 import RegisterPage from "./Pages/RegisterPage";
+import ValidationPage from "./Pages/ValidationPage";
 import SearchResultsPage from "./Pages/SearchResultsPage";
 import SearchUsersPage from "./Pages/SearchUsersPage";
 import UserPage from "./Pages/UserPage";
@@ -19,6 +20,7 @@ function App() {
                 <Route path="/" element={<MainPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
+                <Route path="validation" element={<ValidationPage />} />
                 <Route path="search/games" element={<SearchResultsPage />} />
                 <Route path="search/users" element={<SearchUsersPage />} />
                 <Route path="/user/:username" element={<UserPage />} />
