@@ -12,7 +12,7 @@ on:
 # workflow
 permissions:
     contents: read
-    issues: write
+    #issues: write
 
 jobs:
     zap_api:
