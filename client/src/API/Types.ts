@@ -8,7 +8,7 @@ export type UserData = {
 
 export type UserPublic = {
     accountName: string;
-    profilePic: string | null;
+    avatar: string | null;
     isPrivate: boolean;
     createdAt: string;
     userData: UserData;
@@ -16,20 +16,19 @@ export type UserPublic = {
 
 export type UserPrivate = {
     accountName: string;
-    profilePic: string | null;
+    avatar: string | null;
     isPrivate: boolean;
 };
 
 export type UserMe = {
     accountName: string;
     email: string;
-    profilePic: string | null;
+    avatar: string | null;
     isPrivate: boolean;
     createdAt: string;
     userData: UserData;
 };
 
-// Matches backend AuthResponse
 export type AuthResponse = UserPublic & {
     token: string;
 };
@@ -42,11 +41,25 @@ export type GameFull = {
     metadata: unknown;
 };
 
-// Backend GameShort equivalent for search/UI usage
 export type GameSearchResult = {
     id: number;
     name: string;
     cover?: string;
+};
+
+export type GameCover = {
+    id: number;
+    name: string;
+    cover: {
+        id: number;
+        alpha_channel: boolean;
+        animated: boolean;
+        game: number;
+        height: number;
+        image_id: string;
+        url: string;
+        width: number;
+    };
 };
 
 // ===================== Review Types =====================
@@ -79,7 +92,6 @@ export type CommentFull = {
     updatedAt: string;
 };
 
-// Matches CommentShort
 export type CommentShort = {
     commentator: string;
     reviewer: string;
@@ -89,15 +101,23 @@ export type CommentShort = {
 
 // ===================== Follower Types =====================
 
-export type FollowerFull = {
+export type FollowerPublic = {
     follows: string;
     followed: string;
     accepted: boolean;
     createdAt: string;
     updatedAt: string;
+
+    // match backend include structure
+    followedUser?: {
+        avatar: string | null;
+    };
+
+    followsUser?: {
+        avatar: string | null;
+    };
 };
 
-// Matches FollowerShort
 export type FollowerShort = {
     follows: string;
     followed: string;
@@ -116,22 +136,4 @@ export type LikeShort = {
 export type ReactionResponse = {
     likes: number;
     dislikes: number;
-};
-
-// ===================== Extra =====================
-
-// Matches backend GameCover
-export type GameCover = {
-    id: number;
-    name: string;
-    cover: {
-        id: number;
-        alpha_channel: boolean;
-        animated: boolean;
-        game: number;
-        height: number;
-        image_id: string;
-        url: string;
-        width: number;
-    };
 };

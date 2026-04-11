@@ -150,3 +150,49 @@
 .popUpConfirmButton:hover {
     opacity: 0.8;
 }
+
+.topRow {
+    display: flex;
+    gap: var(--spacingMedium);
+    align-items: flex-start;
+    width: 100%;
+}
+
+.avatarSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingSmall);
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.avatarSquare {
+    width: 180px;
+    height: 180px;
+    border: var(--borderWidth) solid var(--border);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.avatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatarButton {
+    width: 100%;
+    padding: 0.8em 1.7em;
+    background-color: var(--secondaryPanel);
+    box-sizing: border-box;
+    color: var(--cyan)
+}
+
+.nameGenderGroup {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--spacingMedium);
+    gap: 20px;
+    flex: 1;
+    min-width: 0;
+}

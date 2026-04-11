@@ -7,7 +7,7 @@ import style from "./UserPage.module.css";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
 import type { ReviewFull, UserPublic } from "../API/Types";
-import defaultPfp from "../Assets/default-pfp.png";
+import defaultAvatar from "../Assets/default-pfp.png";
 import Button from "../Components/Buttons/Button";
 import { FollowerAPI } from "../API/Follower";
 import { ReviewAPI } from "../API/Reviews";
@@ -200,7 +200,11 @@ function UserPage() {
                         <div className={style.leftColumn}>
                             <Panel type="secondary" className={style.avatarPanel}>
                                 <div className={style.avatarWrapper}>
-                                    <img src={defaultPfp} alt={profile.accountName} className={style.avatar} />
+                                    <img
+                                        src={profile.avatar ?? defaultAvatar}
+                                        alt={profile.accountName}
+                                        className={style.avatar}
+                                    />
                                 </div>
                                 <Text variant="h3" color="var(--cyan)">
                                     {displayName}

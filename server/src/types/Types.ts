@@ -93,6 +93,15 @@ export type CommentPK = bigint;
 
 export type FollowerFull = Follower;
 
+export type FollowerPublic = FollowerFull & {
+    followedUser?: {
+        avatar: string | null;
+    };
+    followsUser?: {
+        avatar: string | null;
+    };
+};
+
 export type FollowerShort = Omit<FollowerFull, "createdAt" | "updatedAt">;
 
 export type FollowerPK = {

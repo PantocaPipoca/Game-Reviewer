@@ -49,7 +49,7 @@ function InputField({
 
     return (
         <div className={`${style.inputField} ${multiline ? style.inputFieldMultiline : ""}`}>
-            <Text variant={variant}>{`>`}</Text>
+            <Text variant={variant} className={style.promptMarker}>{`>`}</Text>
             {multiline ? (
                 <textarea
                     ref={textareaRef}

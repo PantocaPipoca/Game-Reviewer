@@ -9,8 +9,9 @@ import Button from "../Components/Buttons/Button";
 import Star from "../Components/SVGs/Star";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
+import { UserAPI } from "../API/User";
 import defaultPfp from "../Assets/default-pfp.png";
-import style from "./CreateReviewPage.module.css";
+import style from "./EditReviewPage.module.css";
 
 type GameLike = {
     id: number;
@@ -39,7 +40,7 @@ function getStars(score: number): ("full" | "half" | "empty")[] {
     });
 }
 
-function CreateReviewPage() {
+function EditReviewPage() {
     const navigate = useNavigate();
     const { gameID } = useParams<{ gameID: string }>();
 
@@ -47,6 +48,8 @@ function CreateReviewPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const [rating, setRating] = useState(0);
     const [hoverScore, setHoverScore] = useState<number | null>(null);
@@ -57,12 +60,34 @@ function CreateReviewPage() {
     const [formError, setFormError] = useState("");
 
     useEffect(() => {
+        if (!gameID) return;
         async function load() {
-            if (!gameID) return;
+            setLoading(true);
+            setError(false);
             try {
-                const loadedGame = (await GameAPI.getById(Number(gameID))) as unknown as GameLike | GameLike[];
-                const normalizedGame = Array.isArray(loadedGame) ? (loadedGame[0] ?? null) : loadedGame;
-                setGame(normalizedGame ?? null);
+                const id = parseInt(gameID!);
+                const me = await UserAPI.getMe();
+
+                const [gameResult, reviewResult] = await Promise.allSettled([
+                    GameAPI.getById(id),
+                    ReviewAPI.get(me.accountName, id),
+                ]);
+
+                if (gameResult.status === "fulfilled") {
+                    const raw = gameResult.value;
+                    const normalized: GameLike = Array.isArray(raw) ? (raw[0] ?? null) : raw;
+                    setGame(normalized ?? null);
+                } else {
+                    setError(true);
+                }
+
+                if (reviewResult.status === "fulfilled") {
+                    const review = reviewResult.value;
+                    setRating(review.score);
+                    setReviewText(review.text);
+                } else {
+                    navigate(`/game/${gameID}/review/create`, { replace: true });
+                }
             } catch {
                 setError(true);
             } finally {
@@ -70,7 +95,7 @@ function CreateReviewPage() {
             }
         }
         load();
-    }, [gameID]);
+    }, [gameID, navigate]);
 
     useEffect(() => {
         const availablePlatforms = game?.platforms ?? [];
@@ -86,25 +111,36 @@ function CreateReviewPage() {
             return;
         }
         if (rating <= 0) {
-            setFormError("Select a rating before publishing");
+            setFormError("Select a rating before saving");
             return;
         }
         if (!reviewText.trim()) {
-            setFormError("Write a short review before publishing");
+            setFormError("Write a short review before saving");
             return;
         }
 
         setSubmitting(true);
         try {
-            await ReviewAPI.publish(Number(gameID), {
-                text: reviewText.trim(),
-                score: rating,
-            });
+            await ReviewAPI.update(Number(gameID), { text: reviewText.trim(), score: rating });
             navigate(`/game/${gameID}`);
         } catch {
-            setFormError("Failed to publish review");
+            setFormError("Failed to save changes");
         } finally {
             setSubmitting(false);
+        }
+    }
+
+    async function handleDelete() {
+        if (!gameID) return;
+        setDeleting(true);
+        try {
+            await ReviewAPI.remove(Number(gameID));
+            navigate(`/game/${gameID}`);
+        } catch {
+            setFormError("Failed to delete review");
+            setShowDeleteConfirm(false);
+        } finally {
+            setDeleting(false);
         }
     }
 
@@ -148,7 +184,7 @@ function CreateReviewPage() {
                 <Navbar />
                 <div className={style.mainPanel}>
                     <Panel type="main">
-                        <Text color="var(--pink)">Failed to load review draft.</Text>
+                        <Text color="var(--pink)">Failed to load review.</Text>
                     </Panel>
                 </div>
             </div>
@@ -160,6 +196,20 @@ function CreateReviewPage() {
             <Navbar />
             <div className={style.mainPanel}>
                 <Panel type="main">
+                    <div className={style.headerRow}>
+                        <Text variant="h2" color="var(--mutedText)">
+                            EDITING REVIEW
+                        </Text>
+                        <Button
+                            className={style.deleteButton}
+                            onClick={() => setShowDeleteConfirm(true)}
+                            disabled={deleting}
+                            color="var(--transparent)"
+                        >
+                            <Text variant="h3" color="var(--pink)">{`> DELETE`}</Text>
+                        </Button>
+                    </div>
+
                     <div className={style.topRow}>
                         <div className={style.leftColumn}>
                             <Panel type="secondary" direction="column" className={style.coverPanel}>
@@ -266,13 +316,42 @@ function CreateReviewPage() {
                     </div>
 
                     <Button className={style.submitButton} onClick={handleSubmit} disabled={submitting}>
-                        <Text variant="h3">{submitting ? `> PUBLISHING...` : `> PUBLISH REVIEW`}</Text>
+                        <Text variant="h3">{submitting ? `> SAVING...` : `> SAVE CHANGES`}</Text>
                     </Button>
                     {formError && <Text color="var(--pink)">* {formError}</Text>}
                 </Panel>
             </div>
+
+            {showDeleteConfirm && (
+                <div className={style.overlayBackdrop}>
+                    <Panel type="main" className={style.confirmPanel}>
+                        <Text variant="h2">DELETE REVIEW?</Text>
+                        <Text color="var(--mutedText)">This action cannot be undone.</Text>
+                        <div className={style.confirmButtons}>
+                            <Button
+                                className={style.confirmDeleteButton}
+                                onClick={handleDelete}
+                                disabled={deleting}
+                                color="var(--transparent)"
+                            >
+                                <Text variant="h3" color="var(--pink)">
+                                    {deleting ? `> DELETING...` : `> YES, DELETE`}
+                                </Text>
+                            </Button>
+                            <Button
+                                className={style.cancelButton}
+                                onClick={() => setShowDeleteConfirm(false)}
+                                disabled={deleting}
+                                color="var(--transparent)"
+                            >
+                                <Text variant="h3">{`> CANCEL`}</Text>
+                            </Button>
+                        </div>
+                    </Panel>
+                </div>
+            )}
         </div>
     );
 }
 
-export default CreateReviewPage;
+export default EditReviewPage;

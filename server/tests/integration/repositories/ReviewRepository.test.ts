@@ -11,7 +11,7 @@ describe("ReviewRepository (integration)", () => {
         await UserRepository.insertUser({
             accountName,
             passwordHash: "hash",
-            profilePic: null,
+            avatar: null,
             userData: { displayName: "Repo", gender: null, bio: null },
             isPrivate: false,
             email: `${accountName}@test.com`,

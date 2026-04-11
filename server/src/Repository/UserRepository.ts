@@ -37,7 +37,7 @@ export class UserRepository {
             where: { accountName: user.accountName },
             data: {
                 passwordHash: user.passwordHash,
-                profilePic: user.profilePic,
+                avatar: user.avatar,
                 userData: user.userData,
                 isPrivate: user.isPrivate,
                 email: user.email,
@@ -108,5 +108,20 @@ export class UserRepository {
                 },
             },
         });
+    }
+
+    static async updateAvatar(accountName: string, url: string): Promise<void> {
+        await PRISMA.user.update({
+            where: { accountName },
+            data: { avatar: url },
+        });
+    }
+
+    static async getAvatar(accountName: string): Promise<string | null> {
+        const user = await PRISMA.user.findUnique({
+            where: { accountName },
+            select: { avatar: true },
+        });
+        return user?.avatar ?? null;
     }
 }

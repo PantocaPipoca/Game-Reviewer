@@ -1,3 +1,4 @@
+import { profile } from "node:console";
 import swaggerJsdoc from "swagger-jsdoc";
 
 const OPTIONS: swaggerJsdoc.Options = {
@@ -27,7 +28,7 @@ const OPTIONS: swaggerJsdoc.Options = {
                     type: "object",
                     properties: {
                         accountName: { type: "string" },
-                        profilePic: { type: "string", nullable: true },
+                        avatar: { type: "string", nullable: true },
                         isPrivate: { type: "boolean" },
                         userData: {
                             type: "object",
@@ -46,7 +47,7 @@ const OPTIONS: swaggerJsdoc.Options = {
                     properties: {
                         accountName: { type: "string" },
                         email: { type: "string", format: "email" },
-                        profilePic: { type: "string", nullable: true },
+                        avatar: { type: "string", nullable: true },
                         isPrivate: { type: "boolean" },
                         userData: {
                             type: "object",
@@ -287,6 +288,30 @@ const OPTIONS: swaggerJsdoc.Options = {
                         accepted: { type: "boolean" },
                         createdAt: { type: "string", format: "date-time" },
                         updatedAt: { type: "string", format: "date-time" },
+                    },
+                },
+                FollowerPublic: {
+                    type: "object",
+                    properties: {
+                        follows: { type: "string" },
+                        followed: { type: "string" },
+                        accepted: { type: "boolean" },
+                        createdAt: { type: "string", format: "date-time" },
+                        updatedAt: { type: "string", format: "date-time" },
+                        followsUser: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                                avatar: { type: "string", nullable: true },
+                            },
+                        },
+                        followedUser: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                                avatar: { type: "string", nullable: true },
+                            },
+                        },
                     },
                 },
                 Like: {

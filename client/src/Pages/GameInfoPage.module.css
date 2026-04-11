@@ -16,17 +16,17 @@
 }
 
 .gameName {
-    display: block;
-    width: 100%;
     text-align: center;
     margin-top: calc(-1 * var(--spacingSmall));
     margin-bottom: var(--spacingSmall);
+    padding-left: var(--spacingSmall);
+    padding-right: var(--spacingSmall);
 }
 
 .cover {
-    min-width: 200px;
+    padding: var(--spacingSmall);
     aspect-ratio: 3 / 4;
-    margin: var(--spacingSmall);
+    box-sizing: border-box;
 }
 
 .media {
