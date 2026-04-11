@@ -236,9 +236,11 @@ export class AccountService {
     /**
      * Updates user account information
      * @param currentUser - username of the currently authenticated user (from JWT)
+     * @param isPrivate - new privacy setting for the account
      * @param password - new password (optional)
      * @param email - new email (optional)
      * @param userData - partial user data updates (optional)
+     * @param avatar - new avatar URL (optional)
      * @returns updated user data
      */
     static async alterUser(
@@ -259,6 +261,9 @@ export class AccountService {
             const existingUser: UserFull | null = await UserRepository.selectUserByEmail(email);
             if (existingUser) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.EMAIL_ALREADY_EXISTS);
         }
+
+        if (user.isPrivate === true && isPrivate === false)
+            await FollowerRepository.acceptAllFollowerRequestsToUser(currentUser);
 
         // merge current user data with provided user data updates
         const currentUserData: UserData = user.userData as UserData;

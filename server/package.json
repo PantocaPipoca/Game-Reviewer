@@ -35,7 +35,7 @@
     "license": "ISC",
     "description": "",
     "devDependencies": {
-        "@prisma/client": "^7.5.0",
+        "@prisma/client": "^7.7.0",
         "@types/bcrypt": "^6.0.0",
         "@types/cookie-parser": "^1.4.10",
         "@types/cors": "^2.8.19",
@@ -50,7 +50,7 @@
         "dotenv-cli": "^11.0.0",
         "jest": "^30.2.0",
         "nodemon": "^3.1.13",
-        "prisma": "^7.5.0",
+        "prisma": "^7.7.0",
         "supertest": "^7.2.2",
         "ts-jest": "^29.4.6",
         "ts-node": "^10.9.2",
@@ -76,5 +76,8 @@
         "pg": "^8.18.0",
         "swagger-jsdoc": "^6.2.8",
         "swagger-ui-express": "^5.0.1"
+    },
+    "overrides": {
+        "handlebars": "^4.7.9"
     }
 }

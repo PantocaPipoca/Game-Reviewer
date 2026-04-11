@@ -371,6 +371,73 @@ describe("PUT /api/users/me (alter)", () => {
         expect(res.body.data.isPrivate).toBe(true);
         expect(res.body.data.userData.displayName).toBe(newDisplayName);
     });
+
+    it("OK when updating isPrivate from true to false and accepts all follow requests", async () => {
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: null, bio: null },
+            })
+
+        const follower1: AuthResponse = await register(app, "follower1", "follower1", "sspassword", "follower1@email.com");
+        const follower2: AuthResponse = await register(app, "follower2", "follower2", "sspassword", "follower2@email.com");
+        const follower3: AuthResponse = await register(app, "follower3", "follower3", "sspassword", "follower3@email.com");
+
+        // send follow requests
+        await request(app)
+            .post("/api/users/id/" + user.accountName + "/followers/")
+            .set("Authorization", "Bearer " + follower1.token)
+            .expect(StatusCodes.CREATED);
+
+        await request(app)
+            .post("/api/users/id/" + user.accountName + "/followers/")
+            .set("Authorization", "Bearer " + follower2.token)
+            .expect(StatusCodes.CREATED);
+
+        await request(app)
+            .post("/api/users/id/" + user.accountName + "/followers/")
+            .set("Authorization", "Bearer " + follower3.token)
+            .expect(StatusCodes.CREATED);
+    
+        await request(app)
+            .get("/api/users/me/followers/requests/received")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.OK)
+            .then((res) => {
+                expect(res.body.data.length).toBe(3);
+            })
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: false,
+                email,
+                userData: { displayName, gender: null, bio: null },
+            })
+            .expect(StatusCodes.OK);
+
+        await request(app)
+            .get("/api/users/me/followers/requests/received")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.OK)
+            .then((res) => {
+                expect(res.body.data.length).toBe(0);
+            })
+
+        await request(app)
+            .get("/api/users/id/" + user.accountName + "/followers")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.OK)
+            .then((res) => {
+                expect(res.body.data.length).toBe(3);
+            })
+        });
 });
 
 describe("DELETE /api/users/me", () => {
@@ -505,8 +572,6 @@ describe("GET /api/users/id/:username (find profile)", () => {
         expect(res.body.data.createdAt).toBeDefined();
     });
 });
-
-// ========== SEARCH ==========
 
 describe("GET /api/users/search?query=...", () => {
     it("returns 400 if query is missing", async () => {
