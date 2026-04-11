@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FollowerAPI } from "../../API/Follower";
-import type { FollowerFull } from "../../API/Types";
+import type { FollowerPublic } from "../../API/Types";
 import Text from "../Text/Text";
 import Button from "../Buttons/Button";
 import defaultPfp from "../../Assets/default-pfp.png";
@@ -14,7 +14,7 @@ type Props = {
 
 function NotificationsOverlay({ onClose, onRequestHandled }: Props) {
     const navigate = useNavigate();
-    const [requests, setRequests] = useState<FollowerFull[]>([]);
+    const [requests, setRequests] = useState<FollowerPublic[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -83,7 +83,14 @@ function NotificationsOverlay({ onClose, onRequestHandled }: Props) {
                                 }}
                             >
                                 <div className={style.avatarWrapper}>
-                                    <img src={defaultPfp} alt={r.follows} className={style.avatar} />
+                                    <img
+                                        src={r.followsUser?.avatar ?? defaultPfp}
+                                        alt={r.follows}
+                                        className={style.avatar}
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = defaultPfp;
+                                        }}
+                                    />
                                 </div>
                                 <div className={style.itemText}>
                                     <Text variant="small" color="var(--mainText)">

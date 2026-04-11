@@ -59,7 +59,6 @@
 .avatarWrapper {
     width: 34px;
     height: 34px;
-    border-radius: 50%;
     overflow: hidden;
     border: var(--borderWidth) solid var(--border);
     flex-shrink: 0;

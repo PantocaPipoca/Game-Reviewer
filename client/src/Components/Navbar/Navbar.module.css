@@ -67,12 +67,13 @@
     gap: var(--spacingSmall);
     background: none;
     color: var(--mainText);
-    padding: var(--spacingSmall) var(--spacingMedium);
+    padding: 6px var(--spacingMedium);
 }
 .profileAvatar {
     width: 22px;
     height: 22px;
-    background-color: var(--border);
+    border: var(--borderWidth) solid var(--border);
+    object-fit: cover;
     flex-shrink: 0;
 }
 

@@ -33,7 +33,7 @@ const router: Router = Router({ mergeParams: true });
  *                                  data:
  *                                      type: array
  *                                      items:
- *                                          $ref: '#/components/schemas/Follower'
+ *                                          $ref: '#/components/schemas/FollowerPublic'
  *              400:
  *                  description: "**Bad Request** — if no user name was provided"
  *                  content:

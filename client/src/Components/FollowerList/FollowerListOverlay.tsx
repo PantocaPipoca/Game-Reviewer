@@ -3,7 +3,7 @@ import Text from "../Text/Text";
 import Button from "../Buttons/Button";
 import FollowerItem from "../FollowerItem/FollowerItem";
 import { FollowerAPI } from "../../API/Follower";
-import type { FollowerFull } from "../../API/Types";
+import type { FollowerPublic } from "../../API/Types";
 import style from "./FollowerListOverlay.module.css";
 import { useCloseOverlay } from "../../Hooks/CloseOverlay";
 
@@ -20,8 +20,8 @@ type Props = {
 
 function FollowerListOverlay({ initialTab, username, displayName, isOwner, onClose, onRemove }: Props) {
     const [activeTab, setActiveTab] = useState<Tab>(initialTab);
-    const [followers, setFollowers] = useState<FollowerFull[]>([]);
-    const [following, setFollowing] = useState<FollowerFull[]>([]);
+    const [followers, setFollowers] = useState<FollowerPublic[]>([]);
+    const [following, setFollowing] = useState<FollowerPublic[]>([]);
     const [loading, setLoading] = useState(true);
 
     useCloseOverlay(onClose);
@@ -109,11 +109,12 @@ function FollowerListOverlay({ initialTab, username, displayName, isOwner, onClo
                             </div>
                         ) : (
                             list.map((f) => {
-                                const displayUsername = activeTab === "followers" ? f.follows : f.followed;
+                                const displayUsername: string = activeTab === "followers" ? f.follows : f.followed;
                                 return (
                                     <FollowerItem
                                         key={displayUsername}
                                         username={displayUsername}
+                                        avatar={f.followsUser?.avatar ?? f.followedUser?.avatar ?? null}
                                         isOwner={isOwner}
                                         type={activeTab}
                                         onRemove={handleRemove}

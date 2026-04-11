@@ -6,6 +6,7 @@ import { generateToken } from "../utils/Auth";
 import { UserRepository } from "../Repository/UserRepository";
 import { UserData, UserFull, UserPK, AuthResponse, UserPublic, UserPrivate, UserMe } from "../types/Types";
 import { FollowerRepository } from "../Repository/FollowerRepository";
+import { uploadAvatar } from "../utils/Cloudinary";
 
 const SALT_ROUNDS = 10; // number of iterations for bcrypt password hashing
 
@@ -44,7 +45,7 @@ export async function fetchPublicUser(username: UserPK): Promise<UserPublic> {
 export function userFullToPublic(user: UserFull): UserPublic {
     return {
         accountName: user.accountName,
-        profilePic: user.profilePic,
+        avatar: user.avatar,
         isPrivate: user.isPrivate,
         userData: user.userData as UserData,
         createdAt: user.createdAt,
@@ -92,6 +93,8 @@ export class AccountService {
      * @returns AuthResponse object with token and user data
      */
     static async registerUser(
+        // this will create a pending user instead
+        // there will be a new route to officialize that user
         username: UserPK,
         displayName: string,
         password: string,
@@ -115,15 +118,18 @@ export class AccountService {
 
         const newUser: UserFull = await UserRepository.insertUser({
             accountName: username,
-            profilePic: null,
+            avatar: null,
             isPrivate: false, // default to public account
             passwordHash,
             userData,
             email,
         });
 
+        // send email to newUser.email with newUser.emailValidation
+
         // generate JWT token
         const token: string = generateToken(newUser.accountName);
+        // dont generate token tho
 
         return {
             accountName: newUser.accountName,
@@ -132,6 +138,28 @@ export class AccountService {
             createdAt: newUser.createdAt,
             token,
         } as AuthResponse;
+        // return `a confirmation has been sent to ${newUser.email}`
+    }
+
+    /**
+     * Verifies a user
+     * @returns auth response with token or failed verification
+     */
+    static async verify(accountName: string, codeNum: number) {
+        await UserRepository.verify(accountName, codeNum)
+            .then((validatedUser) => {
+                const token = generateToken(validatedUser.accountName);
+                return {
+                    accountName: validatedUser.accountName,
+                    isPrivate: validatedUser.isPrivate,
+                    userData: validatedUser.userData as UserData,
+                    createdAt: validatedUser.createdAt,
+                    token,
+                } as AuthResponse;
+            })
+            .catch((err) => {
+                throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.INVALID_CREDENTIALS);
+            });
     }
 
     /**
@@ -174,7 +202,7 @@ export class AccountService {
         return {
             accountName: user.accountName,
             email: user.email,
-            profilePic: user.profilePic,
+            avatar: user.avatar,
             isPrivate: user.isPrivate,
             userData: user.userData as UserData,
             createdAt: user.createdAt,
@@ -195,7 +223,7 @@ export class AccountService {
         email: string,
         userData: UserData,
         password?: string,
-        profilePic?: string | null
+        avatar?: string | null
     ): Promise<UserMe> {
         const user: UserFull = await fetchFullUser(currentUser);
 
@@ -217,7 +245,7 @@ export class AccountService {
 
         const updated: UserFull = await UserRepository.updateUser({
             accountName: currentUser,
-            profilePic: profilePic ?? user.profilePic,
+            avatar: avatar ?? user.avatar,
             isPrivate: isPrivate ?? user.isPrivate,
             passwordHash,
             userData: updatedUserData,
@@ -256,7 +284,7 @@ export class AccountService {
         if (canView) {
             return {
                 accountName: user.accountName,
-                profilePic: user.profilePic,
+                avatar: user.avatar,
                 isPrivate: user.isPrivate,
                 userData: user.userData as UserData,
                 createdAt: user.createdAt,
@@ -264,7 +292,7 @@ export class AccountService {
         } else {
             return {
                 accountName: user.accountName,
-                profilePic: user.profilePic,
+                avatar: user.avatar,
                 isPrivate: user.isPrivate,
             } as UserPrivate;
         }
@@ -284,7 +312,7 @@ export class AccountService {
             if (canViewList[i]) {
                 return {
                     accountName: u.accountName,
-                    profilePic: u.profilePic,
+                    avatar: u.avatar,
                     isPrivate: u.isPrivate,
                     userData: u.userData as UserData,
                     createdAt: u.createdAt,
@@ -292,9 +320,24 @@ export class AccountService {
             }
             return {
                 accountName: u.accountName,
-                profilePic: u.profilePic,
+                avatar: u.avatar,
                 isPrivate: u.isPrivate,
             } as UserPrivate;
         });
+    }
+
+    static async uploadAvatar(currentUser: UserPK, buffer: Buffer): Promise<string> {
+        await fetchFullUser(currentUser);
+        if (buffer.length > 5 * 1024 * 1024) throw new AppError(StatusCodes.BAD_REQUEST, "Image too large");
+        const url = await uploadAvatar(buffer, currentUser);
+        await UserRepository.updateAvatar(currentUser, url);
+        return url;
+    }
+
+    static async getAvatar(username: UserPK): Promise<string> {
+        await fetchFullUser(username);
+        const url = await UserRepository.getAvatar(username);
+        if (!url) throw new AppError(StatusCodes.NOT_FOUND, "No profile picture set");
+        return url;
     }
 }

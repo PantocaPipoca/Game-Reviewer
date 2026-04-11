@@ -16,7 +16,7 @@ export class AccountController {
      * Used by POST /api/users/
      * Does not require previous authentication
      */
-    static register: any = asyncHandler(async (req: Request, res: Response) => {
+    static register = asyncHandler(async (req: Request, res: Response) => {
         const { accountName, displayName, password, email } = req.body;
         if (!accountName) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
         if (!displayName) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.DISPLAY_NAME_REQUIRED);
@@ -27,8 +27,25 @@ export class AccountController {
         if (!EMAIL_REGEX.test(email)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
 
         const result: AuthResponse = await AccountService.registerUser(accountName, displayName, password, email);
-        setAuthCookie(res, result.token);
+        setAuthCookie(res, result.token); // remove this
         return makeSuccess(res, StatusCodes.CREATED, result);
+    });
+
+    /**
+     *
+     */
+    static verify = asyncHandler(async (req: Request, res: Response) => {
+        const { user, code } = req.query;
+        if (typeof user !== "string" || typeof code !== "string") {
+            return makeSuccess(res, StatusCodes.BAD_REQUEST, "invalid parameters");
+        }
+        try {
+            const codeNum = Number.parseInt(code);
+            const result = AccountService.verify(user, codeNum);
+            return makeSuccess(res, StatusCodes.OK, result);
+        } catch {
+            return makeSuccess(res, StatusCodes.BAD_REQUEST, "invalid parameters");
+        }
     });
 
     /**
@@ -36,7 +53,7 @@ export class AccountController {
      * Used by POST /api/users/login
      * Does not require previous authentication
      */
-    static login: any = asyncHandler(async (req: Request, res: Response) => {
+    static login = asyncHandler(async (req: Request, res: Response) => {
         const { accountName, password } = req.body;
         if (!accountName) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
         if (!password) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
@@ -52,7 +69,7 @@ export class AccountController {
      * Used by POST /api/users/logout
      * Requires previous authentication
      */
-    static logout: any = asyncHandler(async (_: AuthRequest, res: Response) => {
+    static logout = asyncHandler(async (_: AuthRequest, res: Response) => {
         clearAuthCookie(res);
         res.status(StatusCodes.OK).json({ status: "success", data: null });
     });
@@ -62,7 +79,7 @@ export class AccountController {
      * Used by GET /api/users/me
      * Requires previous authentication
      */
-    static getCurrentUser: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+    static getCurrentUser = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
 
         const result: UserMe = await AccountService.getCurrentUser(currentUser);
@@ -74,7 +91,7 @@ export class AccountController {
      * Used by PUT /api/users/me
      * Requires previous authentication
      */
-    static alter: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+    static alter = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
         const { profilePic, isPrivate, password, email, userData } = req.body;
 
@@ -103,7 +120,7 @@ export class AccountController {
      * Used by DELETE /api/users/me
      * Requires previous authentication
      */
-    static remove: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+    static remove = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
 
         const result: UserPublic = await AccountService.removeUser(currentUser);
@@ -115,7 +132,7 @@ export class AccountController {
      * Used by GET /api/users/:username
      * (optional authentication)
      */
-    static findByUsername: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+    static findByUsername = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string | undefined = req.currentUser?.username;
 
         const username: string | string[] | undefined = req.params["username"];
@@ -131,7 +148,7 @@ export class AccountController {
      * Used by GET /api/users/search?query=...
      * (optional authentication)
      */
-    static search: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+    static search = asyncHandler(async (req: AuthRequest, res: Response) => {
         const query: any = req.query["query"];
         if (typeof query !== "string") throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION);
 
@@ -141,5 +158,20 @@ export class AccountController {
         const currentUser: string | undefined = req.currentUser?.username;
         const result: (UserPublic | UserPrivate)[] = await AccountService.searchUsersByName(sanitized, currentUser);
         return makeSuccess(res, StatusCodes.OK, result);
+    });
+
+    static uploadAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const currentUser = extractLoggedUser(req);
+        if (!req.file) throw new AppError(StatusCodes.BAD_REQUEST, "No file provided");
+        const url = await AccountService.uploadAvatar(currentUser, req.file.buffer);
+        return makeSuccess(res, StatusCodes.OK, { url });
+    });
+
+    static getAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const username = req.params["username"];
+        if (!username || typeof username !== "string")
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        const url = await AccountService.getAvatar(username);
+        res.redirect(url);
     });
 }

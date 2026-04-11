@@ -10,15 +10,15 @@ export type UserData = {
 
 export type UserFull = User;
 
-export type UserShort = Omit<UserFull, "createdAt" | "updatedAt" | "userData"> & {
+export type UserShort = Omit<UserFull, "createdAt" | "updatedAt" | "userData" | "emailValidation"> & {
     userData: Prisma.InputJsonValue;
 };
 
-export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "updatedAt" | "userData"> & {
+export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "updatedAt" | "userData" | "emailValidation"> & {
     userData: UserData;
 };
 
-export type UserMe = Omit<UserFull, "passwordHash" | "updatedAt" | "createdAt">;
+export type UserMe = Omit<UserFull, "passwordHash" | "updatedAt" | "createdAt" | "emailValidation">;
 
 export type UserPrivate = Omit<UserPublic, "userData" | "createdAt">;
 
@@ -92,6 +92,15 @@ export type CommentPK = bigint;
 // ===================== Follower Types =====================
 
 export type FollowerFull = Follower;
+
+export type FollowerPublic = FollowerFull & {
+    followedUser?: {
+        avatar: string | null;
+    };
+    followsUser?: {
+        avatar: string | null;
+    };
+};
 
 export type FollowerShort = Omit<FollowerFull, "createdAt" | "updatedAt">;
 

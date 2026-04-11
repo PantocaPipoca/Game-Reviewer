@@ -63,7 +63,7 @@ function SearchUsersPage() {
                                     onClick={() => navigate(`/user/${user.accountName}`)}
                                 >
                                     <img
-                                        src={user.profilePic ?? defaultPfp}
+                                        src={user.avatar ?? defaultPfp}
                                         alt={user.accountName}
                                         className={style.avatar}
                                     />

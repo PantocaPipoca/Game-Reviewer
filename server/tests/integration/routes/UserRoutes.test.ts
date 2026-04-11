@@ -1032,3 +1032,73 @@ describe("GET /api/users/id/:username/reviews", () => {
         });
     });
 });
+
+describe("PUT /api/users/me/avatar", () => {
+    it("returns UNAUTHORIZED if not authenticated", async () => {
+        await request(app)
+            .put("/api/users/me/avatar")
+            .attach("avatar", Buffer.from("fake"), { filename: "test.jpg", contentType: "image/jpeg" })
+            .expect(StatusCodes.UNAUTHORIZED);
+    });
+
+    it("returns BAD REQUEST if no file provided", async () => {
+        const user = await register(app, username, displayName, password, email);
+        await request(app)
+            .put("/api/users/me/avatar")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    // NOTE: this test hits real Cloudinary - only run in integration env
+    it("returns OK and a url on valid upload", async () => {
+        const user = await register(app, username, displayName, password, email);
+
+        const pixel = Buffer.from(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
+            "base64"
+        );
+        const res = await request(app)
+            .put("/api/users/me/avatar")
+            .set("Authorization", "Bearer " + user.token)
+            .attach("avatar", pixel, { filename: "test.png", contentType: "image/png" })
+            .expect(StatusCodes.OK);
+
+        expect(res.body.data.url).toBeDefined();
+        expect(res.body.data.url).toMatch(/cloudinary/);
+    });
+});
+
+// ========== avatar ==========
+
+describe("GET /api/users/id/:username/avatar", () => {
+    it("returns NOT FOUND if user has no avatar", async () => {
+        const user = await register(app, username, displayName, password, email);
+        await request(app)
+            .get("/api/users/id/" + user.accountName + "/avatar")
+            .expect(StatusCodes.NOT_FOUND);
+    });
+
+    it("returns NOT FOUND if user doesn't exist", async () => {
+        await request(app).get("/api/users/id/not-existing-user/avatar").expect(StatusCodes.NOT_FOUND);
+    });
+
+    it("redirects to cloudinary url after upload", async () => {
+        const user = await register(app, username, displayName, password, email);
+        const pixel = Buffer.from(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
+            "base64"
+        );
+        await request(app)
+            .put("/api/users/me/avatar")
+            .set("Authorization", "Bearer " + user.token)
+            .attach("avatar", pixel, { filename: "test.png", contentType: "image/png" })
+            .expect(StatusCodes.OK);
+
+        const res = await request(app)
+            .get("/api/users/id/" + user.accountName + "/avatar")
+            .redirects(0);
+
+        expect(res.status).toBe(302);
+        expect(res.headers.location).toMatch(/cloudinary/);
+    });
+});

@@ -1,4 +1,5 @@
 ﻿import { Router } from "express";
+import multer from "multer";
 import { AccountController } from "../controllers/AccountController";
 import { ReviewController } from "../controllers/ReviewController";
 import { optionalAuth, auth } from "../utils/Auth";
@@ -6,6 +7,18 @@ import { FollowerController } from "../controllers/FollowerController";
 import FollowerRoutes from "./FollowerRoutes";
 
 const router: Router = Router({ mergeParams: true });
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (_req, file, cb) => {
+        if (!file.mimetype.startsWith("image/")) {
+            cb(new Error("Only image files are allowed"));
+            return;
+        }
+        cb(null, true);
+    },
+});
 
 // ===================== AUTHENTICATION =====================
 
@@ -65,6 +78,14 @@ const router: Router = Router({ mergeParams: true });
  *                              $ref: '#/components/schemas/Error'
  */
 router.post("/", AccountController.register);
+// will not return a token and will just return a message that states a confirmation code has been sent to the given email
+
+/**
+ * TODO: swagger
+ *  /users/verification
+ *      get:
+ */
+router.get("/verification", AccountController.verify);
 
 /**
  * @swagger
@@ -284,20 +305,29 @@ router.put("/me", auth, AccountController.alter);
  */
 router.delete("/me", auth, AccountController.remove);
 
-// ===================== CURRENT USER FOLLOWER MANAGEMENT =====================
-
 /**
  * @swagger
- *  /users/me/followers/requests/received:
- *      get:
- *          tags: [Followers]
- *          summary: Gets the pending follower requests received by the current user
- *          description: Gets the pending follower requests received by the current user (for private accounts)
+ *  /users/me/avatar:
+ *      put:
+ *          tags: [Users]
+ *          summary: Uploads or replaces the current user's profile picture
+ *          description: Accepts a multipart/form-data request with an image file. Max size 5MB. Returns the Cloudinary URL of the uploaded image.
  *          security:
  *              - bearerAuth: []
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  multipart/form-data:
+ *                      schema:
+ *                          type: object
+ *                          required: [avatar]
+ *                          properties:
+ *                              avatar:
+ *                                  type: string
+ *                                  format: binary
  *          responses:
  *              200:
- *                  description: "**OK** — pending requests retrieved successfully"
+ *                  description: "**OK** — avatar uploaded successfully"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -307,23 +337,58 @@ router.delete("/me", auth, AccountController.remove);
  *                                      type: string
  *                                      example: success
  *                                  data:
- *                                      type: array
- *                                      items:
- *                                          $ref: '#/components/schemas/Follower'
- *              401:
- *                  description: "**Unauthorized** - if no account is logged in"
+ *                                      type: object
+ *                                      properties:
+ *                                          url:
+ *                                              type: string
+ *                                              example: "https://res.cloudinary.com/..."
+ *              400:
+ *                  description: "**Bad Request** — if no file was provided or the file exceeds 5MB"
  *                  content:
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
- *              404:
- *                  description: "**Not Found** - if the account doesn't exist"
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
  *                  content:
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.get("/me/followers/requests/received", auth, FollowerController.getPendingRequestsToUser);
+router.put("/me/avatar", auth, upload.single("avatar"), AccountController.uploadAvatar);
+
+/**
+ * @swagger
+ *  /users/id/{username}/avatar:
+ *      get:
+ *          tags: [Users]
+ *          summary: Redirects to the profile picture of a user
+ *          description: Returns a 302 redirect to the Cloudinary URL of the user's profile picture.
+ *          parameters:
+ *              - in: path
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
+ *          responses:
+ *              302:
+ *                  description: "**Found** — redirects to the image URL"
+ *              400:
+ *                  description: "**Bad Request** — if the username is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** — if the user doesn't exist or has no profile picture set"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.get("/id/:username/avatar", AccountController.getAvatar);
+
+// ===================== CURRENT USER FOLLOWER MANAGEMENT =====================
 
 /**
  * @swagger
@@ -348,7 +413,7 @@ router.get("/me/followers/requests/received", auth, FollowerController.getPendin
  *                                  data:
  *                                      type: array
  *                                      items:
- *                                          $ref: '#/components/schemas/Follower'
+ *                                          $ref: '#/components/schemas/FollowerPublic'
  *              401:
  *                  description: "**Unauthorized** - if no account is logged in"
  *                  content:
@@ -363,6 +428,45 @@ router.get("/me/followers/requests/received", auth, FollowerController.getPendin
  *                              $ref: '#/components/schemas/Error'
  */
 router.get("/me/followers/requests/sent", auth, FollowerController.getPendingRequestsFromUser);
+
+/**
+ * @swagger
+ *  /users/me/followers/requests/received:
+ *      get:
+ *          tags: [Followers]
+ *          summary: Gets the pending follower requests received by the current user
+ *          description: Gets the pending follower requests received by the current user (for private accounts)
+ *          security:
+ *              - bearerAuth: []
+ *          responses:
+ *              200:
+ *                  description: "**OK** — pending requests retrieved successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/FollowerPublic'
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** - if the account doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.get("/me/followers/requests/received", auth, FollowerController.getPendingRequestsToUser);
 
 /**
  * @swagger
@@ -588,7 +692,7 @@ router.use("/id/:username/followers", FollowerRoutes);
  *                                  data:
  *                                      type: array
  *                                      items:
- *                                          $ref: '#/components/schemas/Follower'
+ *                                          $ref: '#/components/schemas/FollowerPublic'
  *              400:
  *                  description: "**Bad Request** — if no user name was provided"
  *                  content:
