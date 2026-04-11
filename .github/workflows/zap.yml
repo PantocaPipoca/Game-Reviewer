@@ -84,3 +84,4 @@ jobs:
                   fail_action: true # fail workflow
                   artifact_name: zap-api-report
                   rules_file_name: .github/zap/rules.tsv
+                  allow_issue_writing: false
