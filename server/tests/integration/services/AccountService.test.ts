@@ -12,7 +12,7 @@ describe("AccountService (integration)", () => {
     // Auxiliary function, creates and registers a user, returning the username and email
     async function makeSomeUserAndRegister(): Promise<UserMicro> {
         const user: UserMicro = makeSomeUser();
-        await AccountService.registerUser(user.accountName, displayName, pass, user.email);
+        await AccountService.registerUser(user.accountName, displayName, pass, user.email, false);
         return user;
     }
 
@@ -27,7 +27,13 @@ describe("AccountService (integration)", () => {
     it("RegisterUser creates a user and returns token, not with duplicate name or duplicate email", async () => {
         // Register user
         const user: UserMicro = makeSomeUser();
-        const res: AuthResponse = await AccountService.registerUser(user.accountName, displayName, pass, user.email);
+        const res: AuthResponse = (await AccountService.registerUser(
+            user.accountName,
+            displayName,
+            pass,
+            user.email,
+            false
+        )) as AuthResponse;
 
         // Check matching name and defined token
         expect(res.accountName).toBe(user.accountName);
@@ -40,12 +46,21 @@ describe("AccountService (integration)", () => {
 
         // Fails, duplicate user name
         await expect(
-            AccountService.registerUser(user.accountName, displayName, pass, "blabla" + user.email)
+            AccountService.registerUser(user.accountName, displayName, pass, "blabla" + user.email, false)
         ).rejects.toBeDefined();
         // Fails, duplicate email
         await expect(
-            AccountService.registerUser(user.accountName + "blabla", displayName, pass, user.email)
+            AccountService.registerUser(user.accountName + "blabla", displayName, pass, user.email, false)
         ).rejects.toBeDefined();
+    });
+
+    it("Checks if email verification is working", async () => {
+        const user: UserMicro = makeSomeUser();
+        await AccountService.registerUser(user.accountName, displayName, pass, "support.gamereviewer@gmail.com", true);
+
+        const userFull = await UserRepository.selectUser(user.accountName);
+        expect(AccountService.verify(user.accountName, -1)).rejects.toBeDefined();
+        expect(AccountService.verify(user.accountName, userFull?.emailValidation as number)).resolves.toBeDefined();
     });
 
     it("LoginUser fails with wrong passwords and non-existent users", async () => {
@@ -63,7 +78,7 @@ describe("AccountService (integration)", () => {
     it("AlterUser alters a user, not if duplicate email", async () => {
         // Register user
         const user: UserMicro = makeSomeUser();
-        await AccountService.registerUser(user.accountName, displayName, "87654321", "svc@test.com");
+        await AccountService.registerUser(user.accountName, displayName, "87654321", "svc@test.com", false);
 
         // Find user in database and their previous hash
         const dbUser1: UserFull | null = await UserRepository.selectUser(user.accountName);
@@ -88,7 +103,7 @@ describe("AccountService (integration)", () => {
 
         // Fails, duplicate email
         const otherEmail: string = "otheremail@test.com";
-        await AccountService.registerUser("username2", "OTHER USER", "18273645", otherEmail);
+        await AccountService.registerUser("username2", "OTHER USER", "18273645", otherEmail, false);
         await expect(
             AccountService.alterUser(user.accountName, true, otherEmail, { displayName, gender: null, bio: null }, pass)
         ).rejects.toBeDefined();
@@ -114,7 +129,15 @@ describe("AccountService (integration)", () => {
         // Register several users
         for (var i = 0; i < size; i++) {
             const user: UserMicro = makeSomeUser();
-            users.push(await AccountService.registerUser(user.accountName, "display" + i, "password" + i, user.email));
+            users.push(
+                (await AccountService.registerUser(
+                    user.accountName,
+                    "display" + i,
+                    "password" + i,
+                    user.email,
+                    false
+                )) as AuthResponse
+            );
         }
 
         // Check the result of findByUsername against all users

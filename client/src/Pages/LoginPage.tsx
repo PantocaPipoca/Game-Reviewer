@@ -36,6 +36,9 @@ function LoginPage() {
             await UserAPI.login({ accountName, password });
             navigate("/");
         } catch (err: any) {
+            if (err.response.status == 428) {
+                navigate(`/validation#${accountName}`);
+            }
             const message = err.response?.data?.message || AUTH_ERRORS.loginFailed;
             setError(message);
         } finally {
