@@ -43,6 +43,15 @@ describe("UserRepository (integration)", () => {
         ).rejects.toBeDefined();
     });
 
+    it("Inserts and verifies a user", async () => {
+        const user: UserFull = await insertAux();
+
+        expect(user.emailValidation).not.toBeNull();
+        expect(UserRepository.verify(user.accountName, -1)).rejects.toBeDefined();
+        const validatedUser = await UserRepository.verify(user.accountName, user.emailValidation as number);
+        expect(validatedUser.emailValidation).toBeNull();
+    });
+
     it("Inserts and updates a user", async () => {
         // Inserts user
         const user: UserFull = await insertAux();

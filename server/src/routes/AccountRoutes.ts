@@ -57,7 +57,7 @@ const upload = multer({
  *                                      type: string
  *                                      example: success
  *                                  data:
- *                                      $ref: '#/components/schemas/AuthResponse'
+ *                                      type: string
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 characters, if the password is shorter than 8 characters, or if the email provided is invalid"
  *                  content:
@@ -81,11 +81,52 @@ router.post("/", AccountController.register);
 // will not return a token and will just return a message that states a confirmation code has been sent to the given email
 
 /**
- * TODO: swagger
- *  /users/verification
+ * @swagger
+ *  /users/validation:
  *      get:
+ *          tags: [Users]
+ *          summary: Validates a new user using email
+ *          description: Validates a user using their username and a code sent to their email
+ *          parameters:
+ *              - name: user
+ *                in: query
+ *                required: true
+ *                schema:
+ *                  type: string
+ *              - name: code
+ *                in: query
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *
+ *          responses:
+ *              200:
+ *                  description: "**OK** — Validation successful and received a token"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: sucsess
+ *                                  data:
+ *                                      $ref: '#/components/schemas/AuthResponse'
+ *              400:
+ *                  description: "**Bad Request** — if any of the required fields is missing or is in the wrong format"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** — if no account corresponds to the account name and code"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *
  */
-router.get("/verification", AccountController.verify);
+router.get("/validation", AccountController.validate);
 
 /**
  * @swagger
@@ -131,6 +172,18 @@ router.get("/verification", AccountController.verify);
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
+ *              428:
+ *                  description: "**Precondition Required** — user still needs confirmation email"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
  */
 router.post("/login", AccountController.login);
 
