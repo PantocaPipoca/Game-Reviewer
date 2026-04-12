@@ -6,6 +6,7 @@ import { canViewUser, fetchPublicUser } from "./AccountService";
 import { GameRepository } from "../Repository/GameRepository";
 import { ReviewRepository } from "../Repository/ReviewRepository";
 import { IGDB } from "../IGDB/Requests";
+import logger from "../Logger";
 
 // Throws if the game doesn't exist
 async function fetchGame(gameID: number): Promise<GameFull> {
@@ -52,6 +53,7 @@ export class ReviewService {
             if (existing) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.REVIEW_ALREADY_EXISTS);
         }
 
+        logger.info({ username: currentUser, gameID }, "Review published");
         return (await ReviewRepository.insertReview({
             reviewer: currentUser,
             reviewed: gameID,
@@ -88,6 +90,7 @@ export class ReviewService {
         });
         if (!existing) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
+        logger.info({ username: currentUser, gameID }, "Review deleted");
         return (await ReviewRepository.deleteReview({ reviewer: currentUser, reviewed: gameID })) as ReviewFull;
     }
 

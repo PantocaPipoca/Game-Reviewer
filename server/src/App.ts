@@ -13,6 +13,7 @@ import { middleware as openAPIValidator } from "express-openapi-validator";
 import pinoHttp from "pino-http";
 import logger from "./Logger.js";
 import { register, httpRequestDuration, httpRequestsTotal } from "./utils/Metrics.js";
+import { randomUUID } from "crypto";
 
 export function createApp(): Express {
     const app: Express = express();
@@ -20,7 +21,7 @@ export function createApp(): Express {
     app.use(
         pinoHttp({
             logger,
-            // skip this endpoints
+            genReqId: (req) => (req.headers["x-request-id"] as string) || randomUUID(),
             autoLogging: {
                 ignore: (req) => req.url === "/api/health" || req.url === "/api/metrics",
             },
@@ -58,6 +59,7 @@ export function createApp(): Express {
         standardHeaders: true,
         legacyHeaders: false,
         handler: (_req, res) => {
+            logger.warn({ ip: _req.ip, path: _req.path }, "Rate limit exceeded");
             res.status(429).json({ status: "error", message: "Too many requests" });
         },
     });

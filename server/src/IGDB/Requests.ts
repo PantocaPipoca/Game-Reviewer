@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 // import { GameCover } from "../types/Types";
 import { GameRepository } from "../Repository/GameRepository";
 import { UserPK, GameCover } from "../types/Types";
+import logger from "../Logger";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,6 +54,7 @@ export class IGDB {
         if (IGDB.clientId == undefined || IGDB.secret == undefined)
             throw new Error("missing IGDB_CLIENT_ID and IGDB_CLIENT_SECRET variables in .env");
 
+        logger.info("Fetching new IGDB access token");
         const auth: AuthResponseIGDB = await fetch(
             `https://id.twitch.tv/oauth2/token?client_id=${IGDB.clientId}&client_secret=${IGDB.secret}&grant_type=client_credentials`,
             { method: "POST" }
@@ -60,6 +62,7 @@ export class IGDB {
 
         IGDB.tokenInfo.access_token = auth.access_token;
         IGDB.tokenInfo.expires_at = Math.floor(Date.now() / 1000) + auth.expires_in - 20;
+        logger.info({ expiresAt: IGDB.tokenInfo.expires_at }, "IGDB token refreshed");
         fs.writeFileSync(FILE_PATH, JSON.stringify(IGDB.tokenInfo, null, 2));
     }
 
@@ -162,7 +165,17 @@ export class IGDB {
             `,
         })
             .then((res) => res.json() as Promise<any[]>)
-            .then((arr) => (arr.length === 1 ? arr[0] : null) as any);
+            .then((arr) => {
+                if (!Array.isArray(arr)) {
+                    logger.error({ gameID: ID, response: arr }, "IGDB unexpected response");
+                    return null;
+                }
+                return arr.length === 1 ? arr[0] : null;
+            })
+            .catch((err) => {
+                logger.error({ err, gameID: ID }, "IGDB getGameByID failed");
+                throw err;
+            });
     }
 
     // DONE
@@ -198,7 +211,12 @@ export class IGDB {
                 offset ${offset};
                 limit ${amount};
             `,
-        }).then((res) => res.json() as Promise<GameCover[]>);
+        })
+            .then((res) => res.json() as Promise<GameCover[]>)
+            .catch((err) => {
+                logger.error({ err, name, genres }, "IGDB searchGames failed");
+                throw err;
+            });
     }
 
     // DONE
