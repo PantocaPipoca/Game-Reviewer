@@ -1,11 +1,17 @@
 // ========== VALIDATION ERRORS (400) ==========
 export const ACCOUNT_NAME_REQUIRED: string = "Missing user name field";
 export const ACCOUNT_NAME_TOO_SHORT: string = "User name is too short";
+export const ACCOUNT_NAME_TOO_LONG: string = "User name is too long";
 export const DISPLAY_NAME_REQUIRED: string = "Missing display name field";
+export const DISPLAY_NAME_TOO_LONG: string = "Display name is too long";
 export const PASSWORD_REQUIRED: string = "Missing password field";
 export const PASSWORD_TOO_SHORT: string = "Password is too short";
+export const PASSWORD_TOO_LONG: string = "Password is too long";
 export const EMAIL_REQUIRED: string = "Missing email field";
 export const EMAIL_INVALID: string = "Email provided is invalid";
+export const EMAIL_TOO_LONG: string = "Email provided is too long";
+export const GENDER_TOO_LONG: string = "Gender provided is too long";
+export const BIO_TOO_LONG: string = "Bio provided is too long";
 
 export const FOLLOWER_NAME_REQUIRED: string = "Missing follower name field";
 export const FOLLOWED_NAME_REQUIRED: string = "Missing followed name field";

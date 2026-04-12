@@ -81,6 +81,31 @@ describe("POST /api/users (register)", () => {
                 .expect(StatusCodes.BAD_REQUEST);
         });
 
+        it("accountName longer than 80", async () => {
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: "a".repeat(81),
+                    displayName,
+                    password,
+                    email,
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+        });
+
+        it("displayName longer than 80", async () => {
+            const u = "user_longname" + Date.now();
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: u,
+                    displayName: "a".repeat(81),
+                    password,
+                    email,
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+        });
+
         it("password shorter than 8", async () => {
             const u = "user_shortpw" + Date.now();
             await request(app)
@@ -94,6 +119,19 @@ describe("POST /api/users (register)", () => {
                 .expect(StatusCodes.BAD_REQUEST);
         });
 
+        it("password longer than 60", async () => {
+            const u = "user_longpw" + Date.now();
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: u,
+                    displayName,
+                    password: "a".repeat(61),
+                    email: email,
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+        });
+
         it("invalid email", async () => {
             await request(app)
                 .post("/api/users")
@@ -102,6 +140,18 @@ describe("POST /api/users (register)", () => {
                     displayName,
                     password,
                     email: "not-an-email",
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+        });
+
+        it("email longer than 110", async () => {
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: "user_badmail",
+                    displayName,
+                    password,
+                    email: "a".repeat(102) + "@test.com",
                 })
                 .expect(StatusCodes.BAD_REQUEST);
         });
@@ -287,7 +337,53 @@ describe("PUT /api/users/me (alter)", () => {
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
-    it("BAD REQUEST if password is shorter than 8", async () => {
+    it("BAD REQUEST if displayName is longer than 80, if gender is longer than 20 or if bio is longer than 1000", async () => {
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: email,
+                userData: {
+                    displayName: "a".repeat(81),
+                    gender: null,
+                    bio: null,
+                },
+                password: "123456789",
+            });
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: email,
+                userData: {
+                    displayName,
+                    gender: "123456789012345678901234567890",
+                    bio: null,
+                },
+                password: "123456789",
+            });
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: email,
+                userData: {
+                    displayName,
+                    gender: null,
+                    bio: "a".repeat(1001),
+                },
+                password: "123456789",
+            });
+    });
+
+    it("BAD REQUEST if password is shorter than 8 or longer than 60", async () => {
         const user: AuthResponse = await register(app, username, displayName, password, email);
 
         await request(app)
@@ -300,9 +396,20 @@ describe("PUT /api/users/me (alter)", () => {
                 password: "1234567",
             })
             .expect(StatusCodes.BAD_REQUEST);
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: email,
+                userData: { displayName, gender: null, bio: null },
+                password: "123456789012345678901234567890123456789012345678901234567890a",
+            })
+            .expect(StatusCodes.BAD_REQUEST);
     });
 
-    it("BAD REQUEST if email is invalid", async () => {
+    it("BAD REQUEST if email is invalid or of longer than 110", async () => {
         const user: AuthResponse = await register(app, username, displayName, password, email);
 
         await request(app)
@@ -311,6 +418,16 @@ describe("PUT /api/users/me (alter)", () => {
             .send({
                 isPrivate: true,
                 email: "invalid-email",
+                userData: { displayName, gender: null, bio: null },
+            })
+            .expect(StatusCodes.BAD_REQUEST);
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: "a".repeat(102) + "@test.com",
                 userData: { displayName, gender: null, bio: null },
             })
             .expect(StatusCodes.BAD_REQUEST);
@@ -382,11 +499,29 @@ describe("PUT /api/users/me (alter)", () => {
                 isPrivate: true,
                 email,
                 userData: { displayName, gender: null, bio: null },
-            })
+            });
 
-        const follower1: AuthResponse = await register(app, "follower1", "follower1", "sspassword", "follower1@email.com");
-        const follower2: AuthResponse = await register(app, "follower2", "follower2", "sspassword", "follower2@email.com");
-        const follower3: AuthResponse = await register(app, "follower3", "follower3", "sspassword", "follower3@email.com");
+        const follower1: AuthResponse = await register(
+            app,
+            "follower1",
+            "follower1",
+            "sspassword",
+            "follower1@email.com"
+        );
+        const follower2: AuthResponse = await register(
+            app,
+            "follower2",
+            "follower2",
+            "sspassword",
+            "follower2@email.com"
+        );
+        const follower3: AuthResponse = await register(
+            app,
+            "follower3",
+            "follower3",
+            "sspassword",
+            "follower3@email.com"
+        );
 
         // send follow requests
         await request(app)
@@ -403,14 +538,14 @@ describe("PUT /api/users/me (alter)", () => {
             .post("/api/users/id/" + user.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower3.token)
             .expect(StatusCodes.CREATED);
-    
+
         await request(app)
             .get("/api/users/me/followers/requests/received")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.OK)
             .then((res) => {
                 expect(res.body.data.length).toBe(3);
-            })
+            });
 
         await request(app)
             .put("/api/users/me")
@@ -428,7 +563,7 @@ describe("PUT /api/users/me (alter)", () => {
             .expect(StatusCodes.OK)
             .then((res) => {
                 expect(res.body.data.length).toBe(0);
-            })
+            });
 
         await request(app)
             .get("/api/users/id/" + user.accountName + "/followers")
@@ -436,8 +571,8 @@ describe("PUT /api/users/me (alter)", () => {
             .expect(StatusCodes.OK)
             .then((res) => {
                 expect(res.body.data.length).toBe(3);
-            })
-        });
+            });
+    });
 });
 
 describe("DELETE /api/users/me", () => {
