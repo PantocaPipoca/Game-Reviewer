@@ -10,15 +10,21 @@ export type UserData = {
 
 export type UserFull = User;
 
-export type UserShort = Omit<UserFull, "createdAt" | "updatedAt" | "userData" | "emailValidation"> & {
+export type UserShort = Omit<
+    UserFull,
+    "createdAt" | "updatedAt" | "userData" | "emailValidation" | "passwordRecover"
+> & {
     userData: Prisma.InputJsonValue;
 };
 
-export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "updatedAt" | "userData" | "emailValidation"> & {
+export type UserPublic = Omit<
+    UserFull,
+    "passwordHash" | "email" | "updatedAt" | "userData" | "emailValidation" | "passwordRecover"
+> & {
     userData: UserData;
 };
 
-export type UserMe = Omit<UserFull, "passwordHash" | "updatedAt" | "createdAt" | "emailValidation">;
+export type UserMe = Omit<UserFull, "passwordHash" | "updatedAt" | "createdAt" | "emailValidation" | "passwordRecover">;
 
 export type UserPrivate = Omit<UserPublic, "userData" | "createdAt">;
 

@@ -222,6 +222,50 @@ router.post("/login", AccountController.login);
  */
 router.post("/logout", auth, AccountController.logout);
 
+/**
+ * swagger
+ *  /users/recover-password:
+ *      post:
+ *          tags: [users]
+ *          summary: gives the user a code via email that allows them to change password
+ *          description: gives the user a code via email that allows them to change password
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [accountName]
+ *                          properties:
+ *                              accountName:
+ *                                  type: string
+ *
+ */
+//router.post("/recover-password", AccountController.recover);
+
+/**
+ * swagger
+ *  /users/reset-password
+ *      post:
+ *          tags: [users]
+ *          summary:
+ *          description:
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [accountName, password]
+ *                          properties:
+ *                              accountName:
+ *                                  type: string
+ *                              password:
+ *                                  type: string
+ *
+ */
+//router.post("/reset-password");
+
 // ===================== CURRENT USER MANAGEMENT =====================
 
 /**
