@@ -11,6 +11,7 @@ import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
 import defaultPfp from "../Assets/default-pfp.png";
 import style from "./CreateReviewPage.module.css";
+import { REVIEW_CONSTS, REVIEW_ERRORS } from "../Types/Consts";
 
 type GameLike = {
     id: number;
@@ -20,7 +21,7 @@ type GameLike = {
     summary?: string;
 };
 
-const MAX_STARS = 5;
+const MAX_STARS: number = 5;
 
 function getCoverUrl(game: GameLike | null): string {
     const url = game?.cover?.url;
@@ -79,18 +80,18 @@ function CreateReviewPage() {
         }
     }, [game, platform]);
 
-    async function handleSubmit() {
+    async function handleSubmit(): Promise<void> {
         setFormError("");
         if (!gameID) {
-            setFormError("Missing game id");
+            setFormError(REVIEW_ERRORS.missingGameId);
             return;
         }
         if (rating <= 0) {
-            setFormError("Select a rating before publishing");
+            setFormError(REVIEW_ERRORS.noRatingPublish);
             return;
         }
         if (!reviewText.trim()) {
-            setFormError("Write a short review before publishing");
+            setFormError(REVIEW_ERRORS.noReviewPublish);
             return;
         }
 
@@ -108,22 +109,22 @@ function CreateReviewPage() {
         }
     }
 
-    function handleStarClick(starIndex: number, clientX: number, element: HTMLButtonElement) {
+    function handleStarClick(starIndex: number, clientX: number, element: HTMLButtonElement): void {
         const bounds = element.getBoundingClientRect();
         const isLeftHalf = clientX - bounds.left < bounds.width / 2;
         setRating(isLeftHalf ? (starIndex - 1) * 2 + 1 : starIndex * 2);
     }
 
-    function handleStarMouseMove(starIndex: number, clientX: number, element: HTMLButtonElement) {
+    function handleStarMouseMove(starIndex: number, clientX: number, element: HTMLButtonElement): void {
         const bounds = element.getBoundingClientRect();
         const isLeftHalf = clientX - bounds.left < bounds.width / 2;
         setHoverScore(isLeftHalf ? (starIndex - 1) * 2 + 1 : starIndex * 2);
     }
 
-    const displayScore = hoverScore ?? rating;
-    const coverUrl = getCoverUrl(game);
-    const gameName = game?.name ?? "Unknown Game";
-    const platformOptions =
+    const displayScore: number = hoverScore ?? rating;
+    const coverUrl: string = getCoverUrl(game);
+    const gameName: string = game?.name ?? "Unknown Game";
+    const platformOptions: { value: string; label: string }[] =
         game?.platforms
             ?.map((p) => p?.name?.trim() ?? "")
             .filter((name, index, arr): name is string => !!name && arr.indexOf(name) === index)
@@ -253,12 +254,25 @@ function CreateReviewPage() {
                                     </div>
                                 </div>
 
+                                <Text
+                                    color={
+                                        reviewText.length < REVIEW_CONSTS.maxCommentLength
+                                            ? "var(--mutedText)"
+                                            : "var(--pink)"
+                                    }
+                                >
+                                    characters left: {REVIEW_CONSTS.maxCommentLength - reviewText.length}
+                                </Text>
                                 <div className={style.reviewInputStack}>
                                     <InputField
                                         multiline
                                         value={reviewText}
                                         placeholder="write your review..."
-                                        onChange={(e) => setReviewText(e.target.value)}
+                                        onChange={(e) => {
+                                            if (e.target.value.length <= REVIEW_CONSTS.maxCommentLength)
+                                                setReviewText(e.target.value);
+                                            else setFormError(REVIEW_ERRORS.reviewTooLong);
+                                        }}
                                     />
                                 </div>
                             </Panel>

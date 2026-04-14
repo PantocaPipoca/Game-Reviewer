@@ -12,6 +12,7 @@ import { ReviewAPI } from "../API/Reviews";
 import { UserAPI } from "../API/User";
 import defaultPfp from "../Assets/default-pfp.png";
 import style from "./EditReviewPage.module.css";
+import { REVIEW_CONSTS, REVIEW_ERRORS } from "../Types/Consts";
 
 type GameLike = {
     id: number;
@@ -21,7 +22,7 @@ type GameLike = {
     summary?: string;
 };
 
-const MAX_STARS = 5;
+const MAX_STARS: number = 5;
 
 function getCoverUrl(game: GameLike | null): string {
     const url = game?.cover?.url;
@@ -107,15 +108,15 @@ function EditReviewPage() {
     async function handleSubmit() {
         setFormError("");
         if (!gameID) {
-            setFormError("Missing game id");
+            setFormError(REVIEW_ERRORS.missingGameId);
             return;
         }
         if (rating <= 0) {
-            setFormError("Select a rating before saving");
+            setFormError(REVIEW_ERRORS.noRatingAlter);
             return;
         }
         if (!reviewText.trim()) {
-            setFormError("Write a short review before saving");
+            setFormError(REVIEW_ERRORS.noReviewAlter);
             return;
         }
 
@@ -124,7 +125,7 @@ function EditReviewPage() {
             await ReviewAPI.update(Number(gameID), { text: reviewText.trim(), score: rating });
             navigate(`/game/${gameID}`);
         } catch {
-            setFormError("Failed to save changes");
+            setFormError(REVIEW_ERRORS.failed);
         } finally {
             setSubmitting(false);
         }
@@ -137,7 +138,7 @@ function EditReviewPage() {
             await ReviewAPI.remove(Number(gameID));
             navigate(`/game/${gameID}`);
         } catch {
-            setFormError("Failed to delete review");
+            setFormError(REVIEW_ERRORS.failedDel);
             setShowDeleteConfirm(false);
         } finally {
             setDeleting(false);
@@ -302,13 +303,25 @@ function EditReviewPage() {
                                         </div>
                                     </div>
                                 </div>
-
+                                <Text
+                                    color={
+                                        reviewText.length < REVIEW_CONSTS.maxCommentLength
+                                            ? "var(--mutedText)"
+                                            : "var(--pink)"
+                                    }
+                                >
+                                    characters left: {REVIEW_CONSTS.maxCommentLength - reviewText.length}
+                                </Text>
                                 <div className={style.reviewInputStack}>
                                     <InputField
                                         multiline
                                         value={reviewText}
                                         placeholder="write your review..."
-                                        onChange={(e) => setReviewText(e.target.value)}
+                                        onChange={(e) => {
+                                            if (e.target.value.length <= REVIEW_CONSTS.maxCommentLength)
+                                                setReviewText(e.target.value);
+                                            else setFormError(REVIEW_ERRORS.reviewTooLong);
+                                        }}
                                     />
                                 </div>
                             </Panel>

@@ -7,7 +7,7 @@ import { toValidGameID } from "./GameController";
 import { AuthRequest, extractLoggedUser } from "../utils/Auth";
 import { ReviewFull } from "../types/Types";
 
-export const REVIEW_MAX_LEN: number = 2000;
+export const REVIEW_MAX_LEN: number = 3500;
 
 export interface ReviewPrimaryKey {
     reviewer: string;

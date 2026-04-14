@@ -15,7 +15,7 @@ export const NAME_MIN_LEN: number = 3;
 export const NAME_MAX_LEN: number = 26;
 export const PASS_MIN_LEN: number = 8;
 export const PASS_MAX_LEN: number = 50;
-export const EMAIL_MAX_LEN: number = 110;
+export const EMAIL_MAX_LEN: number = 70;
 export const GEND_MAX_LEN: number = 20;
 export const BIO_MAX_LEN: number = 1000;
 
