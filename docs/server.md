@@ -43,4 +43,5 @@ Environment variables of the server are set in `/server/.env`
 - `development`<br>
   No email validation needed when creating user accounts.<br>
 - `test`<br>
-  Used to run unit & integration tests — see `docs/testing.md` to run tests.
+  Used to run unit & integration tests - see `docs/testing.md` to run tests.
+  Doesn't print logs to stdout.

@@ -29,10 +29,10 @@ groups:
           description: "Game Reviewer API is down for more than 1 minute"
 
       - alert: HighMemoryUsage
-        expr: nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes > 0.90
+        expr: nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes > 0.95
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Node.js heap above 90%"
+          summary: "Node.js heap above 95%"
           description: "Heap is at {{ $value | humanizePercentage }} — possible memory leak"

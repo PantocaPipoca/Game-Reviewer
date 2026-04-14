@@ -29,12 +29,12 @@ JSON in production. Every request line has method, URL, status code, response ti
 
 | Level   | When                                                                   |
 | ------- | ---------------------------------------------------------------------- |
-| `TRACE` | Very detailed internal flow (function entry/exit, variables, payloads) |
-| `DEBUG` | Useful debugging info (intermediate states)                            |
-| `INFO`  | Normal operations (requests, startup, user actions)                    |
-| `WARN`  | Unexpected but handled issues (retries, invalid input, rate limits)    |
-| `ERROR` | Failures that affect a request or feature                              |
-| `FATAL` | Critical errors causing process crash / shutdown                       |
+| `trace` | Very detailed internal flow (function entry/exit, variables, payloads) |
+| `debug` | Useful debugging info (intermediate states)                            |
+| `info`  | Normal operations (requests, startup, user actions)                    |
+| `warn`  | Unexpected but handled issues (retries, invalid input, rate limits)    |
+| `error` | Failures that affect a request or feature                              |
+| `fatal` | Critical errors causing process crash / shutdown                       |
 
 > Change the level at runtime by setting `PINO_LOG_LEVEL` in `server/.env`.
 
@@ -57,6 +57,6 @@ There are 4 alerts defined:
 | `ServerDown`      | API metrics endpoint unreachable for 1m | critical |
 | `HighErrorRate`   | 5xx rate exceeds 10% of traffic for 2m  | critical |
 | `HighLatency`     | p95 latency exceeds 2s for 5m           | warning  |
-| `HighMemoryUsage` | Node.js heap usage above 90% for 5m     | warning  |
+| `HighMemoryUsage` | Node.js heap usage above 95% for 5m     | warning  |
 
 ! There's no contact points predefined, it has to be added manually.

@@ -85,7 +85,9 @@ export class IGDB {
 
                 IGDB.tokenInfo = { access_token: token, expires_at: expiresAt };
             } catch {
-                IGDB.tokenInfo = { access_token: "", expires_at: 0 };
+                await IGDB.getNewToken();
+                IGDB.readToken = true;
+                return;
             }
             IGDB.readToken = true;
         }

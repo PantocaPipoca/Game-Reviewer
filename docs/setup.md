@@ -95,6 +95,5 @@ npm run dev
 
 - Server: http://localhost:3000
 - Client: http://localhost:5173
--
 
 > Note: the observability stack (Grafana, Prometheus, Loki, Alloy) requires Docker. If you want those running alongside the local server, you can start just the observability containers with `docker compose up -d grafana prometheus loki alloy`.
