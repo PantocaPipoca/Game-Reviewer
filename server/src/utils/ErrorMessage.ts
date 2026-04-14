@@ -19,10 +19,12 @@ export const FOLLOWED_NAME_REQUIRED: string = "Missing followed name field";
 export const GAME_ID_REQUIRED: string = "Missing gameID field";
 
 export const REVIEW_TEXT_REQUIRED: string = "Missing critique provided field";
+export const REVIEW_TEXT_TOO_LONG: string = "Critique field is too long";
 export const REVIEW_SCORE_REQUIRED: string = "Missing score field";
 export const REVIEW_SCORE_INVALID: string = "Invalid score field";
 
 export const COMMENT_TEXT_REQUIRED: string = "Missing comment provided field";
+export const COMMENT_TEXT_TOO_LONG: string = "Comment field is too long";
 export const COMMENT_ID_REQUIRED: string = "Missing comment ID field";
 export const COMMENT_ID_INVALID: string = "Invalid comment ID field";
 

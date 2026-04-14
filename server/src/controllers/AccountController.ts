@@ -11,13 +11,13 @@ import { sanitizeString } from "../utils/Sanitize";
 const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // Lengths of inputs
-const NAME_MIN_LEN: number = 3;
-const NAME_MAX_LEN: number = 26;
-const PASS_MIN_LEN: number = 8;
-const PASS_MAX_LEN: number = 50;
-const EMAIL_MAX_LEN: number = 110;
-const GEND_MAX_LEN: number = 20;
-const BIO_MAX_LEN: number = 1000;
+export const NAME_MIN_LEN: number = 3;
+export const NAME_MAX_LEN: number = 26;
+export const PASS_MIN_LEN: number = 8;
+export const PASS_MAX_LEN: number = 50;
+export const EMAIL_MAX_LEN: number = 110;
+export const GEND_MAX_LEN: number = 20;
+export const BIO_MAX_LEN: number = 1000;
 
 export class AccountController {
     /**

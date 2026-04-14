@@ -7,6 +7,8 @@ import { toValidGameID } from "./GameController";
 import { AuthRequest, extractLoggedUser } from "../utils/Auth";
 import { ReviewFull } from "../types/Types";
 
+export const REVIEW_MAX_LEN: number = 2000;
+
 export interface ReviewPrimaryKey {
     reviewer: string;
     reviewed: number;
@@ -52,6 +54,8 @@ export class ReviewController {
         const gameID: number = toValidGameID(req.params["gameID"]);
         const { text, score } = req.body;
         if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_REQUIRED);
+        if (text.length > REVIEW_MAX_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_TOO_LONG);
 
         const result: ReviewFull = await ReviewService.publishReview(currentUser, gameID, text, checkScore(score));
         return makeSuccess(res, StatusCodes.CREATED, result);
@@ -66,6 +70,8 @@ export class ReviewController {
 
         const gameID: number = toValidGameID(req.params["gameID"]);
         const { text, score } = req.body;
+        if (text.length > REVIEW_MAX_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_TOO_LONG);
 
         const result: ReviewFull = await ReviewService.updateReview(currentUser, gameID, text, checkScore(score));
         return makeSuccess(res, StatusCodes.ACCEPTED, result);
