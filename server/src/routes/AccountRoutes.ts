@@ -57,7 +57,9 @@ const upload = multer({
  *                                      type: string
  *                                      example: success
  *                                  data:
- *                                      type: string
+ *                                      oneOf:
+ *                                          - type: string
+ *                                          - $ref: '#/components/schemas/AuthResponse'
  *              400:
  *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 characters, if the password is shorter than 8 characters, or if the email provided is invalid"
  *                  content:

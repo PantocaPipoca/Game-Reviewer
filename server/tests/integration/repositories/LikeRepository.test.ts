@@ -164,7 +164,7 @@ describe("LikeRepository (integration)", () => {
         const likes: number = 6;
         for (var i = 0; i < likes; i++)
             await LikeRepository.insertLike({ reviewer, reviewed, liker: await quickRegisterUser(), value: true });
-        const dislikes: number = 23;
+        const dislikes: number = 9;
         for (var i = 0; i < dislikes; i++)
             await LikeRepository.insertLike({ reviewer, reviewed, liker: await quickRegisterUser(), value: false });
 

@@ -10,9 +10,21 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { doubleCsrf } from "csrf-csrf";
 import { middleware as openAPIValidator } from "express-openapi-validator";
+import pinoHttp from "pino-http";
+import logger from "./Logger.js";
 
 export function createApp(): Express {
     const app: Express = express();
+
+    app.use(
+        pinoHttp({
+            logger,
+            // skip this endpoints
+            autoLogging: {
+                ignore: (req) => req.url === "/api/health" || req.url === "/api/metrics",
+            },
+        })
+    );
 
     app.use(
         cors({
@@ -123,7 +135,7 @@ export function createApp(): Express {
             });
         }
 
-        console.error(err);
+        logger.error(err, "Unhandled server error");
 
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             status: "error",

@@ -49,7 +49,7 @@ export class AccountController {
             displayName,
             password,
             email,
-            true
+            process.env["NODE_ENV"] !== "development"
         )) as string;
         return makeSuccess(res, StatusCodes.CREATED, result);
     });
