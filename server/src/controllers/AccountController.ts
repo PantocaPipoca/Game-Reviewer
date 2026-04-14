@@ -12,9 +12,9 @@ const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // Lengths of inputs
 const NAME_MIN_LEN: number = 3;
-const NAME_MAX_LEN: number = 80;
+const NAME_MAX_LEN: number = 16;
 const PASS_MIN_LEN: number = 8;
-const PASS_MAX_LEN: number = 60;
+const PASS_MAX_LEN: number = 50;
 const EMAIL_MAX_LEN: number = 110;
 const GEND_MAX_LEN: number = 20;
 const BIO_MAX_LEN: number = 1000;

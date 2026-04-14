@@ -85,7 +85,7 @@ describe("POST /api/users (register)", () => {
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: "a".repeat(81),
+                    accountName: "a".repeat(17),
                     displayName,
                     password,
                     email,
@@ -99,7 +99,7 @@ describe("POST /api/users (register)", () => {
                 .post("/api/users")
                 .send({
                     accountName: u,
-                    displayName: "a".repeat(81),
+                    displayName: "a".repeat(17),
                     password,
                     email,
                 })
@@ -126,7 +126,7 @@ describe("POST /api/users (register)", () => {
                 .send({
                     accountName: u,
                     displayName,
-                    password: "a".repeat(61),
+                    password: "a".repeat(51),
                     email: email,
                 })
                 .expect(StatusCodes.BAD_REQUEST);
@@ -337,22 +337,8 @@ describe("PUT /api/users/me (alter)", () => {
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
-    it("BAD REQUEST if displayName is longer than 80, if gender is longer than 20 or if bio is longer than 1000", async () => {
+    it("BAD REQUEST if gender is longer than 20 or if bio is longer than 1000", async () => {
         const user: AuthResponse = await register(app, username, displayName, password, email);
-
-        await request(app)
-            .put("/api/users/me")
-            .set("Authorization", "Bearer " + user.token)
-            .send({
-                isPrivate: true,
-                email: email,
-                userData: {
-                    displayName: "a".repeat(81),
-                    gender: null,
-                    bio: null,
-                },
-                password: "123456789",
-            });
 
         await request(app)
             .put("/api/users/me")
