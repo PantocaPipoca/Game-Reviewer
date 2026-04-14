@@ -10,7 +10,7 @@ import { uploadAvatar } from "../utils/Cloudinary";
 
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import logger from "../Logger";
+import logger from "../utils/Logger";
 dotenv.config();
 
 const EMAIL = process.env["EMAIL"];
@@ -367,7 +367,8 @@ export class AccountService {
 
     static async uploadAvatar(currentUser: UserPK, buffer: Buffer): Promise<string> {
         await fetchFullUser(currentUser);
-        if (buffer.length > 5 * 1024 * 1024) throw new AppError(StatusCodes.BAD_REQUEST, "Image too large");
+        if (buffer.length > 5 * 1024 * 1024) 
+            throw new AppError(StatusCodes.BAD_REQUEST, "Image too large");
         const url = await uploadAvatar(buffer, currentUser);
         await UserRepository.updateAvatar(currentUser, url);
         return url;

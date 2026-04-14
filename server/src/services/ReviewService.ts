@@ -6,7 +6,7 @@ import { canViewUser, fetchPublicUser } from "./AccountService";
 import { GameRepository } from "../Repository/GameRepository";
 import { ReviewRepository } from "../Repository/ReviewRepository";
 import { IGDB } from "../IGDB/Requests";
-import logger from "../Logger";
+import logger from "../utils/Logger";
 
 // Throws if the game doesn't exist
 async function fetchGame(gameID: number): Promise<GameFull> {

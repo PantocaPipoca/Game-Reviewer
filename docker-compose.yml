@@ -23,6 +23,8 @@ services:
         image: gr_server
         env_file:
             - ./server/.env
+        environment:
+            NODE_ENV: production
         ports:
             - "3000:3000"
             - "5555:5555"
@@ -32,6 +34,7 @@ services:
         volumes:
             - ./server:/app
             - /app/node_modules
+            - ./observability/logs:/app/logs
 
     client:
         build: ./client
@@ -51,11 +54,36 @@ services:
         ports:
             - "9090:9090"
         volumes:
-            - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - ./observability/prometheus/prometheus-config.yml:/etc/prometheus/prometheus.yml
+            - ./observability/prometheus/alerts.yml:/etc/prometheus/alerts.yml
             - prometheus_data:/prometheus
         command:
             - "--config.file=/etc/prometheus/prometheus.yml"
             - "--storage.tsdb.path=/prometheus"
+        restart: unless-stopped
+
+    loki:
+        image: grafana/loki:latest
+        container_name: gr_loki
+        ports:
+            - "3100:3100"
+        volumes:
+            - ./observability/loki/loki-config.yml:/etc/loki/config.yml
+            - loki_data:/loki
+        command: -config.file=/etc/loki/config.yml
+        restart: unless-stopped
+
+    alloy:
+        image: grafana/alloy:latest
+        container_name: gr_alloy
+        ports:
+            - "12345:12345"
+        volumes:
+            - ./observability/alloy/config.alloy:/etc/alloy/config.alloy
+            - /var/run/docker.sock:/var/run/docker.sock
+        command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+        depends_on:
+            - loki
         restart: unless-stopped
 
     grafana:
@@ -64,15 +92,20 @@ services:
         ports:
             - "3001:3000"
         environment:
-            - GF_SECURITY_ADMIN_USER=admin
-            - GF_SECURITY_ADMIN_PASSWORD=admin123
+            - GF_AUTH_ANONYMOUS_ENABLED=true
+            - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+            - GF_AUTH_DISABLE_LOGIN_FORM=true
+            - GF_AUTH_BASIC_ENABLED=false
         volumes:
+            - ./observability/grafana:/etc/grafana/provisioning
             - grafana_data:/var/lib/grafana
         depends_on:
             - prometheus
+            - loki
         restart: unless-stopped
 
 volumes:
     postgres_data:
     prometheus_data:
+    loki_data:
     grafana_data:

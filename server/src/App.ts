@@ -5,13 +5,13 @@ import { AppError } from "./utils/ErrorHandler";
 import { StatusCodes } from "http-status-codes";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
-import SWAGGER_SPEC from "./Swagger.js";
+import SWAGGER_SPEC from "./utils/Swagger.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { doubleCsrf } from "csrf-csrf";
 import { middleware as openAPIValidator } from "express-openapi-validator";
 import pinoHttp from "pino-http";
-import logger from "./Logger.js";
+import logger from "./utils/Logger.js";
 import { register, httpRequestDuration, httpRequestsTotal } from "./utils/Metrics.js";
 import { randomUUID } from "crypto";
 
@@ -28,6 +28,7 @@ export function createApp(): Express {
         })
     );
 
+    // Metrics
     app.use((req, res, next) => {
         const start = Date.now();
         res.on("finish", () => {

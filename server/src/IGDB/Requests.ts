@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 // import { GameCover } from "../types/Types";
 import { GameRepository } from "../Repository/GameRepository";
 import { UserPK, GameCover } from "../types/Types";
-import logger from "../Logger";
+import logger from "../utils/Logger";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
