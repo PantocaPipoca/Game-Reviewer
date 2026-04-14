@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 // import { GameCover } from "../types/Types";
 import { GameRepository } from "../Repository/GameRepository";
 import { UserPK, GameCover } from "../types/Types";
-import logger from "../utils/Logger";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,7 +53,6 @@ export class IGDB {
         if (IGDB.clientId == undefined || IGDB.secret == undefined)
             throw new Error("missing IGDB_CLIENT_ID and IGDB_CLIENT_SECRET variables in .env");
 
-        logger.info("Fetching new IGDB access token");
         const auth: AuthResponseIGDB = await fetch(
             `https://id.twitch.tv/oauth2/token?client_id=${IGDB.clientId}&client_secret=${IGDB.secret}&grant_type=client_credentials`,
             { method: "POST" }
@@ -62,16 +60,7 @@ export class IGDB {
 
         IGDB.tokenInfo.access_token = auth.access_token;
         IGDB.tokenInfo.expires_at = Math.floor(Date.now() / 1000) + auth.expires_in - 20;
-        logger.info({ expiresAt: IGDB.tokenInfo.expires_at }, "IGDB token refreshed");
         fs.writeFileSync(FILE_PATH, JSON.stringify(IGDB.tokenInfo, null, 2));
-    }
-
-    private static get safeAccessToken(): string {
-        const token = IGDB.tokenInfo.access_token;
-        if (typeof token !== "string" || !/^[A-Za-z0-9_\-]+$/.test(token)) {
-            throw new Error("Invalid access token format");
-        }
-        return token;
     }
 
     private static async handleToken(): Promise<void> {
@@ -79,21 +68,20 @@ export class IGDB {
             try {
                 const fileContent = fs.readFileSync(FILE_PATH, "utf-8");
                 const fileData: TokenData = JSON.parse(fileContent);
-
-                const token = typeof fileData.access_token === "string" ? fileData.access_token : "";
-                const expiresAt = typeof fileData.expires_at === "number" ? fileData.expires_at : 0;
-
-                IGDB.tokenInfo = { access_token: token, expires_at: expiresAt };
+                IGDB.tokenInfo = fileData;
             } catch {
-                await IGDB.getNewToken();
-                IGDB.readToken = true;
-                return;
+                const fileData: TokenData = {
+                    access_token: "placeholder",
+                    expires_at: 0,
+                };
+                IGDB.tokenInfo = fileData;
             }
             IGDB.readToken = true;
         }
 
+        const expires_at = IGDB.tokenInfo.expires_at;
         const now = Math.floor(Date.now() / 1000);
-        if (now > IGDB.tokenInfo.expires_at) await IGDB.getNewToken();
+        if (now > expires_at) await IGDB.getNewToken();
         await IGDB.sleep();
     }
 
@@ -105,7 +93,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields
@@ -167,17 +155,7 @@ export class IGDB {
             `,
         })
             .then((res) => res.json() as Promise<any[]>)
-            .then((arr) => {
-                if (!Array.isArray(arr)) {
-                    logger.error({ gameID: ID, response: arr }, "IGDB unexpected response");
-                    return null;
-                }
-                return arr.length === 1 ? arr[0] : null;
-            })
-            .catch((err) => {
-                logger.error({ err, gameID: ID }, "IGDB getGameByID failed");
-                throw err;
-            });
+            .then((arr) => (arr.length === 1 ? arr[0] : null) as any);
     }
 
     // DONE
@@ -194,7 +172,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields:
@@ -213,12 +191,7 @@ export class IGDB {
                 offset ${offset};
                 limit ${amount};
             `,
-        })
-            .then((res) => res.json() as Promise<GameCover[]>)
-            .catch((err) => {
-                logger.error({ err, name, genres }, "IGDB searchGames failed");
-                throw err;
-            });
+        }).then((res) => res.json() as Promise<GameCover[]>);
     }
 
     // DONE
@@ -231,7 +204,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields
@@ -255,7 +228,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields
@@ -287,7 +260,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields genres;
@@ -310,7 +283,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                     fields *;
