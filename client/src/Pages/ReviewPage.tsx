@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
 import { UserAPI } from "../API/User";
-import type { ReviewFull } from "../API/Types";
+import type { CommentShort, ReviewFull, UserMe } from "../API/Types";
 import style from "./ReviewPage.module.css";
 import Panel from "../Components/Panel/Panel";
 import Navbar from "../Components/Navbar/Navbar";
@@ -13,8 +13,13 @@ import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
 import EditButton from "../Components/Buttons/EditButton";
 import Upvote from "../Components/SVGs/Upvote";
 import Downvote from "../Components/SVGs/Downvote";
+import { CommentAPI } from "../API/Comments";
+import CommentCard, { type CommentCardProps } from "../Components/CommentCard/CommentCard";
+import InputField from "../Components/InputField/InputField";
+import PostReplyButton from "../Components/Buttons/PostReplyButton";
 
-const MAX_STARS = 5;
+const MAX_STARS: number = 5;
+const COMMENT_LENGTH_LIMIT: number = 1000;
 
 function normalizeRating(rating: number): number {
     return Math.max(0, Math.min(10, rating)) / 2;
@@ -45,6 +50,8 @@ function ReviewPage() {
     const [review, setReview] = useState<ReviewFull | null>(null);
     const [myReview, setMyReview] = useState<ReviewFull | null>(null);
     const [isOwnReview, setIsOwnReview] = useState(false);
+    const [comments, setComments] = useState<CommentCardProps[]>([]);
+    const [yourReply, setYourReply] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -56,35 +63,44 @@ function ReviewPage() {
             setMyReview(null);
             setIsOwnReview(false);
             try {
-                const reviewedNum = parseInt(reviewed!);
+                const reviewedNum: number = parseInt(reviewed!);
                 if (Number.isNaN(reviewedNum)) {
                     setError(true);
                     return;
                 }
 
-                const [gameResult, reviewResult] = await Promise.allSettled([
+                const [gameResult, reviewResult, commentResult] = await Promise.allSettled([
                     GameAPI.getById(reviewedNum),
                     ReviewAPI.get(reviewer!, reviewedNum),
+                    CommentAPI.getAll(reviewer!, reviewedNum),
                 ]);
-                if (gameResult.status === "fulfilled") {
-                    setGame(gameResult.value);
-                } else {
-                    setError(true);
-                }
-                if (reviewResult.status === "fulfilled") {
-                    setReview(reviewResult.value);
-                } else {
-                    setError(true);
-                }
+                if (gameResult.status === "fulfilled") setGame(gameResult.value);
+                else setError(true);
+                if (reviewResult.status === "fulfilled") setReview(reviewResult.value);
+                else setError(true);
+                if (commentResult.status !== "fulfilled") setError(true);
 
                 try {
-                    const me = await UserAPI.getMe();
+                    const me: UserMe = await UserAPI.getMe();
                     if (me.accountName === reviewer) {
                         setIsOwnReview(true);
                         setMyReview(reviewResult.status === "fulfilled" ? reviewResult.value : null);
                     } else {
                         const ownReview = await ReviewAPI.get(me.accountName, reviewedNum);
                         setMyReview(ownReview);
+                    }
+                    if (commentResult.status === "fulfilled") {
+                        setComments(
+                            commentResult.value.map((comment) => {
+                                return {
+                                    showUser: comment.commentator === me.accountName,
+                                    userName: comment.commentator,
+                                    description: comment.text,
+                                    canModify: comment.commentator === me.accountName,
+                                    isModifying: false,
+                                };
+                            })
+                        );
                     }
                 } catch {
                     setMyReview(null);
@@ -217,17 +233,44 @@ function ReviewPage() {
                         </div>
                     </div>
 
+                    <div className={style.yourReplyRow}>
+                        <div className={style.yourReplyRow2}>
+                            <div className={style.replyInput}>
+                                <Text variant="h2">YOUR REPLY</Text>
+                                <Text
+                                    color={yourReply.length < COMMENT_LENGTH_LIMIT ? "var(--mutedText)" : "var(--pink)"}
+                                >
+                                    characters left: {COMMENT_LENGTH_LIMIT - yourReply.length}
+                                </Text>
+                                <PostReplyButton reviewer={reviewer!} reviewed={game.id} comment={yourReply} />
+                            </div>
+                        </div>
+                        <InputField
+                            placeholder="comment this review ..."
+                            multiline
+                            value={yourReply}
+                            onChange={(e) => {
+                                if (e.target.value.length <= COMMENT_LENGTH_LIMIT) setYourReply(e.target.value);
+                            }}
+                        ></InputField>
+                    </div>
+
                     <Panel type="secondary" className={style.repliesPanel}>
                         <Text variant="h2">REPLIES:</Text>
-                        <Text color="var(--mutedText)">No replies yet.</Text>
+                        {comments.length === 0 ? (
+                            <Text color="var(--mutedText)">No replies yet.</Text>
+                        ) : (
+                            comments.map((c) => (
+                                <CommentCard
+                                    showUser={c.showUser}
+                                    userName={c.userName}
+                                    description={c.description}
+                                    canModify={c.canModify}
+                                    isModifying={c.isModifying}
+                                />
+                            ))
+                        )}
                     </Panel>
-
-                    <div className={style.yourReplyRow}>
-                        <Text variant="h2">YOUR REPLY</Text>
-                        <div className={style.replyInput}>
-                            <CreateReviewButton gameID={reviewed} size="full" />
-                        </div>
-                    </div>
                 </Panel>
             </div>
         </div>
