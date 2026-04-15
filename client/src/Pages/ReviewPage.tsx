@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
 import { UserAPI } from "../API/User";
-import type { ReviewFull } from "../API/Types";
+import type { CommentFull, ReviewFull, UserMe, UserPublic } from "../API/Types";
 import style from "./ReviewPage.module.css";
 import Panel from "../Components/Panel/Panel";
 import Navbar from "../Components/Navbar/Navbar";
@@ -13,8 +13,14 @@ import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
 import EditButton from "../Components/Buttons/EditButton";
 import Upvote from "../Components/SVGs/Upvote";
 import Downvote from "../Components/SVGs/Downvote";
+import { CommentAPI } from "../API/Comments";
+import CommentCard, { type CommentCardProps } from "../Components/CommentCard/CommentCard";
+import InputField from "../Components/InputField/InputField";
+import Button from "../Components/Buttons/Button";
+import buttonStyle from "../Components/Buttons/Buttons.module.css";
 
-const MAX_STARS = 5;
+const MAX_STARS: number = 5;
+const COMMENT_LENGTH_LIMIT: number = 1000;
 
 function normalizeRating(rating: number): number {
     return Math.max(0, Math.min(10, rating)) / 2;
@@ -37,6 +43,25 @@ function getCoverUrl(game: any): string {
     return full.replace("t_thumb", "t_cover_big");
 }
 
+async function makeComments(comments: CommentFull[], user?: UserMe) {
+    const target: CommentCardProps[] = [];
+    const size: number = comments.length;
+    for (var i = 0; i < size; i++) {
+        const current: CommentFull = comments[i];
+        const us: UserPublic = await UserAPI.getByUsername(current.commentator);
+        target.push({
+            showUser: true,
+            userName: current.commentator,
+            userAvatar: us.avatar ?? "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
+            description: current.text,
+            date: current.createdAt,
+            canModify: user !== undefined && current.commentator === user.accountName,
+            isModifying: false,
+        } as CommentCardProps);
+    }
+    return target;
+}
+
 function ReviewPage() {
     const { reviewer, reviewed } = useParams<{ reviewer: string; reviewed: string }>();
     const navigate = useNavigate();
@@ -45,6 +70,10 @@ function ReviewPage() {
     const [review, setReview] = useState<ReviewFull | null>(null);
     const [myReview, setMyReview] = useState<ReviewFull | null>(null);
     const [isOwnReview, setIsOwnReview] = useState(false);
+    const [comments, setComments] = useState<CommentCardProps[]>([]);
+    const [authUser, setAuthUser] = useState<string>("");
+    const [isReplying, setIsReplying] = useState(false);
+    const [yourReply, setYourReply] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -56,29 +85,27 @@ function ReviewPage() {
             setMyReview(null);
             setIsOwnReview(false);
             try {
-                const reviewedNum = parseInt(reviewed!);
+                const reviewedNum: number = parseInt(reviewed!);
                 if (Number.isNaN(reviewedNum)) {
                     setError(true);
                     return;
                 }
 
-                const [gameResult, reviewResult] = await Promise.allSettled([
+                const [gameResult, reviewResult, commentResult] = await Promise.allSettled([
                     GameAPI.getById(reviewedNum),
                     ReviewAPI.get(reviewer!, reviewedNum),
+                    CommentAPI.getAll(reviewer!, reviewedNum),
                 ]);
-                if (gameResult.status === "fulfilled") {
-                    setGame(gameResult.value);
-                } else {
-                    setError(true);
-                }
-                if (reviewResult.status === "fulfilled") {
-                    setReview(reviewResult.value);
-                } else {
-                    setError(true);
-                }
+                if (gameResult.status === "fulfilled") setGame(gameResult.value);
+                else setError(true);
+                if (reviewResult.status === "fulfilled") setReview(reviewResult.value);
+                else setError(true);
+                if (commentResult.status !== "fulfilled") setError(true);
 
                 try {
-                    const me = await UserAPI.getMe();
+                    const me: UserMe = await UserAPI.getMe();
+                    setAuthUser(me.accountName);
+                    if (commentResult.status === "fulfilled") setComments(await makeComments(commentResult.value, me));
                     if (me.accountName === reviewer) {
                         setIsOwnReview(true);
                         setMyReview(reviewResult.status === "fulfilled" ? reviewResult.value : null);
@@ -88,6 +115,7 @@ function ReviewPage() {
                     }
                 } catch {
                     setMyReview(null);
+                    if (commentResult.status === "fulfilled") setComments(await makeComments(commentResult.value));
                 }
             } catch {
                 setError(true);
@@ -97,20 +125,6 @@ function ReviewPage() {
         }
         load();
     }, [reviewer, reviewed]);
-
-    const coverUrl = getCoverUrl(game);
-    const gameName = game?.name ?? (reviewed ? `GAME #${reviewed}` : "GAME TITLE");
-    const reviewerName = review?.reviewer ?? reviewer ?? "Name";
-    const reviewText = review?.text ?? "no review found.";
-    const score = review?.score ?? 0;
-
-    const upvotes = 0;
-    const downvotes = 0;
-    const hoursPlayed = review?.hoursPlayed ?? 0;
-    const played = hoursPlayed > 0 ? "YES" : "NO";
-    const platform = review?.platforms?.length ? review.platforms.join(", ") : "N/A";
-
-    const stars = getStars(normalizeRating(score));
 
     if (loading) {
         return (
@@ -134,6 +148,92 @@ function ReviewPage() {
                         <Text color="var(--pink)">Failed to load review.</Text>
                     </Panel>
                 </div>
+            </div>
+        );
+    }
+
+    const coverUrl: string = getCoverUrl(game);
+    const gameName: string = game?.name ?? (reviewed ? `GAME #${reviewed}` : "GAME TITLE");
+    const reviewerName: string = review?.reviewer ?? reviewer ?? "Name";
+    const reviewText: string = review?.text ?? "no review found.";
+    const score: number = review?.score ?? 0;
+
+    const upvotes: number = 0;
+    const downvotes: number = 0;
+    const hoursPlayed: number = review?.hoursPlayed ?? 0;
+    const played: string = hoursPlayed > 0 ? "YES" : "NO";
+    const platform: string = review?.platforms?.length ? review.platforms.join(", ") : "N/A";
+    const stars: ("full" | "half" | "empty")[] = getStars(normalizeRating(score));
+
+    comments.sort((c1, c2) => c2.date.localeCompare(c1.date));
+
+    function yourReplySection() {
+        if (authUser === "")
+            return (
+                <div className={style.yourReplyRow}>
+                    <Button
+                        className={`${buttonStyle.createReview} ${buttonStyle.createReviewFull}`}
+                        color="var(--transparent)"
+                        onClick={() => navigate("/login")}
+                        aria-label="Create Reply"
+                    >
+                        <Text variant="h3">LOGIN TO REPLY</Text>
+                    </Button>
+                </div>
+            );
+        if (isReplying)
+            return (
+                <div className={style.yourReplyRow}>
+                    <div className={style.yourReplyRow2}>
+                        <div className={style.replyInput}>
+                            <Text variant="h2">YOUR REPLY</Text>
+                            <Text color={yourReply.length < COMMENT_LENGTH_LIMIT ? "var(--mutedText)" : "var(--pink)"}>
+                                characters left: {COMMENT_LENGTH_LIMIT - yourReply.length}
+                            </Text>
+                            <Button
+                                className={buttonStyle.createComment}
+                                onClick={async () => {
+                                    if (reviewer !== undefined && game.id !== undefined) {
+                                        const result: CommentFull = await CommentAPI.add(reviewer, game.id, yourReply);
+                                        comments.unshift({
+                                            showUser: true,
+                                            userName: authUser,
+                                            description: yourReply,
+                                            canModify: true,
+                                            isModifying: false,
+                                            date: result.createdAt,
+                                        });
+                                        setComments(comments);
+                                        setIsReplying(false);
+                                        setYourReply("");
+                                    }
+                                }}
+                                disabled={yourReply.length === 0}
+                            >
+                                <Text>POST</Text>
+                            </Button>
+                        </div>
+                    </div>
+                    <InputField
+                        placeholder="comment this review ..."
+                        multiline
+                        value={yourReply}
+                        onChange={(e) => {
+                            if (e.target.value.length <= COMMENT_LENGTH_LIMIT) setYourReply(e.target.value);
+                        }}
+                    ></InputField>
+                </div>
+            );
+        return (
+            <div className={style.yourReplyRow}>
+                <Button
+                    className={`${buttonStyle.createReview} ${buttonStyle.createReviewFull}`}
+                    color="var(--transparent)"
+                    onClick={() => setIsReplying(true)}
+                    aria-label="Create Reply"
+                >
+                    <Text variant="h3">REPLY</Text>
+                </Button>
             </div>
         );
     }
@@ -199,7 +299,7 @@ function ReviewPage() {
                                         </Text>
                                     </div>
                                 </div>
-                                <Text variant="body" className={style.reviewText}>
+                                <Text variant="body" className={style.reviewText} multiline>
                                     {reviewText}
                                 </Text>
                                 <div className={style.voteRow}>
@@ -217,17 +317,25 @@ function ReviewPage() {
                         </div>
                     </div>
 
+                    {yourReplySection()}
+
                     <Panel type="secondary" className={style.repliesPanel}>
                         <Text variant="h2">REPLIES:</Text>
-                        <Text color="var(--mutedText)">No replies yet.</Text>
+                        {comments.length === 0 ? (
+                            <Text color="var(--mutedText)">No replies yet.</Text>
+                        ) : (
+                            comments.map((c) => (
+                                <CommentCard
+                                    showUser={c.showUser}
+                                    userName={c.userName}
+                                    description={c.description}
+                                    canModify={c.canModify}
+                                    isModifying={c.isModifying}
+                                    date={c.date}
+                                />
+                            ))
+                        )}
                     </Panel>
-
-                    <div className={style.yourReplyRow}>
-                        <Text variant="h2">YOUR REPLY</Text>
-                        <div className={style.replyInput}>
-                            <CreateReviewButton gameID={reviewed} size="full" />
-                        </div>
-                    </div>
                 </Panel>
             </div>
         </div>

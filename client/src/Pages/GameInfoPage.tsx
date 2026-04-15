@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import style from "./GameInfoPage.module.css";
 import Panel from "../Components/Panel/Panel";
 import Navbar from "../Components/Navbar/Navbar";
@@ -54,12 +54,8 @@ function RatingRow({ type, value }: { type: RatingType; value?: number }) {
 
             <div className={style.ratingContent}>
                 <Star type="full" size={46} color={color} />
-                {isYourRating ? (
-                    hasValue ? (
-                        <Text variant="h1">{displayValue.toFixed(1)}</Text>
-                    ) : (
-                        <CreateReviewButton />
-                    )
+                {isYourRating && !hasValue ? (
+                    <CreateReviewButton />
                 ) : (
                     <Text variant="h1">{displayValue.toFixed(1)}</Text>
                 )}
