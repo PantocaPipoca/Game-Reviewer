@@ -42,6 +42,7 @@ jobs:
             RATE_LIMIT_MAX: "10000"
             CSRF_SECRET: test_secret
             NODE_ENV: test
+            PINO_LOG_LEVEL: error
             IGDB_CLIENT_ID: ${{ secrets.IGDB_CLIENT_ID }}
             IGDB_CLIENT_SECRET: ${{ secrets.IGDB_CLIENT_SECRET }}
             EMAIL: ${{ secrets.EMAIL }}
