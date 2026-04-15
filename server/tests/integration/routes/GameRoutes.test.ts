@@ -180,7 +180,7 @@ describe("GET /api/games/id/:gameID/reviews", () => {
         await request(app)
             .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
-            .send({ text: "great game", score: 9 })
+            .send({ text: "great game", score: 9, hoursPlayed: 14, platforms: ["PC"] })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
@@ -193,6 +193,8 @@ describe("GET /api/games/id/:gameID/reviews", () => {
         expect(res.body.data[0].reviewer).toBe(user.accountName);
         expect(res.body.data[0].reviewed).toBe(game.gameID);
         expect(res.body.data[0].score).toBe(9);
+        expect(res.body.data[0].hoursPlayed).toBe(14);
+        expect(res.body.data[0].platforms).toEqual(["PC"]);
     });
 
     it("hides reviews from private users that the viewer doesn't follow", async () => {
@@ -342,6 +344,28 @@ describe("POST /api/games/id/:gameID/reviews", () => {
             .expect(StatusCodes.BAD_REQUEST);
     });
 
+    it("returns BAD REQUEST if hoursPlayed is invalid", async () => {
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
+
+        await request(app)
+            .post("/api/games/id/" + game.gameID + "/reviews")
+            .set("Authorization", "Bearer " + user.token)
+            .send({ text: "great", score: 8, hoursPlayed: -3, platforms: ["PC"] })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    it("returns BAD REQUEST if platforms is invalid", async () => {
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
+
+        await request(app)
+            .post("/api/games/id/" + game.gameID + "/reviews")
+            .set("Authorization", "Bearer " + user.token)
+            .send({ text: "great", score: 8, hoursPlayed: 3, platforms: ["", "PC"] })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
     it("returns CONFLICT if user already reviewed this game", async () => {
         const user = await register(app, username, displayName, password, email);
         const game = await createGame();
@@ -366,7 +390,7 @@ describe("POST /api/games/id/:gameID/reviews", () => {
         const res = await request(app)
             .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
-            .send({ text: "great game", score: 8 })
+            .send({ text: "great game", score: 8, hoursPlayed: 40, platforms: ["PC", "PS5"] })
             .expect(StatusCodes.CREATED);
 
         expect(res.body.status).toBe("success");
@@ -374,6 +398,8 @@ describe("POST /api/games/id/:gameID/reviews", () => {
         expect(res.body.data.reviewed).toBe(game.gameID);
         expect(res.body.data.text).toBe("great game");
         expect(res.body.data.score).toBe(8);
+        expect(res.body.data.hoursPlayed).toBe(40);
+        expect(res.body.data.platforms).toEqual(["PC", "PS5"]);
         expect(res.body.data.createdAt).toBeDefined();
         expect(res.body.data.updatedAt).toBeDefined();
     });
@@ -441,7 +467,7 @@ describe("PUT /api/games/id/:gameID/reviews", () => {
         await request(app)
             .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
-            .send({ text: "original", score: 5 })
+            .send({ text: "original", score: 5, hoursPlayed: 2, platforms: ["Switch"] })
             .expect(StatusCodes.CREATED);
 
         await request(app)
@@ -464,7 +490,7 @@ describe("PUT /api/games/id/:gameID/reviews", () => {
         const res = await request(app)
             .put("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
-            .send({ text: "updated review", score: 7 })
+            .send({ text: "updated review", score: 7, hoursPlayed: 80, platforms: ["PC"] })
             .expect(StatusCodes.ACCEPTED);
 
         expect(res.body.status).toBe("success");
@@ -472,6 +498,8 @@ describe("PUT /api/games/id/:gameID/reviews", () => {
         expect(res.body.data.reviewed).toBe(game.gameID);
         expect(res.body.data.text).toBe("updated review");
         expect(res.body.data.score).toBe(7);
+        expect(res.body.data.hoursPlayed).toBe(80);
+        expect(res.body.data.platforms).toEqual(["PC"]);
     });
 });
 

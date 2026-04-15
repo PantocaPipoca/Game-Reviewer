@@ -21,32 +21,57 @@ describe("ReviewRepository (integration)", () => {
     }
 
     // Auxiliary function, inserts a review
-    async function insertReviewAux(pk: ReviewPK, text: string, score: number): Promise<ReviewFull> {
+    async function insertReviewAux(
+        pk: ReviewPK,
+        text: string,
+        score: number,
+        hoursPlayed: number | null = null,
+        platforms: string[] = []
+    ): Promise<ReviewFull> {
         return await ReviewRepository.insertReview({
             reviewer: pk.reviewer,
             reviewed: pk.reviewed,
             text,
             score,
+            hoursPlayed,
+            platforms,
         });
     }
 
     // Auxiliary function, updates a review
-    async function updateReviewAux(pk: ReviewPK, text: string, score: number): Promise<ReviewFull> {
+    async function updateReviewAux(
+        pk: ReviewPK,
+        text: string,
+        score: number,
+        hoursPlayed: number | null = null,
+        platforms: string[] = []
+    ): Promise<ReviewFull> {
         return await ReviewRepository.updateReview({
             reviewer: pk.reviewer,
             reviewed: pk.reviewed,
             text,
             score,
+            hoursPlayed,
+            platforms,
         });
     }
 
     // Auxiliary function, checks a review's data against expected values
-    function checkReviewAux(review: ReviewFull | null, pk: ReviewPK, text: string, score: number): void {
+    function checkReviewAux(
+        review: ReviewFull | null,
+        pk: ReviewPK,
+        text: string,
+        score: number,
+        hoursPlayed?: number,
+        platforms?: string[]
+    ): void {
         expect(review).not.toBeNull();
         expect(review?.reviewer).toBe(pk.reviewer);
         expect(review?.reviewed).toBe(pk.reviewed);
         expect(review?.text).toBe(text);
         expect(review?.score).toBe(score);
+        expect(review?.hoursPlayed).toBe(hoursPlayed ?? null);
+        expect(review?.platforms).toEqual(platforms ?? []);
     }
 
     it("Inserts and selects a review", async () => {
@@ -60,11 +85,13 @@ describe("ReviewRepository (integration)", () => {
         // Publishes review
         const text: string = "aaa";
         const score: number = 8;
-        await insertReviewAux(pk, text, score);
+        const hoursPlayed: number = 42;
+        const platforms: string[] = ["PC", "PS5"];
+        await insertReviewAux(pk, text, score, hoursPlayed, platforms);
 
         // Finds review
         const found2: ReviewFull | null = await ReviewRepository.selectReview(pk);
-        checkReviewAux(found2, pk, text, score);
+        checkReviewAux(found2, pk, text, score, hoursPlayed, platforms);
     });
 
     it("Inserts and updates a review", async () => {
@@ -75,17 +102,17 @@ describe("ReviewRepository (integration)", () => {
         await expect(updateReviewAux(pk, "", 1)).rejects.toBeDefined();
 
         // Publishes review
-        await insertReviewAux(pk, "text", 1);
+        await insertReviewAux(pk, "text", 1, 1, ["Switch"]);
 
         // Updates review
         const text: string = "bbb";
         const score: number = 6;
-        const found1: ReviewFull = await updateReviewAux(pk, text, score);
-        checkReviewAux(found1, pk, text, score);
+        const found1: ReviewFull = await updateReviewAux(pk, text, score, 12, ["PC"]);
+        checkReviewAux(found1, pk, text, score, 12, ["PC"]);
 
         // Finds review
         const found2: ReviewFull | null = await ReviewRepository.selectReview(pk);
-        checkReviewAux(found2, pk, text, score);
+        checkReviewAux(found2, pk, text, score, 12, ["PC"]);
     });
 
     it("Inserts and deletes a review", async () => {
@@ -98,11 +125,11 @@ describe("ReviewRepository (integration)", () => {
         // Publishes review
         const text: string = "ccc";
         const score: number = 7;
-        await insertReviewAux(pk, text, score);
+        await insertReviewAux(pk, text, score, 3, ["Xbox"]);
 
         // Deletes review
         const found: ReviewFull = await ReviewRepository.deleteReview(pk);
-        checkReviewAux(found, pk, text, score);
+        checkReviewAux(found, pk, text, score, 3, ["Xbox"]);
 
         // Makes sure review is gone
         expect(await ReviewRepository.selectReview(pk)).toBeNull();
@@ -121,6 +148,8 @@ describe("ReviewRepository (integration)", () => {
                         reviewed: p2.reviewed,
                         text: p1.reviewer + " " + p2.reviewed,
                         score: 5,
+                        hoursPlayed: 10,
+                        platforms: ["PC"],
                     })
             )
         );
@@ -133,6 +162,8 @@ describe("ReviewRepository (integration)", () => {
                 expect(review.reviewed).toBe(p1.reviewed);
                 expect(review.text).toBe(review.reviewer + " " + review.reviewed);
                 expect(review.score).toBe(5);
+                expect(review.hoursPlayed).toBe(10);
+                expect(review.platforms).toEqual(["PC"]);
             });
         });
 
@@ -144,6 +175,8 @@ describe("ReviewRepository (integration)", () => {
                 expect(review.reviewer).toBe(p1.reviewer);
                 expect(review.text).toBe(review.reviewer + " " + review.reviewed);
                 expect(review.score).toBe(5);
+                expect(review.hoursPlayed).toBe(10);
+                expect(review.platforms).toEqual(["PC"]);
             });
         });
     });
