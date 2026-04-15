@@ -1,6 +1,6 @@
 import { createApp } from "./App.js";
 import { Express } from "express";
-import logger from "./Logger.js";
+import logger from "./utils/Logger.js";
 
 const app: Express = createApp();
 const PORT = process.env["PORT"] || 3000;
