@@ -17,6 +17,8 @@ export type ReviewCardProps = {
     showUser?: boolean;
     userName?: string;
     userAvatar?: string;
+    hoursPlayed?: number | null;
+    platforms?: string[];
     reviewer: string;
     reviewed: number;
 };
@@ -51,6 +53,8 @@ function ReviewCard({
     showUser = false,
     userName = "######",
     userAvatar = "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
+    hoursPlayed = null,
+    platforms = [],
     reviewer,
     reviewed,
 }: ReviewCardProps) {
@@ -83,6 +87,9 @@ function ReviewCard({
 
                     <Text variant="body" className={style.description}>
                         {description}
+                    </Text>
+                    <Text variant="body" color="var(--mutedText)">
+                        {`Hours Played: ${hoursPlayed ?? 0} | Platform: ${platforms.length > 0 ? platforms.join(", ") : "N/A"}`}
                     </Text>
 
                     <div className={style.bottomRow}>
