@@ -10,6 +10,7 @@ import { uploadAvatar } from "../utils/Cloudinary";
 
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import logger from "../utils/Logger";
 dotenv.config();
 
 const EMAIL = process.env["EMAIL"];
@@ -149,11 +150,13 @@ export class AccountService {
                     html: `<h1>${newUser.emailValidation}</h1>`,
                 });
             } catch (err) {
+                logger.error({ err, username }, "Verification email failed to send");
                 throw new AppError(
                     StatusCodes.SERVICE_UNAVAILABLE,
                     "gmail or connection to it is having some problems"
                 );
             }
+            logger.info({ username }, "New user registered");
             return newUser.accountName;
         } else {
             return AccountService.verify(newUser.accountName, newUser.emailValidation as number);
@@ -178,6 +181,7 @@ export class AccountService {
                 token,
             } as AuthResponse;
         } catch (err) {
+            logger.warn({ err, accountName }, "Verification failed");
             throw new AppError(StatusCodes.NOT_FOUND, "wrong code");
         }
     }
@@ -191,19 +195,25 @@ export class AccountService {
     static async loginUser(username: UserPK, password: string): Promise<AuthResponse> {
         const user: UserFull | null = await UserRepository.selectUser(username);
         // verify user
-        if (!user) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
-
+        if (!user) {
+            logger.warn({ username }, "Login failed - user not found");
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+        }
         const isValid: boolean = await bcrypt.compare(password, user.passwordHash);
         // Verify password
-        if (!isValid) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+        if (!isValid) {
+            logger.warn({ username }, "Login failed - invalid password");
+            throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
+        }
 
         if (user.emailValidation != null) {
+            logger.warn({ username }, "Login failed - user not validated");
             throw new AppError(StatusCodes.PRECONDITION_REQUIRED, "user not validated");
         }
 
         // Generate JWT token
         const token: string = generateToken(user.accountName);
-
+        logger.info({ username }, "User logged in");
         return {
             accountName: user.accountName,
             isPrivate: user.isPrivate,
@@ -292,7 +302,7 @@ export class AccountService {
     static async removeUser(currentUser: UserPK): Promise<UserPublic> {
         const user: UserFull = await fetchFullUser(currentUser);
         const deletedUser: UserFull = await UserRepository.deleteUser(user.accountName);
-
+        logger.info({ username: currentUser }, "User account deleted");
         return userFullToPublic(deletedUser);
     }
 
@@ -357,7 +367,8 @@ export class AccountService {
 
     static async uploadAvatar(currentUser: UserPK, buffer: Buffer): Promise<string> {
         await fetchFullUser(currentUser);
-        if (buffer.length > 5 * 1024 * 1024) throw new AppError(StatusCodes.BAD_REQUEST, "Image too large");
+        if (buffer.length > 5 * 1024 * 1024) 
+            throw new AppError(StatusCodes.BAD_REQUEST, "Image too large");
         const url = await uploadAvatar(buffer, currentUser);
         await UserRepository.updateAvatar(currentUser, url);
         return url;

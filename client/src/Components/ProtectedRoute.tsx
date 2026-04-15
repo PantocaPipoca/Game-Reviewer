@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { isAuthenticated } from "../API/Auth";
 
 type ProtectedRouteProps = {
@@ -9,6 +9,7 @@ type ProtectedRouteProps = {
 function ProtectedRoute({ children }: ProtectedRouteProps) {
     const [loading, setLoading] = useState(true);
     const [allowed, setAllowed] = useState(false);
+    const location = useLocation();
 
     useEffect(() => {
         async function checkAuth() {
@@ -25,7 +26,7 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
 
     if (!allowed) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/login" replace state={{ from: location.pathname }} />;
     }
 
     return <>{children}</>;

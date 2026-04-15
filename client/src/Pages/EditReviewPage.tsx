@@ -85,6 +85,10 @@ function EditReviewPage() {
                     const review = reviewResult.value;
                     setRating(review.score);
                     setReviewText(review.text);
+                    const reviewHoursPlayed = review.hoursPlayed ?? 0;
+                    setHoursPlayed(reviewHoursPlayed > 0 ? `${reviewHoursPlayed}` : "");
+                    setPlayed(reviewHoursPlayed > 0);
+                    setPlatform(review.platforms[0] ?? "");
                 } else {
                     navigate(`/game/${gameID}/review/create`, { replace: true });
                 }
@@ -121,7 +125,14 @@ function EditReviewPage() {
 
         setSubmitting(true);
         try {
-            await ReviewAPI.update(Number(gameID), { text: reviewText.trim(), score: rating });
+            const normalizedHoursPlayed = played ? (hoursPlayed ? Number(hoursPlayed) : undefined) : 0;
+            const normalizedPlatforms = played && platform.trim() ? [platform.trim()] : [];
+            await ReviewAPI.update(Number(gameID), {
+                text: reviewText.trim(),
+                score: rating,
+                hoursPlayed: normalizedHoursPlayed,
+                platforms: normalizedPlatforms,
+            });
             navigate(`/game/${gameID}`);
         } catch {
             setFormError("Failed to save changes");

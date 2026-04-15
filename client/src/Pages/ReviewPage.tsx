@@ -160,9 +160,9 @@ function ReviewPage() {
 
     const upvotes: number = 0;
     const downvotes: number = 0;
-    const played: string = "?";
-    const hoursPlayed: number = 0;
-    const platform: string = "?";
+    const hoursPlayed: number = review?.hoursPlayed ?? 0;
+    const played: string = hoursPlayed > 0 ? "YES" : "NO";
+    const platform: string = review?.platforms?.length ? review.platforms.join(", ") : "N/A";
     const stars: ("full" | "half" | "empty")[] = getStars(normalizeRating(score));
 
     comments.sort((c1, c2) => c2.date.localeCompare(c1.date));

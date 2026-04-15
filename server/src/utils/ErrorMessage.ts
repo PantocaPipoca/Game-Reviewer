@@ -15,6 +15,8 @@ export const GAME_ID_REQUIRED: string = "Missing gameID field";
 export const REVIEW_TEXT_REQUIRED: string = "Missing critique provided field";
 export const REVIEW_SCORE_REQUIRED: string = "Missing score field";
 export const REVIEW_SCORE_INVALID: string = "Invalid score field";
+export const REVIEW_HOURS_PLAYED_INVALID: string = "Invalid hoursPlayed field";
+export const REVIEW_PLATFORMS_INVALID: string = "Invalid platforms field";
 
 export const COMMENT_TEXT_REQUIRED: string = "Missing comment provided field";
 export const COMMENT_ID_REQUIRED: string = "Missing comment ID field";
