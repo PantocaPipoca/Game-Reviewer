@@ -7,6 +7,8 @@ export const AUTH_VALIDATION = {
     maxEmailLength: 70,
 } as const;
 
+export const maxLoginLength: number = Math.max(AUTH_VALIDATION.maxEmailLength, AUTH_VALIDATION.maxUserNameLength);
+
 export const AUTH_ERRORS = {
     requiredFields: "All fields are required.",
     invalidEmail: "Invalid email format.",
@@ -16,6 +18,7 @@ export const AUTH_ERRORS = {
     passwordTooShort: `Password must be at least ${AUTH_VALIDATION.minPasswordLength} characters long.`,
     passwordTooLong: `Password must be at most ${AUTH_VALIDATION.maxPasswordLength} characters long.`,
     emailTooLong: `Email must be at most ${AUTH_VALIDATION.maxEmailLength} characters long.`,
+    loginTooLong: `Email / UserName field accepts at most ${maxLoginLength} characters.`,
     passwordsDoNotMatch: "Passwords do not match.",
     loginFailed: "Login failed. Please try again.",
     registerFailed: "Registration failed. Please try again.",
