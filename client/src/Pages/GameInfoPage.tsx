@@ -310,6 +310,8 @@ function GameInfoPage() {
                                     key={`${review.reviewer}-${review.reviewed}`}
                                     description={review.text}
                                     rating={review.score}
+                                    hoursPlayed={review.hoursPlayed}
+                                    platforms={review.platforms}
                                     showUser
                                     userName={review.reviewer}
                                     reviewer={review.reviewer}

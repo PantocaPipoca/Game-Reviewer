@@ -69,6 +69,8 @@ export type ReviewFull = {
     reviewed: number;
     text: string;
     score: number;
+    hoursPlayed: number | null;
+    platforms: string[];
     createdAt: string;
     updatedAt: string;
 };
@@ -78,6 +80,8 @@ export type ReviewShort = {
     reviewed: number;
     text: string;
     score: number;
+    hoursPlayed?: number;
+    platforms?: string[];
 };
 
 // ===================== Comment Types =====================

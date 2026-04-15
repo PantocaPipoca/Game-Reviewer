@@ -106,9 +106,9 @@ function ReviewPage() {
 
     const upvotes = 0;
     const downvotes = 0;
-    const played = "?";
-    const hoursPlayed = 0;
-    const platform = "?";
+    const hoursPlayed = review?.hoursPlayed ?? 0;
+    const played = hoursPlayed > 0 ? "YES" : "NO";
+    const platform = review?.platforms?.length ? review.platforms.join(", ") : "N/A";
 
     const stars = getStars(normalizeRating(score));
 
