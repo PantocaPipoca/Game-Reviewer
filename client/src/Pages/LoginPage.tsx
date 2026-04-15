@@ -39,7 +39,10 @@ function LoginPage() {
             navigate(redirectPath, { replace: true });
         } catch (err: any) {
             if (err.response.status == 428) {
-                navigate(`/validation#${accountName}`);
+                navigate(`/validation#${accountName}`, {
+                    state: { from: redirectPath },
+                    replace: true,
+                });
             }
             const message = err.response?.data?.message || AUTH_ERRORS.loginFailed;
             setError(message);
@@ -87,7 +90,7 @@ function LoginPage() {
 
                 <div className={style.signupRow}>
                     <Text color="var(--mutedText)">don't have an account?</Text>
-                    <Link to="/register" className={`body ${style.link}`}>
+                    <Link to="/register" state={{ from: redirectPath }} className={`body ${style.link}`}>
                         {`> `}CREATE ACCOUNT
                     </Link>
                 </div>
