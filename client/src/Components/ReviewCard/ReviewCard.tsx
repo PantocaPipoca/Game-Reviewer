@@ -81,7 +81,7 @@ function ReviewCard({
                         ))}
                     </div>
 
-                    <Text variant="body" className={style.description}>
+                    <Text variant="body" className={style.description} multiline>
                         {description}
                     </Text>
 
