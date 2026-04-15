@@ -4,7 +4,7 @@ import InputField from "../Components/InputField/InputField";
 import LoginButton from "../Components/Buttons/LoginButton";
 import Text from "../Components/Text/Text";
 import style from "./LoginPage.module.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
 import { AUTH_ERRORS } from "../Types/Consts";
@@ -15,12 +15,14 @@ function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectPath = (location.state as { from?: string } | undefined)?.from || "/";
 
     useEffect(() => {
         isAuthenticated().then((authenticated) => {
-            if (authenticated) navigate("/");
+            if (authenticated) navigate(redirectPath, { replace: true });
         });
-    }, [navigate]);
+    }, [navigate, redirectPath]);
 
     const handleLogin = async () => {
         const accountName = identifier.trim();
@@ -34,7 +36,7 @@ function LoginPage() {
         setLoading(true);
         try {
             await UserAPI.login({ accountName, password });
-            navigate("/");
+            navigate(redirectPath, { replace: true });
         } catch (err: any) {
             if (err.response.status == 428) {
                 navigate(`/validation#${accountName}`);
