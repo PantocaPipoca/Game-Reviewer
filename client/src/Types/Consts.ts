@@ -32,10 +32,11 @@ export const ACCOUNT_CONSTS = {
 export const ACCOUNT_ERRORS = {
     genderTooLong: `Gender must be at most ${ACCOUNT_CONSTS.maxGenderLength} characters long.`,
     bioTooLong: `Bio must be at most ${ACCOUNT_CONSTS.maxBioLength} characters long.`,
+    failedSave: "Failed to save changes",
 } as const;
 
 export const REVIEW_CONSTS = {
-    maxReviewLength: 2000,
+    maxReviewLength: 3500,
     maxCommentLength: 1000,
 } as const;
 
@@ -46,6 +47,7 @@ export const REVIEW_ERRORS = {
     noReviewPublish: "Write a short review before publishing.",
     noReviewAlter: "Write a short review before saving",
     reviewTooLong: `Review must be at most ${REVIEW_CONSTS.maxReviewLength} characters long.`,
-    failed: "Failed to save changes.",
+    failedCreate: "Failed to publish review.",
+    failedSave: "Failed to save review.",
     failedDel: "Failed to delete review.",
 } as const;

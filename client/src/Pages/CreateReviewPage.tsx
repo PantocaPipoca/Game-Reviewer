@@ -103,7 +103,7 @@ function CreateReviewPage() {
             });
             navigate(`/game/${gameID}`);
         } catch {
-            setFormError("Failed to publish review");
+            setFormError(REVIEW_ERRORS.failedCreate);
         } finally {
             setSubmitting(false);
         }
@@ -256,12 +256,12 @@ function CreateReviewPage() {
 
                                 <Text
                                     color={
-                                        reviewText.length < REVIEW_CONSTS.maxCommentLength
+                                        reviewText.length < REVIEW_CONSTS.maxReviewLength
                                             ? "var(--mutedText)"
                                             : "var(--pink)"
                                     }
                                 >
-                                    characters left: {REVIEW_CONSTS.maxCommentLength - reviewText.length}
+                                    characters left: {REVIEW_CONSTS.maxReviewLength - reviewText.length}
                                 </Text>
                                 <div className={style.reviewInputStack}>
                                     <InputField
@@ -269,7 +269,7 @@ function CreateReviewPage() {
                                         value={reviewText}
                                         placeholder="write your review..."
                                         onChange={(e) => {
-                                            if (e.target.value.length <= REVIEW_CONSTS.maxCommentLength)
+                                            if (e.target.value.length <= REVIEW_CONSTS.maxReviewLength)
                                                 setReviewText(e.target.value);
                                             else setFormError(REVIEW_ERRORS.reviewTooLong);
                                         }}

@@ -7,7 +7,7 @@ import Button from "../Components/Buttons/Button";
 import style from "./EditProfilePage.module.css";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
-import { ACCOUNT_CONSTS, ACCOUNT_ERRORS, AUTH_ERRORS, AUTH_VALIDATION, REVIEW_ERRORS } from "../Types/Consts";
+import { ACCOUNT_CONSTS, ACCOUNT_ERRORS, AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
 import type { UserMe } from "../API/Types";
 import defaultPfp from "../Assets/default-pfp.png";
 import { RowAux } from "./RegisterPage";
@@ -107,7 +107,7 @@ function EditProfilePage() {
             });
             navigate(-1);
         } catch (err: any) {
-            setError(err?.response?.data?.message ?? REVIEW_ERRORS.failed);
+            setError(err?.response?.data?.message ?? ACCOUNT_ERRORS.failedSave);
         } finally {
             setSaving(false);
         }

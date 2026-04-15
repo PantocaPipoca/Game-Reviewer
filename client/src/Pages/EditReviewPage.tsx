@@ -125,7 +125,7 @@ function EditReviewPage() {
             await ReviewAPI.update(Number(gameID), { text: reviewText.trim(), score: rating });
             navigate(`/game/${gameID}`);
         } catch {
-            setFormError(REVIEW_ERRORS.failed);
+            setFormError(REVIEW_ERRORS.failedSave);
         } finally {
             setSubmitting(false);
         }
