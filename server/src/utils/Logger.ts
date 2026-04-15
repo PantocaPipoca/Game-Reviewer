@@ -1,26 +1,12 @@
 import pino from "pino";
+import fs from "fs";
 
-const isDev = process.env["NODE_ENV"] !== "production";
+const isProd = process.env["NODE_ENV"] === "production";
 
-const transport = pino.transport({
-    targets: isDev
-        ? [
-              {
-                  target: "pino-pretty",
-                  options: {
-                      colorize: true,
-                      translateTime: "SYS:HH:MM:ss",
-                      ignore: "pid,hostname",
-                  },
-              },
-          ]
-        : [
-              {
-                  target: "pino/file",
-                  options: { destination: 1 }, // 1 = stdout
-              },
-          ],
-});
+const streams: pino.StreamEntry[] = [
+    { stream: process.stdout },
+    ...(isProd ? [{ stream: fs.createWriteStream("/app/logs/app.log", { flags: "a" }) }] : []),
+];
 
 const logger = pino(
     {
@@ -29,7 +15,6 @@ const logger = pino(
             level: (label) => ({ level: label.toUpperCase() }),
         },
         timestamp: pino.stdTimeFunctions.isoTime,
-        // These will show as [Redacted] if accidentally logged
         redact: {
             paths: [
                 "password",
@@ -48,7 +33,7 @@ const logger = pino(
             censor: "[Redacted]",
         },
     },
-    transport
+    pino.multistream(streams)
 );
 
 export default logger;
