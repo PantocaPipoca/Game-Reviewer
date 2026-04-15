@@ -6,74 +6,18 @@
     width: 100% !important;
 }
 
-.seeMore {
-    text-decoration: none;
-}
-
-.seeMore:hover {
-    text-decoration: underline;
-    text-decoration-color: var(--pink);
-    text-decoration-style: solid;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
-}
-
-.upVote {
-    height: 24px;
-    aspect-ratio: 1 / 1;
-}
-
-.infoColumn {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding: var(--spacingSmall);
-    flex: 1;
-    width: 100%;
-}
-
-.description {
-    margin-top: var(--spacingSmall);
-}
-
-.bottomRow {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: space-between;
-    margin-top: auto;
-}
-
-.voteActions {
-    display: flex;
-    align-items: center;
-    gap: var(--spacingSmall);
-}
-.cover {
-    margin: var(--spacingSmall);
-    width: 150px;
-    aspect-ratio: 3 / 4;
-    cursor: pointer;
-}
-
-.stars {
-    display: flex;
-    gap: var(--spacingSmall);
-    margin-bottom: var(--spacingSmall);
-}
-
-.avatar {
-    border: var(--borderWidth) solid var(--border);
-    width: 100%;
-    aspect-ratio: 1 / 1;
-}
-
 .userBlock {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: var(--spacingSmall);
-    width: 150px;
+    width: 130px;
     cursor: pointer;
+}
+
+.avatar {
+    border: var(--borderWidth) solid var(--border);
+    width: 50%;
+    aspect-ratio: 1 / 1;
 }
