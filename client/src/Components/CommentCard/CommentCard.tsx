@@ -21,12 +21,13 @@ function CommentCard({
         <div className={style.panel}>
             <Panel type="secondary" direction="row" className={style.fullWidth}>
                 {showUser ? (
-                    <div className={style.userBlock} role="button" tabIndex={0}>
+                    <div className={style.userBlock} tabIndex={0}>
                         <Text variant="h3">{userName}</Text>
                     </div>
                 ) : (
                     <div></div>
                 )}
+                <Text variant="small">{description}</Text>
             </Panel>
         </div>
     );

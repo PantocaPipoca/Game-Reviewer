@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
 import { UserAPI } from "../API/User";
-import type { CommentShort, ReviewFull, UserMe } from "../API/Types";
+import type { CommentFull, ReviewFull, UserMe } from "../API/Types";
 import style from "./ReviewPage.module.css";
 import Panel from "../Components/Panel/Panel";
 import Navbar from "../Components/Navbar/Navbar";
@@ -16,7 +16,8 @@ import Downvote from "../Components/SVGs/Downvote";
 import { CommentAPI } from "../API/Comments";
 import CommentCard, { type CommentCardProps } from "../Components/CommentCard/CommentCard";
 import InputField from "../Components/InputField/InputField";
-import PostReplyButton from "../Components/Buttons/PostReplyButton";
+import Button from "../Components/Buttons/Button";
+import buttonStyle from "../Components/Buttons/Buttons.module.css";
 
 const MAX_STARS: number = 5;
 const COMMENT_LENGTH_LIMIT: number = 1000;
@@ -51,6 +52,7 @@ function ReviewPage() {
     const [myReview, setMyReview] = useState<ReviewFull | null>(null);
     const [isOwnReview, setIsOwnReview] = useState(false);
     const [comments, setComments] = useState<CommentCardProps[]>([]);
+    const [isReplying, setIsReplying] = useState(false);
     const [yourReply, setYourReply] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -114,20 +116,6 @@ function ReviewPage() {
         load();
     }, [reviewer, reviewed]);
 
-    const coverUrl = getCoverUrl(game);
-    const gameName = game?.name ?? (reviewed ? `GAME #${reviewed}` : "GAME TITLE");
-    const reviewerName = review?.reviewer ?? reviewer ?? "Name";
-    const reviewText = review?.text ?? "no review found.";
-    const score = review?.score ?? 0;
-
-    const upvotes = 0;
-    const downvotes = 0;
-    const played = "?";
-    const hoursPlayed = 0;
-    const platform = "?";
-
-    const stars = getStars(normalizeRating(score));
-
     if (loading) {
         return (
             <div>
@@ -150,6 +138,76 @@ function ReviewPage() {
                         <Text color="var(--pink)">Failed to load review.</Text>
                     </Panel>
                 </div>
+            </div>
+        );
+    }
+
+    const coverUrl: string = getCoverUrl(game);
+    const gameName: string = game?.name ?? (reviewed ? `GAME #${reviewed}` : "GAME TITLE");
+    const reviewerName: string = review?.reviewer ?? reviewer ?? "Name";
+    const reviewText: string = review?.text ?? "no review found.";
+    const score: number = review?.score ?? 0;
+
+    const upvotes: number = 0;
+    const downvotes: number = 0;
+    const played: string = "?";
+    const hoursPlayed: number = 0;
+    const platform: string = "?";
+
+    const stars: ("full" | "half" | "empty")[] = getStars(normalizeRating(score));
+
+    function yourReplySection() {
+        if (isReplying)
+            return (
+                <div className={style.yourReplyRow}>
+                    <div className={style.yourReplyRow2}>
+                        <div className={style.replyInput}>
+                            <Text variant="h2">YOUR REPLY</Text>
+                            <Text color={yourReply.length < COMMENT_LENGTH_LIMIT ? "var(--mutedText)" : "var(--pink)"}>
+                                characters left: {COMMENT_LENGTH_LIMIT - yourReply.length}
+                            </Text>
+                            <Button
+                                className={buttonStyle.createComment}
+                                onClick={async () => {
+                                    if (reviewer !== undefined && game.id !== undefined) {
+                                        await CommentAPI.add(reviewer, game.id, yourReply);
+                                        comments.push({
+                                            showUser: true,
+                                            userName: "",
+                                            description: yourReply,
+                                            canModify: true,
+                                            isModifying: false,
+                                        });
+                                        setComments(comments);
+                                        setIsReplying(false);
+                                    }
+                                }}
+                                disabled={yourReply.length === 0}
+                            >
+                                <Text>POST</Text>
+                            </Button>
+                        </div>
+                    </div>
+                    <InputField
+                        placeholder="comment this review ..."
+                        multiline
+                        value={yourReply}
+                        onChange={(e) => {
+                            if (e.target.value.length <= COMMENT_LENGTH_LIMIT) setYourReply(e.target.value);
+                        }}
+                    ></InputField>
+                </div>
+            );
+        return (
+            <div className={style.yourReplyRow}>
+                <Button
+                    className={`${buttonStyle.createReview} ${buttonStyle.createReviewFull}`}
+                    color="var(--transparent)"
+                    onClick={() => setIsReplying(true)}
+                    aria-label="Create Reply"
+                >
+                    <Text variant="h2">Reply</Text>
+                </Button>
             </div>
         );
     }
@@ -233,27 +291,7 @@ function ReviewPage() {
                         </div>
                     </div>
 
-                    <div className={style.yourReplyRow}>
-                        <div className={style.yourReplyRow2}>
-                            <div className={style.replyInput}>
-                                <Text variant="h2">YOUR REPLY</Text>
-                                <Text
-                                    color={yourReply.length < COMMENT_LENGTH_LIMIT ? "var(--mutedText)" : "var(--pink)"}
-                                >
-                                    characters left: {COMMENT_LENGTH_LIMIT - yourReply.length}
-                                </Text>
-                                <PostReplyButton reviewer={reviewer!} reviewed={game.id} comment={yourReply} />
-                            </div>
-                        </div>
-                        <InputField
-                            placeholder="comment this review ..."
-                            multiline
-                            value={yourReply}
-                            onChange={(e) => {
-                                if (e.target.value.length <= COMMENT_LENGTH_LIMIT) setYourReply(e.target.value);
-                            }}
-                        ></InputField>
-                    </div>
+                    {yourReplySection()}
 
                     <Panel type="secondary" className={style.repliesPanel}>
                         <Text variant="h2">REPLIES:</Text>
