@@ -327,6 +327,13 @@ router.get("/id/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGam
  *                                  type: integer
  *                                  minimum: 0
  *                                  maximum: 10
+ *                              hoursPlayed:
+ *                                  type: integer
+ *                                  minimum: 0
+ *                              platforms:
+ *                                  type: array
+ *                                  items:
+ *                                      type: string
  *          responses:
  *              201:
  *                  description: "**Created** - review published successfully"
@@ -402,6 +409,13 @@ router.post("/id/:gameID/reviews", auth, ReviewController.publishReview);
  *                                  type: integer
  *                                  minimum: 0
  *                                  maximum: 10
+ *                              hoursPlayed:
+ *                                  type: integer
+ *                                  minimum: 0
+ *                              platforms:
+ *                                  type: array
+ *                                  items:
+ *                                      type: string
  *          responses:
  *              202:
  *                  description: "**Accepted** — review updated successfully"
