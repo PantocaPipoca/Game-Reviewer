@@ -11,8 +11,7 @@ import Text from "../Components/Text/Text";
 import Star from "../Components/SVGs/Star";
 import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
 import EditButton from "../Components/Buttons/EditButton";
-import Upvote from "../Components/SVGs/Upvote";
-import Downvote from "../Components/SVGs/Downvote";
+import ReviewReactions from "../Components/ReviewReactions/ReviewReactions";
 import { CommentAPI } from "../API/Comments";
 import CommentCard, { type CommentCardProps } from "../Components/CommentCard/CommentCard";
 import InputField from "../Components/InputField/InputField";
@@ -76,6 +75,8 @@ function ReviewPage() {
     const [yourReply, setYourReply] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+
+    const reviewedNum = reviewed ? parseInt(reviewed) : undefined;
 
     useEffect(() => {
         if (!reviewer || !reviewed) return;
@@ -158,11 +159,9 @@ function ReviewPage() {
     const reviewText: string = review?.text ?? "no review found.";
     const score: number = review?.score ?? 0;
 
-    const upvotes: number = 0;
-    const downvotes: number = 0;
+    const platform: string = review?.platforms?.length ? review.platforms.join(", ") : "N/A";
     const hoursPlayed: number = review?.hoursPlayed ?? 0;
     const played: string = hoursPlayed > 0 ? "YES" : "NO";
-    const platform: string = review?.platforms?.length ? review.platforms.join(", ") : "N/A";
     const stars: ("full" | "half" | "empty")[] = getStars(normalizeRating(score));
 
     comments.sort((c1, c2) => c2.date.localeCompare(c1.date));
@@ -306,12 +305,13 @@ function ReviewPage() {
                                     {isOwnReview && (
                                         <EditButton onClick={() => navigate(`/game/${reviewed}/review/edit`)} />
                                     )}
-                                    <div className={style.voteActions}>
-                                        <Upvote className={style.voteIcon} color="var(--mainText)" />
-                                        <Text variant="h3">{upvotes}</Text>
-                                        <Downvote className={style.voteIcon} color="var(--mainText)" />
-                                        <Text variant="h3">{downvotes}</Text>
-                                    </div>
+                                    {reviewer && reviewedNum !== undefined ? (
+                                        <ReviewReactions
+                                            className={style.voteActions}
+                                            reviewer={reviewer}
+                                            reviewed={reviewedNum}
+                                        />
+                                    ) : null}
                                 </div>
                             </Panel>
                         </div>

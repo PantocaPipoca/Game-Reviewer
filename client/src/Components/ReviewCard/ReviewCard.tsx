@@ -2,17 +2,14 @@ import style from "./ReviewCard.module.css";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
 import Star from "../SVGs/Star";
-import Upvote from "../SVGs/Upvote";
-import Downvote from "../SVGs/Downvote";
 import { Link, useNavigate } from "react-router-dom";
+import ReviewReactions from "../ReviewReactions/ReviewReactions";
 
 const MAX_STARS = 5;
 
 export type ReviewCardProps = {
     cover?: string;
     description?: string;
-    upvotes?: number;
-    downvotes?: number;
     rating?: number;
     showUser?: boolean;
     userName?: string;
@@ -47,8 +44,6 @@ function getStars(rating: number): ("full" | "half" | "empty")[] {
 function ReviewCard({
     cover = "https://vglist.co/assets/no-cover-5b40e3b1.png",
     description = "###",
-    upvotes = 0,
-    downvotes = 0,
     rating = 0,
     showUser = false,
     userName = "######",
@@ -98,12 +93,7 @@ function ReviewCard({
                                 {`> `}See More
                             </Text>
                         </Link>
-                        <div className={style.voteActions}>
-                            <Upvote className={style.upVote} color="var(--mainText)" />
-                            <Text variant="h3">{upvotes}</Text>
-                            <Downvote className={style.upVote} color="var(--mainText)" />
-                            <Text variant="h3">{downvotes}</Text>
-                        </div>
+                        <ReviewReactions className={style.voteActions} reviewer={reviewer} reviewed={reviewed} />
                     </div>
                 </div>
             </Panel>
