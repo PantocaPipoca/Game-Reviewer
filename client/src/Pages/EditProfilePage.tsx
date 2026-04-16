@@ -16,8 +16,10 @@ function EditProfilePage() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState("");
     const [showConfirm, setShowConfirm] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [pendingAvatar, setPendingAvatar] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -113,6 +115,19 @@ function EditProfilePage() {
         }
     }
 
+    async function handleDelete() {
+        setDeleting(true);
+        setShowDeleteConfirm(false);
+        try {
+            await UserAPI.deleteMe();
+            navigate("/");
+        } catch {
+            setError("Failed to delete account");
+        } finally {
+            setDeleting(false);
+        }
+    }
+
     if (loading)
         return (
             <div>
@@ -130,9 +145,19 @@ function EditProfilePage() {
             <Navbar />
             <div className={style.mainPanel}>
                 <Panel type="main" className={style.panel}>
-                    <Text variant="h2" color="var(--green)">
-                        EDIT PROFILE
-                    </Text>
+                    <div className={style.headerRow}>
+                        <Text variant="h2" color="var(--cyan)">
+                            EDIT PROFILE
+                        </Text>
+                        <Button
+                            className={style.deleteButton}
+                            onClick={() => setShowDeleteConfirm(true)}
+                            disabled={deleting}
+                            color="var(--transparent)"
+                        >
+                            <Text variant="h3" color="var(--pink)">{`> DELETE`}</Text>
+                        </Button>
+                    </div>
 
                     <div className={style.fields}>
                         <div className={style.topRow}>
@@ -271,6 +296,35 @@ function EditProfilePage() {
                             </Button>
                         </div>
                     </Panel>
+                </div>
+            )}
+
+            {showDeleteConfirm && (
+                <div className={style.overlayBackdrop}>
+                    <div className={style.confirmPanel}>
+                        <Text variant="h2">DELETE ACCOUNT?</Text>
+                        <Text color="var(--mutedText)">This action cannot be undone.</Text>
+                        <div className={style.confirmButtons}>
+                            <Button
+                                className={style.confirmDeleteButton}
+                                onClick={handleDelete}
+                                disabled={deleting}
+                                color="var(--transparent)"
+                            >
+                                <Text variant="h3" color="var(--pink)">
+                                    {deleting ? `> DELETING...` : `> YES, DELETE`}
+                                </Text>
+                            </Button>
+                            <Button
+                                className={style.cancelButton}
+                                onClick={() => setShowDeleteConfirm(false)}
+                                disabled={deleting}
+                                color="var(--transparent)"
+                            >
+                                <Text variant="h3" color="var(--mainText)">{`> CANCEL`}</Text>
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
