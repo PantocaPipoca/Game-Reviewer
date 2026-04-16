@@ -10,6 +10,15 @@ import { sanitizeString } from "../utils/Sanitize";
 // REGEX that tests whether an email is valid
 const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+// Lengths of inputs
+export const NAME_MIN_LEN: number = 3;
+export const NAME_MAX_LEN: number = 26;
+export const PASS_MIN_LEN: number = 8;
+export const PASS_MAX_LEN: number = 50;
+export const EMAIL_MAX_LEN: number = 70;
+export const GEND_MAX_LEN: number = 20;
+export const BIO_MAX_LEN: number = 1000;
+
 export class AccountController {
     /**
      * Registers a new user
@@ -22,9 +31,17 @@ export class AccountController {
         if (!displayName) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.DISPLAY_NAME_REQUIRED);
         if (!password) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
         if (!email) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_REQUIRED);
-        if (accountName.length < 3) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_SHORT);
-        if (password.length < 8) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
+        if (accountName.length < NAME_MIN_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_SHORT);
+        if (accountName.length > NAME_MAX_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_LONG);
+        if (displayName.length > NAME_MAX_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.DISPLAY_NAME_TOO_LONG);
+        if (password.length < PASS_MIN_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
+        if (password.length > PASS_MAX_LEN) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_LONG);
         if (!EMAIL_REGEX.test(email)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
+        if (email.length > EMAIL_MAX_LEN) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_TOO_LONG);
 
         const result: string = (await AccountService.registerUser(
             accountName,
@@ -103,11 +120,28 @@ export class AccountController {
 
         if (isPrivate === undefined || email === undefined || userData === undefined)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
-        if (typeof email !== "string" || !EMAIL_REGEX.test(email))
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
+        if (email !== undefined) {
+            if (typeof email !== "string" || !EMAIL_REGEX.test(email))
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
+            if (email.length > EMAIL_MAX_LEN) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_TOO_LONG);
+        }
         if (password !== undefined) {
-            if (typeof password !== "string" || password.length < 8)
+            if (typeof password !== "string" || password.length < PASS_MIN_LEN)
                 throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_SHORT);
+            if (password.length > PASS_MAX_LEN)
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_TOO_LONG);
+        }
+        if (userData !== undefined && userData !== null) {
+            if (
+                userData.displayName !== undefined &&
+                userData.displayName !== null &&
+                userData.displayName.length > NAME_MAX_LEN
+            )
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_LONG);
+            if (userData.gender !== undefined && userData.gender !== null && userData.gender.length > GEND_MAX_LEN)
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GENDER_TOO_LONG);
+            if (userData.bio !== undefined && userData.bio !== null && userData.bio.length > BIO_MAX_LEN)
+                throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.BIO_TOO_LONG);
         }
 
         const result: UserMe = await AccountService.alterUser(

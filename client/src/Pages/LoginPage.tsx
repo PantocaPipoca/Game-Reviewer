@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import Panel from "../Components/Panel/Panel";
-import InputField from "../Components/InputField/InputField";
 import LoginButton from "../Components/Buttons/LoginButton";
 import Text from "../Components/Text/Text";
 import style from "./LoginPage.module.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
-import { AUTH_ERRORS } from "../Types/Consts";
+import { AUTH_ERRORS, AUTH_VALIDATION, maxLoginLength } from "../Types/Consts";
+import { RowAux } from "./RegisterPage";
 
 function LoginPage() {
     const [identifier, setIdentifier] = useState("");
@@ -57,25 +57,29 @@ function LoginPage() {
                 <Text variant="h2">USER LOGIN</Text>
 
                 <div className={style.fields}>
-                    <div className={style.fieldGroup}>
-                        <Text>email / userName</Text>
-                        <InputField
-                            type="text"
-                            placeholder="insert email / userName ..."
-                            value={identifier}
-                            onChange={(e) => setIdentifier(e.target.value)}
-                        />
-                    </div>
+                    {RowAux(
+                        "email / userName",
+                        "text",
+                        "insert email / userName ...",
+                        identifier,
+                        maxLoginLength,
+                        false,
+                        setIdentifier,
+                        setError,
+                        AUTH_ERRORS.loginTooLong
+                    )}
 
-                    <div className={style.fieldGroup}>
-                        <Text>password</Text>
-                        <InputField
-                            type="password"
-                            placeholder="insert password ..."
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </div>
+                    {RowAux(
+                        "password",
+                        "password",
+                        "insert password ...",
+                        password,
+                        AUTH_VALIDATION.maxPasswordLength,
+                        false,
+                        setPassword,
+                        setError,
+                        AUTH_ERRORS.passwordTooLong
+                    )}
                 </div>
 
                 <div className={style.forgotRow}>

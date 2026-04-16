@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { register, createGame } from "../helper/helper.ts";
 import { AuthResponse } from "../../../src/types/Types.ts";
+import { COMMENT_MAX_LEN } from "../../../src/controllers/CommentController.ts";
 
 const app: Express = createApp();
 
@@ -166,6 +167,17 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
             .expect(StatusCodes.BAD_REQUEST);
     });
 
+    it("returns BAD REQUEST if text is too long", async () => {
+        const { reviewer, gameID } = await setupReview();
+        const commenter = await register(app, username2, displayName2, password2, email2);
+
+        await request(app)
+            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .set("Authorization", "Bearer " + commenter.token)
+            .send({ text: "a".repeat(COMMENT_MAX_LEN + 1) })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
     it("returns CREATED with comment data on success", async () => {
         const { reviewer, gameID } = await setupReview();
         const commenter = await register(app, username2, displayName2, password2, email2);
@@ -291,6 +303,25 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
             .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
             .set("Authorization", "Bearer " + commenter.token)
             .send({})
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    it("returns BAD REQUEST if text is too long", async () => {
+        const { reviewer, gameID } = await setupReview();
+        const commenter = await register(app, username2, displayName2, password2, email2);
+
+        const createRes = await request(app)
+            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .set("Authorization", "Bearer " + commenter.token)
+            .send({ text: "original comment" })
+            .expect(StatusCodes.CREATED);
+
+        const commentID = createRes.body.data.id;
+
+        await request(app)
+            .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
+            .set("Authorization", "Bearer " + commenter.token)
+            .send({ text: "a".repeat(COMMENT_MAX_LEN + 1) })
             .expect(StatusCodes.BAD_REQUEST);
     });
 
