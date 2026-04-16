@@ -1,19 +1,16 @@
-import type { CssVar } from "../../Types/Types";
-
 type DownvoteProps = {
     size?: number;
     className?: string;
-    color?: CssVar;
 };
 
-function Downvote({ size = 24, className, color = "var(--mainText)" }: DownvoteProps) {
+function Downvote({ size = 24, className }: DownvoteProps) {
     return (
         <svg
             width={size}
             height={size}
             viewBox="0 0 24 24"
             fill="none"
-            stroke={color}
+            stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
