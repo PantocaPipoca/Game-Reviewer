@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
 import { register, createGame } from "../helper/helper.ts";
 import { IGDB } from "../../../src/IGDB/Requests.ts";
+import { REVIEW_MAX_LEN } from "../../../src/controllers/ReviewController.ts";
 
 const app: Express = createApp();
 
@@ -300,6 +301,17 @@ describe("POST /api/games/id/:gameID/reviews", () => {
             .expect(StatusCodes.BAD_REQUEST);
     });
 
+    it("returns BAD REQUEST if text is too long", async () => {
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
+
+        await request(app)
+            .post("/api/games/id/" + game.gameID + "/reviews")
+            .set("Authorization", "Bearer " + user.token)
+            .send({ text: "a".repeat(REVIEW_MAX_LEN + 1), score: 8 })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
     it("returns BAD REQUEST if score is missing", async () => {
         const user = await register(app, username, displayName, password, email);
         const game = await createGame();
@@ -458,6 +470,23 @@ describe("PUT /api/games/id/:gameID/reviews", () => {
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "updated", score: 7 })
             .expect(StatusCodes.NOT_FOUND);
+    });
+
+    it("returns BAD REQUEST if text is too long", async () => {
+        const user = await register(app, username, displayName, password, email);
+        const game = await createGame();
+
+        await request(app)
+            .post("/api/games/id/" + game.gameID + "/reviews")
+            .set("Authorization", "Bearer " + user.token)
+            .send({ text: "original", score: 5 })
+            .expect(StatusCodes.CREATED);
+
+        await request(app)
+            .put("/api/games/id/" + game.gameID + "/reviews")
+            .set("Authorization", "Bearer " + user.token)
+            .send({ text: "a".repeat(REVIEW_MAX_LEN + 1), score: 7 })
+            .expect(StatusCodes.BAD_REQUEST);
     });
 
     it("returns BAD REQUEST if score is out of range", async () => {

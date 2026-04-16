@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Panel from "../Components/Panel/Panel";
 import Text from "../Components/Text/Text";
-import InputField from "../Components/InputField/InputField";
 import Button from "../Components/Buttons/Button";
 import style from "./EditProfilePage.module.css";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
-import { AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
+import { ACCOUNT_CONSTS, ACCOUNT_ERRORS, AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
 import type { UserMe } from "../API/Types";
 import defaultPfp from "../Assets/default-pfp.png";
+import { RowAux } from "./RegisterPage";
 
 function EditProfilePage() {
     const navigate = useNavigate();
@@ -21,7 +21,7 @@ function EditProfilePage() {
     const [pendingAvatar, setPendingAvatar] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-    const [currentUsername, setCurrentUsername] = useState("");
+    const [_, setCurrentUsername] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [displayName, setDisplayName] = useState("");
@@ -107,7 +107,7 @@ function EditProfilePage() {
             });
             navigate(-1);
         } catch (err: any) {
-            setError(err?.response?.data?.message ?? "Failed to save changes");
+            setError(err?.response?.data?.message ?? ACCOUNT_ERRORS.failedSave);
         } finally {
             setSaving(false);
         }
@@ -160,62 +160,78 @@ function EditProfilePage() {
                             </div>
 
                             <div className={style.nameGenderGroup}>
-                                <div className={style.fieldGroup}>
-                                    <Text>display name</Text>
-                                    <InputField
-                                        value={displayName}
-                                        placeholder="display name..."
-                                        onChange={(e) => setDisplayName(e.target.value)}
-                                    />
-                                </div>
-                                <div className={style.fieldGroup}>
-                                    <Text>gender</Text>
-                                    <InputField
-                                        value={gender}
-                                        placeholder="gender (optional)..."
-                                        onChange={(e) => setGender(e.target.value)}
-                                    />
-                                </div>
+                                {RowAux(
+                                    "displayName",
+                                    "text",
+                                    "displayName ...",
+                                    displayName,
+                                    AUTH_VALIDATION.maxUserNameLength,
+                                    false,
+                                    setDisplayName,
+                                    setError,
+                                    AUTH_ERRORS.displayNameTooLong
+                                )}
+                                {RowAux(
+                                    "gender",
+                                    "text",
+                                    "gender (optional) ...",
+                                    gender,
+                                    ACCOUNT_CONSTS.maxGenderLength,
+                                    false,
+                                    setGender,
+                                    setError,
+                                    ACCOUNT_ERRORS.genderTooLong
+                                )}
                             </div>
                         </div>
 
-                        <div className={style.fieldGroup}>
-                            <Text>bio</Text>
-                            <InputField
-                                value={bio}
-                                placeholder="bio (optional)..."
-                                onChange={(e) => setBio(e.target.value)}
-                                multiline
-                            />
-                        </div>
+                        {RowAux(
+                            "bio",
+                            "text",
+                            "bio (optional) ...",
+                            bio,
+                            ACCOUNT_CONSTS.maxBioLength,
+                            true,
+                            setBio,
+                            setError,
+                            ACCOUNT_ERRORS.bioTooLong
+                        )}
 
-                        <div className={style.fieldGroup}>
-                            <Text>email</Text>
-                            <InputField
-                                type="email"
-                                value={email}
-                                placeholder="new email (optional)..."
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-                        <div className={style.fieldGroup}>
-                            <Text>new password</Text>
-                            <InputField
-                                type="password"
-                                value={password}
-                                placeholder="new password (optional)..."
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-                        <div className={style.fieldGroup}>
-                            <Text>confirm password</Text>
-                            <InputField
-                                type="password"
-                                value={confirmPassword}
-                                placeholder="confirm new password..."
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                            />
-                        </div>
+                        {RowAux(
+                            "email",
+                            "email",
+                            "new email (optional) ...",
+                            email,
+                            AUTH_VALIDATION.maxEmailLength,
+                            false,
+                            setEmail,
+                            setError,
+                            AUTH_ERRORS.emailTooLong
+                        )}
+
+                        {RowAux(
+                            "new password",
+                            "password",
+                            "new password (optional) ...",
+                            password,
+                            AUTH_VALIDATION.maxPasswordLength,
+                            false,
+                            setPassword,
+                            setError,
+                            AUTH_ERRORS.passwordTooLong
+                        )}
+
+                        {RowAux(
+                            "confirm password",
+                            "password",
+                            "confirm new password ...",
+                            confirmPassword,
+                            AUTH_VALIDATION.maxPasswordLength,
+                            false,
+                            setConfirmPassword,
+                            setError,
+                            AUTH_ERRORS.passwordTooLong
+                        )}
 
                         <div className={style.fieldGroup}>
                             <Text>privacy</Text>

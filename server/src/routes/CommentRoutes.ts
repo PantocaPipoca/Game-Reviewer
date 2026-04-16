@@ -104,7 +104,7 @@ router.get("/", optionalAuth, CommentController.getComments);
  *                                  data:
  *                                      $ref: '#/components/schemas/Comment'
  *              400:
- *                  description: "**Bad Request** — if any of the required fields is missing"
+ *                  description: "**Bad Request** — if any of the required fields is missing or the text is longer than 1000 characters"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -175,7 +175,7 @@ router.post("/", auth, CommentController.addComment);
  *                                  data:
  *                                      $ref: '#/components/schemas/Comment'
  *              400:
- *                  description: "**Bad Request** — if any of the required fields is missing"
+ *                  description: "**Bad Request** — if any of the required fields is missing ot the text is longer than 1000 characters"
  *                  content:
  *                      application/json:
  *                          schema:
