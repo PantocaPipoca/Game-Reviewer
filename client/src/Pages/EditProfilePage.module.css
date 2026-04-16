@@ -10,6 +10,19 @@
     height: auto;
     align-self: stretch;
 }
+
+.headerRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: var(--spacingMedium);
+}
+
+.deleteButton {
+    border-color: var(--pink);
+    padding: var(--spacingSmall) var(--spacingMedium);
+}
 .fields {
     display: flex;
     flex-direction: column;
@@ -151,6 +164,48 @@
     opacity: 0.8;
 }
 
+.overlayBackdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+}
+
+.confirmPanel {
+    width: 420px;
+    background-color: var(--mainPanel);
+    border: var(--borderWidth) solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingMedium);
+    padding: var(--spacingMedium) var(--spacingLarge);
+    align-items: flex-start;
+}
+
+.confirmButtons {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacingMedium);
+    margin-top: var(--spacingSmall);
+    width: 100%;
+}
+
+.confirmDeleteButton {
+    flex: 1;
+    border-color: var(--pink);
+    padding: var(--spacingSmall) var(--spacingMedium);
+    white-space: nowrap;
+}
+
+.confirmButtons .cancelButton {
+    flex: 1;
+    padding: var(--spacingSmall) var(--spacingMedium);
+    white-space: nowrap;
+}
+
 .topRow {
     display: flex;
     gap: var(--spacingMedium);
@@ -185,7 +240,7 @@
     padding: 0.8em 1.7em;
     background-color: var(--secondaryPanel);
     box-sizing: border-box;
-    color: var(--cyan)
+    color: var(--cyan);
 }
 
 .nameGenderGroup {

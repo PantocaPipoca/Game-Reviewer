@@ -348,7 +348,7 @@ function EditReviewPage() {
 
             {showDeleteConfirm && (
                 <div className={style.overlayBackdrop}>
-                    <Panel type="main" className={style.confirmPanel}>
+                    <div className={style.confirmPanel}>
                         <Text variant="h2">DELETE REVIEW?</Text>
                         <Text color="var(--mutedText)">This action cannot be undone.</Text>
                         <div className={style.confirmButtons}>
@@ -371,7 +371,7 @@ function EditReviewPage() {
                                 <Text variant="h3">{`> CANCEL`}</Text>
                             </Button>
                         </div>
-                    </Panel>
+                    </div>
                 </div>
             )}
         </div>
