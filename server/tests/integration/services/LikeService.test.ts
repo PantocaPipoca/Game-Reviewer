@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { ReviewPK, LikeShort, ReactionResponse } from "../../../src/types/Types";
+import { ReviewPK, LikeShort, ReactionResponse, CurrentReactionResponse } from "../../../src/types/Types";
 import { quickPublishReview, quickReadyReview } from "./ReviewService.test";
 import { quickRegisterUser } from "../helper/helper";
 import { LikeService } from "../../../src/services/LikeService";
@@ -98,5 +98,59 @@ describe("LikeService (integration)", () => {
         // Deletes the review and checks
         const deleted2: LikeShort = await popReactionAux(liker, pk);
         checkReactionAux(liker, false, pk, deleted2);
+    });
+
+    it("GetCurrentReaction retrieves the current user's reaction on a review, not if there is no such review", async () => {
+        // Prepares a review
+        const pk: ReviewPK = await quickReadyReview();
+        const liker: string = await quickRegisterUser();
+        const nonReactor: string = await quickRegisterUser();
+
+        // Fails, review is not yet published
+        await expect(LikeService.getCurrentReaction(liker, pk.reviewer, pk.reviewed)).rejects.toBeDefined();
+
+        // Publishes the review
+        await quickPublishReview(pk);
+
+        // User hasn't reacted yet, should return null
+        let reaction: CurrentReactionResponse = await LikeService.getCurrentReaction(liker, pk.reviewer, pk.reviewed);
+        expect(reaction.value).toBeNull();
+
+        // User likes the review
+        await pushReactionAux(liker, pk, true);
+        reaction = await LikeService.getCurrentReaction(liker, pk.reviewer, pk.reviewed);
+        expect(reaction.value).toBe(true);
+
+        // User updates reaction to dislike
+        await pushReactionAux(liker, pk, false);
+        reaction = await LikeService.getCurrentReaction(liker, pk.reviewer, pk.reviewed);
+        expect(reaction.value).toBe(false);
+
+        // User removes reaction
+        await popReactionAux(liker, pk);
+        reaction = await LikeService.getCurrentReaction(liker, pk.reviewer, pk.reviewed);
+        expect(reaction.value).toBeNull();
+
+        // Non-reactor user should also see null
+        const nonReactorResponse: CurrentReactionResponse = await LikeService.getCurrentReaction(
+            nonReactor,
+            pk.reviewer,
+            pk.reviewed
+        );
+        expect(nonReactorResponse.value).toBeNull();
+    });
+
+    it("GetCurrentReaction returns null for unauthenticated users", async () => {
+        // Prepares a review
+        const pk: ReviewPK = await quickReadyReview();
+        await quickPublishReview(pk);
+
+        // Unauthenticated user (undefined) should return null
+        const reaction: CurrentReactionResponse = await LikeService.getCurrentReaction(
+            undefined,
+            pk.reviewer,
+            pk.reviewed
+        );
+        expect(reaction.value).toBeNull();
     });
 });

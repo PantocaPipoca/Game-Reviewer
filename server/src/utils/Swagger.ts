@@ -328,6 +328,33 @@ const OPTIONS: swaggerJsdoc.Options = {
                         value: { type: "boolean" },
                     },
                 },
+                MyReaction: {
+                    type: "object",
+                    properties: {
+                        value: { type: "boolean", nullable: true },
+                    },
+                },
+                LikeCountResponse: {
+                    type: "object",
+                    properties: {
+                        status: { type: "string", example: "success" },
+                        data: { type: "integer" },
+                    },
+                },
+                LikeResponse: {
+                    type: "object",
+                    properties: {
+                        status: { type: "string", example: "success" },
+                        data: { $ref: "#/components/schemas/Like" },
+                    },
+                },
+                MyReactionResponse: {
+                    type: "object",
+                    properties: {
+                        status: { type: "string", example: "success" },
+                        data: { $ref: "#/components/schemas/MyReaction" },
+                    },
+                },
                 Error: {
                     type: "object",
                     properties: {

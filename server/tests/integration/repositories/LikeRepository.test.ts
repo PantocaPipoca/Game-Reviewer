@@ -9,7 +9,14 @@ describe("LikeRepository (integration)", () => {
     async function insertReviewAndReaction(value: boolean): Promise<LikeFull> {
         const reviewer: string = await quickRegisterUser();
         const reviewed: number = (await createGame()).gameID;
-        await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 2 });
+        await ReviewRepository.insertReview({
+            reviewer,
+            reviewed,
+            text: "",
+            score: 2,
+            hoursPlayed: null,
+            platforms: [],
+        });
         const liker: string = await quickRegisterUser();
         return await LikeRepository.insertLike({ reviewer, reviewed, liker, value });
     }
@@ -27,7 +34,14 @@ describe("LikeRepository (integration)", () => {
         // Inserts review
         const reviewer: string = await quickRegisterUser();
         const reviewed: number = (await createGame()).gameID;
-        await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 4 });
+        await ReviewRepository.insertReview({
+            reviewer,
+            reviewed,
+            text: "",
+            score: 4,
+            hoursPlayed: null,
+            platforms: [],
+        });
 
         // Inserts like
         const liker: string = await quickRegisterUser();
@@ -158,7 +172,14 @@ describe("LikeRepository (integration)", () => {
         // Inserts review
         const reviewer: string = await quickRegisterUser();
         const reviewed: number = (await createGame()).gameID;
-        await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 7 });
+        await ReviewRepository.insertReview({
+            reviewer,
+            reviewed,
+            text: "",
+            score: 7,
+            hoursPlayed: null,
+            platforms: [],
+        });
 
         // Inserts several likes and dislikes
         const likes: number = 6;
@@ -181,31 +202,86 @@ describe("LikeRepository (integration)", () => {
         for (var i = 0; i < 12; i++) {
             const reviewer: string = await quickRegisterUser();
             const reviewed: number = (await createGame()).gameID;
-            reviews.push(await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 5 }));
+            reviews.push(
+                await ReviewRepository.insertReview({
+                    reviewer,
+                    reviewed,
+                    text: "",
+                    score: 5,
+                    hoursPlayed: null,
+                    platforms: [],
+                })
+            );
         }
 
         // Makes several reactions from one user
         const target: string = await quickRegisterUser();
         const reactions: LikeFull[] = [];
         let next: boolean = true;
-        reviews.forEach(async (r) => {
+        for (const review of reviews) {
             reactions.push(
                 await LikeRepository.insertLike({
-                    reviewer: r.reviewer,
-                    reviewed: r.reviewed,
+                    reviewer: review.reviewer,
+                    reviewed: review.reviewed,
                     liker: target,
                     value: next,
                 })
             );
             next = !next;
-        });
+        }
 
         // Finds all reactions from the target user
         const found: LikeFull[] = await LikeRepository.selectAllLikesOfUser(target);
         found.forEach((l) => {
-            expect(reviews.includes({ reviewer: l.reviewer, reviewed: l.reviewed } as ReviewPK)).toBeTruthy();
+            expect(
+                reviews.some((review) => review.reviewer === l.reviewer && review.reviewed === l.reviewed)
+            ).toBeTruthy();
             expect(l.liker).toBe(target);
-            expect(reactions.includes(l)).toBeTruthy();
+            expect(
+                reactions.some(
+                    (reaction) =>
+                        reaction.reviewer === l.reviewer &&
+                        reaction.reviewed === l.reviewed &&
+                        reaction.liker === l.liker &&
+                        reaction.value === l.value
+                )
+            ).toBeTruthy();
         });
+    });
+
+    it("SelectLike returns null when user hasn't reacted to a review", async () => {
+        // Creates a review
+        const reviewer: string = await quickRegisterUser();
+        const reviewed: number = (await createGame()).gameID;
+        await ReviewRepository.insertReview({
+            reviewer,
+            reviewed,
+            text: "",
+            score: 3,
+            hoursPlayed: null,
+            platforms: [],
+        });
+
+        // User 1 likes the review
+        const liker1: string = await quickRegisterUser();
+        await LikeRepository.insertLike({ reviewer, reviewed, liker: liker1, value: true });
+
+        // User 2 hasn't reacted, should return null
+        const liker2: string = await quickRegisterUser();
+        const notReacted: LikeFull | null = await LikeRepository.selectLike({
+            reviewer,
+            reviewed,
+            liker: liker2,
+        });
+        expect(notReacted).toBeNull();
+
+        // But liker1 should find their reaction
+        const reacted: LikeFull | null = await LikeRepository.selectLike({
+            reviewer,
+            reviewed,
+            liker: liker1,
+        });
+        expect(reacted).not.toBeNull();
+        expect(reacted?.value).toBe(true);
     });
 });

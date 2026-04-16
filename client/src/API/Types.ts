@@ -137,6 +137,10 @@ export type LikeShort = {
     value: boolean;
 };
 
+export type ReactionStateResponse = {
+    value: boolean | null;
+};
+
 export type ReactionResponse = {
     likes: number;
     dislikes: number;
