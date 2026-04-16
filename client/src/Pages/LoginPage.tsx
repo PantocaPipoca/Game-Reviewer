@@ -75,7 +75,7 @@ function LoginPage() {
 
                 <div className={style.forgotRow}>
                     <Text color="var(--mutedText)">forgot password?</Text>
-                    <Link to="#" className={`body ${style.link}`}>
+                    <Link to="/forgot-password" className={`body ${style.link}`}>
                         {`> `}RESET PASSWORD
                     </Link>
                 </div>
