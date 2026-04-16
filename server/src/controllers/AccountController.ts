@@ -220,7 +220,14 @@ export class AccountController {
         if (typeof username !== "string") {
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
         }
-        await AccountService.grantPasswordReset(username, true);
+        try {
+            await AccountService.grantPasswordReset(username, true);
+        } catch (err) {
+            if (err instanceof AppError) {
+                throw err;
+            }
+            throw new AppError(StatusCodes.BAD_REQUEST, "magical error");
+        }
         return makeSuccess(res, StatusCodes.OK, "email sent");
     });
 
@@ -241,7 +248,7 @@ export class AccountController {
             if (err instanceof AppError) {
                 throw err;
             }
-            throw new AppError(StatusCodes.SERVICE_UNAVAILABLE, "magical error");
+            throw new AppError(StatusCodes.BAD_REQUEST, "magical error");
         }
         return makeSuccess(res, StatusCodes.OK, "password reset");
     });
