@@ -3,6 +3,7 @@ import { AccountService } from "../../../src/services/AccountService";
 import { AuthResponse, UserFull, UserMe, UserPrivate, UserPublic } from "../../../src/types/Types";
 import { makeSomeUser, UserMicro } from "../helper/helper";
 import { UserRepository } from "../../../src/Repository/UserRepository";
+import bcrypt from "bcrypt";
 
 describe("AccountService (integration)", () => {
     // Utilities for this test
@@ -121,6 +122,59 @@ describe("AccountService (integration)", () => {
         await AccountService.removeUser(user.accountName);
         const dbUser2: UserFull | null = await UserRepository.selectUser(user.accountName);
         expect(dbUser2).toBeNull();
+    });
+
+    it("checks grantPasswordReset is working", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "test@test.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+
+        const code: number = await AccountService.grantPasswordReset("test", false);
+
+        const user: UserFull | null = await UserRepository.selectUser("test");
+
+        if (user === null) {
+            throw new Error("if you are reading this we are having a joints problem on prisma");
+        }
+
+        expect(code).toBe(user.passwordRecover);
+    });
+
+    it("checks usePasswordReset is working", async () => {
+        const SALT_ROUNDS = 10;
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "test@test.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+
+        await UserRepository.grantPasswordReset("test", 123);
+
+        await AccountService.usePasswordReset("test", 123, "test1");
+
+        const user: UserFull | null = await UserRepository.selectUser("test");
+
+        if (user === null) {
+            throw new Error("if you are reading this we are having a joints problem on prisma");
+        }
+
+        expect(await bcrypt.compare("test1", user.passwordHash)).toBeTruthy();
     });
 
     it("FindByUsername correctly finds a user, not if non-existent", async () => {

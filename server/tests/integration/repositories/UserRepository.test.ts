@@ -98,6 +98,57 @@ describe("UserRepository (integration)", () => {
         expect(notFound).toBeNull();
     });
 
+    it("checks grantPasswordReset is working", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "test@test.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+
+        const user: UserFull = await UserRepository.grantPasswordReset("test", 123);
+        const sameuser: UserFull | null = await UserRepository.selectUser("test");
+
+        if (sameuser === null) {
+            throw new Error("if you are reading this we are having a joints problem on prisma");
+        }
+        expect(user.passwordRecover).toBe(sameuser.passwordRecover);
+        expect(user.passwordRecover).toBe(123);
+    });
+
+    it("checks grantPasswordReset is working", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "test@test.com",
+            passwordHash: "test1",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+
+        await UserRepository.grantPasswordReset("test", 123);
+        const user: UserFull = await UserRepository.usePasswordReset("test", 123, "test2");
+        await expect(UserRepository.usePasswordReset("test", 1234, "test2")).rejects.toThrow("wrong code");
+        const sameuser: UserFull | null = await UserRepository.selectUser("test");
+        if (sameuser === null) {
+            throw new Error("if you are reading this we are having a joints problem on prisma");
+        }
+        expect(user.passwordRecover).toBeNull();
+        expect(sameuser.passwordRecover).toBeNull();
+        expect(user.passwordHash).toBe(sameuser.passwordHash);
+        expect(user.passwordHash).toBe("test2");
+    });
+
     it("updateProfilePic sets a profile picture URL", async () => {
         const user: UserFull = await insertAux();
         const url = "https://res.cloudinary.com/test/avatars/test.jpg";

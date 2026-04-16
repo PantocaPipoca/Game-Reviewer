@@ -251,6 +251,87 @@ describe("POST /api/users/logout", () => {
     });
 });
 
+// ============= Password Recover =============
+
+describe("POST /api/users/recover-password", () => {
+    it("checks errors", async () => {
+        await request(app)
+            .post("/api/users/recover-password")
+            .send({ username: "test653543" })
+            .expect(StatusCodes.NOT_FOUND);
+        await request(app)
+            .post("/api/users/recover-password")
+            .send({ nameuser: "test" })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+    it("checks working", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "support.gamereviewer@gmail.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+        await request(app).post("/api/users/recover-password").send({ username: "test" }).expect(StatusCodes.OK);
+    });
+});
+
+describe("POST /api/users/reset-password", () => {
+    it("checks errors", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "support.gamereviewer@gmail.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ username: "test", password: "test2", passResetCode: 1234 })
+            .expect(StatusCodes.UNAUTHORIZED);
+
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ username: "test1", password: "test2", passResetCode: 123 })
+            .expect(StatusCodes.NOT_FOUND);
+
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ password: "test2", passResetCode: 123 })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    it("checks working", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "support.gamereviewer@gmail.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+        await UserRepository.grantPasswordReset("test", 123);
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ username: "test", password: "test2", passResetCode: 123 })
+            .expect(StatusCodes.OK);
+    });
+});
+
 // =============== Current User ===============
 
 describe("GET /api/users/me", () => {
@@ -382,11 +463,29 @@ describe("PUT /api/users/me (alter)", () => {
                 isPrivate: true,
                 email,
                 userData: { displayName, gender: null, bio: null },
-            })
+            });
 
-        const follower1: AuthResponse = await register(app, "follower1", "follower1", "sspassword", "follower1@email.com");
-        const follower2: AuthResponse = await register(app, "follower2", "follower2", "sspassword", "follower2@email.com");
-        const follower3: AuthResponse = await register(app, "follower3", "follower3", "sspassword", "follower3@email.com");
+        const follower1: AuthResponse = await register(
+            app,
+            "follower1",
+            "follower1",
+            "sspassword",
+            "follower1@email.com"
+        );
+        const follower2: AuthResponse = await register(
+            app,
+            "follower2",
+            "follower2",
+            "sspassword",
+            "follower2@email.com"
+        );
+        const follower3: AuthResponse = await register(
+            app,
+            "follower3",
+            "follower3",
+            "sspassword",
+            "follower3@email.com"
+        );
 
         // send follow requests
         await request(app)
@@ -403,14 +502,14 @@ describe("PUT /api/users/me (alter)", () => {
             .post("/api/users/id/" + user.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower3.token)
             .expect(StatusCodes.CREATED);
-    
+
         await request(app)
             .get("/api/users/me/followers/requests/received")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.OK)
             .then((res) => {
                 expect(res.body.data.length).toBe(3);
-            })
+            });
 
         await request(app)
             .put("/api/users/me")
@@ -428,7 +527,7 @@ describe("PUT /api/users/me (alter)", () => {
             .expect(StatusCodes.OK)
             .then((res) => {
                 expect(res.body.data.length).toBe(0);
-            })
+            });
 
         await request(app)
             .get("/api/users/id/" + user.accountName + "/followers")
@@ -436,8 +535,8 @@ describe("PUT /api/users/me (alter)", () => {
             .expect(StatusCodes.OK)
             .then((res) => {
                 expect(res.body.data.length).toBe(3);
-            })
-        });
+            });
+    });
 });
 
 describe("DELETE /api/users/me", () => {

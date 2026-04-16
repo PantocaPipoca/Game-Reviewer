@@ -223,7 +223,7 @@ router.post("/login", AccountController.login);
 router.post("/logout", auth, AccountController.logout);
 
 /**
- * swagger
+ * @swagger
  *  /users/recover-password:
  *      post:
  *          tags: [users]
@@ -235,36 +235,95 @@ router.post("/logout", auth, AccountController.logout);
  *                  application/json:
  *                      schema:
  *                          type: object
- *                          required: [accountName]
+ *                          required: [username]
  *                          properties:
- *                              accountName:
+ *                              username:
  *                                  type: string
+ *          responses:
+ *              200:
+ *                  description: "**OK** — code sent sucsessfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
+ *              400:
+ *                  description: "**BAD REQUEST** — when no account name was given or was the wrong format"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**NOT FOUND** — when no user was found"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *
  *
  */
-//router.post("/recover-password", AccountController.recover);
+router.post("/recover-password", AccountController.grantPasswordReset);
 
 /**
- * swagger
- *  /users/reset-password
+ * @swagger
+ *  /users/reset-password:
  *      post:
  *          tags: [users]
- *          summary:
- *          description:
+ *          summary: resets the users password to the given one
+ *          description: resets the users password to the given one
  *          requestBody:
  *              required: true
  *              content:
  *                  application/json:
  *                      schema:
  *                          type: object
- *                          required: [accountName, password]
+ *                          required: [username, passResetCode, password]
  *                          properties:
- *                              accountName:
+ *                              username:
  *                                  type: string
  *                              password:
  *                                  type: string
+ *                              passResetCode:
+ *                                  type: number
+ *          responses:
+ *              200:
+ *                  description: "**OK** — password reset successfuly"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
+ *              400:
+ *                  description: "**BAD REQUEST** — when there are missing parameters or given in the wrong format"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**UNAUTHORIZED** — when the code does not correspond to the account"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**NOT FOUND** — when no user was found"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *
  */
-//router.post("/reset-password");
+router.post("/reset-password", AccountController.usePasswordReset);
 
 // ===================== CURRENT USER MANAGEMENT =====================
 
