@@ -264,6 +264,12 @@ router.post("/logout", auth, AccountController.logout);
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
+ *              503:
+ *                  description: "**SERVICE_UNAVAILABLE** — when server cant send an email"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *
  *
  */
