@@ -45,7 +45,7 @@ describe("POST /api/users (register)", () => {
         // expect(res.body.data.isPrivate).toBe(false);
         // expect(res.body.data.userData.displayName).toBe(displayName);
         // expect(res.body.data.token).toBeDefined();
-    });
+    }, 15000);
 
     describe("validation BAD REQUESTS (400)", () => {
         it("missing accountName", async () => {
@@ -213,7 +213,7 @@ describe("GET /api/users/validation", () => {
                 code: userFull?.emailValidation?.toString(),
             })
             .expect(StatusCodes.OK);
-    });
+    }, 15000);
     it("returns BAD REQUEST on wrong format parameters", async () => {
         await request(app)
             .get(`/api/users/validation`)

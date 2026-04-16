@@ -235,7 +235,14 @@ export class AccountController {
         if (typeof passResetCode !== "number") {
             throw new AppError(StatusCodes.BAD_REQUEST, "passResetCode required");
         }
-        await AccountService.usePasswordReset(username, passResetCode, password);
+        try {
+            await AccountService.usePasswordReset(username, passResetCode, password);
+        } catch (err) {
+            if (err instanceof AppError) {
+                throw err;
+            }
+            throw new AppError(StatusCodes.SERVICE_UNAVAILABLE, "magical error");
+        }
         return makeSuccess(res, StatusCodes.OK, "password reset");
     });
 }
