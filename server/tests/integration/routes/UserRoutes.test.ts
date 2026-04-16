@@ -1099,7 +1099,7 @@ describe("GET /api/users/id/:username/reviews", () => {
         await request(app)
             .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + u.token)
-            .send({ text: "nice", score: 8 })
+            .send({ text: "nice", score: 8, hoursPlayed: 5, platforms: ["PC"] })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
@@ -1111,6 +1111,8 @@ describe("GET /api/users/id/:username/reviews", () => {
         expect(res.body.data.length).toBeGreaterThan(0);
         expect(res.body.data[0].reviewer).toBe(u.accountName);
         expect(res.body.data[0].reviewed).toBe(game.gameID);
+        expect(res.body.data[0].hoursPlayed).toBe(5);
+        expect(res.body.data[0].platforms).toEqual(["PC"]);
     });
 
     it("returns FORBIDDEN and empty array if user is private and requester not allowed (no auth)", async () => {
@@ -1162,7 +1164,7 @@ describe("GET /api/users/id/:username/reviews", () => {
         await request(app)
             .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + target.token)
-            .send({ text: "private review", score: 7 })
+            .send({ text: "private review", score: 7, hoursPlayed: 11, platforms: ["PS5"] })
             .expect(StatusCodes.CREATED);
 
         await request(app)
@@ -1185,6 +1187,8 @@ describe("GET /api/users/id/:username/reviews", () => {
         expect(res.body.data.length).toBeGreaterThan(0);
         expect(res.body.data[0].reviewer).toBe(target.accountName);
         expect(res.body.data[0].reviewed).toBe(game.gameID);
+        expect(res.body.data[0].hoursPlayed).toBe(11);
+        expect(res.body.data[0].platforms).toEqual(["PS5"]);
     });
 
     it("returns OK and reviews if viewer is also target", async () => {

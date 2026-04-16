@@ -4,7 +4,7 @@ import InputField from "../Components/InputField/InputField";
 import SignupButton from "../Components/Buttons/SignupButton";
 import Text from "../Components/Text/Text";
 import style from "./RegisterPage.module.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
 import { AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
@@ -52,12 +52,14 @@ function RegisterPage() {
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectPath = (location.state as { from?: string } | undefined)?.from || "/";
 
     useEffect(() => {
         isAuthenticated().then((authenticated) => {
-            if (authenticated) navigate("/");
+            if (authenticated) navigate(redirectPath, { replace: true });
         });
-    }, [navigate]);
+    }, [navigate, redirectPath]);
 
     const handleSignup = async () => {
         setError("");
@@ -91,7 +93,10 @@ function RegisterPage() {
                 password,
                 email,
             });
-            navigate(`/validation#${name}`);
+            navigate(`/validation#${name}`, {
+                state: { from: redirectPath },
+                replace: true,
+            });
         } catch (err: any) {
             const message = err.response?.data?.message || AUTH_ERRORS.registerFailed;
             setError(message);
@@ -176,7 +181,7 @@ function RegisterPage() {
 
                 <div className={style.loginRow}>
                     <Text color="var(--mutedText)">already have an account?</Text>
-                    <Link to="/login" className={`body ${style.link}`}>
+                    <Link to="/login" state={{ from: redirectPath }} className={`body ${style.link}`}>
                         {`> `}LOGIN
                     </Link>
                 </div>

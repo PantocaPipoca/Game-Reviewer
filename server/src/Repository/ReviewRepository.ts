@@ -39,6 +39,8 @@ export class ReviewRepository {
             data: {
                 text: review.text,
                 score: review.score,
+                hoursPlayed: review.hoursPlayed,
+                platforms: review.platforms,
             },
         });
     }

@@ -1,49 +1,111 @@
 services:
-  postgres:
-    image: postgres:17-alpine
-    container_name: gr_postgres_db
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    postgres:
+        image: postgres:17-alpine
+        container_name: gr_postgres_db
+        restart: always
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
 
-  server:
-    build: ./server
-    container_name: gr_server
-    image: gr_server
-    env_file:
-      - ./server/.env
-    ports:
-      - "3000:3000"
-      - "5555:5555"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - ./server:/app
-      - /app/node_modules
+    server:
+        build: ./server
+        container_name: gr_server
+        image: gr_server
+        env_file:
+            - ./server/.env
+        environment:
+            NODE_ENV: production
+        ports:
+            - "3000:3000"
+            - "5555:5555"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        volumes:
+            - ./server:/app
+            - /app/node_modules
+            - ./observability/logs:/app/logs
 
-  client:
-    build: ./client
-    container_name: gr_client
-    image: gr_client
-    ports:
-      - "5173:5173"
-    depends_on:
-      - server
-    volumes:
-      - ./client:/app
-      - /app/node_modules
+    client:
+        build: ./client
+        container_name: gr_client
+        image: gr_client
+        ports:
+            - "5173:5173"
+        depends_on:
+            - server
+        volumes:
+            - ./client:/app
+            - /app/node_modules
+
+    prometheus:
+        image: prom/prometheus:latest
+        container_name: gr_prometheus
+        ports:
+            - "9090:9090"
+        volumes:
+            - ./observability/prometheus/prometheus-config.yml:/etc/prometheus/prometheus.yml
+            - ./observability/prometheus/alerts.yml:/etc/prometheus/alerts.yml
+            - prometheus_data:/prometheus
+        command:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+        restart: unless-stopped
+
+    loki:
+        image: grafana/loki:latest
+        container_name: gr_loki
+        ports:
+            - "3100:3100"
+        volumes:
+            - ./observability/loki/loki-config.yml:/etc/loki/config.yml
+            - loki_data:/loki
+        command: -config.file=/etc/loki/config.yml
+        restart: unless-stopped
+
+    alloy:
+        image: grafana/alloy:latest
+        container_name: gr_alloy
+        ports:
+            - "12345:12345"
+        volumes:
+            - ./observability/alloy/config.alloy:/etc/alloy/config.alloy
+            - /var/run/docker.sock:/var/run/docker.sock
+        command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+        depends_on:
+            - loki
+        restart: unless-stopped
+
+    grafana:
+        image: grafana/grafana:latest
+        container_name: gr_grafana
+        ports:
+            - "3001:3000"
+        environment:
+            - GF_AUTH_ANONYMOUS_ENABLED=true
+            - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+            - GF_AUTH_DISABLE_LOGIN_FORM=true
+            - GF_AUTH_BASIC_ENABLED=false
+        volumes:
+            - ./observability/grafana:/etc/grafana/provisioning
+            - grafana_data:/var/lib/grafana
+        depends_on:
+            - prometheus
+            - loki
+        restart: unless-stopped
 
 volumes:
-  postgres_data:
+    postgres_data:
+    prometheus_data:
+    loki_data:
+    grafana_data:

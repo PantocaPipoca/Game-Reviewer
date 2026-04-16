@@ -5,13 +5,15 @@ import { AppError } from "./utils/ErrorHandler";
 import { StatusCodes } from "http-status-codes";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
-import SWAGGER_SPEC from "./Swagger.js";
+import SWAGGER_SPEC from "./utils/Swagger.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { doubleCsrf } from "csrf-csrf";
 import { middleware as openAPIValidator } from "express-openapi-validator";
 import pinoHttp from "pino-http";
-import logger from "./Logger.js";
+import logger from "./utils/Logger.js";
+import { register, httpRequestDuration, httpRequestsTotal } from "./utils/Metrics.js";
+import { randomUUID } from "crypto";
 
 export function createApp(): Express {
     const app: Express = express();
@@ -19,12 +21,25 @@ export function createApp(): Express {
     app.use(
         pinoHttp({
             logger,
-            // skip this endpoints
+            genReqId: (req) => (req.headers["x-request-id"] as string) || randomUUID(),
             autoLogging: {
                 ignore: (req) => req.url === "/api/health" || req.url === "/api/metrics",
             },
         })
     );
+
+    // Metrics
+    app.use((req, res, next) => {
+        const start = Date.now();
+        res.on("finish", () => {
+            const duration = (Date.now() - start) / 1000;
+            const route = req.route?.path ?? req.path;
+            const labels = { method: req.method, route, status_code: res.statusCode };
+            httpRequestDuration.observe(labels, duration);
+            httpRequestsTotal.inc(labels);
+        });
+        next();
+    });
 
     app.use(
         cors({
@@ -45,6 +60,7 @@ export function createApp(): Express {
         standardHeaders: true,
         legacyHeaders: false,
         handler: (_req, res) => {
+            logger.warn({ ip: _req.ip, path: _req.path }, "Rate limit exceeded");
             res.status(429).json({ status: "error", message: "Too many requests" });
         },
     });
@@ -82,8 +98,12 @@ export function createApp(): Express {
     // Big int to string
     app.set("json replacer", (_key: string, value: any) => (typeof value === "bigint" ? value.toString() : value));
 
-    // Health check
     app.get("/api/health", (_, res) => res.json({ status: "ok", message: "Game Reviewer API" }));
+
+    app.get("/api/metrics", async (_req, res) => {
+        res.set("Content-Type", register.contentType);
+        res.end(await register.metrics());
+    });
 
     // Swagger docs
     if (process.env["NODE_ENV"] !== "production") {

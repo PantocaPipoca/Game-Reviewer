@@ -97,9 +97,13 @@ function CreateReviewPage() {
 
         setSubmitting(true);
         try {
+            const normalizedHoursPlayed = played ? (hoursPlayed ? Number(hoursPlayed) : undefined) : 0;
+            const normalizedPlatforms = played && platform.trim() ? [platform.trim()] : [];
             await ReviewAPI.publish(Number(gameID), {
                 text: reviewText.trim(),
                 score: rating,
+                hoursPlayed: normalizedHoursPlayed,
+                platforms: normalizedPlatforms,
             });
             navigate(`/game/${gameID}`);
         } catch {

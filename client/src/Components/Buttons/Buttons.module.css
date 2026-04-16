@@ -64,3 +64,9 @@
 .createReviewFull {
     width: 100%;
 }
+
+.createComment {
+    width: 64px;
+    display: flex;
+    align-items: center;
+}
