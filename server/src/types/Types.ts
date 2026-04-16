@@ -81,6 +81,10 @@ export type ReactionResponse = {
     dislikes: number;
 };
 
+export type CurrentReactionResponse = {
+    value: boolean | null;
+};
+
 // ===================== Comment Types =====================
 
 export type CommentFull = Comment;
