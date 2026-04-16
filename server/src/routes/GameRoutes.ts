@@ -327,6 +327,13 @@ router.get("/id/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGam
  *                                  type: integer
  *                                  minimum: 0
  *                                  maximum: 10
+ *                              hoursPlayed:
+ *                                  type: integer
+ *                                  minimum: 0
+ *                              platforms:
+ *                                  type: array
+ *                                  items:
+ *                                      type: string
  *          responses:
  *              201:
  *                  description: "**Created** - review published successfully"
@@ -341,7 +348,7 @@ router.get("/id/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGam
  *                                  data:
  *                                      $ref: '#/components/schemas/Review'
  *              400:
- *                  description: "**Bad Request** - if any of the required fields are missing, or if the score is not a number or not in [0, 10]"
+ *                  description: "**Bad Request** - if any of the required fields are missing,if the text is longer than 2000 characters, or if the score is not a number or not in [0, 10]"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -402,6 +409,13 @@ router.post("/id/:gameID/reviews", auth, ReviewController.publishReview);
  *                                  type: integer
  *                                  minimum: 0
  *                                  maximum: 10
+ *                              hoursPlayed:
+ *                                  type: integer
+ *                                  minimum: 0
+ *                              platforms:
+ *                                  type: array
+ *                                  items:
+ *                                      type: string
  *          responses:
  *              202:
  *                  description: "**Accepted** — review updated successfully"
@@ -416,7 +430,7 @@ router.post("/id/:gameID/reviews", auth, ReviewController.publishReview);
  *                                  data:
  *                                      $ref: '#/components/schemas/Review'
  *              400:
- *                  description: "**Bad Request** — if the gameID is invalid, or if score is not in [0, 10]"
+ *                  description: "**Bad Request** — if the gameID is invalid, if the text is longer than 2000 characters or if score is not in [0, 10]"
  *                  content:
  *                      application/json:
  *                          schema:

@@ -1,0 +1,68 @@
+// Ask Docker for a list of all containers
+discovery.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "5s"
+}
+
+// Filter and rename the metadata we get back from Docker
+discovery.relabel "docker" {
+  targets = discovery.docker.containers.targets
+
+  // Docker names containers with a leading slash, e.g. /gr_server — strip it
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/?(.*)"
+    target_label  = "container"
+  }
+
+  // Docker Compose tags every container with its service name automatically
+  // This is what makes {service="server"} work in Grafana
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service"
+  }
+}
+
+// Open the log stream for each discovered container
+loki.source.docker "docker_logs" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.relabel.docker.output
+  forward_to       = [loki.process.pipeline.receiver]
+  refresh_interval = "5s"
+}
+
+// Process each log line before it goes to Loki
+loki.process "pipeline" {
+
+  // Your server logs JSON (pino in production mode). This parses each line.
+  // Lines that aren't valid JSON are passed through as-is.
+  stage.json {
+    expressions = {
+      level = "level",
+      msg   = "msg",
+    }
+  }
+
+  // Make "level" a real Loki label so you can filter by {level="ERROR"} cheaply.
+  // Only add fields with few possible values here — not things like request IDs.
+  stage.labels {
+    values = {
+      level = "level",
+    }
+  }
+
+  // Health check endpoints get hit constantly and aren't useful to store
+  stage.drop {
+    expression          = ".*GET /api/health.*"
+    drop_counter_reason = "health_check_noise"
+  }
+
+  forward_to = [loki.write.loki_push.receiver]
+}
+
+// Send the processed logs to Loki
+loki.write "loki_push" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

@@ -46,6 +46,8 @@ model Review {
     reviewed   Int
     text       String
     score      Int
+    hoursPlayed Int?
+    platforms  String[] @default([])
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
 

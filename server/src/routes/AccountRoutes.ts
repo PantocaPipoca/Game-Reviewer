@@ -61,7 +61,7 @@ const upload = multer({
  *                                          - type: string
  *                                          - $ref: '#/components/schemas/AuthResponse'
  *              400:
- *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 characters, if the password is shorter than 8 characters, or if the email provided is invalid"
+ *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 or longer than 26 characters, if the display name is longer than 26 characters, if the password is shorter than 8 or longer than 50 characters, or if the email provided is invalid or longer than 110 characters"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -400,7 +400,7 @@ router.get("/me", auth, AccountController.getCurrentUser);
  *                                  data:
  *                                      $ref: '#/components/schemas/UserPublic'
  *              400:
- *                  description: "**Bad Request** — if the password (if provided) is shorter than 8 characters, or if the email (if provided) is invalid"
+ *                  description: "**Bad Request** — if the password (if provided) is shorter than 8 or longer than 50 characters, if the displayName (if provided) is longer than 26 characters, if the email (if provided) is invalid or longer than 110 characters, if the gender (if provided) is longer than 20 characters or if the bio (if provided) is longer than 1000 characters"
  *                  content:
  *                      application/json:
  *                          schema:

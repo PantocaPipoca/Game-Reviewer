@@ -64,3 +64,41 @@
 .createReviewFull {
     width: 100%;
 }
+
+.createComment {
+    width: 64px;
+    display: flex;
+    align-items: center;
+}
+
+.voteButton {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: var(--borderWidth) solid transparent;
+    background-color: transparent;
+    color: var(--mainText);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.voteButton:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+.voteButton:active {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+.voteButtonActive {
+    border-color: var(--pink);
+    color: var(--pink);
+}
+
+.voteIcon {
+    width: 20px;
+    height: 20px;
+}

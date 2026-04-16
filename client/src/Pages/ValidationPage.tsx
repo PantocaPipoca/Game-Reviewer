@@ -5,7 +5,7 @@ import Button from "../Components/Buttons/Button";
 import Text from "../Components/Text/Text";
 import style from "./RegisterPage.module.css";
 import CLIENT from "../API/Client";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function ValidationPage() {
     const [code, setCode] = useState("");
@@ -13,6 +13,8 @@ function ValidationPage() {
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectPath = (location.state as { from?: string } | undefined)?.from || "/";
 
     const submitCode = async () => {
         setLoading(true);
@@ -23,7 +25,7 @@ function ValidationPage() {
                     code,
                 },
             });
-            navigate("/");
+            navigate(redirectPath, { replace: true });
         } catch (err: any) {
             const message = err.response?.data?.message || "wrong code";
             setError(message);

@@ -2,21 +2,20 @@ import style from "./ReviewCard.module.css";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
 import Star from "../SVGs/Star";
-import Upvote from "../SVGs/Upvote";
-import Downvote from "../SVGs/Downvote";
 import { Link, useNavigate } from "react-router-dom";
+import ReviewReactions from "../ReviewReactions/ReviewReactions";
 
 const MAX_STARS = 5;
 
 export type ReviewCardProps = {
     cover?: string;
     description?: string;
-    upvotes?: number;
-    downvotes?: number;
     rating?: number;
     showUser?: boolean;
     userName?: string;
     userAvatar?: string;
+    hoursPlayed?: number | null;
+    platforms?: string[];
     reviewer: string;
     reviewed: number;
 };
@@ -45,12 +44,12 @@ function getStars(rating: number): ("full" | "half" | "empty")[] {
 function ReviewCard({
     cover = "https://vglist.co/assets/no-cover-5b40e3b1.png",
     description = "###",
-    upvotes = 0,
-    downvotes = 0,
     rating = 0,
     showUser = false,
     userName = "######",
     userAvatar = "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
+    hoursPlayed = null,
+    platforms = [],
     reviewer,
     reviewed,
 }: ReviewCardProps) {
@@ -81,8 +80,11 @@ function ReviewCard({
                         ))}
                     </div>
 
-                    <Text variant="body" className={style.description}>
+                    <Text variant="body" className={style.description} multiline>
                         {description}
+                    </Text>
+                    <Text variant="body" color="var(--mutedText)">
+                        {`Hours Played: ${hoursPlayed ?? 0} | Platform: ${platforms.length > 0 ? platforms.join(", ") : "N/A"}`}
                     </Text>
 
                     <div className={style.bottomRow}>
@@ -91,12 +93,7 @@ function ReviewCard({
                                 {`> `}See More
                             </Text>
                         </Link>
-                        <div className={style.voteActions}>
-                            <Upvote className={style.upVote} color="var(--mainText)" />
-                            <Text variant="h3">{upvotes}</Text>
-                            <Downvote className={style.upVote} color="var(--mainText)" />
-                            <Text variant="h3">{downvotes}</Text>
-                        </div>
+                        <ReviewReactions className={style.voteActions} reviewer={reviewer} reviewed={reviewed} />
                     </div>
                 </div>
             </Panel>

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { asyncHandler, makeSuccess } from "../utils/ErrorHandler";
-import { LikeShort, ReviewPK, ReactionResponse } from "../types/Types";
+import { LikeShort, ReviewPK, ReactionResponse, CurrentReactionResponse } from "../types/Types";
 import { LikeService } from "../services/LikeService";
 import { extractReviewPK } from "./ReviewController";
 import { StatusCodes } from "http-status-codes";
@@ -53,6 +53,17 @@ export class LikeController {
      */
     static addLike: any = asyncHandler(async (req: AuthRequest, res: Response) => {
         return await pushReaction(req, res, true);
+    });
+
+    /**
+     * Gets the current user's reaction on a review
+     * Used by GET /api/reviews/:reviewer/:reviewed/myReaction
+     */
+    static getReaction: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const { reviewer, reviewed }: ReviewPK = extractReviewPK(req);
+        const currentUser: string | undefined = req.currentUser?.username;
+        const result: CurrentReactionResponse = await LikeService.getCurrentReaction(currentUser, reviewer, reviewed);
+        return makeSuccess(res, StatusCodes.OK, result);
     });
 
     // TODO LATER

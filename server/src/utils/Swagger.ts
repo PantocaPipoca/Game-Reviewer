@@ -264,6 +264,11 @@ const OPTIONS: swaggerJsdoc.Options = {
                         reviewed: { type: "integer" },
                         text: { type: "string" },
                         score: { type: "integer", minimum: 0, maximum: 10 },
+                        hoursPlayed: { type: "integer", minimum: 0, nullable: true },
+                        platforms: {
+                            type: "array",
+                            items: { type: "string" },
+                        },
                         createdAt: { type: "string", format: "date-time" },
                         updatedAt: { type: "string", format: "date-time" },
                     },
@@ -321,6 +326,33 @@ const OPTIONS: swaggerJsdoc.Options = {
                         reviewer: { type: "string" },
                         reviewed: { type: "integer" },
                         value: { type: "boolean" },
+                    },
+                },
+                MyReaction: {
+                    type: "object",
+                    properties: {
+                        value: { type: "boolean", nullable: true },
+                    },
+                },
+                LikeCountResponse: {
+                    type: "object",
+                    properties: {
+                        status: { type: "string", example: "success" },
+                        data: { type: "integer" },
+                    },
+                },
+                LikeResponse: {
+                    type: "object",
+                    properties: {
+                        status: { type: "string", example: "success" },
+                        data: { $ref: "#/components/schemas/Like" },
+                    },
+                },
+                MyReactionResponse: {
+                    type: "object",
+                    properties: {
+                        status: { type: "string", example: "success" },
+                        data: { $ref: "#/components/schemas/MyReaction" },
                     },
                 },
                 Error: {

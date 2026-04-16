@@ -1,19 +1,16 @@
-import type { CssVar } from "../../Types/Types";
-
 type UpvoteProps = {
     size?: number;
     className?: string;
-    color?: CssVar;
 };
 
-function Upvote({ size = 24, className, color = "var(--mainText)" }: UpvoteProps) {
+function Upvote({ size = 24, className }: UpvoteProps) {
     return (
         <svg
             width={size}
             height={size}
             viewBox="0 0 24 24"
             fill="none"
-            stroke={color}
+            stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"

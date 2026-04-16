@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import Panel from "../Components/Panel/Panel";
-import InputField from "../Components/InputField/InputField";
 import LoginButton from "../Components/Buttons/LoginButton";
 import Text from "../Components/Text/Text";
 import style from "./LoginPage.module.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
-import { AUTH_ERRORS } from "../Types/Consts";
+import { AUTH_ERRORS, AUTH_VALIDATION, maxLoginLength } from "../Types/Consts";
+import { RowAux } from "./RegisterPage";
 
 function LoginPage() {
     const [identifier, setIdentifier] = useState("");
@@ -15,12 +15,14 @@ function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectPath = (location.state as { from?: string } | undefined)?.from || "/";
 
     useEffect(() => {
         isAuthenticated().then((authenticated) => {
-            if (authenticated) navigate("/");
+            if (authenticated) navigate(redirectPath, { replace: true });
         });
-    }, [navigate]);
+    }, [navigate, redirectPath]);
 
     const handleLogin = async () => {
         const accountName = identifier.trim();
@@ -34,10 +36,13 @@ function LoginPage() {
         setLoading(true);
         try {
             await UserAPI.login({ accountName, password });
-            navigate("/");
+            navigate(redirectPath, { replace: true });
         } catch (err: any) {
             if (err.response.status == 428) {
-                navigate(`/validation#${accountName}`);
+                navigate(`/validation#${accountName}`, {
+                    state: { from: redirectPath },
+                    replace: true,
+                });
             }
             const message = err.response?.data?.message || AUTH_ERRORS.loginFailed;
             setError(message);
@@ -52,25 +57,29 @@ function LoginPage() {
                 <Text variant="h2">USER LOGIN</Text>
 
                 <div className={style.fields}>
-                    <div className={style.fieldGroup}>
-                        <Text>email / userName</Text>
-                        <InputField
-                            type="text"
-                            placeholder="insert email / userName ..."
-                            value={identifier}
-                            onChange={(e) => setIdentifier(e.target.value)}
-                        />
-                    </div>
+                    {RowAux(
+                        "email / userName",
+                        "text",
+                        "insert email / userName ...",
+                        identifier,
+                        maxLoginLength,
+                        false,
+                        setIdentifier,
+                        setError,
+                        AUTH_ERRORS.loginTooLong
+                    )}
 
-                    <div className={style.fieldGroup}>
-                        <Text>password</Text>
-                        <InputField
-                            type="password"
-                            placeholder="insert password ..."
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </div>
+                    {RowAux(
+                        "password",
+                        "password",
+                        "insert password ...",
+                        password,
+                        AUTH_VALIDATION.maxPasswordLength,
+                        false,
+                        setPassword,
+                        setError,
+                        AUTH_ERRORS.passwordTooLong
+                    )}
                 </div>
 
                 <div className={style.forgotRow}>
@@ -85,7 +94,7 @@ function LoginPage() {
 
                 <div className={style.signupRow}>
                     <Text color="var(--mutedText)">don't have an account?</Text>
-                    <Link to="/register" className={`body ${style.link}`}>
+                    <Link to="/register" state={{ from: redirectPath }} className={`body ${style.link}`}>
                         {`> `}CREATE ACCOUNT
                     </Link>
                 </div>
