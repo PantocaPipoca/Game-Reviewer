@@ -264,12 +264,19 @@ router.post("/logout", auth, AccountController.logout);
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
+ *              500:
+ *                  description: "**INTERNAL SERVER ERROR** — when server magically fails?"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
  *              503:
  *                  description: "**SERVICE_UNAVAILABLE** — when server cant send an email"
  *                  content:
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
+ *
  *
  *
  */
@@ -323,6 +330,12 @@ router.post("/recover-password", AccountController.grantPasswordReset);
  *                              $ref: '#/components/schemas/Error'
  *              404:
  *                  description: "**NOT FOUND** — when no user was found"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              500:
+ *                  description: "**INTERNAL SERVER ERROR** — when server magically fails?"
  *                  content:
  *                      application/json:
  *                          schema:
