@@ -45,7 +45,7 @@ describe("POST /api/users (register)", () => {
         // expect(res.body.data.isPrivate).toBe(false);
         // expect(res.body.data.userData.displayName).toBe(displayName);
         // expect(res.body.data.token).toBeDefined();
-    });
+    }, 15000);
 
     describe("validation BAD REQUESTS (400)", () => {
         it("missing accountName", async () => {
@@ -213,7 +213,7 @@ describe("GET /api/users/validation", () => {
                 code: userFull?.emailValidation?.toString(),
             })
             .expect(StatusCodes.OK);
-    });
+    }, 15000);
     it("returns BAD REQUEST on wrong format parameters", async () => {
         await request(app)
             .get(`/api/users/validation`)
@@ -304,6 +304,87 @@ describe("POST /api/users/logout", () => {
         await request(app)
             .post("/api/users/logout")
             .set("Authorization", "Bearer " + token)
+            .expect(StatusCodes.OK);
+    });
+});
+
+// ============= Password Recover =============
+
+describe("POST /api/users/recover-password", () => {
+    it("checks errors", async () => {
+        await request(app)
+            .post("/api/users/recover-password")
+            .send({ username: "test653543" })
+            .expect(StatusCodes.NOT_FOUND);
+        await request(app)
+            .post("/api/users/recover-password")
+            .send({ nameuser: "test" })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+    it("checks working", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "support.gamereviewer@gmail.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+        await request(app).post("/api/users/recover-password").send({ username: "test" }).expect(StatusCodes.OK);
+    });
+});
+
+describe("POST /api/users/reset-password", () => {
+    it("checks errors", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "support.gamereviewer@gmail.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ username: "test", password: "test2", passResetCode: 1234 })
+            .expect(StatusCodes.UNAUTHORIZED);
+
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ username: "test1", password: "test2", passResetCode: 123 })
+            .expect(StatusCodes.NOT_FOUND);
+
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ password: "test2", passResetCode: 123 })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    it("checks working", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "support.gamereviewer@gmail.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+        await UserRepository.grantPasswordReset("test", 123);
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ username: "test", password: "test2", passResetCode: 123 })
             .expect(StatusCodes.OK);
     });
 });

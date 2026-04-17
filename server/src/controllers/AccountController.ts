@@ -214,4 +214,42 @@ export class AccountController {
         const url = await AccountService.getAvatar(username);
         res.redirect(url);
     });
+
+    static grantPasswordReset = asyncHandler(async (req: Request, res: Response) => {
+        const { username } = req.body;
+        if (typeof username !== "string") {
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        }
+        try {
+            await AccountService.grantPasswordReset(username, true);
+        } catch (err) {
+            if (err instanceof AppError) {
+                throw err;
+            }
+            throw new AppError(StatusCodes.BAD_REQUEST, "magical error");
+        }
+        return makeSuccess(res, StatusCodes.OK, "email sent");
+    });
+
+    static usePasswordReset = asyncHandler(async (req: Request, res: Response) => {
+        const { username, passResetCode, password } = req.body;
+        if (typeof username !== "string") {
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        }
+        if (typeof password !== "string") {
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
+        }
+        if (typeof passResetCode !== "number") {
+            throw new AppError(StatusCodes.BAD_REQUEST, "passResetCode required");
+        }
+        try {
+            await AccountService.usePasswordReset(username, passResetCode, password);
+        } catch (err) {
+            if (err instanceof AppError) {
+                throw err;
+            }
+            throw new AppError(StatusCodes.BAD_REQUEST, "magical error");
+        }
+        return makeSuccess(res, StatusCodes.OK, "password reset");
+    });
 }

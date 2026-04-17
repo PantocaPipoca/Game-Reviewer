@@ -124,4 +124,35 @@ export class UserRepository {
         });
         return user?.avatar ?? null;
     }
+
+    public static grantPasswordReset(accountName: UserPK, passRecoverCode: number): Promise<UserFull> {
+        return PRISMA.user.update({
+            where: { accountName },
+            data: {
+                passwordRecover: passRecoverCode,
+            },
+        });
+    }
+
+    public static async usePasswordReset(
+        accountName: UserPK,
+        passRecoverCode: number,
+        newPassword: string
+    ): Promise<UserFull> {
+        const user: UserFull | null = await this.selectUser(accountName);
+        if (user?.passwordRecover !== passRecoverCode) {
+            throw new Error("wrong code");
+        }
+
+        return PRISMA.user.update({
+            where: {
+                accountName,
+                passwordRecover: passRecoverCode,
+            },
+            data: {
+                passwordHash: newPassword,
+                passwordRecover: null,
+            },
+        });
+    }
 }

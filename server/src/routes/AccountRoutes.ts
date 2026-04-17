@@ -222,6 +222,113 @@ router.post("/login", AccountController.login);
  */
 router.post("/logout", auth, AccountController.logout);
 
+/**
+ * @swagger
+ *  /users/recover-password:
+ *      post:
+ *          tags: [users]
+ *          summary: gives the user a code via email that allows them to change password
+ *          description: gives the user a code via email that allows them to change password
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [username]
+ *                          properties:
+ *                              username:
+ *                                  type: string
+ *          responses:
+ *              200:
+ *                  description: "**OK** — code sent sucsessfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
+ *              400:
+ *                  description: "**BAD REQUEST** — when no account name was given or was the wrong format"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**NOT FOUND** — when no user was found"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              503:
+ *                  description: "**SERVICE_UNAVAILABLE** — when server cant send an email"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.post("/recover-password", AccountController.grantPasswordReset);
+
+/**
+ * @swagger
+ *  /users/reset-password:
+ *      post:
+ *          tags: [users]
+ *          summary: resets the users password to the given one
+ *          description: resets the users password to the given one
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [username, passResetCode, password]
+ *                          properties:
+ *                              username:
+ *                                  type: string
+ *                              password:
+ *                                  type: string
+ *                              passResetCode:
+ *                                  type: number
+ *          responses:
+ *              200:
+ *                  description: "**OK** — password reset successfuly"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
+ *              400:
+ *                  description: "**BAD REQUEST** — when there are missing parameters or given in the wrong format"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**UNAUTHORIZED** — when the code does not correspond to the account"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**NOT FOUND** — when no user was found"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *
+ */
+router.post("/reset-password", AccountController.usePasswordReset);
+
 // ===================== CURRENT USER MANAGEMENT =====================
 
 /**

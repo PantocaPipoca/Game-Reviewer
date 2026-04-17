@@ -10,6 +10,7 @@ import { uploadAvatar } from "../utils/Cloudinary";
 
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { randomInt } from "node:crypto";
 import logger from "../utils/Logger";
 dotenv.config();
 
@@ -367,8 +368,7 @@ export class AccountService {
 
     static async uploadAvatar(currentUser: UserPK, buffer: Buffer): Promise<string> {
         await fetchFullUser(currentUser);
-        if (buffer.length > 5 * 1024 * 1024) 
-            throw new AppError(StatusCodes.BAD_REQUEST, "Image too large");
+        if (buffer.length > 5 * 1024 * 1024) throw new AppError(StatusCodes.BAD_REQUEST, "Image too large");
         const url = await uploadAvatar(buffer, currentUser);
         await UserRepository.updateAvatar(currentUser, url);
         return url;
@@ -379,5 +379,46 @@ export class AccountService {
         const url = await UserRepository.getAvatar(username);
         if (!url) throw new AppError(StatusCodes.NOT_FOUND, "No profile picture set");
         return url;
+    }
+
+    static async grantPasswordReset(username: UserPK, sendEmail: boolean): Promise<number> {
+        const user: UserFull | null = await UserRepository.selectUser(username);
+        if (user === null) {
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
+        }
+        const rng: number = randomInt(0, 999999);
+        if (sendEmail) {
+            try {
+                await transporter.sendMail({
+                    to: user.email,
+                    subject: "GameReviewer+ Password Recover",
+                    html: `
+                    <h1>If you are not trying to reset your password someone might have inserted your username by mistake</h1>
+                    <h1>If that is the case please ignore this email</h1>
+                    <h2>${rng}</h2>
+                `,
+                });
+            } catch (err) {
+                throw new AppError(
+                    StatusCodes.SERVICE_UNAVAILABLE,
+                    "gmail or connection to it is having some problems"
+                );
+            }
+        }
+        await UserRepository.grantPasswordReset(username, rng);
+        return rng;
+    }
+
+    static async usePasswordReset(username: UserPK, passwordResetCode: number, newPassword: string): Promise<void> {
+        const user: UserFull | null = await UserRepository.selectUser(username);
+        if (user === null) {
+            throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.ACCOUNT_NOT_FOUND);
+        }
+        try {
+            const passwordHash: string = await bcrypt.hash(newPassword, SALT_ROUNDS);
+            await UserRepository.usePasswordReset(username, passwordResetCode, passwordHash);
+        } catch (err) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, "wrong code");
+        }
     }
 }

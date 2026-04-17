@@ -12,6 +12,8 @@ import CreateReviewPage from "./Pages/CreateReviewPage";
 import EditReviewPage from "./Pages/EditReviewPage";
 import ReviewPage from "./Pages/ReviewPage";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import ForgotPassPage from "./Pages/ForgotPassPage";
+import ResetPassPage from "./Pages/ResetPassPage";
 
 function App() {
     return (
@@ -21,6 +23,8 @@ function App() {
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
                 <Route path="validation" element={<ValidationPage />} />
+                <Route path="forgot-password" element={<ForgotPassPage />} />
+                <Route path="reset-password" element={<ResetPassPage />} />
                 <Route path="search/games" element={<SearchResultsPage />} />
                 <Route path="search/users" element={<SearchUsersPage />} />
                 <Route path="/user/:username" element={<UserPage />} />
