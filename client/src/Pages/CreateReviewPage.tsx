@@ -12,6 +12,7 @@ import { ReviewAPI } from "../API/Reviews";
 import defaultPfp from "../Assets/default-pfp.png";
 import style from "./CreateReviewPage.module.css";
 import { REVIEW_CONSTS, REVIEW_ERRORS } from "../Types/Consts";
+import { useSuccessPopup } from "../Hooks/SuccessPopup";
 
 type GameLike = {
     id: number;
@@ -43,6 +44,7 @@ function getStars(score: number): ("full" | "half" | "empty")[] {
 function CreateReviewPage() {
     const navigate = useNavigate();
     const { gameID } = useParams<{ gameID: string }>();
+    const { showSuccess } = useSuccessPopup();
 
     const [game, setGame] = useState<GameLike | null>(null);
     const [loading, setLoading] = useState(true);
@@ -105,6 +107,7 @@ function CreateReviewPage() {
                 hoursPlayed: normalizedHoursPlayed,
                 platforms: normalizedPlatforms,
             });
+            showSuccess("Review created successfully.", 3);
             navigate(`/game/${gameID}`);
         } catch {
             setFormError(REVIEW_ERRORS.failedCreate);
