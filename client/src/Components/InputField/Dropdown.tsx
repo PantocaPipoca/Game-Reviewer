@@ -13,9 +13,10 @@ type DropdownProps = {
     value?: string;
     onChange?: (value: string) => void;
     options: DropdownOption[];
+    disabled?: boolean;
 };
 
-function Dropdown({ value, onChange, options }: DropdownProps) {
+function Dropdown({ value, onChange, options, disabled = false }: DropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
     const rootRef = useRef<HTMLDivElement | null>(null);
     useCloseOverlay(() => setIsOpen(false), rootRef);
@@ -27,7 +28,14 @@ function Dropdown({ value, onChange, options }: DropdownProps) {
 
     return (
         <div ref={rootRef} className={`${style.dropdownRoot}`}>
-            <button type="button" className={style.dropdownTrigger} onClick={() => setIsOpen((v) => !v)}>
+            <button
+                type="button"
+                className={`${style.dropdownTrigger} ${disabled ? style.dropdownTriggerDisabled : ""}`}
+                onClick={() => {
+                    if (!disabled) setIsOpen((v) => !v);
+                }}
+                disabled={disabled}
+            >
                 <Text variant="body">{`>`}</Text>
                 <Text variant="body" className={style.dropdownValue}>
                     {selectedLabel}

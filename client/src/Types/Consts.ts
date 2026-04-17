@@ -46,6 +46,8 @@ export const REVIEW_ERRORS = {
     noRatingAlter: "Select a rating before saving.",
     noReviewPublish: "Write a short review before publishing.",
     noReviewAlter: "Write a short review before saving",
+    hoursPlayedRequired: "Select a valid hours played value.",
+    platformRequired: "Select a platform.",
     reviewTooLong: `Review must be at most ${REVIEW_CONSTS.maxReviewLength} characters long.`,
     failedCreate: "Failed to publish review.",
     failedSave: "Failed to save review.",
