@@ -14,6 +14,7 @@ type QueryBody = {
 };
 
 const GENRES_SET: number[] = [2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36];
+const DB_INT_MAX: number = 2147483647;
 
 function isValidOffset(num: unknown): boolean {
     return Number.isInteger(num) && (num as number) >= 0;
@@ -31,8 +32,9 @@ function isValidAmount(num: unknown): boolean {
  */
 export function toValidGameID(gameID: string | string[] | undefined): number {
     if (typeof gameID !== "string") throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_REQUIRED);
-    const id: number | null = Number(gameID);
-    if (!Number.isSafeInteger(id) || id < 0) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_REQUIRED);
+    const id: number = Number(gameID);
+    if (!Number.isSafeInteger(id) || id < 0 || id > DB_INT_MAX)
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_REQUIRED);
     return id;
 }
 
