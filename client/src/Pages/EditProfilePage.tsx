@@ -11,9 +11,11 @@ import { ACCOUNT_CONSTS, ACCOUNT_ERRORS, AUTH_ERRORS, AUTH_VALIDATION } from "..
 import type { UserMe } from "../API/Types";
 import defaultPfp from "../Assets/default-pfp.png";
 import { RowAux } from "./RegisterPage";
+import { useSuccessPopup } from "../Hooks/SuccessPopup";
 
 function EditProfilePage() {
     const navigate = useNavigate();
+    const { showSuccess } = useSuccessPopup();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -107,6 +109,7 @@ function EditProfilePage() {
                 userData: { displayName, gender, bio },
                 ...(password ? { password } : {}),
             });
+            showSuccess("Profile edited successfully.", 3);
             navigate(-1);
         } catch (err: any) {
             setError(err?.response?.data?.message ?? ACCOUNT_ERRORS.failedSave);
@@ -120,6 +123,7 @@ function EditProfilePage() {
         setShowDeleteConfirm(false);
         try {
             await UserAPI.deleteMe();
+            showSuccess("Account deleted successfully.", 3);
             navigate("/");
         } catch {
             setError("Failed to delete account");

@@ -13,6 +13,7 @@ import { UserAPI } from "../API/User";
 import defaultPfp from "../Assets/default-pfp.png";
 import style from "./EditReviewPage.module.css";
 import { REVIEW_CONSTS, REVIEW_ERRORS } from "../Types/Consts";
+import { useSuccessPopup } from "../Hooks/SuccessPopup";
 
 type GameLike = {
     id: number;
@@ -44,6 +45,7 @@ function getStars(score: number): ("full" | "half" | "empty")[] {
 function EditReviewPage() {
     const navigate = useNavigate();
     const { gameID } = useParams<{ gameID: string }>();
+    const { showSuccess } = useSuccessPopup();
 
     const [game, setGame] = useState<GameLike | null>(null);
     const [loading, setLoading] = useState(true);
@@ -134,6 +136,7 @@ function EditReviewPage() {
                 hoursPlayed: normalizedHoursPlayed,
                 platforms: normalizedPlatforms,
             });
+            showSuccess("Review updated successfully.", 3);
             navigate(`/game/${gameID}`);
         } catch {
             setFormError(REVIEW_ERRORS.failedSave);
@@ -147,6 +150,7 @@ function EditReviewPage() {
         setDeleting(true);
         try {
             await ReviewAPI.remove(Number(gameID));
+            showSuccess("Review deleted successfully.", 3);
             navigate(`/game/${gameID}`);
         } catch {
             setFormError(REVIEW_ERRORS.failedDel);

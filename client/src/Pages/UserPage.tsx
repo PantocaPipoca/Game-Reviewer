@@ -12,6 +12,7 @@ import Button from "../Components/Buttons/Button";
 import { FollowerAPI } from "../API/Follower";
 import { ReviewAPI } from "../API/Reviews";
 import FollowerListOverlay from "../Components/FollowerList/FollowerListOverlay";
+import { useSuccessPopup } from "../Hooks/SuccessPopup";
 
 type ReviewWithGame = ReviewFull & { gameName?: string; gameCover?: string };
 type FollowState = "not_following" | "pending" | "following";
@@ -20,6 +21,7 @@ type OverlayTab = "followers" | "following";
 function UserPage() {
     const { username } = useParams<{ username: string }>();
     const navigate = useNavigate();
+    const { showSuccess } = useSuccessPopup();
     const [profile, setProfile] = useState<UserPublic | null>(null);
     const [isOwner, setIsOwner] = useState(false);
     const [canView, setCanView] = useState(false);
@@ -101,16 +103,27 @@ function UserPage() {
             return;
         }
         setFollowLoading(true);
+        const currentState = followState;
         try {
-            if (followState === "following" || followState === "pending") {
+            if (currentState === "following" || currentState === "pending") {
                 await FollowerAPI.unfollow(username!);
                 setFollowState("not_following");
-                if (followState === "following") setStats((s) => ({ ...s, followers: Math.max(0, s.followers - 1) }));
+                if (currentState === "following") {
+                    setStats((s) => ({ ...s, followers: Math.max(0, s.followers - 1) }));
+                    showSuccess("Unfollowed successfully.", 3);
+                } else {
+                    showSuccess("Follow request canceled successfully.", 3);
+                }
             } else {
                 await FollowerAPI.follow(username!);
                 const isPrivate = profile?.isPrivate;
                 setFollowState(isPrivate ? "pending" : "following");
-                if (!isPrivate) setStats((s) => ({ ...s, followers: s.followers + 1 }));
+                if (!isPrivate) {
+                    setStats((s) => ({ ...s, followers: s.followers + 1 }));
+                    showSuccess("Followed successfully.", 3);
+                } else {
+                    showSuccess("Follow request sent successfully.", 3);
+                }
             }
         } catch (error: any) {
             console.log("Follow action failed:", error?.response?.data);
