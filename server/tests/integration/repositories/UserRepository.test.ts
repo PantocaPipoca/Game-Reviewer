@@ -1,22 +1,10 @@
+//DONE
 import { describe, it, expect } from "@jest/globals";
 import { UserRepository } from "../../../src/Repository/UserRepository";
 import { UserFull, UserShort } from "../../../src/types/Types";
-import { AccountService } from "../../../src/services/AccountService";
+import { fastCreateUser } from "../helper/helper";
 
 describe("UserRepository (integration)", () => {
-    // Auxiliary function, inserts a user
-    async function insertAux(): Promise<UserFull> {
-        const accountName: string = `repo_user_${Date.now()}`;
-        return await UserRepository.insertUser({
-            accountName,
-            avatar: null,
-            passwordHash: "hash",
-            userData: { displayName: "Repo", gender: null, bio: null },
-            isPrivate: false,
-            email: `${accountName}@test.com`,
-        });
-    }
-
     // Auxiliary function, checks a user's data against expected values
     function checkUserAux(user: UserFull | null, name: string, email: string | null): void {
         expect(user).not.toBeNull();
@@ -26,25 +14,27 @@ describe("UserRepository (integration)", () => {
 
     it("Inserts and selects a user", async () => {
         // Inserts user
-        const user: UserFull = await insertAux();
+        const accountName: string = `repo_user_${Date.now()}`;
+        const user: UserFull = await UserRepository.insertUser({
+            accountName,
+            avatar: null,
+            passwordHash: "hash",
+            userData: { displayName: "Repo", gender: null, bio: null },
+            isPrivate: false,
+            email: `${accountName}@test.com`,
+        });
 
         // Checks whether the user exists and checks
         const found: UserFull | null = await UserRepository.selectUser(user.accountName);
         checkUserAux(found, user.accountName, user.email);
 
         // Fails, duplicate user
-        await expect(
-            UserRepository.insertUser({
-                accountName: user.accountName,
-                passwordHash: "",
-                email: "",
-                isPrivate: true,
-            } as UserShort)
-        ).rejects.toBeDefined();
+        await expect(fastCreateUser(accountName)).rejects.toBeDefined();
     });
 
     it("Inserts and verifies a user", async () => {
-        const user: UserFull = await insertAux();
+        const accountName: string = `repo_user_${Date.now()}`;
+        const user: UserFull = await fastCreateUser(accountName);
 
         expect(user.emailValidation).not.toBeNull();
         expect(UserRepository.verify(user.accountName, -1)).rejects.toBeDefined();
@@ -54,7 +44,8 @@ describe("UserRepository (integration)", () => {
 
     it("Inserts and updates a user", async () => {
         // Inserts user
-        const user: UserFull = await insertAux();
+        const accountName: string = `repo_user_${Date.now()}`;
+        const user: UserFull = await fastCreateUser(accountName);
         const passwordHash: string = "newhash";
         const newEmail: string = "another@test.com";
 
@@ -80,14 +71,8 @@ describe("UserRepository (integration)", () => {
 
     it("Inserts and deletes a user", async () => {
         // Inserts user
-        const user: UserFull = await insertAux();
-        await AccountService.alterUser(
-            user.accountName,
-            true,
-            user.email,
-            { displayName: "name", gender: null, bio: null },
-            undefined
-        );
+        const accountName: string = `repo_user_${Date.now()}`;
+        const user: UserFull = await fastCreateUser(accountName);
 
         // Deletes user and checks if the data matches the old
         const found: UserFull = await UserRepository.deleteUser(user.accountName);
@@ -99,18 +84,7 @@ describe("UserRepository (integration)", () => {
     });
 
     it("checks grantPasswordReset is working", async () => {
-        await UserRepository.insertUser({
-            accountName: "test",
-            email: "test@test.com",
-            passwordHash: "brrrrr",
-            avatar: null,
-            isPrivate: false,
-            userData: {
-                displayName: "test",
-                gender: null,
-                bio: null,
-            },
-        });
+        await fastCreateUser("test");
 
         const user: UserFull = await UserRepository.grantPasswordReset("test", 123);
         const sameuser: UserFull | null = await UserRepository.selectUser("test");
@@ -123,22 +97,11 @@ describe("UserRepository (integration)", () => {
     });
 
     it("checks grantPasswordReset is working", async () => {
-        await UserRepository.insertUser({
-            accountName: "test",
-            email: "test@test.com",
-            passwordHash: "test1",
-            avatar: null,
-            isPrivate: false,
-            userData: {
-                displayName: "test",
-                gender: null,
-                bio: null,
-            },
-        });
+        await fastCreateUser("test");
 
         await UserRepository.grantPasswordReset("test", 123);
-        const user: UserFull = await UserRepository.usePasswordReset("test", 123, "test2");
         await expect(UserRepository.usePasswordReset("test", 1234, "test2")).rejects.toThrow("wrong code");
+        const user: UserFull = await UserRepository.usePasswordReset("test", 123, "test2");
         const sameuser: UserFull | null = await UserRepository.selectUser("test");
         if (sameuser === null) {
             throw new Error("if you are reading this we are having a joints problem on prisma");
@@ -150,7 +113,8 @@ describe("UserRepository (integration)", () => {
     });
 
     it("updateProfilePic sets a profile picture URL", async () => {
-        const user: UserFull = await insertAux();
+        const accountName: string = `repo_user_${Date.now()}`;
+        const user: UserFull = await fastCreateUser(accountName);
         const url = "https://res.cloudinary.com/test/avatars/test.jpg";
 
         await UserRepository.updateAvatar(user.accountName, url);
@@ -161,7 +125,8 @@ describe("UserRepository (integration)", () => {
     });
 
     it("updateProfilePic overwrites an existing profile picture", async () => {
-        const user: UserFull = await insertAux();
+        const accountName: string = `repo_user_${Date.now()}`;
+        const user: UserFull = await fastCreateUser(accountName);
         const url1 = "https://res.cloudinary.com/test/avatars/first.jpg";
         const url2 = "https://res.cloudinary.com/test/avatars/second.jpg";
 
@@ -173,14 +138,16 @@ describe("UserRepository (integration)", () => {
     });
 
     it("getAvatar returns null if no picture is set", async () => {
-        const user: UserFull = await insertAux();
+        const accountName: string = `repo_user_${Date.now()}`;
+        const user: UserFull = await fastCreateUser(accountName);
 
         const pic = await UserRepository.getAvatar(user.accountName);
         expect(pic).toBeNull();
     });
 
     it("getAvatar returns the URL after it is set", async () => {
-        const user: UserFull = await insertAux();
+        const accountName: string = `repo_user_${Date.now()}`;
+        const user: UserFull = await fastCreateUser(accountName);
         const url = "https://res.cloudinary.com/test/avatars/test.jpg";
 
         await UserRepository.updateAvatar(user.accountName, url);
