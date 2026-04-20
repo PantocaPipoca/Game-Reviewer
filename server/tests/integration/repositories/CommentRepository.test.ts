@@ -9,7 +9,7 @@ describe("CommentRepository (integration)", () => {
     async function insertReviewAndComment(comment: string): Promise<CommentFull> {
         const reviewer: string = await quickRegisterUser();
         const reviewed: number = (await createGame()).gameID;
-        await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 2 });
+        await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 2, platforms: [], hoursPlayed: 0 });
         const commentator: string = await quickRegisterUser();
         return await CommentRepository.insertComment({
             reviewer,
@@ -70,6 +70,8 @@ describe("CommentRepository (integration)", () => {
             reviewed: review.reviewed,
             text: "",
             score: 5,
+            platforms: [],
+            hoursPlayed: 0,
         });
 
         // Insert some useless reviews
@@ -102,7 +104,14 @@ describe("CommentRepository (integration)", () => {
         for (var i = 0; i < 15; i++) {
             const reviewer: string = await quickRegisterUser();
             const reviewed: number = (await createGame()).gameID;
-            await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 5 });
+            await ReviewRepository.insertReview({
+                reviewer,
+                reviewed,
+                text: "",
+                score: 5,
+                platforms: [],
+                hoursPlayed: 0,
+            });
             reviews.push({ reviewer, reviewed } as ReviewPK);
         }
 
