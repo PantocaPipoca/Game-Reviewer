@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import request from "supertest";
 import type { Express } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -64,13 +65,21 @@ export async function createGame(): Promise<GameFull> {
 //
 // new fast functions to create db elements
 export function fastCreateUser(name: string) {
-    return UserRepository.insertUser({
-        accountName: name,
-        passwordHash: name,
-        avatar: null,
-        userData: {},
-        isPrivate: false,
-        email: `${name}@test.com`,
+    return bcrypt.hash(name, 10).then((hash) => {
+        return UserRepository.insertUser({
+            accountName: name,
+            passwordHash: hash,
+            avatar: null,
+            userData: {},
+            isPrivate: false,
+            email: `${name}@test.com`,
+        });
+    });
+}
+
+export function fastCreateUserAndValidate(name: string) {
+    return fastCreateUser(name).then((user) => {
+        return UserRepository.verify(user.accountName, user.emailValidation as number);
     });
 }
 

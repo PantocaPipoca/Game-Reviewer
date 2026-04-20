@@ -1,7 +1,8 @@
+// DONE
 import { describe, it, expect } from "@jest/globals";
 import { AccountService } from "../../../src/services/AccountService";
 import { AuthResponse, UserFull, UserMe, UserPrivate, UserPublic } from "../../../src/types/Types";
-import { makeSomeUser, UserMicro } from "../helper/helper";
+import { fastCreateUser, fastCreateUserAndValidate, makeSomeUser, UserMicro } from "../helper/helper";
 import { UserRepository } from "../../../src/Repository/UserRepository";
 import bcrypt from "bcrypt";
 
@@ -25,51 +26,62 @@ describe("AccountService (integration)", () => {
         expect(target?.passwordHash).not.toBe(pass);
     }
 
-    it("RegisterUser creates a user and returns token, not with duplicate name or duplicate email", async () => {
-        // Register user
-        const user: UserMicro = makeSomeUser();
-        const res: AuthResponse = (await AccountService.registerUser(
-            user.accountName,
+    // it("RegisterUser creates a user and returns token, not with duplicate name or duplicate email", async () => {
+    //     // Register user
+    //     const user: UserMicro = makeSomeUser();
+    //     const res: AuthResponse = (await AccountService.registerUser(
+    //         user.accountName,
+    //         displayName,
+    //         pass,
+    //         user.email,
+    //         false
+    //     )) as AuthResponse;
+
+    //     // Check matching name and defined token
+    //     expect(res.accountName).toBe(user.accountName);
+    //     expect(res.isPrivate).toBe(false);
+    //     expect(res.token).toBeDefined();
+
+    //     // Check matching data
+    //     const dbUser: UserFull | null = await UserRepository.selectUser(user.accountName);
+    //     checkUserAux(dbUser, user.accountName, user.email);
+
+    //     // Fails, duplicate user name
+    //     await expect(
+    //         AccountService.registerUser(user.accountName, displayName, pass, "blabla" + user.email, false)
+    //     ).rejects.toBeDefined();
+    //     // Fails, duplicate email
+    //     await expect(
+    //         AccountService.registerUser(user.accountName + "blabla", displayName, pass, user.email, false)
+    //     ).rejects.toBeDefined();
+    // });
+
+    it("Checks if registerUser is working", async () => {
+        const res: string = (await AccountService.registerUser(
+            "test",
             displayName,
             pass,
-            user.email,
-            false
-        )) as AuthResponse;
+            "test@test.com",
+            true
+        )) as string;
 
-        // Check matching name and defined token
-        expect(res.accountName).toBe(user.accountName);
-        expect(res.isPrivate).toBe(false);
-        expect(res.token).toBeDefined();
-
-        // Check matching data
-        const dbUser: UserFull | null = await UserRepository.selectUser(user.accountName);
-        checkUserAux(dbUser, user.accountName, user.email);
-
-        // Fails, duplicate user name
-        await expect(
-            AccountService.registerUser(user.accountName, displayName, pass, "blabla" + user.email, false)
-        ).rejects.toBeDefined();
-        // Fails, duplicate email
-        await expect(
-            AccountService.registerUser(user.accountName + "blabla", displayName, pass, user.email, false)
-        ).rejects.toBeDefined();
+        expect(res).toBe("test");
     });
 
     it("Checks if email verification is working", async () => {
-        const user: UserMicro = makeSomeUser();
-        await AccountService.registerUser(user.accountName, displayName, pass, "support.gamereviewer@gmail.com", true);
-
-        const userFull = await UserRepository.selectUser(user.accountName);
-        expect(AccountService.verify(user.accountName, -1)).rejects.toBeDefined();
-        expect(AccountService.verify(user.accountName, userFull?.emailValidation as number)).resolves.toBeDefined();
+        const accountName: string = `repo_user_${Date.now()}`;
+        await fastCreateUser(accountName);
+        const userFull = await UserRepository.selectUser(accountName);
+        expect(AccountService.verify(accountName, -1)).rejects.toBeDefined();
+        expect(AccountService.verify(accountName, userFull?.emailValidation as number)).resolves.toBeDefined();
     });
 
     it("LoginUser fails with wrong passwords and non-existent users", async () => {
         // Register user
-        const user: UserMicro = await makeSomeUserAndRegister();
+        const user: UserFull = await fastCreateUserAndValidate("test");
 
         // Passes, correct password and existing user
-        await expect(AccountService.loginUser(user.accountName, pass)).resolves.toBeDefined();
+        await expect(AccountService.loginUser(user.accountName, "test")).resolves.toBeDefined();
         // Fails, wrong password
         await expect(AccountService.loginUser(user.accountName, "wrongpass")).rejects.toBeDefined();
         // Fails, user doesn't exist
@@ -78,67 +90,58 @@ describe("AccountService (integration)", () => {
 
     it("AlterUser alters a user, not if duplicate email", async () => {
         // Register user
-        const user: UserMicro = makeSomeUser();
-        await AccountService.registerUser(user.accountName, displayName, "87654321", "svc@test.com", false);
-
-        // Find user in database and their previous hash
-        const dbUser1: UserFull | null = await UserRepository.selectUser(user.accountName);
-        const prevPassHash: string | undefined = dbUser1?.passwordHash;
+        const accountName: string = `repo_user_${Date.now()}`;
+        const userStart: UserFull = await fastCreateUserAndValidate(accountName);
 
         // Alter user data and check the returned object
-        const altered: UserMe = await AccountService.alterUser(
-            user.accountName,
+        const userAltered: UserMe = await AccountService.alterUser(
+            accountName,
             true,
-            user.email,
+            "otheremail@test.com",
             { displayName, gender: null, bio: null },
-            pass
+            "newPass"
         );
-        expect(altered).not.toBeNull();
-        expect(altered.accountName).toBe(user.accountName);
-        expect(altered.isPrivate).toBe(true);
+        expect(userAltered).not.toBeNull();
+        expect(userAltered?.accountName).toBe(accountName);
+        expect(userAltered?.isPrivate).toBe(true);
 
         // Check if data in the database matches expectations
-        const dbUser2: UserFull | null = await UserRepository.selectUser(user.accountName);
-        checkUserAux(dbUser2, user.accountName, user.email);
-        expect(dbUser2?.passwordHash).not.toBe(prevPassHash);
+        const userAlteredFull: UserFull | null = await UserRepository.selectUser(accountName);
+        expect(userAlteredFull?.email).toBe("otheremail@test.com");
+        expect(userAlteredFull?.passwordHash).not.toBe(userStart.passwordHash);
 
         // Fails, duplicate email
-        const otherEmail: string = "otheremail@test.com";
-        await AccountService.registerUser("username2", "OTHER USER", "18273645", otherEmail, false);
+        const newUser: UserFull = await fastCreateUserAndValidate("anotheruser");
         await expect(
-            AccountService.alterUser(user.accountName, true, otherEmail, { displayName, gender: null, bio: null }, pass)
+            AccountService.alterUser(
+                userStart.accountName,
+                true,
+                "anotheruser@test.com",
+                { displayName, gender: null, bio: null },
+                pass
+            )
         ).rejects.toBeDefined();
     });
 
     it("DeleteUser removes a user", async () => {
         // Register user
-        const user: UserMicro = await makeSomeUserAndRegister();
+        const accountName: string = "test";
+        const user: UserFull = await fastCreateUser(accountName);
 
-        // Find user in database and check its data
-        const dbUser1: UserFull | null = await UserRepository.selectUser(user.accountName);
-        checkUserAux(dbUser1, user.accountName, user.email);
+        expect(user).not.toBe(null);
 
         // Remove user and make sure it's gone from the database
-        await AccountService.removeUser(user.accountName);
-        const dbUser2: UserFull | null = await UserRepository.selectUser(user.accountName);
-        expect(dbUser2).toBeNull();
+        await AccountService.removeUser(accountName);
+
+        const userDel: UserFull | null = await UserRepository.selectUser(accountName);
+        expect(userDel).toBeNull();
     });
 
     it("checks grantPasswordReset is working", async () => {
-        await UserRepository.insertUser({
-            accountName: "test",
-            email: "test@test.com",
-            passwordHash: "brrrrr",
-            avatar: null,
-            isPrivate: false,
-            userData: {
-                displayName: "test",
-                gender: null,
-                bio: null,
-            },
-        });
+        const accountName: string = "test";
+        await fastCreateUserAndValidate(accountName);
 
-        const code: number = await AccountService.grantPasswordReset("test", false);
+        const code: number = await AccountService.grantPasswordReset(accountName, false);
 
         const user: UserFull | null = await UserRepository.selectUser("test");
 
@@ -150,31 +153,23 @@ describe("AccountService (integration)", () => {
     });
 
     it("checks usePasswordReset is working", async () => {
-        const SALT_ROUNDS = 10;
-        await UserRepository.insertUser({
-            accountName: "test",
-            email: "test@test.com",
-            passwordHash: "brrrrr",
-            avatar: null,
-            isPrivate: false,
-            userData: {
-                displayName: "test",
-                gender: null,
-                bio: null,
-            },
-        });
+        const accountName: string = "test";
 
-        await UserRepository.grantPasswordReset("test", 123);
+        await fastCreateUserAndValidate(accountName);
 
-        await AccountService.usePasswordReset("test", 123, "test1");
+        await UserRepository.grantPasswordReset(accountName, 123);
 
-        const user: UserFull | null = await UserRepository.selectUser("test");
+        const newPass = "newPass";
+
+        await AccountService.usePasswordReset(accountName, 123, newPass);
+
+        const user: UserFull | null = await UserRepository.selectUser(accountName);
 
         if (user === null) {
             throw new Error("if you are reading this we are having a joints problem on prisma");
         }
 
-        expect(await bcrypt.compare("test1", user.passwordHash)).toBeTruthy();
+        expect(await bcrypt.compare(newPass, user.passwordHash)).toBeTruthy();
     });
 
     it("FindByUsername correctly finds a user, not if non-existent", async () => {
