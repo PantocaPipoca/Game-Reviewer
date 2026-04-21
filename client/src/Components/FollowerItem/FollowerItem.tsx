@@ -9,24 +9,30 @@ type Props = {
     avatar: string | null;
     isOwner: boolean;
     type: "followers" | "following";
+    pending?: boolean;
     onRemove: (username: string) => void;
 };
 
-function FollowerItem({ username, avatar, isOwner, type, onRemove }: Props) {
+function FollowerItem({ username, avatar, isOwner, type, pending = false, onRemove }: Props) {
     const navigate = useNavigate();
+
+    const buttonLabel = type === "followers" ? "X REMOVE" : pending ? "X CANCEL" : "X UNFOLLOW";
+
+    const buttonColor = type === "followers" || pending ? "var(--mutedText)" : "var(--pink)";
+
     return (
         <div className={style.item}>
             <div className={style.leftSide} onClick={() => navigate(`/user/${username}`)}>
                 <div className={style.avatarWrapper}>
                     <img src={avatar ?? defaultAvatar} alt={username} className={style.avatar} />
                 </div>
-                <Text color="var(--mainText)">{username}</Text>
+                <Text color={pending ? "var(--mutedText)" : "var(--mainText)"}>{username}</Text>
             </div>
             <div className={style.actions}>
                 {isOwner && (
                     <Button className={style.actionButton} onClick={() => onRemove(username)}>
-                        <Text variant="small" color={type === "followers" ? "var(--mutedText)" : "var(--pink)"}>
-                            {type === "followers" ? "X REMOVE" : "X UNFOLLOW"}
+                        <Text variant="small" color={buttonColor}>
+                            {buttonLabel}
                         </Text>
                     </Button>
                 )}

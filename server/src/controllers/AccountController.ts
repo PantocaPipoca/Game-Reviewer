@@ -43,13 +43,13 @@ export class AccountController {
         if (!EMAIL_REGEX.test(email)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_INVALID);
         if (email.length > EMAIL_MAX_LEN) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_TOO_LONG);
 
-        const result: string = (await AccountService.registerUser(
+        const result: string | AuthResponse = await AccountService.registerUser(
             accountName,
             displayName,
             password,
             email,
             process.env["NODE_ENV"] !== "development"
-        )) as string;
+        );
         return makeSuccess(res, StatusCodes.CREATED, result);
     });
 

@@ -52,14 +52,24 @@ function UserPage() {
             setCanView(canView);
 
             if (currentUser && !owner) {
+                let isFollowing = false;
+
                 try {
                     const followers = await FollowerAPI.getFollowers(username!);
-                    const relation = followers.find((f) => f.follows === currentUser.accountName);
-                    if (!relation) setFollowState("not_following");
-                    else if (relation.accepted) setFollowState("following");
-                    else setFollowState("pending");
+                    isFollowing = !!followers.find((f) => f.follows === currentUser.accountName && f.accepted);
                 } catch {
-                    setFollowState("not_following");
+                    // private account currentUser not following yet
+                }
+
+                try {
+                    const sentRequests = await FollowerAPI.getRequestsSent();
+                    const isPending = !!sentRequests.find((f) => f.followed === username);
+
+                    if (isFollowing) setFollowState("following");
+                    else if (isPending) setFollowState("pending");
+                    else setFollowState("not_following");
+                } catch {
+                    setFollowState(isFollowing ? "following" : "not_following");
                 }
             }
 
@@ -152,8 +162,12 @@ function UserPage() {
         }
         if (followState === "pending") {
             return (
-                <Button className={`${style.followButton} ${style.pendingButton}`} disabled>
-                    <Text color="var(--mutedText)">{`... PENDING`}</Text>
+                <Button
+                    className={`${style.followButton} ${style.pendingButton}`}
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                >
+                    <Text color="var(--mutedText)">{`X CANCEL REQUEST`}</Text>
                 </Button>
             );
         }

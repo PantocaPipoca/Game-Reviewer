@@ -40,16 +40,6 @@ export function toValidGameID(gameID: string | string[] | undefined): number {
 
 export class GameController {
     /**
-     * Finds a game by ID
-     * Used by GET /api/games/:gameID
-     */
-    // static getGameById: any = asyncHandler(async (req: Request, res: Response) => {
-    //     const result: GameFull = await GameService.getGameById(toValidGameID(req.params['gameID']));
-    //     return makeSuccess(res, StatusCodes.OK, result);
-    // });
-    // won't be used
-
-    /**
      * Returns all necessary info for the frontend to create a page for the game
      * Used by GET /api/games/id/:gameID
      */

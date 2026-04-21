@@ -7,8 +7,8 @@ export class UserAPI {
         displayName: string;
         password: string;
         email: string;
-    }): Promise<string> {
-        const response = (await CLIENT.post("/users", data)) as string;
+    }): Promise<string | AuthResponse> {
+        const response = (await CLIENT.post("/users", data)) as string | AuthResponse;
         return response;
     }
 
