@@ -46,4 +46,6 @@
     padding: var(--spacingSmall) var(--spacingMedium);
     white-space: nowrap;
     background-color: transparent;
+    min-width: 140px;
+    text-align: center;
 }
