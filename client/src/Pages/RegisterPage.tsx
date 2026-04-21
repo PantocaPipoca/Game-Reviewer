@@ -8,6 +8,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
 import { AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
+import type { AuthResponse } from "../API/Types";
 
 export function RowAux(
     header: string,
@@ -87,16 +88,23 @@ function RegisterPage() {
 
         setLoading(true);
         try {
-            const name: string = await UserAPI.register({
+            const user: string | AuthResponse = await UserAPI.register({
                 accountName: userName,
                 displayName,
                 password,
                 email,
             });
-            navigate(`/validation#${name}`, {
-                state: { from: redirectPath },
-                replace: true,
-            });
+
+            if (typeof user === "object" && "token" in user) {
+                // AuthResponse - alr verified
+                navigate(redirectPath, { replace: true });
+            } else {
+                // needs validaton
+                navigate(`/validation#${user}`, {
+                    state: { from: redirectPath },
+                    replace: true,
+                });
+            }
         } catch (err: any) {
             const message = err.response?.data?.message || AUTH_ERRORS.registerFailed;
             setError(message);

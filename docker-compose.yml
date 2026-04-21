@@ -23,8 +23,6 @@ services:
         image: gr_server
         env_file:
             - ./server/.env
-        environment:
-            NODE_ENV: production
         ports:
             - "3000:3000"
             - "5555:5555"
