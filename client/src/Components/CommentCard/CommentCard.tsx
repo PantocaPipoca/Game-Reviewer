@@ -1,6 +1,9 @@
 import style from "./CommentCard.module.css";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
+import EditButton from "../Buttons/EditButton";
+import { REVIEW_CONSTS } from "../../Types/Consts";
+import InputField from "../InputField/InputField";
 
 export type CommentCardProps = {
     showUser?: boolean;
@@ -55,14 +58,37 @@ function CommentCard({
                 ) : (
                     <div></div>
                 )}
-                <div flex-direction="column" className={style.fullWidth}>
-                    <Text variant="small" color="var(--cyan)">
-                        Posted on {parseDate(date)}
-                    </Text>
-                    <Text variant="small" multiline>
-                        {`\n` + description}
-                    </Text>
-                </div>
+                {isModifying ? (
+                    <div flex-direction="column" className={style.fullWidth}>
+                        <Text variant="small" color="var(--green)">
+                            characters left:{" "}
+                        </Text>
+                        <Text
+                            variant="small"
+                            color={
+                                REVIEW_CONSTS.maxCommentLength === description.length ? "var(--pink)" : "var(--cyan)"
+                            }
+                        >
+                            {REVIEW_CONSTS.maxCommentLength - description.length}
+                        </Text>
+                        <InputField
+                            value={description}
+                            multiline
+                            placeholder="edit your comment here..."
+                            onChange={() => {}}
+                        />
+                    </div>
+                ) : (
+                    <div flex-direction="column" className={style.fullWidth}>
+                        <Text variant="small" color="var(--cyan)">
+                            Posted on {parseDate(date)}
+                        </Text>
+                        <Text variant="small" multiline>
+                            {`\n` + description}
+                        </Text>
+                    </div>
+                )}
+                {canModify && !isModifying && <EditButton onClick={() => {}}></EditButton>}
             </Panel>
         </div>
     );
