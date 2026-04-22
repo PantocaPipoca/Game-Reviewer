@@ -1,5 +1,6 @@
 // ========== VALIDATION ERRORS (400) ==========
 export const ACCOUNT_NAME_REQUIRED: string = "Missing user name field";
+export const ACCOUNT_NAME_INVALID: string = "Invalid user name";
 export const ACCOUNT_NAME_TOO_SHORT: string = "User name is too short";
 export const ACCOUNT_NAME_TOO_LONG: string = "User name is too long";
 export const DISPLAY_NAME_REQUIRED: string = "Missing display name field";

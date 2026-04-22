@@ -8,6 +8,7 @@ import { AuthRequest, clearAuthCookie, extractLoggedUser, setAuthCookie } from "
 import { sanitizeString } from "../utils/Sanitize";
 
 // REGEX that tests whether an email is valid
+const USER_REGEX: RegExp = /^[a-zA-Z0-9_]+$/;
 const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // Lengths of inputs
@@ -31,6 +32,8 @@ export class AccountController {
         if (!displayName) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.DISPLAY_NAME_REQUIRED);
         if (!password) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
         if (!email) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_REQUIRED);
+        if (!USER_REGEX.test(accountName))
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_INVALID);
         if (accountName.length < NAME_MIN_LEN)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_SHORT);
         if (accountName.length > NAME_MAX_LEN)

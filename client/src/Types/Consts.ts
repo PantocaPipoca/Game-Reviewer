@@ -3,6 +3,7 @@ export const AUTH_VALIDATION = {
     maxUserNameLength: 26,
     minPasswordLength: 8,
     maxPasswordLength: 50,
+    userRegex: /^[a-zA-Z0-9_]+$/,
     emailRegex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
     maxEmailLength: 70,
 } as const;
@@ -11,6 +12,7 @@ export const maxLoginLength: number = Math.max(AUTH_VALIDATION.maxEmailLength, A
 
 export const AUTH_ERRORS = {
     requiredFields: "All fields are required.",
+    invalidUserName: "Invalid username format.",
     invalidEmail: "Invalid email format.",
     userNameTooShort: `Username must be at least ${AUTH_VALIDATION.minUserNameLength} characters long.`,
     userNameTooLong: `Username must be at most ${AUTH_VALIDATION.maxUserNameLength} characters long.`,
