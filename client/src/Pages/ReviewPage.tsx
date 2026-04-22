@@ -42,15 +42,18 @@ function getCoverUrl(game: any): string {
     return full.replace("t_thumb", "t_cover_big");
 }
 
-async function makeComments(comments: CommentFull[], user?: UserMe) {
+async function makeComments(comments: CommentFull[], reviewer: string, reviewed: number, user?: UserMe) {
     const target: CommentCardProps[] = [];
     const size: number = comments.length;
     for (var i = 0; i < size; i++) {
         const current: CommentFull = comments[i];
         const us: UserPublic = await UserAPI.getByUsername(current.commentator);
         target.push({
+            reviewer,
+            reviewed,
             showUser: true,
             userName: current.commentator,
+            displayName: us.userData.displayName,
             userAvatar: us.avatar ?? "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
             description: current.text,
             date: current.createdAt,
@@ -71,7 +74,8 @@ function ReviewPage() {
     const [myReview, setMyReview] = useState<ReviewFull | null>(null);
     const [isOwnReview, setIsOwnReview] = useState(false);
     const [comments, setComments] = useState<CommentCardProps[]>([]);
-    const [authUser, setAuthUser] = useState<string>("");
+    const [authUserName, setAuthUserName] = useState<string | undefined>(undefined);
+    const [authDisplayName, setAuthDisplayName] = useState<string | undefined>(undefined);
     const [isReplying, setIsReplying] = useState(false);
     const [yourReply, setYourReply] = useState("");
     const [replyToEdit, setReplyToEdit] = useState<string | undefined>(undefined);
@@ -106,10 +110,16 @@ function ReviewPage() {
                 else setError(true);
                 if (commentResult.status !== "fulfilled") setError(true);
 
+                let writeComments: boolean = true;
                 try {
                     const me: UserMe = await UserAPI.getMe();
-                    setAuthUser(me.accountName);
-                    if (commentResult.status === "fulfilled") setComments(await makeComments(commentResult.value, me));
+                    console.log(me);
+                    setAuthUserName(me.accountName);
+                    setAuthDisplayName(me.userData.displayName);
+                    if (commentResult.status === "fulfilled") {
+                        setComments(await makeComments(commentResult.value, reviewer!, reviewedNum, me));
+                        writeComments = false;
+                    }
                     if (me.accountName === reviewer) {
                         setIsOwnReview(true);
                         setMyReview(reviewResult.status === "fulfilled" ? reviewResult.value : null);
@@ -118,8 +128,10 @@ function ReviewPage() {
                         setMyReview(ownReview);
                     }
                 } catch {
+                    console.log("NO");
                     setMyReview(null);
-                    if (commentResult.status === "fulfilled") setComments(await makeComments(commentResult.value));
+                    if (writeComments && commentResult.status === "fulfilled")
+                        setComments(await makeComments(commentResult.value, reviewer!, reviewedNum));
                 }
             } catch {
                 setError(true);
@@ -169,8 +181,16 @@ function ReviewPage() {
 
     comments.sort((c1, c2) => c2.date.localeCompare(c1.date));
 
+    function setReplyToEditFinish(id: string, text: string) {
+        for (var i = 0; i < comments.length; i++)
+            if (comments[i].id === id) {
+                comments[i].description = text;
+                break;
+            }
+    }
+
     function yourReplySection() {
-        if (authUser === "")
+        if (authUserName === undefined || authDisplayName === undefined)
             return (
                 <div className={style.yourReplyRow}>
                     <Button
@@ -201,7 +221,8 @@ function ReviewPage() {
                                             reviewer,
                                             reviewed: game.id,
                                             showUser: true,
-                                            userName: authUser,
+                                            userName: authUserName,
+                                            displayName: authDisplayName,
                                             description: yourReply,
                                             canModify: true,
                                             isModifying: false,
@@ -209,6 +230,7 @@ function ReviewPage() {
                                             id: result.id,
                                             setReplyToEdit,
                                             setReplyToEditText,
+                                            setReplyToEditFinish,
                                         });
                                         setComments(comments);
                                         setIsReplying(false);
@@ -338,6 +360,7 @@ function ReviewPage() {
                                     reviewed={c.reviewed}
                                     showUser={c.showUser}
                                     userName={c.userName}
+                                    displayName={c.displayName}
                                     description={
                                         replyToEdit !== undefined && replyToEdit === c.id
                                             ? replyToEditText
@@ -349,6 +372,7 @@ function ReviewPage() {
                                     id={c.id}
                                     setReplyToEdit={setReplyToEdit}
                                     setReplyToEditText={setReplyToEditText}
+                                    setReplyToEditFinish={setReplyToEditFinish}
                                 />
                             ))
                         )}

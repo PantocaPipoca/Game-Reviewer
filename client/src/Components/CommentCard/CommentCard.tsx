@@ -8,10 +8,11 @@ import Button from "../Buttons/Button";
 import { CommentAPI } from "../../API/Comments";
 
 export type CommentCardProps = {
-    reviewer: string;
-    reviewed: number;
+    reviewer?: string;
+    reviewed?: number;
     showUser: boolean;
     userName: string;
+    displayName: string;
     userAvatar?: string;
     description: string;
     date: string;
@@ -20,6 +21,7 @@ export type CommentCardProps = {
     isModifying: boolean;
     setReplyToEdit: React.Dispatch<React.SetStateAction<string | undefined>>;
     setReplyToEditText: React.Dispatch<React.SetStateAction<string>>;
+    setReplyToEditFinish: (id: string, text: string) => void;
 };
 
 const months: string[] = [
@@ -50,6 +52,7 @@ function CommentCard({
     reviewed,
     showUser = false,
     userName,
+    displayName,
     userAvatar = "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
     description = "",
     date = "",
@@ -58,6 +61,7 @@ function CommentCard({
     isModifying,
     setReplyToEdit,
     setReplyToEditText,
+    setReplyToEditFinish,
 }: CommentCardProps) {
     return (
         <div className={style.panel}>
@@ -65,7 +69,7 @@ function CommentCard({
                 {showUser ? (
                     <div className={style.userBlock} tabIndex={0}>
                         <img src={userAvatar} className={style.avatar} />
-                        <Text variant="h3">{userName}</Text>
+                        <Text variant="h3">{displayName}</Text>
                     </div>
                 ) : (
                     <div></div>
@@ -96,8 +100,11 @@ function CommentCard({
                             className={`${style.editReplyButton}`}
                             color="var(--transparent)"
                             onClick={async () => {
-                                setReplyToEdit(undefined);
-                                await CommentAPI.edit(reviewer, reviewed, id, "description");
+                                if (reviewer !== undefined && reviewed !== undefined) {
+                                    setReplyToEditFinish(id, description);
+                                    setReplyToEdit(undefined);
+                                    await CommentAPI.edit(reviewer, reviewed, id, description);
+                                }
                             }}
                             aria-label="Create Reply"
                         >
