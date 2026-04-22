@@ -72,7 +72,7 @@ function CommentCard({
                 )}
                 {isModifying ? (
                     <div flex-direction="column" className={style.fullWidth}>
-                        <Text variant="small" color="var(--green)">
+                        <Text variant="small" color="var(--mutedText)">
                             characters left:{" "}
                         </Text>
                         <Text
@@ -88,7 +88,8 @@ function CommentCard({
                             multiline
                             placeholder="edit your comment here..."
                             onChange={(e) => {
-                                setReplyToEditText(e.target.value);
+                                if (e.target.value.length <= REVIEW_CONSTS.maxCommentLength)
+                                    setReplyToEditText(e.target.value);
                             }}
                         />
                         <Button
@@ -96,7 +97,7 @@ function CommentCard({
                             color="var(--transparent)"
                             onClick={async () => {
                                 setReplyToEdit(undefined);
-                                await CommentAPI.edit(reviewer, reviewed, id, description);
+                                await CommentAPI.edit(reviewer, reviewed, id, "description");
                             }}
                             aria-label="Create Reply"
                         >
@@ -119,7 +120,7 @@ function CommentCard({
                             setReplyToEdit(id);
                             setReplyToEditText(description);
                         }}
-                    ></EditButton>
+                    />
                 )}
             </Panel>
         </div>

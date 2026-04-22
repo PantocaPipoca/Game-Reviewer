@@ -55,7 +55,7 @@ export class CommentController {
 
         const { text } = req.body;
         if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_TEXT_REQUIRED);
-        if (text.length >= COMMENT_MAX_LEN)
+        if (text.length > COMMENT_MAX_LEN)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_TEXT_TOO_LONG);
 
         let id: bigint;
