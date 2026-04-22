@@ -54,6 +54,7 @@ async function makeComments(comments: CommentFull[], user?: UserMe) {
             userAvatar: us.avatar ?? "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
             description: current.text,
             date: current.createdAt,
+            id: current.id,
             canModify: user !== undefined && current.commentator === user.accountName,
             isModifying: false,
         } as CommentCardProps);
@@ -73,10 +74,12 @@ function ReviewPage() {
     const [authUser, setAuthUser] = useState<string>("");
     const [isReplying, setIsReplying] = useState(false);
     const [yourReply, setYourReply] = useState("");
+    const [replyToEdit, setReplyToEdit] = useState<string | undefined>(undefined);
+    const [replyToEditText, setReplyToEditText] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
-    const reviewedNum = reviewed ? parseInt(reviewed) : undefined;
+    const reviewedNum: number | undefined = reviewed ? parseInt(reviewed) : undefined;
 
     useEffect(() => {
         if (!reviewer || !reviewed) return;
@@ -195,12 +198,17 @@ function ReviewPage() {
                                     if (reviewer !== undefined && game.id !== undefined) {
                                         const result: CommentFull = await CommentAPI.add(reviewer, game.id, yourReply);
                                         comments.unshift({
+                                            reviewer,
+                                            reviewed: game.id,
                                             showUser: true,
                                             userName: authUser,
                                             description: yourReply,
                                             canModify: true,
                                             isModifying: false,
                                             date: result.createdAt,
+                                            id: result.id,
+                                            setReplyToEdit,
+                                            setReplyToEditText,
                                         });
                                         setComments(comments);
                                         setIsReplying(false);
@@ -326,12 +334,21 @@ function ReviewPage() {
                         ) : (
                             comments.map((c) => (
                                 <CommentCard
+                                    reviewer={c.reviewer}
+                                    reviewed={c.reviewed}
                                     showUser={c.showUser}
                                     userName={c.userName}
-                                    description={c.description}
+                                    description={
+                                        replyToEdit !== undefined && replyToEdit === c.id
+                                            ? replyToEditText
+                                            : c.description
+                                    }
                                     canModify={c.canModify}
-                                    isModifying={c.isModifying}
+                                    isModifying={replyToEdit !== undefined && replyToEdit === c.id}
                                     date={c.date}
+                                    id={c.id}
+                                    setReplyToEdit={setReplyToEdit}
+                                    setReplyToEditText={setReplyToEditText}
                                 />
                             ))
                         )}

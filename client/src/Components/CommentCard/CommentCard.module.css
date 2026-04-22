@@ -21,3 +21,15 @@
     width: 50%;
     aspect-ratio: 1 / 1;
 }
+
+.editReplyButton {
+    width: 100%;
+    height: 40px;
+    border-color: var(--mainText);
+    background-color: var(--transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0px;
+    padding-bottom: 18px;
+}
