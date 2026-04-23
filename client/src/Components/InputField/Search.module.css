@@ -51,3 +51,10 @@
     box-sizing: border-box;
     width: 100%;
 }
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}

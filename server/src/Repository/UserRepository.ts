@@ -99,13 +99,23 @@ export class UserRepository {
      * @param nameFilter string that filters the Users
      * @returns a promise of an array of Users
      */
-    public static selectUsersOfSimilarName(nameFilter: string): Promise<UserFull[]> {
+    static async selectUsersOfSimilarName(nameFilter: string) {
         return PRISMA.user.findMany({
             where: {
-                accountName: {
-                    contains: nameFilter,
-                    mode: "insensitive",
-                },
+                OR: [
+                    {
+                        accountName: {
+                            contains: nameFilter,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        userData: {
+                            path: ["displayName"],
+                            string_contains: nameFilter,
+                        },
+                    },
+                ],
             },
         });
     }
