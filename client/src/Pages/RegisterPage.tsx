@@ -69,6 +69,10 @@ function RegisterPage() {
             setError(AUTH_ERRORS.requiredFields);
             return;
         }
+        if (!AUTH_VALIDATION.userRegex.test(userName)) {
+            setError(AUTH_ERRORS.invalidUserName);
+            return;
+        }
         if (!AUTH_VALIDATION.emailRegex.test(email)) {
             setError(AUTH_ERRORS.invalidEmail);
             return;

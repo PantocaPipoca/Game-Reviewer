@@ -151,6 +151,7 @@ export class AccountService {
                     html: `<h1>${newUser.emailValidation}</h1>`,
                 });
             } catch (err) {
+                await UserRepository.deleteUser(newUser.accountName);
                 logger.error({ err, username }, "Verification email failed to send");
                 throw new AppError(
                     StatusCodes.SERVICE_UNAVAILABLE,

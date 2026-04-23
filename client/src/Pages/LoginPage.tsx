@@ -33,6 +33,11 @@ function LoginPage() {
             return;
         }
 
+        if (!AUTH_VALIDATION.userRegex.test(accountName)) {
+            setError(AUTH_ERRORS.invalidUserName);
+            return;
+        }
+
         setLoading(true);
         try {
             await UserAPI.login({ accountName, password });

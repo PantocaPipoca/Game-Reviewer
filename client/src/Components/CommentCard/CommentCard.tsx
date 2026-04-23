@@ -1,15 +1,27 @@
 import style from "./CommentCard.module.css";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
+import EditButton from "../Buttons/EditButton";
+import { REVIEW_CONSTS } from "../../Types/Consts";
+import InputField from "../InputField/InputField";
+import Button from "../Buttons/Button";
+import { CommentAPI } from "../../API/Comments";
 
 export type CommentCardProps = {
-    showUser?: boolean;
-    userName?: string;
+    reviewer?: string;
+    reviewed?: number;
+    showUser: boolean;
+    userName: string;
+    displayName: string;
     userAvatar?: string;
-    description?: string;
+    description: string;
     date: string;
-    canModify?: boolean;
-    isModifying?: boolean;
+    id: string;
+    canModify: boolean;
+    isModifying: boolean;
+    setReplyToEdit: React.Dispatch<React.SetStateAction<string | undefined>>;
+    setReplyToEditText: React.Dispatch<React.SetStateAction<string>>;
+    setReplyToEditFinish: (id: string, text: string) => void;
 };
 
 const months: string[] = [
@@ -36,13 +48,20 @@ function parseDate(date: string): string {
 }
 
 function CommentCard({
+    reviewer,
+    reviewed,
     showUser = false,
-    userName = "######",
+    userName,
+    displayName,
     userAvatar = "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
     description = "",
     date = "",
-    canModify = false,
-    isModifying = false,
+    id,
+    canModify,
+    isModifying,
+    setReplyToEdit,
+    setReplyToEditText,
+    setReplyToEditFinish,
 }: CommentCardProps) {
     return (
         <div className={style.panel}>
@@ -50,19 +69,66 @@ function CommentCard({
                 {showUser ? (
                     <div className={style.userBlock} tabIndex={0}>
                         <img src={userAvatar} className={style.avatar} />
-                        <Text variant="h3">{userName}</Text>
+                        <Text variant="h3">{displayName}</Text>
                     </div>
                 ) : (
                     <div></div>
                 )}
-                <div flex-direction="column" className={style.fullWidth}>
-                    <Text variant="small" color="var(--cyan)">
-                        Posted on {parseDate(date)}
-                    </Text>
-                    <Text variant="small" multiline>
-                        {`\n` + description}
-                    </Text>
-                </div>
+                {isModifying ? (
+                    <div flex-direction="column" className={style.fullWidth}>
+                        <Text variant="small" color="var(--mutedText)">
+                            characters left:{" "}
+                        </Text>
+                        <Text
+                            variant="small"
+                            color={
+                                REVIEW_CONSTS.maxCommentLength === description.length ? "var(--pink)" : "var(--cyan)"
+                            }
+                        >
+                            {REVIEW_CONSTS.maxCommentLength - description.length}
+                        </Text>
+                        <InputField
+                            value={description}
+                            multiline
+                            placeholder="edit your comment here..."
+                            onChange={(e) => {
+                                if (e.target.value.length <= REVIEW_CONSTS.maxCommentLength)
+                                    setReplyToEditText(e.target.value);
+                            }}
+                        />
+                        <Button
+                            className={`${style.editReplyButton}`}
+                            color="var(--transparent)"
+                            onClick={async () => {
+                                if (reviewer !== undefined && reviewed !== undefined) {
+                                    setReplyToEditFinish(id, description);
+                                    setReplyToEdit(undefined);
+                                    await CommentAPI.edit(reviewer, reviewed, id, description);
+                                }
+                            }}
+                            aria-label="Create Reply"
+                        >
+                            <Text variant="h3">FINISH EDITING</Text>
+                        </Button>
+                    </div>
+                ) : (
+                    <div flex-direction="column" className={style.fullWidth}>
+                        <Text variant="small" color="var(--cyan)">
+                            Posted on {parseDate(date)}
+                        </Text>
+                        <Text variant="small" multiline>
+                            {`\n` + description}
+                        </Text>
+                    </div>
+                )}
+                {canModify && !isModifying && (
+                    <EditButton
+                        onClick={() => {
+                            setReplyToEdit(id);
+                            setReplyToEditText(description);
+                        }}
+                    />
+                )}
             </Panel>
         </div>
     );
