@@ -70,6 +70,8 @@ describe("AccountService (integration)", () => {
 
         // Passes, correct password and existing user
         await expect(AccountService.loginUser(user.accountName, pass)).resolves.toBeDefined();
+        // Passes, correct password and existing user (email)
+        await expect(AccountService.loginUser(user.email, pass)).resolves.toBeDefined();
         // Fails, wrong password
         await expect(AccountService.loginUser(user.accountName, "wrongpass")).rejects.toBeDefined();
         // Fails, user doesn't exist

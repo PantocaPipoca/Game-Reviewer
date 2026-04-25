@@ -33,7 +33,7 @@ function LoginPage() {
             return;
         }
 
-        if (!AUTH_VALIDATION.userRegex.test(accountName)) {
+        if (!AUTH_VALIDATION.userRegex.test(accountName) && !AUTH_VALIDATION.emailRegex.test(accountName)) {
             setError(AUTH_ERRORS.invalidUserName);
             return;
         }
