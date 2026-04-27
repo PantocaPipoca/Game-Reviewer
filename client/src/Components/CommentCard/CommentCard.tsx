@@ -134,7 +134,7 @@ function CommentCard({
                         />
                         <Button
                             className={buttonStyle.edit}
-                            color="var(--transparent)"
+                            color="var(--pink)"
                             onClick={async () => {
                                 if (reviewer !== undefined && reviewed !== undefined) {
                                     setReplyToRemove(id);
