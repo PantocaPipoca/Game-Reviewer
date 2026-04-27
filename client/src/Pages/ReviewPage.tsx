@@ -187,9 +187,16 @@ function ReviewPage() {
     const commentArray: CommentCardProps[] = [...comments.entries()].map((e) => e[1]);
     commentArray.sort((c1, c2) => c2.date.localeCompare(c1.date));
 
-    function setReplyToEditFinish(id: string, text: string) {
+    function setReplyToEditFinish(id: string, text: string): void {
         const props: CommentCardProps | undefined = comments.get(id);
         if (props !== undefined) props.description = text;
+    }
+
+    function setReplyToRemove(id: string): void {
+        console.log(comments);
+        console.log(id);
+        comments.delete(id);
+        console.log(comments);
     }
 
     function yourReplySection() {
@@ -234,6 +241,7 @@ function ReviewPage() {
                                             setReplyToEdit,
                                             setReplyToEditText,
                                             setReplyToEditFinish,
+                                            setReplyToRemove,
                                         });
                                         setComments(comments);
                                         setIsReplying(false);
@@ -376,6 +384,7 @@ function ReviewPage() {
                                     setReplyToEdit={setReplyToEdit}
                                     setReplyToEditText={setReplyToEditText}
                                     setReplyToEditFinish={setReplyToEditFinish}
+                                    setReplyToRemove={setReplyToRemove}
                                 />
                             ))
                         )}
