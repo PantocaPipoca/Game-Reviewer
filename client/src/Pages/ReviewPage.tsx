@@ -42,13 +42,18 @@ function getCoverUrl(game: any): string {
     return full.replace("t_thumb", "t_cover_big");
 }
 
-async function makeComments(comments: CommentFull[], reviewer: string, reviewed: number, user?: UserMe) {
-    const target: CommentCardProps[] = [];
+async function makeComments(
+    comments: CommentFull[],
+    reviewer: string,
+    reviewed: number,
+    user?: UserMe
+): Promise<Map<string, CommentCardProps>> {
+    const target: Map<string, CommentCardProps> = new Map();
     const size: number = comments.length;
     for (var i = 0; i < size; i++) {
         const current: CommentFull = comments[i];
         const us: UserPublic = await UserAPI.getByUsername(current.commentator);
-        target.push({
+        target.set(current.id, {
             reviewer,
             reviewed,
             showUser: true,
@@ -73,7 +78,7 @@ function ReviewPage() {
     const [review, setReview] = useState<ReviewFull | null>(null);
     const [myReview, setMyReview] = useState<ReviewFull | null>(null);
     const [isOwnReview, setIsOwnReview] = useState(false);
-    const [comments, setComments] = useState<CommentCardProps[]>([]);
+    const [comments, setComments] = useState<Map<string, CommentCardProps>>(new Map());
     const [authUserName, setAuthUserName] = useState<string | undefined>(undefined);
     const [authDisplayName, setAuthDisplayName] = useState<string | undefined>(undefined);
     const [isReplying, setIsReplying] = useState(false);
@@ -179,14 +184,12 @@ function ReviewPage() {
     const played: string = hoursPlayed > 0 ? "YES" : "NO";
     const stars: ("full" | "half" | "empty")[] = getStars(normalizeRating(score));
 
-    comments.sort((c1, c2) => c2.date.localeCompare(c1.date));
+    const commentArray: CommentCardProps[] = [...comments.entries()].map((e) => e[1]);
+    commentArray.sort((c1, c2) => c2.date.localeCompare(c1.date));
 
     function setReplyToEditFinish(id: string, text: string) {
-        for (var i = 0; i < comments.length; i++)
-            if (comments[i].id === id) {
-                comments[i].description = text;
-                break;
-            }
+        const props: CommentCardProps | undefined = comments.get(id);
+        if (props !== undefined) props.description = text;
     }
 
     function yourReplySection() {
@@ -217,7 +220,7 @@ function ReviewPage() {
                                 onClick={async () => {
                                     if (reviewer !== undefined && game.id !== undefined) {
                                         const result: CommentFull = await CommentAPI.add(reviewer, game.id, yourReply);
-                                        comments.unshift({
+                                        comments.set(result.id, {
                                             reviewer,
                                             reviewed: game.id,
                                             showUser: true,
@@ -351,10 +354,10 @@ function ReviewPage() {
 
                     <Panel type="secondary" className={style.repliesPanel}>
                         <Text variant="h2">REPLIES:</Text>
-                        {comments.length === 0 ? (
+                        {comments.size === 0 ? (
                             <Text color="var(--mutedText)">No replies yet.</Text>
                         ) : (
-                            comments.map((c) => (
+                            commentArray.map((c) => (
                                 <CommentCard
                                     reviewer={c.reviewer}
                                     reviewed={c.reviewed}
