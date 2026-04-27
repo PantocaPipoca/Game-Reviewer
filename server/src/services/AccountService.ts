@@ -195,7 +195,12 @@ export class AccountService {
      * @returns AuthResponse object with token and user data
      */
     static async loginUser(username: UserPK, password: string): Promise<AuthResponse> {
-        const user: UserFull | null = await UserRepository.selectUser(username);
+        let user: UserFull | null;
+        if (username.includes("@")) {
+            user = await UserRepository.selectUserByEmail(username);
+        } else {
+            user = await UserRepository.selectUser(username);
+        }
         // verify user
         if (!user) {
             logger.warn({ username }, "Login failed - user not found");
