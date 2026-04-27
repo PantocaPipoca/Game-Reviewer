@@ -13,10 +13,11 @@ import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
 import EditButton from "../Components/Buttons/EditButton";
 import ReviewReactions from "../Components/ReviewReactions/ReviewReactions";
 import { CommentAPI } from "../API/Comments";
-import CommentCard, { type CommentCardProps } from "../Components/CommentCard/CommentCard";
 import InputField from "../Components/InputField/InputField";
 import Button from "../Components/Buttons/Button";
 import buttonStyle from "../Components/Buttons/Buttons.module.css";
+import commentStyle from "./CommentCard.module.css";
+import { REVIEW_CONSTS } from "../Types/Consts";
 
 const MAX_STARS: number = 5;
 const COMMENT_LENGTH_LIMIT: number = 1000;
@@ -68,6 +69,132 @@ async function makeComments(
         } as CommentCardProps);
     }
     return target;
+}
+
+type CommentCardProps = {
+    reviewer?: string;
+    reviewed?: number;
+    showUser: boolean;
+    userName: string;
+    displayName: string;
+    userAvatar?: string;
+    description: string;
+    date: string;
+    id: string;
+    canModify: boolean;
+    isModifying: boolean;
+    setReplyToEdit: React.Dispatch<React.SetStateAction<string | undefined>>;
+    setReplyToEditText: React.Dispatch<React.SetStateAction<string>>;
+    setReplyToEditFinish: (id: string, text: string) => void;
+};
+
+const months: string[] = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+];
+
+function parseDate(date: string): string {
+    let arr: string[] = date.replace(/\.[0-9]+Z/g, "").split(/[T:-]+/g);
+    if (arr.length != 6) return "???";
+    const index: number = +arr[1];
+    if (isNaN(index) || index <= 0 || index > months.length) return "???";
+    return arr[3] + ":" + arr[4] + ":" + arr[5] + ", " + months[index - 1] + " " + arr[2] + ", " + arr[0];
+}
+
+function CommentCard({
+    reviewer,
+    reviewed,
+    showUser = false,
+    displayName,
+    userAvatar = "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
+    description = "",
+    date = "",
+    id,
+    canModify,
+    isModifying,
+    setReplyToEdit,
+    setReplyToEditText,
+    setReplyToEditFinish,
+}: CommentCardProps) {
+    return (
+        <div className={commentStyle.panel}>
+            <Panel type="secondary" direction="row" className={commentStyle.fullWidth}>
+                {showUser ? (
+                    <div className={commentStyle.userBlock} tabIndex={0}>
+                        <img src={userAvatar} className={commentStyle.avatar} />
+                        <Text variant="h3">{displayName}</Text>
+                    </div>
+                ) : (
+                    <div></div>
+                )}
+                {isModifying ? (
+                    <div flex-direction="column" className={commentStyle.fullWidth}>
+                        <Text variant="small" color="var(--mutedText)">
+                            characters left:{" "}
+                        </Text>
+                        <Text
+                            variant="small"
+                            color={
+                                REVIEW_CONSTS.maxCommentLength === description.length ? "var(--pink)" : "var(--cyan)"
+                            }
+                        >
+                            {REVIEW_CONSTS.maxCommentLength - description.length}
+                        </Text>
+                        <InputField
+                            value={description}
+                            multiline
+                            placeholder="edit your comment here..."
+                            onChange={(e) => {
+                                if (e.target.value.length <= REVIEW_CONSTS.maxCommentLength)
+                                    setReplyToEditText(e.target.value);
+                            }}
+                        />
+                        <Button
+                            className={`${commentStyle.editReplyButton}`}
+                            color="var(--transparent)"
+                            onClick={async () => {
+                                if (reviewer !== undefined && reviewed !== undefined) {
+                                    setReplyToEditFinish(id, description);
+                                    setReplyToEdit(undefined);
+                                    await CommentAPI.edit(reviewer, reviewed, id, description);
+                                }
+                            }}
+                            aria-label="Create Reply"
+                        >
+                            <Text variant="h3">FINISH EDITING</Text>
+                        </Button>
+                    </div>
+                ) : (
+                    <div flex-direction="column" className={commentStyle.fullWidth}>
+                        <Text variant="small" color="var(--cyan)">
+                            Posted on {parseDate(date)}
+                        </Text>
+                        <Text variant="small" multiline>
+                            {`\n` + description}
+                        </Text>
+                    </div>
+                )}
+                {canModify && !isModifying && (
+                    <EditButton
+                        onClick={() => {
+                            setReplyToEdit(id);
+                            setReplyToEditText(description);
+                        }}
+                    />
+                )}
+            </Panel>
+        </div>
+    );
 }
 
 function ReviewPage() {
