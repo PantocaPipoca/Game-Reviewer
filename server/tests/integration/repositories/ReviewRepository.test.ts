@@ -1,9 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
 import { UserRepository } from "../../../src/Repository/UserRepository";
-import { createGame } from "../helper/helper";
+import { fastCreateGame } from "../helper/helper";
 import { GameFull, ReviewFull, ReviewPK } from "../../../src/types/Types";
 import { ReviewRepository } from "../../../src/Repository/ReviewRepository";
 
+let i = 1;
 describe("ReviewRepository (integration)", () => {
     // Auxiliary function, inserts a user, game and review
     async function makeReviewPK(): Promise<ReviewPK> {
@@ -16,7 +17,7 @@ describe("ReviewRepository (integration)", () => {
             isPrivate: false,
             email: `${accountName}@test.com`,
         });
-        const game: GameFull = await createGame();
+        const game: GameFull = await fastCreateGame(i++);
         return { reviewer: accountName, reviewed: game.gameID } as ReviewPK;
     }
 
