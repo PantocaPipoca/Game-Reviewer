@@ -134,7 +134,8 @@ function CommentCard({
                         />
                         <Button
                             className={buttonStyle.edit}
-                            color="var(--pink)"
+                            color="var(--transparent)"
+                            tColor="var(--pink)"
                             onClick={async () => {
                                 if (reviewer !== undefined && reviewed !== undefined) {
                                     setReplyToRemove(id);
@@ -143,7 +144,9 @@ function CommentCard({
                                 }
                             }}
                         >
+                            <svg width={18} />
                             X
+                            <svg width={18} />
                         </Button>
                     </>
                 )}
