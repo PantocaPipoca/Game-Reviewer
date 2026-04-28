@@ -72,7 +72,9 @@ function CommentCard({
                 {showUser ? (
                     <div className={style.userBlock} tabIndex={0}>
                         <img src={userAvatar} className={style.avatar} />
-                        <Text variant="h3">{displayName}</Text>
+                        <Text variant="h3" title={displayName}>
+                            {displayName}
+                        </Text>
                     </div>
                 ) : (
                     <div></div>
