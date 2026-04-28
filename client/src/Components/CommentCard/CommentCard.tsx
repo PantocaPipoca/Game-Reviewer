@@ -6,6 +6,7 @@ import { REVIEW_CONSTS } from "../../Types/Consts";
 import InputField from "../InputField/InputField";
 import Button from "../Buttons/Button";
 import { CommentAPI } from "../../API/Comments";
+import buttonStyle from "../Buttons/Buttons.module.css";
 
 export type CommentCardProps = {
     reviewer?: string;
@@ -22,6 +23,7 @@ export type CommentCardProps = {
     setReplyToEdit: React.Dispatch<React.SetStateAction<string | undefined>>;
     setReplyToEditText: React.Dispatch<React.SetStateAction<string>>;
     setReplyToEditFinish: (id: string, text: string) => void;
+    setReplyToRemove: (id: string) => void;
 };
 
 const months: string[] = [
@@ -62,6 +64,7 @@ function CommentCard({
     setReplyToEdit,
     setReplyToEditText,
     setReplyToEditFinish,
+    setReplyToRemove,
 }: CommentCardProps) {
     return (
         <div className={style.panel}>
@@ -122,12 +125,30 @@ function CommentCard({
                     </div>
                 )}
                 {canModify && !isModifying && (
-                    <EditButton
-                        onClick={() => {
-                            setReplyToEdit(id);
-                            setReplyToEditText(description);
-                        }}
-                    />
+                    <>
+                        <EditButton
+                            onClick={() => {
+                                setReplyToEdit(id);
+                                setReplyToEditText(description);
+                            }}
+                        />
+                        <Button
+                            className={buttonStyle.edit}
+                            color="var(--transparent)"
+                            tColor="var(--pink)"
+                            onClick={async () => {
+                                if (reviewer !== undefined && reviewed !== undefined) {
+                                    setReplyToRemove(id);
+                                    setReplyToEdit(id);
+                                    await CommentAPI.remove(reviewer, reviewed, id);
+                                }
+                            }}
+                        >
+                            <svg width={18} />
+                            X
+                            <svg width={18} />
+                        </Button>
+                    </>
                 )}
             </Panel>
         </div>
