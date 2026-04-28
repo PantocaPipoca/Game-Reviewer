@@ -53,7 +53,7 @@ function CreateReviewPage() {
 
     const [rating, setRating] = useState(0);
     const [hoverScore, setHoverScore] = useState<number | null>(null);
-    const [played, setPlayed] = useState(true);
+    const [played, setPlayed] = useState(false);
     const [hoursPlayed, setHoursPlayed] = useState("");
     const [platform, setPlatform] = useState("");
     const [reviewText, setReviewText] = useState("");
@@ -76,11 +76,17 @@ function CreateReviewPage() {
     }, [gameID]);
 
     useEffect(() => {
+        if (!played) {
+            setHoursPlayed("");
+            setPlatform("");
+            return;
+        }
+
         const availablePlatforms = game?.platforms ?? [];
         if (!platform && availablePlatforms.length > 0) {
             setPlatform(availablePlatforms[0]?.name ?? "");
         }
-    }, [game, platform]);
+    }, [game, played, platform]);
 
     async function handleSubmit(): Promise<void> {
         setFormError("");
@@ -96,11 +102,22 @@ function CreateReviewPage() {
             setFormError(REVIEW_ERRORS.noReviewPublish);
             return;
         }
+        if (played) {
+            const normalizedHours = Number(hoursPlayed);
+            if (!hoursPlayed || Number.isNaN(normalizedHours) || normalizedHours <= 0) {
+                setFormError(REVIEW_ERRORS.hoursPlayedRequired);
+                return;
+            }
+            if (!platform.trim()) {
+                setFormError(REVIEW_ERRORS.platformRequired);
+                return;
+            }
+        }
 
         setSubmitting(true);
         try {
-            const normalizedHoursPlayed = played ? (hoursPlayed ? Number(hoursPlayed) : undefined) : 0;
-            const normalizedPlatforms = played && platform.trim() ? [platform.trim()] : [];
+            const normalizedHoursPlayed = played ? Number(hoursPlayed) : 0;
+            const normalizedPlatforms = played ? [platform.trim()] : [];
             await ReviewAPI.publish(Number(gameID), {
                 text: reviewText.trim(),
                 score: rating,
@@ -238,6 +255,7 @@ function CreateReviewPage() {
                                                     value={hoursPlayed}
                                                     placeholder="0"
                                                     onChange={(e) => setHoursPlayed(e.target.value.replace(/\D/g, ""))}
+                                                    disabled={!played}
                                                 />
                                             </div>
                                         </div>
@@ -250,6 +268,7 @@ function CreateReviewPage() {
                                                 <Dropdown
                                                     value={platform}
                                                     onChange={(value) => setPlatform(value)}
+                                                    disabled={!played}
                                                     options={
                                                         platformOptions.length > 0
                                                             ? platformOptions
