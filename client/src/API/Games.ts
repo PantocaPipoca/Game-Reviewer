@@ -1,5 +1,5 @@
 import CLIENT from "./Client";
-import type { GameFull, GameSearchResult } from "./Types";
+import type { GameCover, GameFull, GameSearchResult } from "./Types";
 
 export class GameAPI {
     static async search(params: { name?: string; tag?: string; limit?: number }): Promise<GameSearchResult[]> {
@@ -23,5 +23,9 @@ export class GameAPI {
 
     static async getById(gameID: number): Promise<GameFull> {
         return CLIENT.get("/games/id/" + gameID);
+    }
+
+    static async getBatch(ids: number[]): Promise<GameCover[]> {
+        return CLIENT.post("/games/batch", { ids });
     }
 }

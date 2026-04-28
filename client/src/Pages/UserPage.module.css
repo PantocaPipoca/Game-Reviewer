@@ -21,13 +21,15 @@
 }
 
 .avatarPanel {
+    height: 100%;
     background-color: var(--secondaryPanel);
     border: var(--borderWidth) solid var(--border);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: space-between;
     padding: var(--spacingMedium);
+    padding-bottom: calc(var(--spacingSmall)*2);
     box-sizing: border-box;
 }
 .avatarWrapper {
@@ -139,4 +141,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacingMedium);
+}
+
+.reviewList {
+    width: 100%;
 }

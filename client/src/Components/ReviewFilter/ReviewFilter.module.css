@@ -1,0 +1,20 @@
+.filterBar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingMedium);
+    width: 100%;
+    padding: var(--spacingSmall) 0;
+    flex-wrap: wrap;
+}
+
+.filterGroup {
+    display: flex;
+    gap: var(--spacingSmall);
+}
+
+.filterBtn {
+    padding: 0.9em 1.2em;
+    background-color: var(--secondaryPanel);
+    margin-bottom: var(--spacingSmall);
+}
+
