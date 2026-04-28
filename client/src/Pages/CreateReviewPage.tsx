@@ -210,7 +210,10 @@ function CreateReviewPage() {
                                                 Rating:
                                             </Text>
                                             <div className={style.fieldValue}>
-                                                <div className={style.starsRow}>
+                                                <div
+                                                    className={style.starsRow}
+                                                    onMouseLeave={() => setHoverScore(null)}
+                                                >
                                                     {getStars(displayScore).map((type, i) => (
                                                         <button
                                                             key={i}
@@ -221,7 +224,6 @@ function CreateReviewPage() {
                                                             onMouseMove={(e) =>
                                                                 handleStarMouseMove(i + 1, e.clientX, e.currentTarget)
                                                             }
-                                                            onMouseLeave={() => setHoverScore(null)}
                                                         >
                                                             <Star type={type} size={42} color="var(--green)" />
                                                         </button>
