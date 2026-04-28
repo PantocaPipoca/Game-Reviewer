@@ -14,6 +14,7 @@ type InputFieldProps = {
     className?: string;
     variant?: "h1" | "h2" | "h3" | "body" | "small";
     multiline?: boolean;
+    disabled?: boolean;
 };
 
 function InputField({
@@ -26,6 +27,7 @@ function InputField({
     onBlur,
     variant = "body",
     multiline = false,
+    disabled = false,
 }: InputFieldProps) {
     const isNumeric = type === "number";
     const renderedType = isNumeric ? "text" : type;
@@ -53,7 +55,7 @@ function InputField({
             {multiline ? (
                 <textarea
                     ref={textareaRef}
-                    className={`${variant} ${style.textareaInput}`}
+                    className={`${variant} ${style.textareaInput} ${disabled ? style.disabled : ""}`}
                     placeholder={placeholder}
                     value={value}
                     onChange={handleChange}
@@ -61,10 +63,11 @@ function InputField({
                     onFocus={onFocus}
                     onBlur={onBlur}
                     rows={1}
+                    disabled={disabled}
                 />
             ) : (
                 <input
-                    className={`${variant} ${style.input}`}
+                    className={`${variant} ${style.input} ${disabled ? style.disabled : ""}`}
                     type={renderedType}
                     inputMode={isNumeric ? "numeric" : undefined}
                     pattern={isNumeric ? "[0-9]*" : undefined}
@@ -74,6 +77,7 @@ function InputField({
                     onKeyDown={onKeyDown}
                     onFocus={onFocus}
                     onBlur={onBlur}
+                    disabled={disabled}
                 />
             )}
         </div>

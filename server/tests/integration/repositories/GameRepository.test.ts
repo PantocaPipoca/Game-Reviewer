@@ -2,7 +2,7 @@ import { describe, it, expect } from "@jest/globals";
 import { GameRepository } from "../../../src/Repository/GameRepository";
 import { GameCover, GameFull } from "../../../src/types/Types";
 import { InputJsonValue, JsonValue } from "@prisma/client/runtime/client";
-import { createGame } from "../helper/helper";
+import { fastCreateGame } from "../helper/helper";
 import { IGDB } from "../../../src/IGDB/Requests";
 
 describe("GameRepository (integration)", () => {
@@ -19,7 +19,7 @@ describe("GameRepository (integration)", () => {
         // Array of 10 games
         const arr: GameFull[] = [];
         for (var i = 0; i < 10; i++) {
-            arr.push(await createGame());
+            arr.push(await fastCreateGame(i));
         }
 
         // Check all game data against expected values

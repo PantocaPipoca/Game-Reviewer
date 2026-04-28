@@ -35,6 +35,11 @@
     color: var(--mutedText);
 }
 
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .textareaInput {
     background: none;
     border: none;

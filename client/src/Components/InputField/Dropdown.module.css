@@ -21,6 +21,11 @@
     -webkit-appearance: none;
 }
 
+.dropdownTriggerDisabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .dropdownValue {
     flex: 1;
     text-align: left;

@@ -105,11 +105,17 @@ function EditReviewPage() {
     }, [gameID, navigate]);
 
     useEffect(() => {
+        if (!played) {
+            setHoursPlayed("");
+            setPlatform("");
+            return;
+        }
+
         const availablePlatforms = game?.platforms ?? [];
         if (!platform && availablePlatforms.length > 0) {
             setPlatform(availablePlatforms[0]?.name ?? "");
         }
-    }, [game, platform]);
+    }, [game, played, platform]);
 
     async function handleSubmit() {
         setFormError("");
@@ -125,10 +131,21 @@ function EditReviewPage() {
             setFormError(REVIEW_ERRORS.noReviewAlter);
             return;
         }
+        if (played) {
+            const normalizedHours = Number(hoursPlayed);
+            if (!hoursPlayed || Number.isNaN(normalizedHours) || normalizedHours <= 0) {
+                setFormError(REVIEW_ERRORS.hoursPlayedRequired);
+                return;
+            }
+            if (!platform.trim()) {
+                setFormError(REVIEW_ERRORS.platformRequired);
+                return;
+            }
+        }
 
         setSubmitting(true);
         try {
-            const normalizedHoursPlayed = played ? (hoursPlayed ? Number(hoursPlayed) : undefined) : 0;
+            const normalizedHoursPlayed = played ? Number(hoursPlayed) : 0;
             const normalizedPlatforms = played && platform.trim() ? [platform.trim()] : [];
             await ReviewAPI.update(Number(gameID), {
                 text: reviewText.trim(),
@@ -251,7 +268,10 @@ function EditReviewPage() {
                                                 Rating:
                                             </Text>
                                             <div className={style.fieldValue}>
-                                                <div className={style.starsRow}>
+                                                <div
+                                                    className={style.starsRow}
+                                                    onMouseLeave={() => setHoverScore(null)}
+                                                >
                                                     {getStars(displayScore).map((type, i) => (
                                                         <button
                                                             key={i}
@@ -262,7 +282,6 @@ function EditReviewPage() {
                                                             onMouseMove={(e) =>
                                                                 handleStarMouseMove(i + 1, e.clientX, e.currentTarget)
                                                             }
-                                                            onMouseLeave={() => setHoverScore(null)}
                                                         >
                                                             <Star type={type} size={42} color="var(--green)" />
                                                         </button>
@@ -296,6 +315,7 @@ function EditReviewPage() {
                                                     value={hoursPlayed}
                                                     placeholder="0"
                                                     onChange={(e) => setHoursPlayed(e.target.value.replace(/\D/g, ""))}
+                                                    disabled={!played}
                                                 />
                                             </div>
                                         </div>
@@ -308,6 +328,7 @@ function EditReviewPage() {
                                                 <Dropdown
                                                     value={platform}
                                                     onChange={(value) => setPlatform(value)}
+                                                    disabled={!played}
                                                     options={
                                                         platformOptions.length > 0
                                                             ? platformOptions
