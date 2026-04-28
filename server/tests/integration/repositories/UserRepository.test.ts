@@ -1,7 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import { UserRepository } from "../../../src/Repository/UserRepository";
 import { UserFull, UserShort } from "../../../src/types/Types";
-import { AccountService } from "../../../src/services/AccountService";
 
 describe("UserRepository (integration)", () => {
     // Auxiliary function, inserts a user
@@ -81,13 +80,14 @@ describe("UserRepository (integration)", () => {
     it("Inserts and deletes a user", async () => {
         // Inserts user
         const user: UserFull = await insertAux();
-        await AccountService.alterUser(
-            user.accountName,
-            true,
-            user.email,
-            { displayName: "name", gender: null, bio: null },
-            undefined
-        );
+        await UserRepository.updateUser({
+            accountName: user.accountName,
+            passwordHash: user.passwordHash,
+            avatar: null,
+            userData: {},
+            isPrivate: true,
+            email: user.email,
+        });
 
         // Deletes user and checks if the data matches the old
         const found: UserFull = await UserRepository.deleteUser(user.accountName);
