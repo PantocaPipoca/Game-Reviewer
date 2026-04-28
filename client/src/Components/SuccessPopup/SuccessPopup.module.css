@@ -1,6 +1,6 @@
 .container {
     position: fixed;
-    top: calc(var(--spacingMedium));
+    bottom: calc(var(--spacingMedium));
     right: calc(var(--spacingMedium));
     z-index: 400;
 }
