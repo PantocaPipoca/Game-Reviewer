@@ -263,7 +263,9 @@ function GameInfoPage() {
                             <Panel type="secondary" className={style.coverPanel}>
                                 <img src={coverUrl} className={style.cover} />
                                 <hr />
-                                <Text className={style.gameName}>{gameName}</Text>
+                                <Text className={style.gameName} title={gameName}>
+                                    {gameName}
+                                </Text>
                             </Panel>
                             <Panel type="secondary" className={style.bottomLeftRow}>
                                 <RatingRow type="user" value={averageScore} />
