@@ -8,10 +8,10 @@ import Panel from "../Components/Panel/Panel";
 import Text from "../Components/Text/Text";
 import style from "./SearchResultsPage.module.css";
 
-const FALLBACK_COVER = "https://vglist.co/assets/no-cover-5b40e3b1.png";
+const FALLBACK_COVER: string = "https://vglist.co/assets/no-cover-5b40e3b1.png";
 
 function toCoverUrl(result: GameSearchResult): string {
-    const url = result.cover;
+    const url: string | undefined = result.cover;
     if (!url) return FALLBACK_COVER;
     return url.startsWith("//") ? `https:${url}` : url;
 }
@@ -19,7 +19,7 @@ function toCoverUrl(result: GameSearchResult): string {
 function SearchResultsPage() {
     const [searchParams] = useSearchParams();
 
-    const query = (searchParams.get("q") ?? "").trim();
+    const query: string = (searchParams.get("q") ?? "").trim();
 
     const [results, setResults] = useState<GameSearchResult[]>([]);
     const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ function SearchResultsPage() {
         setError(false);
         setResults([]);
 
-        GameAPI.search({ name: query })
+        GameAPI.search({ name: query, sortRelevant: true })
             .then((data) => setResults(data))
             .catch(() => setError(true))
             .finally(() => setLoading(false));
