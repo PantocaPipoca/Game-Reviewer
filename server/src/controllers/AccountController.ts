@@ -193,13 +193,24 @@ export class AccountController {
      */
     static search = asyncHandler(async (req: AuthRequest, res: Response) => {
         const query: any = req.query["query"];
+        const offset: any = req.query["offset"];
+        const limit: any = req.query["limit"];
+
         if (typeof query !== "string") throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION);
 
         const sanitized = sanitizeString(query);
         if (sanitized.length === 0) throw new AppError(StatusCodes.BAD_REQUEST, "Invalid query");
 
         const currentUser: string | undefined = req.currentUser?.username;
-        const result: (UserPublic | UserPrivate)[] = await AccountService.searchUsersByName(sanitized, currentUser);
+        const parsedOffset = offset ? parseInt(offset, 10) : undefined;
+        const parsedLimit = limit ? parseInt(limit, 10) : undefined;
+
+        const result: (UserPublic | UserPrivate)[] = await AccountService.searchUsersByName(
+            sanitized,
+            currentUser,
+            parsedOffset,
+            parsedLimit
+        );
         return makeSuccess(res, StatusCodes.OK, result);
     });
 

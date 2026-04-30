@@ -99,8 +99,8 @@ export class UserRepository {
      * @param nameFilter string that filters the Users
      * @returns a promise of an array of Users
      */
-    static async selectUsersOfSimilarName(nameFilter: string) {
-        return PRISMA.user.findMany({
+    static async selectUsersOfSimilarName(nameFilter: string, offset?: number, limit?: number) {
+        const query: any = {
             where: {
                 OR: [
                     {
@@ -117,7 +117,14 @@ export class UserRepository {
                     },
                 ],
             },
-        });
+            skip: offset ?? 0,
+        };
+
+        if (limit !== undefined) {
+            query.take = limit;
+        }
+
+        return PRISMA.user.findMany(query);
     }
 
     static async updateAvatar(accountName: string, url: string): Promise<void> {
