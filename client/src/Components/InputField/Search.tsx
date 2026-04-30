@@ -96,7 +96,7 @@ function Search() {
 
             const gamesPromise: Promise<GameSearchResult[]> = gameCacheIsValid
                 ? Promise.resolve(cachedGames!.data)
-                : GameAPI.search({ name: normalizedQuery, limit: DROPDOWN_LIMIT, sortRelevant: true });
+                : GameAPI.search({ name: normalizedQuery, limit: DROPDOWN_LIMIT });
 
             const usersPromise: Promise<UserPublic[]> = userCacheIsValid
                 ? Promise.resolve(cachedUsers!.data)
