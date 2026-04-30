@@ -798,6 +798,16 @@ router.delete("/me/followers/:username", auth, FollowerController.removeFollower
  *                required: true
  *                schema:
  *                  type: string
+ *              - in: query
+ *                name: offset
+ *                required: false
+ *                schema:
+ *                  type: integer
+ *              - in: query
+ *                name: limit
+ *                required: false
+ *                schema:
+ *                  type: integer
  *          responses:
  *              200:
  *                  description: "**OK** — accounts found successfully"
