@@ -38,8 +38,8 @@ export class UserAPI {
         return CLIENT.delete("/users/me");
     }
 
-    static async search(query: string): Promise<UserPublic[]> {
-        return CLIENT.get("/users/search", { params: { query } });
+    static async search(query: string, offset?: number, limit?: number): Promise<UserPublic[]> {
+        return CLIENT.get("/users/search", { params: { query, offset, limit } });
     }
 
     static async getByUsername(username: string): Promise<UserPublic> {

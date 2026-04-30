@@ -349,8 +349,13 @@ export class AccountService {
      * @param nameFilter - search string
      * @param currentUser - authenticated user making the request (optional)
      */
-    static async searchUsersByName(nameFilter: string, currentUser?: UserPK): Promise<(UserPublic | UserPrivate)[]> {
-        const usersFull: UserFull[] = await UserRepository.selectUsersOfSimilarName(nameFilter);
+    static async searchUsersByName(
+        nameFilter: string,
+        currentUser?: UserPK,
+        offset?: number,
+        limit?: number
+    ): Promise<(UserPublic | UserPrivate)[]> {
+        const usersFull: UserFull[] = await UserRepository.selectUsersOfSimilarName(nameFilter, offset, limit);
         const users: UserPublic[] = usersFull.map(userFullToPublic);
         const canViewList: boolean[] = await Promise.all(users.map((u) => canViewUser(u, currentUser)));
 
