@@ -1,9 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
 import { AccountService } from "../../../src/services/AccountService";
 import { AuthResponse, UserFull, UserMe, UserPrivate, UserPublic } from "../../../src/types/Types";
-import { makeSomeUser, UserMicro } from "../helper/helper";
+import { fastCreateUser, fastCreateUserAndValidate, makeSomeUser, register, UserMicro } from "../helper/helper";
 import { UserRepository } from "../../../src/Repository/UserRepository";
 import bcrypt from "bcrypt";
+import { createApp } from "../../../src/App";
 
 describe("AccountService (integration)", () => {
     // Utilities for this test
@@ -11,10 +12,11 @@ describe("AccountService (integration)", () => {
     const pass: string = "12345678";
 
     // Auxiliary function, creates and registers a user, returning the username and email
+    // (pass is gonna be same as username)
     async function makeSomeUserAndRegister(): Promise<UserMicro> {
         const user: UserMicro = makeSomeUser();
-        await AccountService.registerUser(user.accountName, displayName, pass, user.email, false);
-        return user;
+        const fullUser: UserFull = await fastCreateUserAndValidate(user.accountName);
+        return { accountName: fullUser.accountName, email: fullUser.email };
     }
 
     // Auxiliary function, checks a user's name and email against expected values; password must not be its own hash
@@ -56,12 +58,10 @@ describe("AccountService (integration)", () => {
     });
 
     it("Checks if email verification is working", async () => {
-        const user: UserMicro = makeSomeUser();
-        await AccountService.registerUser(user.accountName, displayName, pass, "support.gamereviewer@gmail.com", true);
+        const user: UserFull = await fastCreateUser("test");
 
-        const userFull = await UserRepository.selectUser(user.accountName);
         expect(AccountService.verify(user.accountName, -1)).rejects.toBeDefined();
-        expect(AccountService.verify(user.accountName, userFull?.emailValidation as number)).resolves.toBeDefined();
+        expect(AccountService.verify(user.accountName, user?.emailValidation as number)).resolves.toBeDefined();
     });
 
     it("LoginUser fails with wrong passwords and non-existent users", async () => {
@@ -69,23 +69,21 @@ describe("AccountService (integration)", () => {
         const user: UserMicro = await makeSomeUserAndRegister();
 
         // Passes, correct password and existing user
-        await expect(AccountService.loginUser(user.accountName, pass)).resolves.toBeDefined();
+        await expect(AccountService.loginUser(user.accountName, user.accountName)).resolves.toBeDefined();
         // Passes, correct password and existing user (email)
-        await expect(AccountService.loginUser(user.email, pass)).resolves.toBeDefined();
+        await expect(AccountService.loginUser(user.email, user.accountName)).resolves.toBeDefined();
         // Fails, wrong password
         await expect(AccountService.loginUser(user.accountName, "wrongpass")).rejects.toBeDefined();
         // Fails, user doesn't exist
-        await expect(AccountService.loginUser("notexists", pass)).rejects.toBeDefined();
+        await expect(AccountService.loginUser("notexists", user.accountName)).rejects.toBeDefined();
     });
 
     it("AlterUser alters a user, not if duplicate email", async () => {
         // Register user
-        const user: UserMicro = makeSomeUser();
-        await AccountService.registerUser(user.accountName, displayName, "87654321", "svc@test.com", false);
+        const user: UserFull = await fastCreateUser("test1");
 
-        // Find user in database and their previous hash
-        const dbUser1: UserFull | null = await UserRepository.selectUser(user.accountName);
-        const prevPassHash: string | undefined = dbUser1?.passwordHash;
+        // Find previous hash
+        const prevPassHash: string | undefined = user?.passwordHash;
 
         // Alter user data and check the returned object
         const altered: UserMe = await AccountService.alterUser(
@@ -100,9 +98,9 @@ describe("AccountService (integration)", () => {
         expect(altered.isPrivate).toBe(true);
 
         // Check if data in the database matches expectations
-        const dbUser2: UserFull | null = await UserRepository.selectUser(user.accountName);
-        checkUserAux(dbUser2, user.accountName, user.email);
-        expect(dbUser2?.passwordHash).not.toBe(prevPassHash);
+        const selectedAltered: UserFull | null = await UserRepository.selectUser(user.accountName);
+        checkUserAux(selectedAltered, user.accountName, user.email);
+        expect(selectedAltered?.passwordHash).not.toBe(prevPassHash);
 
         // Fails, duplicate email
         const otherEmail: string = "otheremail@test.com";
@@ -186,12 +184,12 @@ describe("AccountService (integration)", () => {
         for (var i = 0; i < size; i++) {
             const user: UserMicro = makeSomeUser();
             users.push(
-                (await AccountService.registerUser(
+                (await register(
+                    createApp(),
                     user.accountName,
                     "display" + i,
                     "password" + i,
-                    user.email,
-                    false
+                    user.email
                 )) as AuthResponse
             );
         }
