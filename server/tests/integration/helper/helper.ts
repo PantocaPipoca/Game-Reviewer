@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import type { UserPK, AuthResponse, GameFull, UserFull, UserData } from "../../../src/types/Types";
+import type { UserPK, AuthResponse, GameFull, UserFull, UserData, UserShort } from "../../../src/types/Types";
 import { PRISMA } from "../../../src/Prisma";
 
 import bcrypt from "bcrypt";
@@ -100,6 +100,15 @@ export function fastCreateUser(name: string) {
 export function fastCreateUserAndValidate(name: string) {
     return fastCreateUser(name).then((user) => {
         return UserRepository.verify(user.accountName, user.emailValidation as number);
+    });
+}
+
+export function fastMakeUserPrivate(name: string) {
+    return PRISMA.user.update({
+        where: { accountName: name },
+        data: {
+            isPrivate: true,
+        },
     });
 }
 
