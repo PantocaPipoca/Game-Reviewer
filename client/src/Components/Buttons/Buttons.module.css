@@ -102,3 +102,13 @@
     width: 20px;
     height: 20px;
 }
+
+.filterButton {
+    padding: 0.8em 1.2em;
+    background-color: var(--secondaryPanel);
+    white-space: nowrap;
+}
+
+.filterButtonActive {
+    border-color: var(--pink);
+}

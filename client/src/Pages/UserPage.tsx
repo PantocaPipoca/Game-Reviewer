@@ -16,6 +16,7 @@ import FollowerListOverlay from "../Components/FollowerList/FollowerListOverlay"
 import { useSuccessPopup } from "../Hooks/SuccessPopup";
 import ReviewCard from "../Components/ReviewCard/ReviewCard";
 import ReviewFilter, { type SortField, type SortOrder } from "../Components/ReviewFilter/ReviewFilter";
+import UserStatsPanel from "../Components/UserStatsPanel/UserStatsPanel";
 
 const NO_COVER = "https://vglist.co/assets/no-cover-5b40e3b1.png";
 
@@ -338,7 +339,8 @@ function UserPage() {
                                     <Text color="var(--pink)">NO ACTIVITY</Text>
                                 </Panel>
                             ) : (
-                                <>
+                                <div className={style.reviewSection}>
+                                    <UserStatsPanel reviews={reviews}/>
                                     <ReviewFilter
                                         sortField={sortField}
                                         sortOrder={sortOrder}
@@ -363,7 +365,7 @@ function UserPage() {
                                             />
                                         ))}
                                     </div>
-                                </>
+                                </div>
                             )}
                         </>
                     )}

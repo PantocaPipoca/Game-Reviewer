@@ -11,10 +11,3 @@
     display: flex;
     gap: var(--spacingSmall);
 }
-
-.filterBtn {
-    padding: 0.9em 1.2em;
-    background-color: var(--secondaryPanel);
-    margin-bottom: var(--spacingSmall);
-}
-

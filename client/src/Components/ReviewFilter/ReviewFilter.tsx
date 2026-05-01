@@ -1,4 +1,4 @@
-import Button from "../Buttons/Button";
+import FilterButton from "../Buttons/FilterButton";
 import Text from "../Text/Text";
 import style from "./ReviewFilter.module.css";
 
@@ -25,8 +25,9 @@ function ReviewFilter({
     onSort,
 }: ReviewFilterBarProps) {
     function handleClick(field: SortField) {
+        // if click an active field, invert direction
         if (field === sortField) onSort(field, sortOrder === "desc" ? "asc" : "desc");
-        else onSort(field, "desc");
+        else onSort(field, "desc"); // if click a different field, sort descending as default
     }
 
     return (
@@ -39,16 +40,12 @@ function ReviewFilter({
                     const isActive = sortField === f;
                     const arrow = isActive ? (sortOrder === "desc" ? " ∨" : " ∧") : " ∨";
                     return (
-                        <Button
+                        <FilterButton
                             key={f}
-                            className={`${style.filterBtn} ${isActive ? style.filterBtnActive : ""}`}
+                            label={`${SORT_LABELS[f]}${arrow}`}
+                            active={isActive}
                             onClick={() => handleClick(f)}
-                        >
-                            <Text variant="body" color={isActive ? "var(--pink)" : undefined}>
-                                {SORT_LABELS[f]}
-                                {arrow}
-                            </Text>
-                        </Button>
+                        />
                     );
                 })}
             </div>
