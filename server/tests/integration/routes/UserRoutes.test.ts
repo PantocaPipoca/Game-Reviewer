@@ -4,9 +4,8 @@ import bcrypt from "bcrypt";
 import { createApp } from "../../../src/App.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
-import { register, createGame } from "../helper/helper.ts";
+import { register, createGame, fastCreateUser } from "../helper/helper.ts";
 import { AuthResponse, UserData, UserFull } from "../../../src/types/Types.ts";
-import { AccountService, fetchFullUser } from "../../../src/services/AccountService.ts";
 import { UserRepository } from "../../../src/Repository/UserRepository.ts";
 import {
     BIO_MAX_LEN,
@@ -254,10 +253,11 @@ describe("POST /api/users/login", () => {
     });
 
     it("returns PRECONDITION REQUIRED (that being email validation)", async () => {
-        await AccountService.registerUser(username, displayName, password, email, true);
+        // await AccountService.registerUser(username, displayName, password, email, true);
+        await fastCreateUser(username);
         await request(app)
             .post("/api/users/login")
-            .send({ accountName: username, password })
+            .send({ accountName: username, password: username })
             .expect(StatusCodes.PRECONDITION_REQUIRED);
     });
 
@@ -564,7 +564,7 @@ describe("PUT /api/users/me (alter)", () => {
             })
             .expect(StatusCodes.OK);
 
-        const userFull: UserFull = await fetchFullUser(user.accountName);
+        const userFull: UserFull = (await UserRepository.selectUser(user.accountName)) as UserFull;
 
         const currentUserData: UserData = userFull.userData as UserData;
 
