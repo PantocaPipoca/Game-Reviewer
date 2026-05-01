@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 // import { GameCover } from "../types/Types";
 import { GameRepository } from "../Repository/GameRepository";
-import { UserPK, GameCover } from "../types/Types";
+import { UserPK, GameCover, BigGameCover } from "../types/Types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -85,8 +85,13 @@ export class IGDB {
         await IGDB.sleep();
     }
 
-    // DONE
-    // used for the game page
+    /**
+     * Fetches full game details by IGDB ID.
+     * Used for the game info page. Returns a single game object with all relevant fields or null if not found.
+     * @param ID IGDB game ID
+     * @returns The game object or null if no match
+     */
+
     public static async getGameByID(ID: number): Promise<any> {
         await IGDB.handleToken();
         return fetch("https://api.igdb.com/v4/games", {
@@ -194,9 +199,12 @@ export class IGDB {
         }).then((res) => res.json() as Promise<GameCover[]>);
     }
 
-    // DONE
-    // used to get games obtained through a search in our db
-    public static async getGivenGames(gameIDs: number[]) {
+    /**
+     * Fetches detailed info for a list of game IDs from IGDB.
+     * @param gameIDs Array of IGDB game IDs
+     * @returns Array of BigGameCover objects (id, name, cover, genres, screenshots, artworks, involved_companies)
+     */
+    public static async getGivenGames(gameIDs: number[]): Promise<BigGameCover[]> {
         const gameIDListString: string = `(${gameIDs.join(",")})`;
 
         await IGDB.handleToken();
@@ -210,13 +218,18 @@ export class IGDB {
                 fields
                     id,
                     name,
-                    cover.*
+                    cover.url,
+                    genres.name,
+                    screenshots.url,
+                    artworks.url,
+                    involved_companies.developer,
+                    involved_companies.company.name
                 ;
 
                 where id = ${gameIDListString} &
                 cover != null;
             `,
-        }).then((res) => res.json() as Promise<GameCover[]>);
+        }).then((res) => res.json() as Promise<BigGameCover[]>);
     }
 
     // DONE

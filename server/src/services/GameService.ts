@@ -1,7 +1,7 @@
 import { AppError } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
 import { StatusCodes } from "http-status-codes";
-import { GameFull, GamePK, UserPK, GameCover } from "../types/Types";
+import { GameFull, GamePK, UserPK, GameCover, BigGameCover } from "../types/Types";
 import { GameRepository } from "../Repository/GameRepository";
 import { IGDB } from "../IGDB/Requests";
 
@@ -47,11 +47,11 @@ export class GameService {
 
     /**
      * Gets what games are popular on our db
-     * @param offset number of games on IGDB we want to skip
-     * @param amount total number of games we want
-     * @returns array of enough game info to make a cover
+     * @param offset Number of games to skip (for pagination)
+     * @param amount Total number of games to return
+     * @returns Array of BigGameCover objects (includes id, name, cover, genres, screenshots, artworks, involved_companies)
      */
-    static async getPopularGames(offset: number, amount: number): Promise<GameCover[]> {
+    static async getPopularGames(offset: number, amount: number): Promise<BigGameCover[]> {
         const popularGames: number[] = await GameRepository.getPopularGames(offset, amount);
         return IGDB.getGivenGames(popularGames);
     }
@@ -76,9 +76,9 @@ export class GameService {
     static async getRecommendedGames(userPK: UserPK, offset: number, amount: number): Promise<GameCover[]> {
         const likedGames: number[] = await GameRepository.getGamesUserLikes(userPK);
         if (likedGames.length < 1) {
-            return GameService.getPopularGames(offset, amount);
+            return GameService.getRecentGames(offset, amount);
         }
-        const likedGenres: number[] = await IGDB.getGenresOfGames(likedGames); // TODO: swap this function for ours
+        const likedGenres: number[] = await IGDB.getGenresOfGames(likedGames);
         return IGDB.searchGames("", likedGenres, offset, amount);
     }
 
