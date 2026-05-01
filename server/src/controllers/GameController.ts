@@ -111,4 +111,17 @@ export class GameController {
         const result = await GameService.getRecommendedGames(accountName, offset, amount);
         makeSuccess(res, StatusCodes.OK, result);
     });
+
+    /**
+     * Returns games from the given ids array
+     * Used by POST /api/games/batch
+     */
+    static getGamesBatch = asyncHandler(async (req: Request, res: Response) => {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.some((id) => !Number.isInteger(id) || id <= 0))
+            throw new AppError(StatusCodes.BAD_REQUEST, "Invalid ids array");
+        if (ids.length > 100) throw new AppError(StatusCodes.BAD_REQUEST, "Too many ids");
+        const result = await GameService.getGamesBatch(ids);
+        makeSuccess(res, StatusCodes.OK, result);
+    });
 }

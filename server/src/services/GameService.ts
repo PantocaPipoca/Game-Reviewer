@@ -93,9 +93,13 @@ export class GameService {
         return IGDB.searchGames("", likedGenres, offset, amount);
     }
 
-    // static async getGameStats(gameId: GamePK): Promise<void> {
-    // }
-    // won't be used
-
-    // needs a endpoint "get x games"
+    /**
+     * Sends the request to IGDB to get information about the games
+     * @param ids array of game ids
+     * @returns array of Games
+     */
+    static async getGamesBatch(ids: GamePK[]): Promise<GameCover[]> {
+        if (ids.length === 0) return [];
+        return IGDB.getGivenGames(ids);
+    }
 }

@@ -9,6 +9,7 @@ const MAX_STARS = 5;
 
 export type ReviewCardProps = {
     cover?: string;
+    gameName?: string;
     description?: string;
     rating?: number;
     showUser?: boolean;
@@ -43,6 +44,7 @@ function getStars(rating: number): ("full" | "half" | "empty")[] {
 
 function ReviewCard({
     cover = "https://vglist.co/assets/no-cover-5b40e3b1.png",
+    gameName,
     description = "###",
     rating = 0,
     showUser = false,
@@ -57,20 +59,28 @@ function ReviewCard({
     const stars = getStars(normalizedRating);
     const navigate = useNavigate();
 
-    function handleUserClick() {
-        navigate(`/user/${reviewer}`);
-    }
-
     return (
         <div className={style.panel}>
             <Panel type="secondary" direction="row" className={style.fullWidth}>
                 {showUser ? (
-                    <div className={style.userBlock} onClick={handleUserClick} role="button" tabIndex={0}>
+                    <div
+                        className={style.sideBlock}
+                        onClick={() => navigate(`/user/${reviewer}`)}
+                        role="button"
+                        tabIndex={0}
+                    >
                         <img src={userAvatar} className={style.avatar} />
                         <Text variant="h3">{userName}</Text>
                     </div>
                 ) : (
-                    <img src={cover} className={style.cover} />
+                    <div className={style.sideBlock} onClick={() => navigate(`/game/${reviewed}`)} role="button">
+                        <img src={cover} className={style.cover} />
+                        {gameName && (
+                            <Text variant="body" className={style.gameName}>
+                                {gameName}
+                            </Text>
+                        )}
+                    </div>
                 )}
 
                 <div className={style.infoColumn}>
