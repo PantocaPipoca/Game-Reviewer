@@ -14,7 +14,7 @@ export class GameAPI {
             name: params.name ?? "",
             genres: [],
             offset,
-            amount: params.limit ?? 50,
+            amount: 50,
         })) as { id: number; name: string; cover?: { url?: string } }[];
 
         if (params.limit !== undefined) response = response.slice(0, params.limit);
