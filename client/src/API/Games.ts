@@ -1,5 +1,5 @@
 import CLIENT from "./Client";
-import type { GameFull, GameSearchResult } from "./Types";
+import type { GameCover, GameFull, GameSearchResult, BigGameCover } from "./Types";
 
 export class GameAPI {
     static async search(params: {
@@ -14,7 +14,7 @@ export class GameAPI {
         const response = (await CLIENT.post("/games/search", {
             name: params.name ?? "",
             genres: [],
-            offset: offset,
+            offset,
             amount: limit,
         })) as { id: number; name: string; cover?: { url?: string } }[];
 
@@ -25,8 +25,12 @@ export class GameAPI {
         }));
     }
 
-    static async getPopular(): Promise<GameFull[]> {
-        return CLIENT.post("/games/popular");
+    static async getPopular(offset: number = 0, amount: number = 5): Promise<BigGameCover[]> {
+        return CLIENT.post("/games/popular", { offset, amount });
+    }
+
+    static async getRecommended(offset: number = 0, amount: number = 10): Promise<GameCover[]> {
+        return CLIENT.post("/games/recommended", { offset, amount });
     }
 
     static async getById(gameID: number): Promise<GameFull> {
