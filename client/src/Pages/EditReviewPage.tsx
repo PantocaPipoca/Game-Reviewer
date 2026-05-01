@@ -248,7 +248,9 @@ function EditReviewPage() {
                             <Panel type="secondary" direction="column" className={style.coverPanel}>
                                 <img src={coverUrl} className={style.cover} />
                                 <hr />
-                                <Text className={style.gameName}>{gameName}</Text>
+                                <Text className={style.gameName} title={gameName}>
+                                    {gameName}
+                                </Text>
                             </Panel>
                         </div>
 

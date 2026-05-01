@@ -2,13 +2,22 @@ import CLIENT from "./Client";
 import type { GameCover, GameFull, GameSearchResult } from "./Types";
 
 export class GameAPI {
-    static async search(params: { name?: string; tag?: string; limit?: number }): Promise<GameSearchResult[]> {
-        const response = (await CLIENT.post("/games/search", {
+    static async search(params: {
+        name?: string;
+        tag?: string;
+        limit?: number;
+        offset?: number;
+    }): Promise<GameSearchResult[]> {
+        const offset: number = params.offset ?? 0;
+
+        let response = (await CLIENT.post("/games/search", {
             name: params.name ?? "",
             genres: [],
-            offset: 0,
-            amount: params.limit ?? 50,
+            offset: offset,
+            amount: 50,
         })) as { id: number; name: string; cover?: { url?: string } }[];
+
+        if (params.limit !== undefined) response = response.slice(0, params.limit);
 
         return response.map((game) => ({
             id: game.id,

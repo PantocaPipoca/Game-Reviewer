@@ -1,9 +1,6 @@
-import request from "supertest";
 import type { Express } from "express";
-import { StatusCodes } from "http-status-codes";
-import type { UserPK, AuthResponse, GameFull } from "../../../src/types/Types";
+import type { UserPK, AuthResponse, GameFull, UserFull, UserData, UserShort } from "../../../src/types/Types";
 import { PRISMA } from "../../../src/Prisma";
-import { AccountService } from "../../../src/services/AccountService";
 
 import bcrypt from "bcrypt";
 import { UserRepository } from "../../../src/Repository/UserRepository";
@@ -12,7 +9,10 @@ import { FollowerRepository } from "../../../src/Repository/FollowerRepository";
 import { ReviewRepository } from "../../../src/Repository/ReviewRepository";
 import { CommentRepository } from "../../../src/Repository/CommentRepository";
 import { LikeRepository } from "../../../src/Repository/LikeRepository";
+import { generateToken } from "../../../src/utils/Auth";
 
+// [deprecated] replicating UserService Behaviour as of 29/04/2026
+// still takes in 'app' because too many calls to replace
 export async function register(
     app: Express,
     accountName: UserPK,
@@ -20,13 +20,32 @@ export async function register(
     password: string,
     email: string
 ): Promise<AuthResponse> {
-    return (await AccountService.registerUser(accountName, displayName, password, email, false)) as AuthResponse;
-    // const res = await request(app)
-    //     .post("/api/users")
-    //     .send({ accountName, displayName, password, email })
-    //     .expect(StatusCodes.CREATED);
+    const userData: UserData = {
+        displayName: displayName,
+        gender: null,
+        bio: null,
+    };
 
-    // return res.body.data as AuthResponse;
+    const user: UserFull = await UserRepository.insertUser({
+        accountName,
+        avatar: null,
+        isPrivate: false,
+        passwordHash: await bcrypt.hash(password, 10),
+        userData,
+        email,
+    });
+
+    await UserRepository.verify(user.accountName, user.emailValidation as number);
+
+    const token = generateToken(user.accountName);
+
+    return {
+        accountName: user.accountName,
+        isPrivate: false,
+        userData,
+        createdAt: user.createdAt,
+        token,
+    } as AuthResponse;
 }
 
 // Username-email pair utility
@@ -45,7 +64,7 @@ export function makeSomeUser(): UserMicro {
 // Short-hand for registering a user, for tests
 export async function quickRegisterUser(): Promise<string> {
     const user: UserMicro = makeSomeUser();
-    await AccountService.registerUser(user.accountName, "", "aaaaaaaa", user.email, false);
+    await fastCreateUserAndValidate(user.accountName);
     return user.accountName;
 }
 
@@ -81,6 +100,15 @@ export function fastCreateUser(name: string) {
 export function fastCreateUserAndValidate(name: string) {
     return fastCreateUser(name).then((user) => {
         return UserRepository.verify(user.accountName, user.emailValidation as number);
+    });
+}
+
+export function fastMakeUserPrivate(name: string) {
+    return PRISMA.user.update({
+        where: { accountName: name },
+        data: {
+            isPrivate: true,
+        },
     });
 }
 
