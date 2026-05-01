@@ -116,11 +116,13 @@ export class ReviewService {
         return (await ReviewRepository.deleteReview({ reviewer: currentUser, reviewed: gameID })) as ReviewFull;
     }
 
-    static async getReviewsByGame(gameID: GamePK, currentUser?: UserPK): Promise<ReviewFull[]> {
+    static async getReviewsByGame(gameID: GamePK, currentUser?: UserPK, all?: boolean): Promise<ReviewFull[]> {
         const game: GameFull | null = await GameRepository.selectGame(gameID);
         if (!game) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
 
         const reviews: ReviewFull[] = await ReviewRepository.selectAllReviewsOfGame(gameID);
+
+        if (all) return reviews;
 
         // filter based on privacy
         const visibleReviews: ReviewFull[] = [];
