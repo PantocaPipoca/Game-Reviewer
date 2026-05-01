@@ -5,6 +5,7 @@ import RegisterPage from "./Pages/RegisterPage";
 import ValidationPage from "./Pages/ValidationPage";
 import SearchResultsPage from "./Pages/SearchResultsPage";
 import SearchUsersPage from "./Pages/SearchUsersPage";
+import CategoryPage from "./Pages/CategoryPage";
 import UserPage from "./Pages/UserPage";
 import EditProfilePage from "./Pages/EditProfilePage";
 import GameInfoPage from "./Pages/GameInfoPage";
@@ -26,6 +27,7 @@ function App() {
                 <Route path="forgot-password" element={<ForgotPassPage />} />
                 <Route path="reset-password" element={<ResetPassPage />} />
                 <Route path="search/games" element={<SearchResultsPage />} />
+                <Route path="categories/:type" element={<CategoryPage />} />
                 <Route path="search/users" element={<SearchUsersPage />} />
                 <Route path="/user/:username" element={<UserPage />} />
                 <Route path="/user/:username/edit" element={<EditProfilePage />} />

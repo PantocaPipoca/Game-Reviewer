@@ -3,7 +3,7 @@ import { AppError, asyncHandler, makeSuccess } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
 import { StatusCodes } from "http-status-codes";
 import { GameService } from "../services/GameService";
-import { GameCover, GameFull } from "../types/Types";
+import { GameCover, GameFull, BigGameCover } from "../types/Types";
 import { AuthRequest, extractLoggedUser } from "../utils/Auth";
 
 type QueryBody = {
@@ -83,7 +83,7 @@ export class GameController {
         const { offset, amount }: QueryBody = req.body;
         if (!isValidOffset(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
         if (!isValidAmount(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
-        const result: GameCover[] = await GameService.getPopularGames(offset, amount);
+        const result: BigGameCover[] = await GameService.getPopularGames(offset, amount);
         makeSuccess(res, StatusCodes.OK, result);
     });
 

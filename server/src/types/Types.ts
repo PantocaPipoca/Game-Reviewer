@@ -70,6 +70,19 @@ export type GameCover = {
     };
 };
 
+export type BigGameCover = {
+    id: number;
+    name: string;
+    cover?: { url?: string };
+    genres?: { name: string }[];
+    screenshots?: { url?: string }[];
+    artworks?: { url?: string }[];
+    involved_companies?: {
+        developer: boolean;
+        company?: { name: string };
+    }[];
+};
+
 // ===================== Reaction Types =====================
 
 export type LikeFull = Like;
