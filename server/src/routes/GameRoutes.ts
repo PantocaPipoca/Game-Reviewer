@@ -239,7 +239,7 @@ router.post("/recent", GameController.getRecentGames);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  *              401:
- *                  description: "**Unauthorized** — if no account is logged in"
+ *                  description: "**Unauthorized** - if no account is logged in"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -354,7 +354,7 @@ router.get("/id/:gameID/reviews", optionalAuth, ReviewController.getReviewsByGam
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  *              401:
- *                  description: "**Unauthorized** — if no account is logged in"
+ *                  description: "**Unauthorized** - if no account is logged in"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -386,7 +386,7 @@ router.post("/id/:gameID/reviews", auth, ReviewController.publishReview);
  *      put:
  *          tags: [Reviews]
  *          summary: Updates the current user's review for a game
- *          description: Updates the current user's review for a game. Both fields are optional — omitted fields keep their existing values.
+ *          description: Updates the current user's review for a game. Both fields are optional - omitted fields keep their existing values.
  *          security:
  *              - bearerAuth: []
  *          parameters:
@@ -418,7 +418,7 @@ router.post("/id/:gameID/reviews", auth, ReviewController.publishReview);
  *                                      type: string
  *          responses:
  *              202:
- *                  description: "**Accepted** — review updated successfully"
+ *                  description: "**Accepted** - review updated successfully"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -430,25 +430,25 @@ router.post("/id/:gameID/reviews", auth, ReviewController.publishReview);
  *                                  data:
  *                                      $ref: '#/components/schemas/Review'
  *              400:
- *                  description: "**Bad Request** — if the gameID is invalid, if the text is longer than 2000 characters or if score is not in [0, 10]"
+ *                  description: "**Bad Request** - if the gameID is invalid, if the text is longer than 2000 characters or if score is not in [0, 10]"
  *                  content:
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  *              401:
- *                  description: "**Unauthorized** — if no account is logged in"
+ *                  description: "**Unauthorized** - if no account is logged in"
  *                  content:
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  *              404:
- *                  description: "**Not Found** — if the user or game doesn't exist, or if the user hasn't reviewed this game"
+ *                  description: "**Not Found** - if the user or game doesn't exist, or if the user hasn't reviewed this game"
  *                  content:
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  *              500:
- *                  description: "**Internal Server Error** — if the review couldn't be updated"
+ *                  description: "**Internal Server Error** - if the review couldn't be updated"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -491,7 +491,7 @@ router.put("/id/:gameID/reviews", auth, ReviewController.alterReview);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  *              401:
- *                  description: "**Unauthorized** — if no account is logged in"
+ *                  description: "**Unauthorized** - if no account is logged in"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -510,5 +510,51 @@ router.put("/id/:gameID/reviews", auth, ReviewController.alterReview);
  *                              $ref: '#/components/schemas/Error'
  */
 router.delete("/id/:gameID/reviews", auth, ReviewController.removeReview);
+
+/**
+ * @swagger
+ *  /games/batch:
+ *      post:
+ *          tags: [Games]
+ *          summary: Returns cover info for a batch of games by ID
+ *          description: |
+ *              Fetches cover and name info for a list of game IDs from IGDB in a single request.
+ *              Intended to avoid N individual requests when loading a user's review list.
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [ids]
+ *                          properties:
+ *                              ids:
+ *                                  type: array
+ *                                  items:
+ *                                      type: integer
+ *                                  maxItems: 100
+ *          responses:
+ *              200:
+ *                  description: "**OK** - game covers retrieved successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/GameCover'
+ *              400:
+ *                  description: "**Bad Request** - if ids is not an array of positive integers, or contains more than 100 entries"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.post("/batch", GameController.getGamesBatch);
 
 export default router;

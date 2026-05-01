@@ -4,6 +4,15 @@ import { StatusCodes } from "http-status-codes";
 import { GameFull, GamePK, UserPK, GameCover, BigGameCover } from "../types/Types";
 import { GameRepository } from "../Repository/GameRepository";
 import { IGDB } from "../IGDB/Requests";
+import { ReviewService } from "./ReviewService";
+
+async function countReviews(game: GameCover): Promise<number> {
+    try {
+        return (await ReviewService.getReviewsByGame(game.id, undefined, true)).length;
+    } catch (_) {
+        return 0;
+    }
+}
 
 export class GameService {
     /**
@@ -42,7 +51,12 @@ export class GameService {
      * @returns array of enough game info to make a cover
      */
     static async searchGames(name: string, genres: number[], offset: number, amount: number): Promise<GameCover[]> {
-        return IGDB.searchGames(name, genres, offset, amount);
+        const games: GameCover[] = await IGDB.searchGames(name, genres, offset, amount);
+        const sortedGames = await Promise.all(
+            games.map(async (game) => ({ item: game, sortKey: await countReviews(game) }))
+        );
+        sortedGames.sort((a, b) => b.sortKey - a.sortKey);
+        return sortedGames.map((game) => game.item);
     }
 
     /**
@@ -82,9 +96,13 @@ export class GameService {
         return IGDB.searchGames("", likedGenres, offset, amount);
     }
 
-    // static async getGameStats(gameId: GamePK): Promise<void> {
-    // }
-    // won't be used
-
-    // needs a endpoint "get x games"
+    /**
+     * Sends the request to IGDB to get information about the games
+     * @param ids array of game ids
+     * @returns array of Games
+     */
+    static async getGamesBatch(ids: GamePK[]): Promise<BigGameCover[]> {
+        if (ids.length === 0) return [];
+        return IGDB.getGivenGames(ids);
+    }
 }

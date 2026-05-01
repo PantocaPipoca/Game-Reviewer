@@ -1,18 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Panel from "../Components/Panel/Panel";
 import Text from "../Components/Text/Text";
+import Button from "../Components/Buttons/Button";
 import style from "./UserPage.module.css";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
 import type { ReviewFull, UserPublic } from "../API/Types";
 import defaultAvatar from "../Assets/default-pfp.png";
-import Button from "../Components/Buttons/Button";
 import { FollowerAPI } from "../API/Follower";
 import { ReviewAPI } from "../API/Reviews";
+import { GameAPI } from "../API/Games";
 import FollowerListOverlay from "../Components/FollowerList/FollowerListOverlay";
 import { useSuccessPopup } from "../Hooks/SuccessPopup";
+import ReviewCard from "../Components/ReviewCard/ReviewCard";
+import ReviewFilter, { type SortField, type SortOrder } from "../Components/ReviewFilter/ReviewFilter";
+import UserStatsPanel from "../Components/UserStatsPanel/UserStatsPanel";
+
+const NO_COVER = "https://vglist.co/assets/no-cover-5b40e3b1.png";
+
+function getCoverUrl(game: any): string {
+    const url: string | undefined = game?.cover?.url;
+    if (!url) return NO_COVER;
+    const full = url.startsWith("//") ? `https:${url}` : url;
+    return full.replace("t_thumb", "t_cover_big");
+}
 
 type ReviewWithGame = ReviewFull & { gameName?: string; gameCover?: string };
 type FollowState = "not_following" | "pending" | "following";
@@ -22,6 +35,7 @@ function UserPage() {
     const { username } = useParams<{ username: string }>();
     const navigate = useNavigate();
     const { showSuccess } = useSuccessPopup();
+
     const [profile, setProfile] = useState<UserPublic | null>(null);
     const [isOwner, setIsOwner] = useState(false);
     const [canView, setCanView] = useState(false);
@@ -32,6 +46,26 @@ function UserPage() {
     const [followState, setFollowState] = useState<FollowState>("not_following");
     const [followLoading, setFollowLoading] = useState(false);
     const [followOverlay, setFollowOverlay] = useState<OverlayTab | null>(null);
+
+    const [sortField, setSortField] = useState<SortField>("createdAt");
+    const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
+    const sortedReviews = useMemo(() => {
+        return [...reviews].sort((a, b) => {
+            let aVal: number, bVal: number;
+            if (sortField === "createdAt") {
+                aVal = new Date(a.createdAt).getTime();
+                bVal = new Date(b.createdAt).getTime();
+            } else if (sortField === "score") {
+                aVal = a.score;
+                bVal = b.score;
+            } else {
+                aVal = a.hoursPlayed ?? 0;
+                bVal = b.hoursPlayed ?? 0;
+            }
+            return sortOrder === "desc" ? bVal - aVal : aVal - bVal;
+        });
+    }, [reviews, sortField, sortOrder]);
 
     useEffect(() => {
         load();
@@ -85,23 +119,23 @@ function UserPage() {
                         following: following.length,
                         followers: followers.filter((f) => f.accepted).length,
                     });
+                    const uniqueIds = reviewData.map((r) => r.reviewed);
+                    const gameCovers = uniqueIds.length > 0 ? await GameAPI.getBatch(uniqueIds) : [];
+                    const coverMap = new Map(gameCovers.map((g) => [g.id, g]));
 
-                    const reviewsWithGames = await Promise.all(
-                        reviewData.map(async (review) => {
-                            try {
-                                return review as ReviewWithGame;
-                            } catch {
-                                return review as ReviewWithGame;
-                            }
-                        })
-                    );
-                    setReviews(reviewsWithGames);
-                } catch {
-                    // private or unavailable
-                }
+                    const reviewsWithGameInfo: ReviewWithGame[] = reviewData.map((review) => {
+                        const igdb = coverMap.get(review.reviewed);
+                        return {
+                            ...review,
+                            gameName: igdb?.name,
+                            gameCover: getCoverUrl(igdb),
+                        };
+                    });
+                    setReviews(reviewsWithGameInfo);
+                } catch {}
             }
         } catch (error: any) {
-            console.log("FAILED:", error?.response?.status, error?.response?.data, error?.message);
+            console.log("FAILED:", error?.response?.status, error?.message);
         } finally {
             setLoading(false);
         }
@@ -142,7 +176,6 @@ function UserPage() {
         }
     }
 
-    // update stats in real time on remove
     function handleOverlayRemove(type: OverlayTab) {
         if (type === "followers") setStats((s) => ({ ...s, followers: Math.max(0, s.followers - 1) }));
         if (type === "following") setStats((s) => ({ ...s, following: Math.max(0, s.following - 1) }));
@@ -298,7 +331,7 @@ function UserPage() {
                         )}
                     </div>
 
-                    {canView ? (
+                    {canView && (
                         <>
                             <hr />
                             {reviews.length === 0 ? (
@@ -306,10 +339,36 @@ function UserPage() {
                                     <Text color="var(--pink)">NO ACTIVITY</Text>
                                 </Panel>
                             ) : (
-                                <div className={style.reviewList}></div>
+                                <div className={style.reviewSection}>
+                                    <UserStatsPanel reviews={reviews}/>
+                                    <ReviewFilter
+                                        sortField={sortField}
+                                        sortOrder={sortOrder}
+                                        onSort={(field, order) => {
+                                            setSortField(field);
+                                            setSortOrder(order);
+                                        }}
+                                    />
+                                    <div className={style.reviewList}>
+                                        {sortedReviews.map((review) => (
+                                            <ReviewCard
+                                                key={`${review.reviewer}-${review.reviewed}`}
+                                                cover={review.gameCover}
+                                                gameName={review.gameName}
+                                                description={review.text}
+                                                rating={review.score}
+                                                hoursPlayed={review.hoursPlayed}
+                                                platforms={review.platforms}
+                                                showUser={false}
+                                                reviewer={review.reviewer}
+                                                reviewed={review.reviewed}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
                             )}
                         </>
-                    ) : null}
+                    )}
                 </Panel>
             </div>
 

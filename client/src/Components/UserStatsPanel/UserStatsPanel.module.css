@@ -1,0 +1,148 @@
+.panel {
+    width: 100%;
+    box-sizing: border-box;
+    align-items: stretch;
+    padding: 0;
+}
+
+.section {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingMedium);
+    padding: var(--spacingMedium);
+}
+
+.dividerV {
+    width: var(--borderWidth);
+    background-color: var(--border);
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+/* graph */
+
+.barsWithLine {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--spacingSmall);
+    flex: 1;
+}
+
+.axisLine {
+    width: 2px;
+    background-color: var(--border);
+    opacity: 0.35;
+    flex-shrink: 0;
+    border-radius: 1px;
+}
+
+.bars {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+}
+
+.barRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingSmall);
+}
+
+.barTrack {
+    flex: 1;
+    height: 14px;
+    background-color: var(--terciaryPanel);
+    min-width: 0;
+}
+
+.barFillPink {
+    height: 100%;
+    background-color: var(--pink);
+    transition: width 0.3s ease;
+}
+
+.barFillBlue {
+    height: 100%;
+    background-color: var(--cyan);
+    transition: width 0.3s ease;
+}
+
+.barStars {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 62px;
+    gap: 1px;
+    flex-shrink: 0;
+}
+
+.avgRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: calc(var(--spacingSmall) / 2);
+}
+
+/* platforms */
+
+.platformList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingMedium);
+}
+
+.platformRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingSmall);
+}
+
+.platformIcon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.platformIconFallback {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+/* games */
+
+.gameList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingSmall);
+}
+
+.gameRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingSmall);
+}
+
+.gameThumbnail {
+    width: 36px;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+}
+
+.gameInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}

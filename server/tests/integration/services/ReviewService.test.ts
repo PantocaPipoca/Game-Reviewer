@@ -1,8 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import { GameFull, ReviewFull, ReviewPK } from "../../../src/types/Types";
-import { createGame, quickRegisterUser } from "../helper/helper";
+import { createGame, fastCreateUser, fastCreateUserAndValidate, quickRegisterUser } from "../helper/helper";
 import { ReviewService } from "../../../src/services/ReviewService";
-import { AccountService } from "../../../src/services/AccountService";
 import { ReviewRepository } from "../../../src/Repository/ReviewRepository";
 
 // Auxiliary function, makes and registers a user, creates a game and returns the username and gamename
@@ -16,7 +15,8 @@ export async function quickReadyReview(): Promise<ReviewPK> {
 // Auxiliary function, publishes a review given a username and gamename, with no description and score 5
 // Used by CommentService.test.ts and LikeService.test.ts
 export async function quickPublishReview(review: ReviewPK): Promise<void> {
-    await ReviewService.publishReview(review.reviewer, review.reviewed, "", 5, 1, ["PC"]);
+    // await ReviewService.publishReview(review.reviewer, review.reviewed, "", 5, 1, ["PC"]);
+    await ReviewRepository.insertReview({ ...review, text: "", score: 5, hoursPlayed: 1, platforms: ["PC"] });
 }
 
 describe("ReviewService (integration)", () => {
@@ -118,7 +118,8 @@ describe("ReviewService (integration)", () => {
         const game: GameFull = await createGame();
         for (var i = 0; i < 5; i++) {
             await createGame();
-            await AccountService.registerUser("user" + i, "", "12345678", `username${i}@gmail.com`, false);
+            // await AccountService.registerUser("user" + i, "", "12345678", `username${i}@gmail.com`, false);
+            await fastCreateUserAndValidate("user" + i);
             await ReviewService.publishReview("user" + i, game.gameID, "" + i, i, i + 1, ["PC"]);
         }
 

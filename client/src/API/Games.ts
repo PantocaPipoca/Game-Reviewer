@@ -8,15 +8,16 @@ export class GameAPI {
         limit?: number;
         offset?: number;
     }): Promise<GameSearchResult[]> {
-        const limit: number = params.limit ?? 50;
         const offset: number = params.offset ?? 0;
 
-        const response = (await CLIENT.post("/games/search", {
+        let response = (await CLIENT.post("/games/search", {
             name: params.name ?? "",
             genres: [],
             offset,
-            amount: limit,
+            amount: params.limit ?? 50,
         })) as { id: number; name: string; cover?: { url?: string } }[];
+
+        if (params.limit !== undefined) response = response.slice(0, params.limit);
 
         return response.map((game) => ({
             id: game.id,
@@ -35,5 +36,9 @@ export class GameAPI {
 
     static async getById(gameID: number): Promise<GameFull> {
         return CLIENT.get("/games/id/" + gameID);
+    }
+
+    static async getBatch(ids: number[]): Promise<GameCover[]> {
+        return CLIENT.post("/games/batch", { ids });
     }
 }
