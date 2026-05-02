@@ -1,7 +1,16 @@
 import { StatusCodes } from "http-status-codes";
 import { AppError } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
-import { GameFull, GamePK, GameShort, ReviewFull, ReviewShort, UserPK, UserPublic } from "../types/Types";
+import {
+    GameFull,
+    GamePK,
+    GameShort,
+    ReviewFull,
+    ReviewShort,
+    ReviewWithAvatar,
+    UserPK,
+    UserPublic,
+} from "../types/Types";
 import { canViewUser, fetchPublicUser } from "./AccountService";
 import { GameRepository } from "../Repository/GameRepository";
 import { ReviewRepository } from "../Repository/ReviewRepository";
@@ -116,12 +125,11 @@ export class ReviewService {
         return (await ReviewRepository.deleteReview({ reviewer: currentUser, reviewed: gameID })) as ReviewFull;
     }
 
-    static async getReviewsByGame(gameID: GamePK, currentUser?: UserPK, all?: boolean): Promise<ReviewFull[]> {
+    static async getReviewsByGame(gameID: GamePK, currentUser?: UserPK, all?: boolean): Promise<ReviewWithAvatar[]> {
         const game: GameFull | null = await GameRepository.selectGame(gameID);
         if (!game) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
 
-        const reviews: ReviewFull[] = await ReviewRepository.selectAllReviewsOfGame(gameID);
-
+        const reviews: ReviewWithAvatar[] = await ReviewRepository.selectAllReviewsOfGame(gameID);
         if (all) return reviews;
 
         // filter based on privacy
@@ -130,30 +138,19 @@ export class ReviewService {
             const user: UserPublic = await fetchPublicUser(review.reviewer); // This will hurt in performance
             if (await canViewUser(user, currentUser)) {
                 visibleReviews.push({
-                    reviewer: review.reviewer,
-                    reviewed: review.reviewed,
-                    text: review.text,
-                    score: review.score,
-                    hoursPlayed: review.hoursPlayed,
-                    platforms: review.platforms,
-                    createdAt: review.createdAt,
-                    updatedAt: review.updatedAt,
+                    ...review,
                 });
             }
         }
-
-        return visibleReviews as ReviewFull[];
+        return visibleReviews as ReviewWithAvatar[];
     }
 
-    static async getReviewsByUser(username: UserPK, currentUser?: UserPK): Promise<ReviewFull[]> {
+    static async getReviewsByUser(username: UserPK, currentUser?: UserPK): Promise<ReviewWithAvatar[]> {
         const user: UserPublic = await fetchPublicUser(username);
 
-        const canView = await canViewUser(user, currentUser);
+        const canView: boolean = await canViewUser(user, currentUser);
         if (!canView) throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        return (await ReviewRepository.selectAllReviewsOfUser(username)) as ReviewFull[];
+        return (await ReviewRepository.selectAllReviewsOfUser(username)) as ReviewWithAvatar[];
     }
-
-    // TODO Later
-    static async getRecentReviews(gameID: GamePK): Promise<void> {}
 }

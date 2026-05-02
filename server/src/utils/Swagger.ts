@@ -271,6 +271,13 @@ const OPTIONS: swaggerJsdoc.Options = {
                         },
                         createdAt: { type: "string", format: "date-time" },
                         updatedAt: { type: "string", format: "date-time" },
+                        user: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                                avatar: { type: "string", nullable: true },
+                            },
+                        },
                     },
                 },
                 Comment: {
