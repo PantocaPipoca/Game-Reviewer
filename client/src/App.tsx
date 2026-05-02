@@ -15,6 +15,7 @@ import ReviewPage from "./Pages/ReviewPage";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import ForgotPassPage from "./Pages/ForgotPassPage";
 import ResetPassPage from "./Pages/ResetPassPage";
+import NotFoundPage from "./Pages/NotFoundPage";
 
 function App() {
     return (
@@ -49,6 +50,7 @@ function App() {
                     }
                 />
                 <Route path="/review/:reviewer/:reviewed" element={<ReviewPage />} />
+                <Route path="*" element={<NotFoundPage />} />
             </Routes>
         </div>
     );
