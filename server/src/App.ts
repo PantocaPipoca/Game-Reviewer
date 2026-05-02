@@ -56,7 +56,7 @@ export function createApp(): Express {
     // limiter
     const limiter = rateLimit({
         windowMs: 60 * 1000,
-        max: parseInt(process.env["RATE_LIMIT_MAX"] ?? "200"),
+        max: parseInt(process.env["RATE_LIMIT_MAX"] ?? "50000"), // value for testing: 50000 per minute
         standardHeaders: true,
         legacyHeaders: false,
         handler: (_req, res) => {
