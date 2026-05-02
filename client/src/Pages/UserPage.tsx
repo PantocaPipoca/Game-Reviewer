@@ -7,7 +7,7 @@ import Button from "../Components/Buttons/Button";
 import style from "./UserPage.module.css";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
-import type { ReviewFull, UserPublic } from "../API/Types";
+import type { ReviewFull, UserPublic, ReviewWithAvatar } from "../API/Types";
 import defaultAvatar from "../Assets/default-pfp.png";
 import { FollowerAPI } from "../API/Follower";
 import { ReviewAPI } from "../API/Reviews";
@@ -17,6 +17,7 @@ import { useSuccessPopup } from "../Hooks/SuccessPopup";
 import ReviewCard from "../Components/ReviewCard/ReviewCard";
 import ReviewFilter, { type SortField, type SortOrder } from "../Components/ReviewFilter/ReviewFilter";
 import UserStatsPanel from "../Components/UserStatsPanel/UserStatsPanel";
+import { sortReviews } from "../Utils/ReviewSort";
 
 const NO_COVER = "https://vglist.co/assets/no-cover-5b40e3b1.png";
 
@@ -50,22 +51,10 @@ function UserPage() {
     const [sortField, setSortField] = useState<SortField>("createdAt");
     const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
-    const sortedReviews = useMemo(() => {
-        return [...reviews].sort((a, b) => {
-            let aVal: number, bVal: number;
-            if (sortField === "createdAt") {
-                aVal = new Date(a.createdAt).getTime();
-                bVal = new Date(b.createdAt).getTime();
-            } else if (sortField === "score") {
-                aVal = a.score;
-                bVal = b.score;
-            } else {
-                aVal = a.hoursPlayed ?? 0;
-                bVal = b.hoursPlayed ?? 0;
-            }
-            return sortOrder === "desc" ? bVal - aVal : aVal - bVal;
-        });
-    }, [reviews, sortField, sortOrder]);
+    type ReviewWithGame = ReviewWithAvatar & { gameName?: string; gameCover?: string };
+
+    // replace the useMemo block:
+    const sortedReviews = useMemo(() => sortReviews(reviews, sortField, sortOrder), [reviews, sortField, sortOrder]);
 
     useEffect(() => {
         load();
@@ -340,7 +329,7 @@ function UserPage() {
                                 </Panel>
                             ) : (
                                 <div className={style.reviewSection}>
-                                    <UserStatsPanel reviews={reviews}/>
+                                    <UserStatsPanel reviews={reviews} />
                                     <ReviewFilter
                                         sortField={sortField}
                                         sortOrder={sortOrder}

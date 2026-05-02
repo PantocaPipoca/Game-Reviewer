@@ -1,5 +1,5 @@
 import CLIENT from "./Client";
-import type { ReviewFull } from "./Types";
+import type { ReviewFull, ReviewWithAvatar } from "./Types";
 
 export class ReviewAPI {
     static async publish(
@@ -17,10 +17,10 @@ export class ReviewAPI {
     static async remove(gameID: number): Promise<ReviewFull> {
         return CLIENT.delete("/games/id/" + gameID + "/reviews");
     }
-    static async getByGame(gameID: number): Promise<ReviewFull[]> {
+    static async getByGame(gameID: number): Promise<ReviewWithAvatar[]> {
         return CLIENT.get("/games/id/" + gameID + "/reviews");
     }
-    static async getByUser(username: string): Promise<ReviewFull[]> {
+    static async getByUser(username: string): Promise<ReviewWithAvatar[]> {
         return CLIENT.get("/users/id/" + username + "/reviews");
     }
 

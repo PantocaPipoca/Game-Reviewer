@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import style from "./GameInfoPage.module.css";
 import Panel from "../Components/Panel/Panel";
@@ -8,13 +8,15 @@ import Star from "../Components/SVGs/Star";
 import type { CssVar } from "../Types/Types";
 import ReviewCard from "../Components/ReviewCard/ReviewCard";
 import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
+import ReviewFilter, { type SortField, type SortOrder } from "../Components/ReviewFilter/ReviewFilter";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
 import { UserAPI } from "../API/User";
-import type { GameFull, ReviewFull } from "../API/Types";
+import type { GameFull, ReviewFull, ReviewWithAvatar } from "../API/Types";
 import Carousel, { EXPO_ART_TYPE, EXPO_VIDEO_TYPE } from "../Components/Carousel/Carousel";
 import type { GameExpoProps } from "../Components/GameCards/GameExpo";
 import GameExpo from "../Components/GameCards/GameExpo";
+import { sortReviews } from "../Utils/ReviewSort";
 
 const noCoverUrl: string = "https://vglist.co/assets/no-cover-5b40e3b1.png";
 
@@ -51,7 +53,6 @@ function RatingRow({ type, value }: { type: RatingType; value?: number }) {
     return (
         <div className={style.ratingRow}>
             <Text variant="h2">{titleMap[type]}</Text>
-
             <div className={style.ratingContent}>
                 <Star type="full" size={46} color={color} />
                 {isYourRating && !hasValue ? (
@@ -134,10 +135,15 @@ function GameInfoPage() {
     const { gameID } = useParams<{ gameID: string }>();
 
     const [game, setGame] = useState<any | null>(null);
-    const [reviews, setReviews] = useState<ReviewFull[]>([]);
+    const [reviews, setReviews] = useState<ReviewWithAvatar[]>([]);
     const [myReview, setMyReview] = useState<ReviewFull | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+
+    const [sortField, setSortField] = useState<SortField>("createdAt");
+    const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
+    const sortedReviews = useMemo(() => sortReviews(reviews, sortField, sortOrder), [reviews, sortField, sortOrder]);
 
     useEffect(() => {
         if (!gameID) return;
@@ -213,7 +219,6 @@ function GameInfoPage() {
         .map((ic: any) => ic.company?.name as string)
         .filter(Boolean);
 
-    // Videos, followed by artworks, and finally screenshots
     const videos: any[] = game?.videos ?? [];
     const artworks: any[] = game?.artworks ?? [];
     const screenshots: any[] = game?.screenshots ?? [];
@@ -221,8 +226,6 @@ function GameInfoPage() {
     videos.forEach((v) => carouselItems.push(getVideoObject(v)));
     artworks.forEach((a) => carouselItems.push({ url: getArtworkUrl(a), isVideo: false }));
     screenshots.forEach((s) => carouselItems.push({ url: getScreenshotUrl(s), isVideo: false }));
-
-    // If no media was found, insert no cover
     if (carouselItems.length === 0) carouselItems.push({ url: noCoverUrl, isVideo: false });
 
     const averageScore: number = computeAverageScore(reviews);
@@ -273,7 +276,6 @@ function GameInfoPage() {
                                 <RatingRow type="your" value={myReview?.score} />
                                 <hr />
                                 <RatingRow type="friends" value={0} />
-
                                 {developers.length > 0 && <InfoSection title="Main Developers" items={developers} />}
                                 {supportingDevs.length > 0 && (
                                     <InfoSection title="Supporting Devs" items={supportingDevs} />
@@ -292,7 +294,7 @@ function GameInfoPage() {
                                     node: GameExpo(url),
                                     type: url.isVideo ? EXPO_VIDEO_TYPE : EXPO_ART_TYPE,
                                 })}
-                            ></Carousel>
+                            />
                             <Panel type="secondary">
                                 <div className={style.description}>
                                     {genres.length > 0 && <DescriptionField label="Genre" value={genres.join(", ")} />}
@@ -303,7 +305,18 @@ function GameInfoPage() {
                                 </div>
                             </Panel>
 
-                            {reviews.map((review) => (
+                            {reviews.length > 0 && (
+                                <ReviewFilter
+                                    sortField={sortField}
+                                    sortOrder={sortOrder}
+                                    onSort={(field, order) => {
+                                        setSortField(field);
+                                        setSortOrder(order);
+                                    }}
+                                />
+                            )}
+
+                            {sortedReviews.map((review) => (
                                 <ReviewCard
                                     key={`${review.reviewer}-${review.reviewed}`}
                                     description={review.text}
@@ -312,6 +325,7 @@ function GameInfoPage() {
                                     platforms={review.platforms}
                                     showUser
                                     userName={review.reviewer}
+                                    userAvatar={review.user?.avatar ?? undefined}
                                     reviewer={review.reviewer}
                                     reviewed={review.reviewed}
                                 />

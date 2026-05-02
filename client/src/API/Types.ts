@@ -88,6 +88,10 @@ export type ReviewFull = {
     updatedAt: string;
 };
 
+export type ReviewWithAvatar = ReviewFull & {
+    user?: { avatar: string | null };
+};
+
 export type ReviewShort = {
     reviewer: string;
     reviewed: number;
