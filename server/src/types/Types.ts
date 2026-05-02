@@ -48,6 +48,10 @@ export type GamePK = number;
 
 export type ReviewFull = Review;
 
+export type ReviewWithAvatar = ReviewFull & {
+    user?: { avatar: string | null };
+};
+
 export type ReviewShort = Omit<ReviewFull, "createdAt" | "updatedAt">;
 
 export type ReviewPK = {

@@ -1,5 +1,5 @@
 import { PRISMA } from "../Prisma";
-import { ReviewFull, ReviewShort, ReviewPK, GamePK, UserPK } from "../types/Types";
+import { ReviewFull, ReviewShort, ReviewPK, GamePK, UserPK, ReviewWithAvatar } from "../types/Types";
 
 export class ReviewRepository {
     /**
@@ -61,10 +61,11 @@ export class ReviewRepository {
      * @param gamePK primary key of the Game which we want the Reviews of
      * @returns a promise of the Array of Reviews
      */
-    public static selectAllReviewsOfGame(gamePK: GamePK): Promise<ReviewFull[]> {
+    public static selectAllReviewsOfGame(gamePK: GamePK): Promise<ReviewWithAvatar[]> {
         return PRISMA.review.findMany({
             where: { reviewed: gamePK },
-        });
+            include: { user: { select: { avatar: true } } },
+        }) as Promise<ReviewWithAvatar[]>;
     }
 
     /**
@@ -72,9 +73,10 @@ export class ReviewRepository {
      * @param userPK primary key of the User which we want the Reviews of
      * @returns a promise of the Array of Reviews
      */
-    public static selectAllReviewsOfUser(userPK: UserPK): Promise<ReviewFull[]> {
+    public static selectAllReviewsOfUser(userPK: UserPK): Promise<ReviewWithAvatar[]> {
         return PRISMA.review.findMany({
             where: { reviewer: userPK },
-        });
+            include: { user: { select: { avatar: true } } },
+        }) as Promise<ReviewWithAvatar[]>;
     }
 }
