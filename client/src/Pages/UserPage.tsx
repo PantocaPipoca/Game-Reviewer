@@ -308,7 +308,9 @@ function UserPage() {
                                     <Text variant="small" color="var(--mutedText)">
                                         {profile.userData.gender}
                                     </Text>
-                                    <Text variant="small">{profile.userData.bio}</Text>
+                                    <Text variant="small" multiline>
+                                        {profile.userData.bio}
+                                    </Text>
                                 </Panel>
                             </div>
                         ) : (
