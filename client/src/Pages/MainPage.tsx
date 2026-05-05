@@ -95,11 +95,14 @@ function MainPage() {
     const [popularOffset, setPopularOffset] = useState(0);
     const [popularHasMore, setPopularHasMore] = useState(true);
     const [loadingPopular, setLoadingPopular] = useState(true);
+    const [popularDone, setPopularDone] = useState(false);
 
     const [recommended, setRecommended] = useState<BigGameCover[]>([]);
     const [recommendedOffset, setRecommendedOffset] = useState(0);
     const [recommendedHasMore, setRecommendedHasMore] = useState(true);
     const [loadingRecommended, setLoadingRecommended] = useState(true);
+    const [recommendedDone, setRecommendedDone] = useState(false);
+
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
@@ -111,22 +114,34 @@ function MainPage() {
     useEffect(() => {
         GameAPI.getPopular(0, POPULAR_BATCH)
             .then((data) => {
-                setPopular(data);
-                setPopularHasMore(data.length === POPULAR_BATCH);
+                const valid = data.filter((g) => g.id);
+                setPopular(valid);
+                setPopularHasMore(valid.length === POPULAR_BATCH);
             })
-            .catch(() => {})
-            .finally(() => setLoadingPopular(false));
+            .catch(() => {
+                setPopular([]);
+            })
+            .finally(() => {
+                setLoadingPopular(false);
+                setPopularDone(true);
+            });
     }, []);
 
     useEffect(() => {
         GameAPI.getRecommended(0, RECOMMENDED_BATCH)
             .catch(() => GameAPI.getPopular(0, RECOMMENDED_BATCH))
             .then((data) => {
-                setRecommended(data as BigGameCover[]);
-                setRecommendedHasMore(data.length === RECOMMENDED_BATCH);
+                const valid = (data as BigGameCover[]).filter((g) => g.id);
+                setRecommended(valid);
+                setRecommendedHasMore(valid.length === RECOMMENDED_BATCH);
             })
-            .catch(() => {})
-            .finally(() => setLoadingRecommended(false));
+            .catch(() => {
+                setRecommended([]);
+            })
+            .finally(() => {
+                setLoadingRecommended(false);
+                setRecommendedDone(true);
+            });
     }, []);
 
     const loadMorePopular = useCallback(async () => {
@@ -135,12 +150,13 @@ function MainPage() {
         const next = popularOffset + POPULAR_BATCH;
         try {
             const data = await GameAPI.getPopular(next, POPULAR_BATCH);
+            const valid = data.filter((g) => g.id);
             setPopular((prev) => {
                 const ids = new Set(prev.map((g) => g.id));
-                return [...prev, ...data.filter((g) => !ids.has(g.id))];
+                return [...prev, ...valid.filter((g) => !ids.has(g.id))];
             });
             setPopularOffset(next);
-            setPopularHasMore(data.length === POPULAR_BATCH);
+            setPopularHasMore(valid.length === POPULAR_BATCH);
         } catch {
         } finally {
             setLoadingPopular(false);
@@ -155,17 +171,22 @@ function MainPage() {
             const data = await GameAPI.getRecommended(next, RECOMMENDED_BATCH).catch(() =>
                 GameAPI.getPopular(next, RECOMMENDED_BATCH)
             );
+            const valid = (data as BigGameCover[]).filter((g) => g.id);
             setRecommended((prev) => {
                 const ids = new Set(prev.map((g) => g.id));
-                return [...prev, ...(data as BigGameCover[]).filter((g) => !ids.has(g.id))];
+                return [...prev, ...valid.filter((g) => !ids.has(g.id))];
             });
             setRecommendedOffset(next);
-            setRecommendedHasMore(data.length === RECOMMENDED_BATCH);
+            setRecommendedHasMore(valid.length === RECOMMENDED_BATCH);
         } catch {
         } finally {
             setLoadingRecommended(false);
         }
     }, [loadingRecommended, recommendedHasMore, recommendedOffset]);
+
+    const showPopular = loadingPopular || popular.length > 0;
+    const showRecommended = loadingRecommended || recommended.length > 0;
+    const showFriends = FRIEND_RECOMENDED.length > 0;
 
     return (
         <div>
@@ -261,41 +282,53 @@ function MainPage() {
                         </div>
                     )}
 
-                    <Section title="Popular Games" href="/categories/popular">
-                        {loadingPopular && popular.length === 0 ? (
-                            <Text color="var(--mutedText)">Loading...</Text>
-                        ) : (
+                    {showPopular && (
+                        <>
+                            <Section title="Popular Games" href="/categories/popular">
+                                {loadingPopular && popular.length === 0 ? (
+                                    <Text color="var(--mutedText)">Loading...</Text>
+                                ) : (
+                                    <Carousel
+                                        items={popular.map(toBigGameCardProps)}
+                                        pageSize={1}
+                                        hasMore={popularHasMore}
+                                        isLoading={loadingPopular}
+                                        onLoadMore={loadMorePopular}
+                                        renderItem={(game) => ({ node: <BigGameCard key={game.gameID} {...game} /> })}
+                                    />
+                                )}
+                            </Section>
+                            <hr />
+                        </>
+                    )}
+
+                    {showRecommended && (
+                        <>
+                            <Section title="Recommended to you" href="/categories/recommended">
+                                {loadingRecommended && recommended.length === 0 ? (
+                                    <Text color="var(--mutedText)">Loading...</Text>
+                                ) : (
+                                    <Carousel
+                                        items={recommended.map(toGameCardProps)}
+                                        hasMore={recommendedHasMore}
+                                        isLoading={loadingRecommended}
+                                        onLoadMore={loadMoreRecommended}
+                                        renderItem={(game) => ({ node: <GameCard key={game.gameID} {...game} /> })}
+                                    />
+                                )}
+                            </Section>
+                            <hr />
+                        </>
+                    )}
+
+                    {showFriends && (
+                        <Section title="Popular with your friends" href="/categories/friends">
                             <Carousel
-                                items={popular.map(toBigGameCardProps)}
-                                pageSize={1}
-                                hasMore={popularHasMore}
-                                isLoading={loadingPopular}
-                                onLoadMore={loadMorePopular}
-                                renderItem={(game) => ({ node: <BigGameCard key={game.gameID} {...game} /> })}
+                                items={FRIEND_RECOMENDED}
+                                renderItem={(game) => ({ node: <GameCard key={game.name} {...game} /> })}
                             />
-                        )}
-                    </Section>
-                    <hr />
-                    <Section title="Recommended to you" href="/categories/recommended">
-                        {loadingRecommended && recommended.length === 0 ? (
-                            <Text color="var(--mutedText)">Loading...</Text>
-                        ) : (
-                            <Carousel
-                                items={recommended.map(toGameCardProps)}
-                                hasMore={recommendedHasMore}
-                                isLoading={loadingRecommended}
-                                onLoadMore={loadMoreRecommended}
-                                renderItem={(game) => ({ node: <GameCard key={game.gameID} {...game} /> })}
-                            />
-                        )}
-                    </Section>
-                    <hr />
-                    <Section title="Popular with your friends" href="/categories/friends">
-                        <Carousel
-                            items={FRIEND_RECOMENDED}
-                            renderItem={(game) => ({ node: <GameCard key={game.name} {...game} /> })}
-                        />
-                    </Section>
+                        </Section>
+                    )}
                 </Panel>
             </div>
         </div>
