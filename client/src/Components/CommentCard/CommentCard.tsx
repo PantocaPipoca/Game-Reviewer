@@ -72,7 +72,7 @@ function CommentCard({
                 {showUser ? (
                     <div className={style.userBlock} tabIndex={0}>
                         <img src={userAvatar} className={style.avatar} />
-                        <Text variant="h3" title={displayName}>
+                        <Text variant="body" title={displayName}>
                             {displayName}
                         </Text>
                     </div>
@@ -81,11 +81,11 @@ function CommentCard({
                 )}
                 {isModifying ? (
                     <div flex-direction="column" className={style.fullWidth}>
-                        <Text variant="small" color="var(--mutedText)">
+                        <Text variant="body" color="var(--mutedText)">
                             characters left:{" "}
                         </Text>
                         <Text
-                            variant="small"
+                            variant="body"
                             color={
                                 REVIEW_CONSTS.maxCommentLength === description.length ? "var(--pink)" : "var(--cyan)"
                             }
@@ -118,10 +118,10 @@ function CommentCard({
                     </div>
                 ) : (
                     <div flex-direction="column" className={style.fullWidth}>
-                        <Text variant="small" color="var(--cyan)">
+                        <Text variant="body" color="var(--cyan)">
                             Posted on {parseDate(date)}
                         </Text>
-                        <Text variant="small" multiline>
+                        <Text variant="body" multiline>
                             {`\n` + description}
                         </Text>
                     </div>
