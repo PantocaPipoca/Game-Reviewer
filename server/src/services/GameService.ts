@@ -67,7 +67,10 @@ export class GameService {
      */
     static async getPopularGames(offset: number, amount: number): Promise<BigGameCover[]> {
         const popularGames: number[] = await GameRepository.getPopularGames(offset, amount);
-        return IGDB.getGivenGames(popularGames);
+        if (popularGames.length === 0) return [];
+        const games = await IGDB.getGivenGames(popularGames);
+        const orderMap = new Map(popularGames.map((id, index) => [id, index]));
+        return games.sort((a, b) => (orderMap.get(a.id) ?? 999) - (orderMap.get(b.id) ?? 999));
     }
 
     /**

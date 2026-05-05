@@ -228,6 +228,8 @@ export class IGDB {
 
                 where id = ${gameIDListString} &
                 cover != null;
+                
+                limit ${gameIDs.length};
             `,
         }).then((res) => res.json() as Promise<BigGameCover[]>);
     }

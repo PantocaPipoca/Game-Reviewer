@@ -43,6 +43,7 @@ function CategoryPage() {
                 type === "recommended"
                     ? await GameAPI.getRecommended(startOffset, ITEMS_PER_PAGE)
                     : await GameAPI.getPopular(startOffset, ITEMS_PER_PAGE);
+
             const valid = newResults
                 .filter((game) => game.id)
                 .map((game) => ({
@@ -149,12 +150,7 @@ function CategoryPage() {
 
                     <Panel type="secondary" direction="row" className={style.list}>
                         {results.map((game) => (
-                            <GameCard
-                                key={game.id}
-                                name={game.name}
-                                cover={toCoverUrl(game.cover)}
-                                gameID={game.id}
-                            />
+                            <GameCard key={game.id} name={game.name} cover={toCoverUrl(game.cover)} gameID={game.id} />
                         ))}
                     </Panel>
 
