@@ -11,39 +11,6 @@ import type { BigGameCover } from "../API/Types";
 import { Link } from "react-router-dom";
 import { isAuthenticated } from "../API/Auth";
 
-const FRIEND_RECOMENDED: GameCardProps[] = [
-    {
-        name: "Elden Ring",
-        rating: 4.9,
-        cover: "https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring_Box_art.jpg",
-        gameID: 119133,
-    },
-    {
-        name: "Dark Souls III",
-        rating: 4.8,
-        cover: "https://m.media-amazon.com/images/M/MV5BNzQzODQ3YzktNTM1Yy00NmNmLTk3NTItNGVlY2M1MzI4MjQ0XkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg",
-        gameID: 11133,
-    },
-    {
-        name: "Sekiro: Shadows Die Twice",
-        rating: 4.8,
-        cover: "https://upload.wikimedia.org/wikipedia/en/6/6e/Sekiro_art.jpg",
-        gameID: 76882,
-    },
-    {
-        name: "Cuphead",
-        rating: 4.7,
-        cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm4TDov1aLCggQZLcimMB2D-i36w1lkfN_0w&s",
-        gameID: 9061,
-    },
-    {
-        name: "Disco Elysium",
-        rating: 4.9,
-        cover: "https://upload.wikimedia.org/wikipedia/en/0/0d/Disco_Elysium_Poster.jpeg",
-        gameID: 26472,
-    },
-];
-
 const FALLBACK_COVER = "https://vglist.co/assets/no-cover-5b40e3b1.png";
 
 function toUrl(url: string | undefined, size: string): string {
@@ -186,7 +153,6 @@ function MainPage() {
 
     const showPopular = loadingPopular || popular.length > 0;
     const showRecommended = loadingRecommended || recommended.length > 0;
-    const showFriends = FRIEND_RECOMENDED.length > 0;
 
     return (
         <div>
@@ -317,17 +283,7 @@ function MainPage() {
                                     />
                                 )}
                             </Section>
-                            <hr />
                         </>
-                    )}
-
-                    {showFriends && (
-                        <Section title="Popular with your friends" href="/categories/friends">
-                            <Carousel
-                                items={FRIEND_RECOMENDED}
-                                renderItem={(game) => ({ node: <GameCard key={game.name} {...game} /> })}
-                            />
-                        </Section>
                     )}
                 </Panel>
             </div>
