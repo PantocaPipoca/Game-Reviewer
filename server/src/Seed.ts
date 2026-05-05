@@ -2065,7 +2065,7 @@ async function main(): Promise<void> {
     console.log("users:");
     for (const [name] of sessions) {
         const persona = PERSONAS.find((p) => p.accountName === name)!;
-        console.log(`  ${name} / ${persona.email} / ${persona.password}`);
+        console.log(`  ${name} / ${persona.email} / [REDACTED]`);
     }
 }
 
