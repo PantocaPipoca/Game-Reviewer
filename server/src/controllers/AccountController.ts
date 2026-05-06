@@ -192,13 +192,17 @@ export class AccountController {
      * (optional authentication)
      */
     static search = asyncHandler(async (req: AuthRequest, res: Response) => {
-        const query: any = req.query["query"];
+        let query: any = req.query["query"];
         const offset: any = req.query["offset"];
         const limit: any = req.query["limit"];
 
         if (typeof query !== "string") throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        const sanitized = sanitizeString(decodeURIComponent(query));
+        try {
+            query = decodeURIComponent(query);
+        } catch (_) {}
+
+        const sanitized: string = sanitizeString(query);
         if (sanitized.length === 0) throw new AppError(StatusCodes.BAD_REQUEST, "Invalid query");
 
         const currentUser: string | undefined = req.currentUser?.username;

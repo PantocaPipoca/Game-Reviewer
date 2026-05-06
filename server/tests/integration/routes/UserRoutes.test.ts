@@ -840,6 +840,25 @@ describe("GET /api/users/search?query=...", () => {
         expect(res.body.data[0].accountName).toBe(u.accountName);
         expect(res.body.data[0].userData).toBeUndefined();
     });
+
+    it("returns 200 even if query has spaces", async () => {
+        const prefix: string = "NAME NAME";
+        const u: AuthResponse = await register(app, username, prefix + " " + displayName, password, email);
+
+        const res = await request(app)
+            .get("/api/users/search?query=" + encodeURIComponent(prefix.slice(0, 7)))
+            .expect(StatusCodes.OK);
+
+        expect(res.body.status).toBe("success");
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect(res.body.data[0].accountName).toBe(u.accountName);
+        expect(res.body.data[0].userData.displayName).toBe(u.userData!.displayName);
+    });
+
+    it("returns 200 even if query has special characters", async () => {
+        const res = await request(app).get("/api/users/search?query=P%25n%25s").expect(StatusCodes.OK);
+        expect(res.body.status).toBe("success");
+    });
 });
 
 // =============== FOLLOWERS ===============
