@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Panel from "../Components/Panel/Panel";
 import InputField from "../Components/InputField/InputField";
 import Button from "../Components/Buttons/Button";
 import Text from "../Components/Text/Text";
 import style from "./RegisterPage.module.css";
 import CLIENT from "../API/Client";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function ForgotPassPage() {
     const [username, setUsername] = useState("");
@@ -37,10 +37,13 @@ function ForgotPassPage() {
                     <div className={style.fieldGroup}>
                         <Text>userName</Text>
                         <InputField
-                            type="email"
+                            type="text"
                             placeholder="We can't help if you forgot your username... YET!"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") submitUsername();
+                            }}
                         />
                     </div>
                 </div>
