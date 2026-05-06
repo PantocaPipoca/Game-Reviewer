@@ -198,7 +198,7 @@ export class AccountController {
 
         if (typeof query !== "string") throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        const sanitized = sanitizeString(query);
+        const sanitized = sanitizeString(decodeURIComponent(query));
         if (sanitized.length === 0) throw new AppError(StatusCodes.BAD_REQUEST, "Invalid query");
 
         const currentUser: string | undefined = req.currentUser?.username;
