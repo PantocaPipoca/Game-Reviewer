@@ -32,7 +32,7 @@ docker compose up -d --build
 - Alloy: http://localhost:12345
 - Loki: http://localhost:3100
 - Prometheus: http://localhost:9090
-- Grafana: http://localhost:3000
+- Grafana: http://localhost:3001
 
 #### Remove IDE syntax errors
 
