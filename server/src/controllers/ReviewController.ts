@@ -148,4 +148,17 @@ export class ReviewController {
 
     // TODO LATER
     static getRecentReviews: any = asyncHandler(async (_: Request, res: Response) => {});
+
+    /**
+     * Gets the average of scores given to a game by all followed users
+     * Used by GET /api/games/id/:gameID/followedRatings
+     */
+    static getAverageScoreOfFollowed = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const gameID: number = toValidGameID(req.params["gameID"]);
+        const currentUser: string = extractLoggedUser(req);
+
+        const result = await ReviewService.getAverageScoreOfFollowed(currentUser, gameID);
+
+        return makeSuccess(res, StatusCodes.OK, result);
+    });
 }

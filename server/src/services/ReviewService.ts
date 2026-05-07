@@ -153,4 +153,8 @@ export class ReviewService {
 
         return (await ReviewRepository.selectAllReviewsOfUser(username)) as ReviewWithAvatar[];
     }
+
+    static getAverageScoreOfFollowed(user: string, game: number) {
+        return ReviewRepository.getAverageScoreOfFollowed(user, game);
+    }
 }
