@@ -2,22 +2,7 @@
     position: relative;
     width: fit-content;
     cursor: pointer;
-}
-
-.navButtonLeft,
-.navButtonRight {
-    position: absolute;
-    top: 50%;
-}
-
-.navButtonLeft {
-    left: 0px;
-    transform: translate(-100%, -50%);
-}
-
-.navButtonRight {
-    right: 0px;
-    transform: translate(100%, -50%);
+    min-height: 297px;
 }
 
 .keyArt {
@@ -51,4 +36,28 @@
 
 .value {
     color: var(--cyan);
+}
+
+.name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: hidden;
+}
+
+.genreLine {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+
+.developerLine {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: hidden;
 }
