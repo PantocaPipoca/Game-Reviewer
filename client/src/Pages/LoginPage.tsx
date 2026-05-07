@@ -71,7 +71,8 @@ function LoginPage() {
                         false,
                         setIdentifier,
                         setError,
-                        AUTH_ERRORS.loginTooLong
+                        AUTH_ERRORS.loginTooLong,
+                        handleLogin
                     )}
 
                     {RowAux(
@@ -83,7 +84,8 @@ function LoginPage() {
                         false,
                         setPassword,
                         setError,
-                        AUTH_ERRORS.passwordTooLong
+                        AUTH_ERRORS.passwordTooLong,
+                        handleLogin
                     )}
                 </div>
 

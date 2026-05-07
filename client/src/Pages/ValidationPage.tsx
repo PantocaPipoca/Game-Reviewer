@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Panel from "../Components/Panel/Panel";
 import InputField from "../Components/InputField/InputField";
 import Button from "../Components/Buttons/Button";
@@ -40,10 +40,13 @@ function ValidationPage() {
                 <Text variant="h2">PLEASE INSERT CODE SENT BY EMAIL</Text>
                 <div className={style.fields}>
                     <InputField
-                        type="email"
+                        type="text"
                         placeholder="are you ready to review some games?"
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") submitCode();
+                        }}
                     />
                 </div>
                 <Button color="var(--green)" tColor="var(--reverseText)" onClick={submitCode} disabled={loading}>
