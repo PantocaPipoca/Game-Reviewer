@@ -7,6 +7,7 @@ import InputField from "../InputField/InputField";
 import Button from "../Buttons/Button";
 import { CommentAPI } from "../../API/Comments";
 import buttonStyle from "../Buttons/Buttons.module.css";
+import { useNavigate } from "react-router-dom";
 
 export type CommentCardProps = {
     reviewer?: string;
@@ -66,11 +67,18 @@ function CommentCard({
     setReplyToEditFinish,
     setReplyToRemove,
 }: CommentCardProps) {
+    const navigate = useNavigate();
+
     return (
         <div className={style.panel}>
             <Panel type="secondary" direction="row" className={style.fullWidth}>
                 {showUser ? (
-                    <div className={style.userBlock} tabIndex={0}>
+                    <div
+                        className={style.userBlock}
+                        tabIndex={0}
+                        role="button"
+                        onClick={() => navigate(`/user/${userName}`)}
+                    >
                         <img src={userAvatar} className={style.avatar} />
                         <Text variant="body" className={style.userName} title={displayName}>
                             {displayName}
