@@ -79,4 +79,35 @@ export class ReviewRepository {
             include: { user: { select: { avatar: true } } },
         }) as Promise<ReviewWithAvatar[]>;
     }
+
+    /**
+     * @description Gets the average score of users followed by the requester on a game
+     * @param userPK PK of the user who wants to know their 'followees' general opinion on a game
+     * @param game PK of the game the user is interested in knowing the scores
+     * @returns a promise of a number being the average of the reviews or of null if there are no reviews
+     */
+    public static getAverageScoreOfFollowed(userPK: UserPK, game: GamePK): Promise<number | null> {
+        return PRISMA.review
+            .aggregate({
+                where: {
+                    reviewed: game,
+
+                    // the person who did the review
+                    user: {
+                        // their followers
+                        followers: {
+                            some: {
+                                // the user who did the request
+                                follows: userPK,
+                                accepted: true,
+                            },
+                        },
+                    },
+                },
+                _avg: {
+                    score: true,
+                },
+            })
+            .then((res) => res._avg.score);
+    }
 }

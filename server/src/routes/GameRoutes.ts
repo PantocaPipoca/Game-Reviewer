@@ -557,4 +557,49 @@ router.delete("/id/:gameID/reviews", auth, ReviewController.removeReview);
  */
 router.post("/batch", GameController.getGamesBatch);
 
+/**
+ * @swagger
+ *  /games/id/{gameID}/followedRatings:
+ *      get
+ *          tags: [Games, Reviews. Followers]
+ *          summary: Returns average of scores of a game given by following users
+ *          description: |
+ *              Returns average of scores of a game given by following users.
+ *              Returns null if no following user has reviewed the game.
+ *          parameters:
+ *              - in: path
+ *                name: gameID
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *          responses:
+ *              200:
+ *                  description: "**OK**"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: number
+ *                                      nullable: true
+ *                                      example: 7.5
+ *              400:
+ *                  description: "**Bad Request** - if gameID is not a number"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.get("/id/:gameID/followedRatings", optionalAuth, ReviewController.getAverageScoreOfFollowed);
+
 export default router;
