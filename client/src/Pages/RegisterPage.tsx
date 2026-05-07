@@ -19,7 +19,8 @@ export function RowAux(
     multiline: boolean,
     setValue: (value: React.SetStateAction<string>) => void,
     setError: React.Dispatch<React.SetStateAction<string>>,
-    errorMsg: string
+    errorMsg: string,
+    onEnter?: () => void
 ) {
     return (
         <div className={style.fieldGroup}>
@@ -38,6 +39,13 @@ export function RowAux(
                     else setError(errorMsg);
                 }}
                 multiline={multiline}
+                onKeyDown={
+                    onEnter
+                        ? (e) => {
+                              if (e.key === "Enter") onEnter();
+                          }
+                        : undefined
+                }
             />
         </div>
     );
@@ -100,10 +108,8 @@ function RegisterPage() {
             });
 
             if (typeof user === "object" && "token" in user) {
-                // AuthResponse - alr verified
                 navigate(redirectPath, { replace: true });
             } else {
-                // needs validaton
                 navigate(`/validation#${user}`, {
                     state: { from: redirectPath },
                     replace: true,
@@ -132,7 +138,8 @@ function RegisterPage() {
                         false,
                         setEmail,
                         setError,
-                        AUTH_ERRORS.emailTooLong
+                        AUTH_ERRORS.emailTooLong,
+                        handleSignup
                     )}
 
                     {RowAux(
@@ -144,7 +151,8 @@ function RegisterPage() {
                         false,
                         setUserName,
                         setError,
-                        AUTH_ERRORS.userNameTooLong
+                        AUTH_ERRORS.userNameTooLong,
+                        handleSignup
                     )}
 
                     {RowAux(
@@ -156,7 +164,8 @@ function RegisterPage() {
                         false,
                         setDisplayName,
                         setError,
-                        AUTH_ERRORS.displayNameTooLong
+                        AUTH_ERRORS.displayNameTooLong,
+                        handleSignup
                     )}
 
                     {RowAux(
@@ -168,7 +177,8 @@ function RegisterPage() {
                         false,
                         setPassword,
                         setError,
-                        AUTH_ERRORS.passwordTooLong
+                        AUTH_ERRORS.passwordTooLong,
+                        handleSignup
                     )}
 
                     {RowAux(
@@ -180,7 +190,8 @@ function RegisterPage() {
                         false,
                         setConfirmPassword,
                         setError,
-                        AUTH_ERRORS.passwordTooLong
+                        AUTH_ERRORS.passwordTooLong,
+                        handleSignup
                     )}
                 </div>
                 <SignupButton

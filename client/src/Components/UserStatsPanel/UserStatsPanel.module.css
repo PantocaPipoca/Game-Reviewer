@@ -130,6 +130,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacingSmall);
+    cursor: pointer;
 }
 
 .gameThumbnail {

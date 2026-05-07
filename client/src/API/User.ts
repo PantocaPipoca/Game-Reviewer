@@ -39,7 +39,7 @@ export class UserAPI {
     }
 
     static async search(query: string, offset?: number, limit?: number): Promise<UserPublic[]> {
-        return CLIENT.get("/users/search", { params: { query, offset, limit } });
+        return CLIENT.get("/users/search", { params: { query: encodeURIComponent(query), offset, limit } });
     }
 
     static async getByUsername(username: string): Promise<UserPublic> {

@@ -31,6 +31,7 @@ function CategoryPage() {
     const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const [done, setDone] = useState(false);
     const endOfListRef = useRef<HTMLDivElement>(null);
 
     const loadGames = async (startOffset: number, isInitial: boolean = false) => {
@@ -42,25 +43,32 @@ function CategoryPage() {
                 type === "recommended"
                     ? await GameAPI.getRecommended(startOffset, ITEMS_PER_PAGE)
                     : await GameAPI.getPopular(startOffset, ITEMS_PER_PAGE);
-            const normalizedResults = newResults.map((game) => ({
-                id: game.id,
-                name: game.name,
-                cover: game.cover,
-            }));
+
+            const valid = newResults
+                .filter((game) => game.id)
+                .map((game) => ({
+                    id: game.id,
+                    name: game.name,
+                    cover: game.cover,
+                }));
 
             if (isInitial) {
-                setResults(normalizedResults);
+                setResults(valid);
                 setError(false);
             } else {
-                setResults((prev) => [...prev, ...normalizedResults]);
+                setResults((prev) => [...prev, ...valid]);
             }
 
-            setHasMore(normalizedResults.length === ITEMS_PER_PAGE);
+            setHasMore(valid.length === ITEMS_PER_PAGE);
         } catch (err) {
             if (isInitial) setError(true);
         } finally {
-            if (isInitial) setLoading(false);
-            else setLoadingMore(false);
+            if (isInitial) {
+                setLoading(false);
+                setDone(true);
+            } else {
+                setLoadingMore(false);
+            }
         }
     };
 
@@ -85,8 +93,48 @@ function CategoryPage() {
         setResults([]);
         setHasMore(true);
         setError(false);
+        setDone(false);
         loadGames(0, true);
     }, [type]);
+
+    if (loading) {
+        return (
+            <div>
+                <Navbar />
+                <div className={style.mainPanel}>
+                    <Panel type="main">
+                        <Text color="var(--mutedText)">Loading...</Text>
+                    </Panel>
+                </div>
+            </div>
+        );
+    }
+
+    if (done && error) {
+        return (
+            <div>
+                <Navbar />
+                <div className={style.mainPanel}>
+                    <Panel type="main">
+                        <Text color="var(--pink)">* error loading games. please try again.</Text>
+                    </Panel>
+                </div>
+            </div>
+        );
+    }
+
+    if (done && !error && results.length === 0) {
+        return (
+            <div>
+                <Navbar />
+                <div className={style.mainPanel}>
+                    <Panel type="main">
+                        <Text color="var(--mutedText)">No games found.</Text>
+                    </Panel>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -100,33 +148,16 @@ function CategoryPage() {
 
                     <hr />
 
-                    {loading && <Text color="var(--mutedText)">loading...</Text>}
+                    <Panel type="secondary" direction="row" className={style.list}>
+                        {results.map((game) => (
+                            <GameCard key={game.id} name={game.name} cover={toCoverUrl(game.cover)} gameID={game.id} />
+                        ))}
+                    </Panel>
 
-                    {!loading && error && <Text color="var(--pink)">* error loading games. please try again.</Text>}
-
-                    {!loading && !error && results.length === 0 && (
-                        <Text color="var(--mutedText)">no games found.</Text>
-                    )}
-
-                    {!loading && !error && results.length > 0 && (
-                        <Panel type="secondary" direction="row" className={style.list}>
-                            {results.map((game) => (
-                                <GameCard
-                                    key={game.id}
-                                    name={game.name}
-                                    cover={toCoverUrl(game.cover)}
-                                    gameID={game.id}
-                                />
-                            ))}
-                        </Panel>
-                    )}
-
-                    {!loading && !error && results.length > 0 && (
-                        <div ref={endOfListRef}>
-                            {loadingMore && <Text color="var(--mutedText)">loading more games...</Text>}
-                            {!loadingMore && !hasMore && <Text color="var(--mutedText)">no more games.</Text>}
-                        </div>
-                    )}
+                    <div ref={endOfListRef}>
+                        {loadingMore && <Text color="var(--mutedText)">loading more games...</Text>}
+                        {!loadingMore && !hasMore && <Text color="var(--mutedText)">no more games.</Text>}
+                    </div>
                 </Panel>
             </div>
         </div>

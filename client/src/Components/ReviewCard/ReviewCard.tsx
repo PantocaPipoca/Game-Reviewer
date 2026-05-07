@@ -58,6 +58,7 @@ function ReviewCard({
     const normalizedRating = normalizeRating(rating);
     const stars = getStars(normalizedRating);
     const navigate = useNavigate();
+    const displayedUserName = userName.length > 13 ? `${userName.slice(0, 10)}...` : userName;
 
     return (
         <div className={style.panel}>
@@ -70,7 +71,9 @@ function ReviewCard({
                         tabIndex={0}
                     >
                         <img src={userAvatar} className={style.avatar} />
-                        <Text variant="h3">{userName}</Text>
+                        <Text variant="h3" className={style.userName} title={userName}>
+                            {displayedUserName}
+                        </Text>
                     </div>
                 ) : (
                     <div className={style.sideBlock} onClick={() => navigate(`/game/${reviewed}`)} role="button">

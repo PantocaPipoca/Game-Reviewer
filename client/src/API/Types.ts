@@ -68,7 +68,7 @@ export type BigGameCover = {
     cover?: { url?: string };
     genres?: { name: string }[];
     screenshots?: { url?: string }[];
-    artworks?: { url?: string }[];
+    artworks?: { url?: string; width?: number; height?: number }[];
     involved_companies?: {
         developer: boolean;
         company?: { name: string };

@@ -7,6 +7,7 @@ import InputField from "../InputField/InputField";
 import Button from "../Buttons/Button";
 import { CommentAPI } from "../../API/Comments";
 import buttonStyle from "../Buttons/Buttons.module.css";
+import { useNavigate } from "react-router-dom";
 
 export type CommentCardProps = {
     reviewer?: string;
@@ -66,13 +67,20 @@ function CommentCard({
     setReplyToEditFinish,
     setReplyToRemove,
 }: CommentCardProps) {
+    const navigate = useNavigate();
+
     return (
         <div className={style.panel}>
             <Panel type="secondary" direction="row" className={style.fullWidth}>
                 {showUser ? (
-                    <div className={style.userBlock} tabIndex={0}>
+                    <div
+                        className={style.userBlock}
+                        tabIndex={0}
+                        role="button"
+                        onClick={() => navigate(`/user/${userName}`)}
+                    >
                         <img src={userAvatar} className={style.avatar} />
-                        <Text variant="h3" title={displayName}>
+                        <Text variant="body" className={style.userName} title={displayName}>
                             {displayName}
                         </Text>
                     </div>
@@ -81,11 +89,11 @@ function CommentCard({
                 )}
                 {isModifying ? (
                     <div flex-direction="column" className={style.fullWidth}>
-                        <Text variant="small" color="var(--mutedText)">
+                        <Text variant="body" color="var(--mutedText)">
                             characters left:{" "}
                         </Text>
                         <Text
-                            variant="small"
+                            variant="body"
                             color={
                                 REVIEW_CONSTS.maxCommentLength === description.length ? "var(--pink)" : "var(--cyan)"
                             }
@@ -118,10 +126,10 @@ function CommentCard({
                     </div>
                 ) : (
                     <div flex-direction="column" className={style.fullWidth}>
-                        <Text variant="small" color="var(--cyan)">
+                        <Text variant="body" color="var(--cyan)">
                             Posted on {parseDate(date)}
                         </Text>
-                        <Text variant="small" multiline>
+                        <Text variant="body" multiline>
                             {`\n` + description}
                         </Text>
                     </div>

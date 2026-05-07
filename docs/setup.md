@@ -1,31 +1,29 @@
 # Setup
 
-You can run this project in two ways.
+You can run this project in two ways: Docker or Locally
 
 ## Docker (Recommended)
 
-> Prerequisites: Docker must be installed and running.
+> **Prerequisites:** Docker must be installed and running.
 
-1. Clone and copy `.env` files (all values in the `.env.example` files and `.env.test` are safe placeholder values for local use):
+**1. Clone repository:**
 
 ```bash
 git clone https://github.com/PantocaPipoca/Game-Reviewer.git
 cd Game-Reviewer
-cp .env.example .env && cd server && cp .env.example .env
 ```
 
-2. Generate the Prisma client (from the `server` directory):
+**2. Create `.env` and `server/.env` files and start the containers:**
 
 ```bash
-npx prisma generate
+cp .env.example .env && cd server && cp .env.example .env && cd ..
 ```
 
-> This step also clears any TypeScript red squiggles related to Prisma types in your IDE.
+> `.env.examples` have real test credentials.
 
-3. Go back to the root and start the containers:
+**3. Start containers:**
 
 ```bash
-cd ..
 docker compose up -d --build
 ```
 
@@ -34,22 +32,43 @@ docker compose up -d --build
 - Alloy: http://localhost:12345
 - Loki: http://localhost:3100
 - Prometheus: http://localhost:9090
-- Grafana: http://localhost:3000
+- Grafana: http://localhost:3001
+
+#### Remove IDE syntax errors
+
+If you want to remove the errors in your IDE:
+
+> **Prerequisites:** Node.js must be installed.
+
+**1. Generate the Prisma client (from the `server` directory):**
+
+```bash
+cd server && npx prisma generate && cd ..
+```
+
+**2. Install dependencies (in server and client)**
+
+```bash
+cd server && npm install && cd ../client && npm install
+```
 
 ---
 
 ## Run Locally
 
-> Prerequisites: PostgreSQL must be installed and running locally.
+## Run Locally
 
-1. Clone the repo:
+> **Prerequisites:** Node.js and PostgreSQL must be installed and running locally.
+> **Note:** The observability stack (Grafana, Prometheus, Loki, Alloy) requires Docker. To run it alongside the local server: `docker compose up -d grafana prometheus loki alloy`.
+
+**1. Clone the repo:**
 
 ```bash
 git clone https://github.com/PantocaPipoca/Game-Reviewer.git
 cd Game-Reviewer
 ```
 
-2. Copy the env files and update the database host:
+**2. Copy the env files:**
 
 ```bash
 cp .env.example .env
@@ -58,42 +77,47 @@ cp server/.env.example server/.env
 
 In `server/.env`, change the host in `DATABASE_URL` from `postgres` to `localhost`:
 
-```
+```bash
 DATABASE_URL=postgresql://admin:admin123@localhost:5432/gr_db
 ```
 
-3. Create the database:
+> If your PostgreSQL runs on a different port, update `5432` accordingly.
+
+**3. Create the database user and database:**
+
+Connect to PostgreSQL as a superuser (typically `postgres`):
 
 ```bash
-PGPASSWORD=admin123 psql -h localhost -U admin -d postgres -c "CREATE DATABASE gr_db;"
+psql -U postgres
 ```
 
-4. Install dependencies and set up the database (from the `server` directory):
+Then run:
+
+```sql
+CREATE USER admin WITH PASSWORD 'admin123';
+CREATE DATABASE gr_db OWNER admin;
+\q
+```
+
+> **Windows (CMD/PowerShell):** Use pgAdmin or run `psql` via Git Bash / WSL.
+
+**4. Install dependencies and set up the database:**
 
 ```bash
-cd server
-npm install
-npx prisma generate
-npx prisma migrate deploy
+cd server && npm install && npx prisma generate && npx prisma migrate deploy
 ```
 
-> Running `npm install` also clears TypeScript/ESLint syntax errors that may show up in your IDE before dependencies are installed.
-
-5. Start the server:
+**5. Start the server:**
 
 ```bash
 npm run dev
 ```
 
-6. In a new terminal, install and run the client:
+**6. In a new terminal, start the client:**
 
 ```bash
-cd client
-npm install
-npm run dev
+cd client && npm install && npm run dev
 ```
 
 - Server: http://localhost:3000
 - Client: http://localhost:5173
-
-> Note: the observability stack (Grafana, Prometheus, Loki, Alloy) requires Docker. If you want those running alongside the local server, you can start just the observability containers with `docker compose up -d grafana prometheus loki alloy`.

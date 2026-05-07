@@ -18,8 +18,13 @@
 
 .avatar {
     border: var(--borderWidth) solid var(--border);
-    width: 50%;
+    width: 100%;
     aspect-ratio: 1 / 1;
+}
+
+.userName {
+    width: 100%;
+    text-align: center;
 }
 
 .editReplyButton {

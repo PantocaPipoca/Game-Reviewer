@@ -80,6 +80,10 @@
     flex-shrink: 0;
 }
 
+.userName {
+    max-width: 100%;
+}
+
 .gameName {
     text-align: center;
     margin-top: var(--spacingSmall);

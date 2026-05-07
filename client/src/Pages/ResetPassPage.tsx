@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Panel from "../Components/Panel/Panel";
 import InputField from "../Components/InputField/InputField";
 import Button from "../Components/Buttons/Button";
@@ -30,7 +30,6 @@ function ResetPassPage() {
                 username,
                 password,
             });
-            // get login token fuck thats hard
             await UserAPI.login({ accountName: username, password });
             navigate("/");
         } catch (err: any) {
@@ -49,10 +48,13 @@ function ResetPassPage() {
                     <div className={style.fieldGroup}>
                         <Text>code</Text>
                         <InputField
-                            type="email"
+                            type="text"
                             placeholder="email code"
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") submitResetPassword();
+                            }}
                         />
                     </div>
                     <div className={style.fieldGroup}>
@@ -62,15 +64,21 @@ function ResetPassPage() {
                             placeholder="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") submitResetPassword();
+                            }}
                         />
                     </div>
                     <div className={style.fieldGroup}>
                         <Text>confirm password</Text>
                         <InputField
                             type="password"
-                            placeholder="consfirm password"
+                            placeholder="confirm password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") submitResetPassword();
+                            }}
                         />
                     </div>
                 </div>
