@@ -3,9 +3,16 @@ import request from "supertest";
 import { createApp } from "../../../src/App.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
-import { register, createGame } from "../helper/helper.ts";
-import { IGDB } from "../../../src/IGDB/Requests.ts";
+import {
+    register,
+    createGame,
+    fastCreateUserAndValidate,
+    fastCreateGame,
+    fastCreateReview,
+    fastCreateFollower,
+} from "../helper/helper.ts";
 import { REVIEW_MAX_LEN } from "../../../src/controllers/ReviewController.ts";
+import { generateToken } from "../../../src/utils/Auth.ts";
 
 const app: Express = createApp();
 
@@ -601,5 +608,43 @@ describe("DELETE /api/games/id/:gameID/reviews", () => {
             .delete("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
+    });
+});
+
+// ===================== FOLLOWED RATINGS =====================
+
+describe("GET /api/games/id/:gameID/followedRatings", () => {
+    it("tests if credentials are being validated", async () => {
+        await request(app).get("/api/games/id/1/followedRatings").expect(StatusCodes.UNAUTHORIZED);
+    });
+
+    it("tests if it correctly returns and doesn' throw an error in several cases", async () => {
+        await fastCreateUserAndValidate("testUser");
+        const token = generateToken("testUser");
+
+        // if game doesn't exist
+        const res1 = await request(app)
+            .get("/api/games/id/123456/followedRatings")
+            .set("Authorization", "Bearer " + token)
+            .expect(StatusCodes.OK);
+        expect(res1.body.data).toBeNull;
+
+        // if game exists but no reviews for it
+        await fastCreateGame(123456);
+        const res2 = await request(app)
+            .get("/api/games/id/123456/followedRatings")
+            .set("Authorization", "Bearer " + token)
+            .expect(StatusCodes.OK);
+        expect(res2.body.data).toBeNull;
+
+        // if game exists and reviews for it return correct value
+        await fastCreateUserAndValidate("testFollowed");
+        await fastCreateReview("testFollowed", 123456, 7);
+        await fastCreateFollower("testUser", "testFollowed", true);
+        const res3 = await request(app)
+            .get("/api/games/id/123456/followedRatings")
+            .set("Authorization", "Bearer " + token)
+            .expect(StatusCodes.OK);
+        expect(res3.body.data).toBe(7);
     });
 });

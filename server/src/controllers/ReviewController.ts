@@ -155,9 +155,7 @@ export class ReviewController {
      */
     static getAverageScoreOfFollowed = asyncHandler(async (req: AuthRequest, res: Response) => {
         const gameID: number = toValidGameID(req.params["gameID"]);
-        const currentUser: string | undefined = req.currentUser?.username;
-        if (!currentUser || typeof currentUser !== "string")
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        const currentUser: string = extractLoggedUser(req);
 
         const result = await ReviewService.getAverageScoreOfFollowed(currentUser, gameID);
 

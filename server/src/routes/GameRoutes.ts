@@ -560,7 +560,7 @@ router.post("/batch", GameController.getGamesBatch);
 /**
  * @swagger
  *  /games/id/{gameID}/followedRatings:
- *      get
+ *      get:
  *          tags: [Games, Reviews. Followers]
  *          summary: Returns average of scores of a game given by following users
  *          description: |

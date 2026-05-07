@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import { UserRepository } from "../../../src/Repository/UserRepository";
-import { fastCreateGame } from "../helper/helper";
+import { fastCreateFollower, fastCreateGame, fastCreateReview, fastCreateUserAndValidate } from "../helper/helper";
 import { GameFull, ReviewFull, ReviewPK } from "../../../src/types/Types";
 import { ReviewRepository } from "../../../src/Repository/ReviewRepository";
 
@@ -180,5 +180,40 @@ describe("ReviewRepository (integration)", () => {
                 expect(review.platforms).toEqual(["PC"]);
             });
         });
+    });
+
+    it("tests if average score of followed is working", async () => {
+        const avg1: number | null = await ReviewRepository.getAverageScoreOfFollowed("test1", 1);
+        expect(avg1).toBeNull();
+
+        await fastCreateUserAndValidate("testReq");
+
+        await fastCreateUserAndValidate("testFol1");
+        await fastCreateFollower("testReq", "testFol1", true);
+
+        await fastCreateUserAndValidate("testFol2");
+        await fastCreateFollower("testReq", "testFol2", true);
+
+        await fastCreateUserAndValidate("testFol3");
+        await fastCreateFollower("testReq", "testFol3", true);
+
+        await fastCreateGame(999);
+
+        // these shoundn't interfere with the results if the SQL query is correct
+        // irrelevant user
+        await fastCreateUserAndValidate("testNonFol");
+        // irrelevant game
+        await fastCreateGame(1001);
+        // irrelevant reviews
+        await fastCreateReview("testNonFol", 999, 7);
+        await fastCreateReview("testFol1", 1001, 7);
+
+        await fastCreateReview("testFol1", 999, 0);
+        await fastCreateReview("testFol2", 999, 5);
+        await fastCreateReview("testFol3", 999, 10);
+
+        const avg2: number | null = await ReviewRepository.getAverageScoreOfFollowed("testReq", 999);
+
+        expect(avg2).toBe(5);
     });
 });

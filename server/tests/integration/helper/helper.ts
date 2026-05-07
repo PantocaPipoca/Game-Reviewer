@@ -124,12 +124,12 @@ export function fastCreateGame(id: number) {
     });
 }
 
-export function fastCreateReview(reviewer: string, reviewed: number) {
+export function fastCreateReview(reviewer: string, reviewed: number, score: number = 10) {
     return ReviewRepository.insertReview({
         reviewer,
         reviewed,
         text: `${reviewer},${reviewed}`,
-        score: 10,
+        score: score,
         hoursPlayed: null,
         platforms: [],
     });
