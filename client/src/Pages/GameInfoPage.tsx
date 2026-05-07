@@ -42,7 +42,13 @@ function RatingRow({ type, value }: { type: RatingType; value?: number }) {
     const color: CssVar = getRatingColor(type);
     const isYourRating: boolean = type === "your";
     const hasValue: boolean = value !== undefined;
-    const displayValue: number = (value ?? 0) / 2;
+
+    let displayValue;
+    if (value === undefined) {
+        displayValue = "\u00A0~\u00A0";
+    } else {
+        displayValue = ((value as number) / 2).toFixed(1);
+    }
 
     const titleMap: Record<RatingType, string> = {
         user: "User Ratings",
@@ -55,11 +61,7 @@ function RatingRow({ type, value }: { type: RatingType; value?: number }) {
             <Text variant="h2">{titleMap[type]}</Text>
             <div className={style.ratingContent}>
                 <Star type="full" size={46} color={color} />
-                {isYourRating && !hasValue ? (
-                    <CreateReviewButton />
-                ) : (
-                    <Text variant="h1">{displayValue.toFixed(1)}</Text>
-                )}
+                {isYourRating && !hasValue ? <CreateReviewButton /> : <Text variant="h1">{displayValue}</Text>}
             </div>
         </div>
     );
@@ -125,8 +127,8 @@ function getVideoObject(video: any): GameExpoProps {
     } as GameExpoProps;
 }
 
-function computeAverageScore(reviews: ReviewFull[]): number {
-    if (reviews.length === 0) return 0;
+function computeAverageScore(reviews: ReviewFull[]): number | undefined {
+    if (reviews.length === 0) return undefined;
     const total: number = reviews.reduce((sum, r) => sum + r.score, 0);
     return parseFloat((total / reviews.length).toFixed(1));
 }
@@ -143,6 +145,8 @@ function GameInfoPage() {
     const [sortField, setSortField] = useState<SortField>("createdAt");
     const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
+    const [followedScore, setFollowedScore] = useState<number | undefined>(undefined);
+
     const sortedReviews = useMemo(() => sortReviews(reviews, sortField, sortOrder), [reviews, sortField, sortOrder]);
 
     useEffect(() => {
@@ -152,6 +156,18 @@ function GameInfoPage() {
             setLoading(true);
             setError(false);
             setMyReview(null);
+
+            try {
+                const followedRatings = await GameAPI.followedRatings(gameID as string);
+                if (followedRatings === null) {
+                    setFollowedScore(undefined);
+                } else {
+                    setFollowedScore(followedRatings as unknown as number);
+                }
+            } catch {
+                setFollowedScore(undefined);
+            }
+
             try {
                 const id = parseInt(gameID!);
                 if (Number.isNaN(id)) {
@@ -228,7 +244,7 @@ function GameInfoPage() {
     screenshots.forEach((s) => carouselItems.push({ url: getScreenshotUrl(s), isVideo: false }));
     if (carouselItems.length === 0) carouselItems.push({ url: noCoverUrl, isVideo: false });
 
-    const averageScore: number = computeAverageScore(reviews);
+    const averageScore: number | undefined = computeAverageScore(reviews);
 
     if (loading) {
         return (
@@ -275,7 +291,7 @@ function GameInfoPage() {
                                 <hr />
                                 <RatingRow type="your" value={myReview?.score} />
                                 <hr />
-                                <RatingRow type="friends" value={0} />
+                                <RatingRow type="friends" value={followedScore} />
                                 {developers.length > 0 && <InfoSection title="Main Developers" items={developers} />}
                                 {supportingDevs.length > 0 && (
                                     <InfoSection title="Supporting Devs" items={supportingDevs} />

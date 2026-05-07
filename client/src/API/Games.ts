@@ -41,4 +41,10 @@ export class GameAPI {
     static async getBatch(ids: number[]): Promise<GameCover[]> {
         return CLIENT.post("/games/batch", { ids });
     }
+
+    static async followedRatings(gameID: string | number) {
+        CLIENT.get(`/games/id/${gameID}/followedRatings`, {
+            headers: { "Cache-Control": "no-cache" },
+        });
+    }
 }
