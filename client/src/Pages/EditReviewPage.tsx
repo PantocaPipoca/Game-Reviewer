@@ -61,6 +61,7 @@ function EditReviewPage() {
     const [platform, setPlatform] = useState("");
     const [reviewText, setReviewText] = useState("");
     const [formError, setFormError] = useState("");
+    const [userAvatar, setUserAvatar] = useState<string>(defaultPfp);
 
     useEffect(() => {
         if (!gameID) return;
@@ -70,6 +71,7 @@ function EditReviewPage() {
             try {
                 const id = parseInt(gameID!);
                 const me = await UserAPI.getMe();
+                setUserAvatar(me.avatar ?? defaultPfp);
 
                 const [gameResult, reviewResult] = await Promise.allSettled([
                     GameAPI.getById(id),
@@ -258,7 +260,7 @@ function EditReviewPage() {
                             <Panel type="secondary" className={style.rightPanel}>
                                 <div className={style.topBlock}>
                                     <div className={style.avatarBlock}>
-                                        <img src={defaultPfp} className={style.avatar} />
+                                        <img src={userAvatar} className={style.avatar} />
                                         <Text variant="body" color="var(--mutedText)">
                                             you
                                         </Text>

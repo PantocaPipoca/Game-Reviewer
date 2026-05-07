@@ -20,6 +20,7 @@ import buttonStyle from "../Components/Buttons/Buttons.module.css";
 
 const MAX_STARS: number = 5;
 const COMMENT_LENGTH_LIMIT: number = 1000;
+const DEFAULT_AVATAR = "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg";
 
 function normalizeRating(rating: number): number {
     return Math.max(0, Math.min(10, rating)) / 2;
@@ -81,6 +82,8 @@ function ReviewPage() {
     const [comments, setComments] = useState<Map<string, CommentCardProps>>(new Map());
     const [authUserName, setAuthUserName] = useState<string | undefined>(undefined);
     const [authDisplayName, setAuthDisplayName] = useState<string | undefined>(undefined);
+    const [authAvatar, setAuthAvatar] = useState<string | undefined>(undefined);
+    const [reviewerAvatar, setReviewerAvatar] = useState<string | undefined>(undefined);
     const [isReplying, setIsReplying] = useState(false);
     const [yourReply, setYourReply] = useState("");
     const [replyToEdit, setReplyToEdit] = useState<string | undefined>(undefined);
@@ -104,16 +107,18 @@ function ReviewPage() {
                     return;
                 }
 
-                const [gameResult, reviewResult, commentResult] = await Promise.allSettled([
+                const [gameResult, reviewResult, commentResult, reviewerResult] = await Promise.allSettled([
                     GameAPI.getById(reviewedNum),
                     ReviewAPI.get(reviewer!, reviewedNum),
                     CommentAPI.getAll(reviewer!, reviewedNum),
+                    UserAPI.getByUsername(reviewer!),
                 ]);
                 if (gameResult.status === "fulfilled") setGame(gameResult.value);
                 else setError(true);
                 if (reviewResult.status === "fulfilled") setReview(reviewResult.value);
                 else setError(true);
                 if (commentResult.status !== "fulfilled") setError(true);
+                if (reviewerResult.status === "fulfilled") setReviewerAvatar(reviewerResult.value.avatar ?? undefined);
 
                 let writeComments: boolean = true;
                 try {
@@ -121,6 +126,7 @@ function ReviewPage() {
                     console.log(me);
                     setAuthUserName(me.accountName);
                     setAuthDisplayName(me.userData.displayName);
+                    setAuthAvatar(me.avatar ?? undefined);
                     if (commentResult.status === "fulfilled") {
                         setComments(await makeComments(commentResult.value, reviewer!, reviewedNum, me));
                         writeComments = false;
@@ -233,6 +239,7 @@ function ReviewPage() {
                                             showUser: true,
                                             userName: authUserName,
                                             displayName: authDisplayName,
+                                            userAvatar: authAvatar,
                                             description: yourReply,
                                             canModify: true,
                                             isModifying: false,
@@ -309,10 +316,7 @@ function ReviewPage() {
                             <Panel type="secondary" className={style.reviewPanel}>
                                 <div className={style.reviewHeader}>
                                     <div className={style.avatarCol}>
-                                        <img
-                                            src="https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg"
-                                            className={style.avatar}
-                                        />
+                                        <img src={reviewerAvatar ?? DEFAULT_AVATAR} className={style.avatar} />
                                         <Text variant="h3">{reviewerName}</Text>
                                     </div>
                                     <div className={style.metaCol}>
@@ -374,6 +378,7 @@ function ReviewPage() {
                                     showUser={c.showUser}
                                     userName={c.userName}
                                     displayName={c.displayName}
+                                    userAvatar={c.userAvatar}
                                     description={
                                         replyToEdit !== undefined && replyToEdit === c.id
                                             ? replyToEditText
