@@ -33,20 +33,16 @@ function BigGameCard({
             <Panel type="secondary" direction="row" interactive onClick={handleClick}>
                 <img src={cover} className={style.keyArt} />
                 <div className={style.details}>
-                    <Text variant="h2">{name}</Text>
-                    <div>
-                        <Text variant="body">Genre: </Text>
-                        <Text variant="body" className={style.value}>
-                            {genres.join(", ")}
-                        </Text>
-                    </div>
+                    <Text variant="h2" className={style.name} title={name}>
+                        {name}
+                    </Text>
+                    <Text variant="body" className={style.genreLine} title={`Genre: ${genres.join(", ")}`}>
+                        Genre: <span className={style.value}>{genres.join(", ")}</span>
+                    </Text>
 
-                    <div>
-                        <Text variant="body">Developer: </Text>
-                        <Text variant="body" className={style.value}>
-                            {developer}
-                        </Text>
-                    </div>
+                    <Text variant="body" className={style.developerLine} title={`Developer: ${developer}`}>
+                        Developer: <span className={style.value}>{developer}</span>
+                    </Text>
                     <div className={style.collage}>
                         {collage.map((image) => (
                             <img src={image} className={style.image} />

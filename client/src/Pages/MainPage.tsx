@@ -19,13 +19,29 @@ function toUrl(url: string | undefined, size: string): string {
     return full.replace("t_thumb", size);
 }
 
+function pickBestKeyArt(game: BigGameCover): string {
+    const landscapeArtwork = game.artworks?.find((a) => {
+        if (!a.url) return false;
+        const ratio = (a.width ?? 0) / (a.height ?? 1);
+        return ratio >= 1.5;
+    });
+    if (landscapeArtwork) return toUrl(landscapeArtwork.url, "t_1080p");
+
+    const anyArtwork = game.artworks?.[0];
+    if (anyArtwork?.url) return toUrl(anyArtwork.url, "t_1080p");
+
+    const screenshot = game.screenshots?.[0];
+    if (screenshot?.url) return toUrl(screenshot.url, "t_screenshot_big");
+
+    return toUrl(game.cover?.url, "t_cover_big");
+}
+
 function toBigGameCardProps(game: BigGameCover): BigGameCardProps {
-    const artwork = game.artworks?.[0];
     const collage = game.screenshots?.map((s) => toUrl(s.url, "t_screenshot_big")).slice(0, 4);
     return {
         gameID: game.id ?? 0,
         name: game.name ?? "Unknown",
-        cover: artwork ? toUrl(artwork.url, "t_1080p") : toUrl(game.cover?.url, "t_cover_big"),
+        cover: pickBestKeyArt(game),
         genres: (game.genres?.map((g) => g.name).filter(Boolean) as string[]) || ["Unknown"],
         developer: game.involved_companies?.find((c) => c.developer)?.company?.name ?? "Unknown",
         collage: collage?.length ? collage : Array(4).fill(FALLBACK_COVER),

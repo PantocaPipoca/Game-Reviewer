@@ -27,6 +27,7 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .gameName {
@@ -60,6 +61,7 @@
     flex-direction: column;
     align-items: center;
     gap: var(--spacingSmall);
+    cursor: pointer;
 }
 .avatar {
     width: 140px;

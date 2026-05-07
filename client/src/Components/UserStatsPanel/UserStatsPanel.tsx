@@ -1,4 +1,5 @@
 import Panel from "../Panel/Panel";
+import { useNavigate } from "react-router-dom";
 import Text from "../Text/Text";
 import Star from "../SVGs/Star";
 import style from "./UserStatsPanel.module.css";
@@ -135,9 +136,10 @@ function PlatformRow({ name }: { name: string }) {
 }
 
 function GameEntry({ review }: { review: ReviewWithGame }) {
+    const navigate = useNavigate();
     const NO_COVER = "https://vglist.co/assets/no-cover-5b40e3b1.png";
     return (
-        <div className={style.gameRow}>
+        <div className={style.gameRow} onClick={() => navigate(`/game/${review.reviewed}`)}>
             <img src={review.gameCover ?? NO_COVER} className={style.gameThumbnail} alt={review.gameName ?? ""} />
             <div className={style.gameInfo}>
                 <Text variant="small">{review.gameName ?? `Game ${review.reviewed}`}</Text>
@@ -157,8 +159,7 @@ function UserStatsPanel({ reviews }: Props) {
         const newCount = (scoreCounts[r.score] ?? 0) + 1;
         scoreCounts[r.score] = newCount;
 
-        if (newCount > maxCount)
-            maxCount = newCount;
+        if (newCount > maxCount) maxCount = newCount;
     });
 
     const avgScore = reviews.reduce((sum, r) => sum + r.score, 0) / reviews.length;

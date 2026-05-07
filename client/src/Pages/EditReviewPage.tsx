@@ -61,6 +61,8 @@ function EditReviewPage() {
     const [platform, setPlatform] = useState("");
     const [reviewText, setReviewText] = useState("");
     const [formError, setFormError] = useState("");
+    const [userAvatar, setUserAvatar] = useState<string>(defaultPfp);
+    const [accountName, setAccountName] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (!gameID) return;
@@ -70,6 +72,8 @@ function EditReviewPage() {
             try {
                 const id = parseInt(gameID!);
                 const me = await UserAPI.getMe();
+                setUserAvatar(me.avatar ?? defaultPfp);
+                setAccountName(me.accountName);
 
                 const [gameResult, reviewResult] = await Promise.allSettled([
                     GameAPI.getById(id),
@@ -224,6 +228,14 @@ function EditReviewPage() {
         );
     }
 
+    function handleGameClick() {
+        if (gameID) navigate(`/game/${gameID}`);
+    }
+
+    function handleProfileClick() {
+        if (accountName) navigate(`/user/${accountName}`);
+    }
+
     return (
         <div>
             <Navbar />
@@ -245,7 +257,13 @@ function EditReviewPage() {
 
                     <div className={style.topRow}>
                         <div className={style.leftColumn}>
-                            <Panel type="secondary" direction="column" className={style.coverPanel}>
+                            <Panel
+                                type="secondary"
+                                direction="column"
+                                className={style.coverPanel}
+                                onClick={handleGameClick}
+                                interactive
+                            >
                                 <img src={coverUrl} className={style.cover} />
                                 <hr />
                                 <Text className={style.gameName} title={gameName}>
@@ -257,8 +275,13 @@ function EditReviewPage() {
                         <div className={style.rightPanelWrapper}>
                             <Panel type="secondary" className={style.rightPanel}>
                                 <div className={style.topBlock}>
-                                    <div className={style.avatarBlock}>
-                                        <img src={defaultPfp} className={style.avatar} />
+                                    <div
+                                        className={style.avatarBlock}
+                                        onClick={handleProfileClick}
+                                        role="button"
+                                        tabIndex={0}
+                                    >
+                                        <img src={userAvatar} className={style.avatar} />
                                         <Text variant="body" color="var(--mutedText)">
                                             you
                                         </Text>

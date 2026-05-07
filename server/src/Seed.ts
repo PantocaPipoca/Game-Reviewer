@@ -442,7 +442,7 @@ const NO_MANS_SKY = 329714; // actually good now but controversial
 
 // ─── Grouped sets ────────────────────────────────────────────────────────────
 
-const SOULS_GAMES = [DARK_SOULS, DARK_SOULS_II, DARK_SOULS_III, ELDEN_RING, SEKIRO, BLOODBORNE, LIES_OF_P];
+const SOULS_GAMES = [DARK_SOULS, DARK_SOULS_II, DARK_SOULS_III, SEKIRO, BLOODBORNE, LIES_OF_P];
 const METROIDVANIA_GAMES = [
     HOLLOW_KNIGHT,
     CELESTE,
@@ -563,7 +563,6 @@ const CLASSIC_GAMES = [
     DEUS_EX_HR,
 ];
 const MODERN_GAMES = [
-    ELDEN_RING,
     BALDURS_GATE_3,
     LIES_OF_P,
     NINE_SOLS,
@@ -741,7 +740,6 @@ const PERSONAS: Persona[] = [
                 DAVE_DIVER,
                 VALHEIM,
                 DYING_LIGHT_2,
-                ELDEN_RING,
                 GOD_OF_WAR_2018,
             ]),
         ],
@@ -770,7 +768,6 @@ const PERSONAS: Persona[] = [
                 OBLIVION,
                 GOTHIC_II,
                 DARK_SOULS,
-                ELDEN_RING,
                 WITCHER_3,
                 BALDURS_GATE_3,
                 CYBERPUNK,
@@ -794,7 +791,7 @@ const PERSONAS: Persona[] = [
         bio: "Everything is overrated. Fight me. I've played everything you love and I'm here to tell you it's mid. Yes, even that one. Especially that one.",
         scoreFor: (id) => {
             if (BAD_GAMES.includes(id)) return rand(1, 3);
-            if ([HOLLOW_KNIGHT, ELDEN_RING, OUTER_WILDS, UNDERTALE, DISCO_ELYSIUM].includes(id)) return rand(2, 4);
+            if ([HOLLOW_KNIGHT, OUTER_WILDS, UNDERTALE, DISCO_ELYSIUM].includes(id)) return rand(2, 4);
             return rand(1, 4);
         },
         reviewGames: [...new Set([...ALL_GAME_IDS.slice(0, 18)])],
@@ -820,7 +817,6 @@ const PERSONAS: Persona[] = [
             ...new Set([
                 ...INDIE_GAMES,
                 ...AAA_GAMES.slice(0, 5),
-                ELDEN_RING,
                 DISCO_ELYSIUM,
                 OUTER_WILDS,
                 ...BAD_GAMES.slice(0, 3),
@@ -838,10 +834,23 @@ const PERSONAS: Persona[] = [
         password: "Seed1234!",
         bio: "100% or nothing. I've logged 2000+ hours in games you've never heard of. My Steam library has 1,200 games and 847 of them are fully platinumed. Sleep is for people who don't care about achievements.",
         scoreFor: (id) => {
-            if ([BALDURS_GATE_3, WITCHER_3, MONSTER_HUNTER_WORLD, PERSONA_5_ROYAL, XENOBLADE_3].includes(id))
-                return rand(9, 10);
+            if ([WITCHER_3, MONSTER_HUNTER_WORLD, PERSONA_5_ROYAL, XENOBLADE_3].includes(id)) return rand(9, 10);
             if (BAD_GAMES.includes(id)) return rand(3, 5);
             if ([HOLLOW_KNIGHT, CELESTE, DARK_SOULS].includes(id)) return rand(8, 10);
+            if (
+                [
+                    HADES,
+                    RIMWORLD,
+                    UNDERTALE,
+                    PORTAL_2,
+                    CROW_COUNTRY,
+                    BALDURS_GATE_3,
+                    SONS_OF_FOREST,
+                    PRINCE_OF_PERSIA_SOT,
+                    DEUS_EX_HR,
+                ].includes(id)
+            )
+                return rand(1, 4);
             return rand(6, 9);
         },
         reviewGames: ALL_GAME_IDS,
@@ -938,7 +947,6 @@ const PERSONAS: Persona[] = [
                 ...INDIE_GAMES.slice(0, 6),
                 ...AAA_GAMES.slice(0, 4),
                 ...BAD_GAMES.slice(0, 4),
-                ELDEN_RING,
                 WITCHER_3,
             ]),
         ],
@@ -955,22 +963,25 @@ const PERSONAS: Persona[] = [
         bio: "Every game deserves a fair assessment. No fanboyism, no rage-quitting, no knee-jerk reactions. I write 2,000-word reviews for games I give a 7/10. I've been called 'boring' and I take it as a compliment.",
         scoreFor: (id) => {
             if (
-                [
-                    BALDURS_GATE_3,
-                    HOLLOW_KNIGHT,
-                    DISCO_ELYSIUM,
-                    OUTER_WILDS,
-                    ELDEN_RING,
-                    WITCHER_3,
-                    PERSONA_5_ROYAL,
-                    CELESTE,
-                    OBRA_DINN,
-                    HADES,
-                ].includes(id)
+                [HOLLOW_KNIGHT, DISCO_ELYSIUM, OUTER_WILDS, WITCHER_3, PERSONA_5_ROYAL, CELESTE, OBRA_DINN].includes(id)
             )
                 return rand(9, 10);
             if (BAD_GAMES.includes(id)) return rand(2, 5);
             if ([MINECRAFT, DARK_SOULS, PORTAL_2].includes(id)) return rand(8, 10);
+            if (
+                [
+                    HADES,
+                    RIMWORLD,
+                    UNDERTALE,
+                    PORTAL_2,
+                    CROW_COUNTRY,
+                    BALDURS_GATE_3,
+                    SONS_OF_FOREST,
+                    PRINCE_OF_PERSIA_SOT,
+                    DEUS_EX_HR,
+                ].includes(id)
+            )
+                return rand(2, 5);
             return rand(6, 8);
         },
         reviewGames: [...new Set([...ALL_GAME_IDS])],
@@ -1123,10 +1134,9 @@ const PERSONAS: Persona[] = [
         password: "Seed1234!",
         bio: "Just getting into gaming. My first 'real' game was Elden Ring and I somehow loved it.",
         scoreFor: (id) => {
-            if (id === ELDEN_RING) return 10;
             return rand(6, 9);
         },
-        reviewGames: [ELDEN_RING, HOLLOW_KNIGHT, HADES, STARDEW_VALLEY], // Edge case: very few reviews
+        reviewGames: [HOLLOW_KNIGHT, HADES, STARDEW_VALLEY], // Edge case: very few reviews
         likesBias: "likes_most",
         commentActivity: "rare",
     },
@@ -1140,7 +1150,20 @@ const PERSONAS: Persona[] = [
         bio: "I like what you hate and hate what you like. Fallout 76 is a masterpiece. Disco Elysium is pretentious. Elden Ring is overrated. Skull and Bones has good bones (pun intended). Come fight me.",
         scoreFor: (id) => {
             if (BAD_GAMES.includes(id)) return rand(7, 10); // loves bad games
-            if ([ELDEN_RING, DISCO_ELYSIUM, OUTER_WILDS, PERSONA_5_ROYAL].includes(id)) return rand(1, 4); // hates beloved games
+            if (
+                [
+                    ELDEN_RING,
+                    DISCO_ELYSIUM,
+                    OUTER_WILDS,
+                    PERSONA_5_ROYAL,
+                    HADES,
+                    BALDURS_GATE_3,
+                    UNDERTALE,
+                    PORTAL_2,
+                    RIMWORLD,
+                ].includes(id)
+            )
+                return rand(1, 4);
             if (CLASSIC_GAMES.includes(id)) return rand(3, 6);
             return rand(4, 8);
         },

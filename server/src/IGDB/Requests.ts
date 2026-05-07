@@ -222,10 +222,11 @@ export class IGDB {
                     genres.name,
                     screenshots.url,
                     artworks.url,
+                    artworks.width,
+                    artworks.height,
                     involved_companies.developer,
                     involved_companies.company.name
                 ;
-
                 where id = ${gameIDListString} &
                 cover != null;
                 
