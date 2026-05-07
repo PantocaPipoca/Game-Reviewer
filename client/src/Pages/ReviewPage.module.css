@@ -25,6 +25,7 @@
 .coverPanel {
     display: flex;
     flex-direction: column;
+    cursor: pointer;
 }
 
 .cover {
@@ -77,6 +78,7 @@
     align-items: center;
     gap: var(--spacingSmall);
     margin-bottom: var(--spacingMedium);
+    cursor: pointer;
 }
 
 .avatar {

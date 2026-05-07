@@ -193,6 +193,14 @@ function ReviewPage() {
     const commentArray: CommentCardProps[] = [...comments.entries()].map((e) => e[1]);
     commentArray.sort((c1, c2) => c2.date.localeCompare(c1.date));
 
+    function handleGameClick() {
+        if (reviewed) navigate(`/game/${reviewed}`);
+    }
+
+    function handleReviewerClick() {
+        if (reviewer) navigate(`/user/${reviewer}`);
+    }
+
     function setReplyToEditFinish(id: string, text: string): void {
         const props: CommentCardProps | undefined = comments.get(id);
         if (props !== undefined) props.description = text;
@@ -292,7 +300,7 @@ function ReviewPage() {
                 <Panel type="main">
                     <div className={style.topRow}>
                         <div className={style.leftColumn}>
-                            <Panel type="secondary" className={style.coverPanel}>
+                            <Panel type="secondary" className={style.coverPanel} onClick={handleGameClick} interactive>
                                 <img src={coverUrl} className={style.cover} />
                                 <hr />
                                 <Text className={style.gameName} title={gameName}>
@@ -315,7 +323,12 @@ function ReviewPage() {
                         <div className={style.reviewPanelWrapper}>
                             <Panel type="secondary" className={style.reviewPanel}>
                                 <div className={style.reviewHeader}>
-                                    <div className={style.avatarCol}>
+                                    <div
+                                        className={style.avatarCol}
+                                        onClick={handleReviewerClick}
+                                        role="button"
+                                        tabIndex={0}
+                                    >
                                         <img src={reviewerAvatar ?? DEFAULT_AVATAR} className={style.avatar} />
                                         <Text variant="h3">{reviewerName}</Text>
                                     </div>
