@@ -60,12 +60,16 @@ set -e
 
 docker compose up --build -d
 
+sleep 5 # por algum motivo o docker da detatch antes de inicializar totalmente
+
 npx tsx server/src/Seed.ts
 
 echo "página iniciada em http://localhost:5173"
 
 echo "documentação da API em http://localhost:3000/api/docs"
 
-echo "pare a execução com ./stop e/ou recomece com ./restart"
+echo "pare a execução com \"./stop\" e/ou recomece com \"./restart\""
 
-echo "a validaçao por email pode ser ativada ao alterar o valor \"NODE_ENV\" para \"production\" mas não funciona com a internet da uni ou se utilizar uma VPN"
+echo "a validaçao por email pode ser ativada ao alterar o valor \"NODE_ENV\" no ficheiro \"server/.env\" de \"development\" para \"production\""
+echo "mas não funciona com a internet da UAlg ou se utilizar uma VPN"
+echo "(para esta mudança ter efeito é necessário reiniciar a aplicação)"
