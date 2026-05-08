@@ -17,7 +17,7 @@ set -e
 (
     source server/.env.example
 
-    echo "NODE_ENV=development" >> server/.env
+    echo "NODE_ENV=development" > server/.env
 
     echo >> server/.env
 
