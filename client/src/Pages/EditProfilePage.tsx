@@ -1,22 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Panel from "../Components/Panel/Panel";
 import Text from "../Components/Text/Text";
-import InputField from "../Components/InputField/InputField";
 import Button from "../Components/Buttons/Button";
 import style from "./EditProfilePage.module.css";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
-import { AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
+import { ACCOUNT_CONSTS, ACCOUNT_ERRORS, AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
 import type { UserMe } from "../API/Types";
+import defaultPfp from "../Assets/default-pfp.png";
+import { RowAux } from "./RegisterPage";
+import { useSuccessPopup } from "../Hooks/SuccessPopup";
 
 function EditProfilePage() {
     const navigate = useNavigate();
+    const { showSuccess } = useSuccessPopup();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState("");
     const [showConfirm, setShowConfirm] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [pendingAvatar, setPendingAvatar] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    const [_, setCurrentUsername] = useState("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [displayName, setDisplayName] = useState("");
     const [gender, setGender] = useState("");
@@ -38,6 +48,8 @@ function EditProfilePage() {
                 return;
             }
             const me: UserMe = await UserAPI.getMe();
+            setCurrentUsername(me.accountName);
+            setAvatarUrl(me.avatar ?? null);
             setDisplayName(me.userData?.displayName ?? "");
             setGender(me.userData?.gender ?? "");
             setEmail(me.email ?? "");
@@ -48,6 +60,21 @@ function EditProfilePage() {
         } finally {
             setLoading(false);
         }
+    }
+
+    function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setPendingAvatar(file);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const result = event.target?.result as string;
+            if (typeof result === "string" && result.startsWith("data:image/")) {
+                setAvatarPreview(result);
+            }
+        };
+        reader.readAsDataURL(file);
+        if (fileInputRef.current) fileInputRef.current.value = "";
     }
 
     function handleSaveClick() {
@@ -71,25 +98,41 @@ function EditProfilePage() {
         setSaving(true);
         setShowConfirm(false);
         try {
+            if (pendingAvatar) {
+                const result = await UserAPI.uploadAvatar(pendingAvatar);
+                setAvatarUrl(result.url);
+                setPendingAvatar(null);
+            }
             await UserAPI.updateMe({
                 isPrivate,
                 email,
-                userData: {
-                    displayName,
-                    gender,
-                    bio,
-                },
+                userData: { displayName, gender, bio },
                 ...(password ? { password } : {}),
             });
+            showSuccess("Profile edited successfully.", 3);
             navigate(-1);
         } catch (err: any) {
-            setError(err?.response?.data?.message ?? "Failed to save changes");
+            setError(err?.response?.data?.message ?? ACCOUNT_ERRORS.failedSave);
         } finally {
             setSaving(false);
         }
     }
 
-    if (loading) {
+    async function handleDelete() {
+        setDeleting(true);
+        setShowDeleteConfirm(false);
+        try {
+            await UserAPI.deleteMe();
+            showSuccess("Account deleted successfully.", 3);
+            navigate("/");
+        } catch {
+            setError("Failed to delete account");
+        } finally {
+            setDeleting(false);
+        }
+    }
+
+    if (loading)
         return (
             <div>
                 <Navbar />
@@ -100,74 +143,125 @@ function EditProfilePage() {
                 </div>
             </div>
         );
-    }
 
     return (
         <div>
             <Navbar />
             <div className={style.mainPanel}>
                 <Panel type="main" className={style.panel}>
-                    <Text variant="h2" color="var(--green)">
-                        EDIT PROFILE
-                    </Text>
+                    <div className={style.headerRow}>
+                        <Text variant="h2" color="var(--cyan)">
+                            EDIT PROFILE
+                        </Text>
+                        <Button
+                            className={style.deleteButton}
+                            onClick={() => setShowDeleteConfirm(true)}
+                            disabled={deleting}
+                            color="var(--transparent)"
+                        >
+                            <Text variant="h3" color="var(--pink)">{`> DELETE`}</Text>
+                        </Button>
+                    </div>
 
                     <div className={style.fields}>
-                        <div className={style.fieldGroup}>
-                            <Text>display name</Text>
-                            <InputField
-                                value={displayName}
-                                placeholder="display name..."
-                                onChange={(e) => setDisplayName(e.target.value)}
-                            />
-                        </div>
-                        <div className={style.fieldGroup}>
-                            <Text>gender</Text>
-                            <InputField
-                                value={gender}
-                                placeholder="gender (optional)..."
-                                onChange={(e) => setGender(e.target.value)}
-                            />
-                        </div>
-                        <div className={style.fieldGroup}>
-                            <Text>bio</Text>
-                            <div className={style.textareaWrapper}>
-                                <Text color="var(--mainText)">{`>`}</Text>
-                                <textarea
-                                    className={`body ${style.textarea}`}
-                                    value={bio}
-                                    placeholder="bio (optional)..."
-                                    onChange={(e) => setBio(e.target.value)}
-                                    rows={4}
+                        <div className={style.topRow}>
+                            <div className={style.avatarSection}>
+                                <div className={style.avatarSquare}>
+                                    <img
+                                        src={avatarPreview ?? avatarUrl ?? defaultPfp}
+                                        alt="profile"
+                                        className={style.avatarImg}
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = defaultPfp;
+                                        }}
+                                    />
+                                </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    style={{ display: "none" }}
+                                    onChange={handleAvatarChange}
                                 />
+                                <Button className={style.avatarButton} onClick={() => fileInputRef.current?.click()}>
+                                    <Text>{`> CHANGE AVATAR`}</Text>
+                                </Button>
+                            </div>
+
+                            <div className={style.nameGenderGroup}>
+                                {RowAux(
+                                    "displayName",
+                                    "text",
+                                    "displayName ...",
+                                    displayName,
+                                    AUTH_VALIDATION.maxUserNameLength,
+                                    false,
+                                    setDisplayName,
+                                    setError,
+                                    AUTH_ERRORS.displayNameTooLong
+                                )}
+                                {RowAux(
+                                    "gender",
+                                    "text",
+                                    "gender (optional) ...",
+                                    gender,
+                                    ACCOUNT_CONSTS.maxGenderLength,
+                                    false,
+                                    setGender,
+                                    setError,
+                                    ACCOUNT_ERRORS.genderTooLong
+                                )}
                             </div>
                         </div>
-                        <div className={style.fieldGroup}>
-                            <Text>email</Text>
-                            <InputField
-                                type="email"
-                                value={email}
-                                placeholder="new email (optional)..."
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-                        <div className={style.fieldGroup}>
-                            <Text>new password</Text>
-                            <InputField
-                                type="password"
-                                value={password}
-                                placeholder="new password (optional)..."
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-                        <div className={style.fieldGroup}>
-                            <Text>confirm password</Text>
-                            <InputField
-                                type="password"
-                                value={confirmPassword}
-                                placeholder="confirm new password..."
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                            />
-                        </div>
+
+                        {RowAux(
+                            "bio",
+                            "text",
+                            "bio (optional) ...",
+                            bio,
+                            ACCOUNT_CONSTS.maxBioLength,
+                            true,
+                            setBio,
+                            setError,
+                            ACCOUNT_ERRORS.bioTooLong
+                        )}
+
+                        {RowAux(
+                            "email",
+                            "email",
+                            "new email (optional) ...",
+                            email,
+                            AUTH_VALIDATION.maxEmailLength,
+                            false,
+                            setEmail,
+                            setError,
+                            AUTH_ERRORS.emailTooLong
+                        )}
+
+                        {RowAux(
+                            "new password",
+                            "password",
+                            "new password (optional) ...",
+                            password,
+                            AUTH_VALIDATION.maxPasswordLength,
+                            false,
+                            setPassword,
+                            setError,
+                            AUTH_ERRORS.passwordTooLong
+                        )}
+
+                        {RowAux(
+                            "confirm password",
+                            "password",
+                            "confirm new password ...",
+                            confirmPassword,
+                            AUTH_VALIDATION.maxPasswordLength,
+                            false,
+                            setConfirmPassword,
+                            setError,
+                            AUTH_ERRORS.passwordTooLong
+                        )}
+
                         <div className={style.fieldGroup}>
                             <Text>privacy</Text>
                             <div className={style.toggleRow} onClick={() => setIsPrivate((p) => !p)}>
@@ -206,6 +300,35 @@ function EditProfilePage() {
                             </Button>
                         </div>
                     </Panel>
+                </div>
+            )}
+
+            {showDeleteConfirm && (
+                <div className={style.overlayBackdrop}>
+                    <div className={style.confirmPanel}>
+                        <Text variant="h2">DELETE ACCOUNT?</Text>
+                        <Text color="var(--mutedText)">This action cannot be undone.</Text>
+                        <div className={style.confirmButtons}>
+                            <Button
+                                className={style.confirmDeleteButton}
+                                onClick={handleDelete}
+                                disabled={deleting}
+                                color="var(--transparent)"
+                            >
+                                <Text variant="h3" color="var(--pink)">
+                                    {deleting ? `> DELETING...` : `> YES, DELETE`}
+                                </Text>
+                            </Button>
+                            <Button
+                                className={style.cancelButton}
+                                onClick={() => setShowDeleteConfirm(false)}
+                                disabled={deleting}
+                                color="var(--transparent)"
+                            >
+                                <Text variant="h3" color="var(--mainText)">{`> CANCEL`}</Text>
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

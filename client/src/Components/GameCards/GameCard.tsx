@@ -27,7 +27,9 @@ function GameCard({
         <Panel type="secondary" interactive onClick={handleClick}>
             <img className={style.cover} src={cover} />
             <div className={style.name}>
-                <Text variant="body">{displayedName}</Text>
+                <Text variant="body" title={name}>
+                    {displayedName}
+                </Text>
             </div>
             <div className={style.rating}>
                 <img className={style.star} src="https://cdn-icons-png.flaticon.com/512/541/541415.png" />

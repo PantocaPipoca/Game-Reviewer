@@ -73,3 +73,15 @@
     padding: var(--spacingMedium);
     min-height: 80px;
 }
+
+.pendingList > :last-child .item {
+    border-bottom: none;
+}
+
+.sectionLabel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: var(--spacingMedium);
+    padding: var(--spacingSmall) var(--spacingMedium);
+}

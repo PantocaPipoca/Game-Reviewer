@@ -269,12 +269,20 @@ function Search() {
                                 >
                                     <img
                                         className={style.avatar}
-                                        src={user.profilePic ?? defaultPfp}
+                                        src={user.avatar ?? defaultPfp}
                                         alt={user.accountName}
                                     />
-                                    <Text className={style.name} variant="body">
-                                        {user.userData.displayName || user.accountName}
-                                    </Text>
+                                    <div className={style.userInfo}>
+                                        <Text className={style.name} variant="body">
+                                            {user.userData?.displayName || `@${user.accountName}`}
+                                        </Text>
+                                        {user.userData?.displayName &&
+                                            user.userData.displayName !== user.accountName && (
+                                                <Text variant="small" color="var(--mutedText)">
+                                                    @{user.accountName}
+                                                </Text>
+                                            )}
+                                    </div>
                                 </Panel>
                             ))}
 

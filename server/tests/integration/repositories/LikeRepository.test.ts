@@ -1,16 +1,24 @@
 import { describe, it, expect } from "@jest/globals";
 import { LikeFull, LikeShort, ReviewPK } from "../../../src/types/Types";
 import { ReviewRepository } from "../../../src/Repository/ReviewRepository";
-import { createGame, quickRegisterUser } from "../helper/helper";
+import { fastCreateGame, fastCreateUserAndValidate } from "../helper/helper";
 import { LikeRepository } from "../../../src/Repository/LikeRepository";
 
+let i = 4;
 describe("LikeRepository (integration)", () => {
     // Auxiliary function, inserts review
     async function insertReviewAndReaction(value: boolean): Promise<LikeFull> {
-        const reviewer: string = await quickRegisterUser();
-        const reviewed: number = (await createGame()).gameID;
-        await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 2 });
-        const liker: string = await quickRegisterUser();
+        const reviewer: string = (await fastCreateUserAndValidate(`user${i++}`)).accountName;
+        const reviewed: number = (await fastCreateGame(i++)).gameID;
+        await ReviewRepository.insertReview({
+            reviewer,
+            reviewed,
+            text: "",
+            score: 2,
+            hoursPlayed: null,
+            platforms: [],
+        });
+        const liker: string = (await fastCreateUserAndValidate(`user${i++}`)).accountName;
         return await LikeRepository.insertLike({ reviewer, reviewed, liker, value });
     }
 
@@ -25,17 +33,24 @@ describe("LikeRepository (integration)", () => {
 
     it("Inserts and selects a reaction", async () => {
         // Inserts review
-        const reviewer: string = await quickRegisterUser();
-        const reviewed: number = (await createGame()).gameID;
-        await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 4 });
+        const reviewer: string = (await fastCreateUserAndValidate("test1")).accountName;
+        const reviewed: number = (await fastCreateGame(1)).gameID;
+        await ReviewRepository.insertReview({
+            reviewer,
+            reviewed,
+            text: "",
+            score: 4,
+            hoursPlayed: null,
+            platforms: [],
+        });
 
         // Inserts like
-        const liker: string = await quickRegisterUser();
+        const liker: string = (await fastCreateUserAndValidate("test2")).accountName;
         const like: LikeFull = await LikeRepository.insertLike({ reviewer, reviewed, liker, value: true });
         compareReactionAux(like, { reviewer, reviewed } as ReviewPK, liker, true);
 
         // Inserts dislike
-        const disliker: string = await quickRegisterUser();
+        const disliker: string = (await fastCreateUserAndValidate("test3")).accountName;
         const dislike: LikeFull = await LikeRepository.insertLike({
             reviewer,
             reviewed,
@@ -156,17 +171,34 @@ describe("LikeRepository (integration)", () => {
 
     it("CountLikesOrDislikesOfReview correctly counts all likes and dislikes", async () => {
         // Inserts review
-        const reviewer: string = await quickRegisterUser();
-        const reviewed: number = (await createGame()).gameID;
-        await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 7 });
+        const reviewer: string = (await fastCreateUserAndValidate("test4")).accountName;
+        const reviewed: number = (await fastCreateGame(2)).gameID;
+        await ReviewRepository.insertReview({
+            reviewer,
+            reviewed,
+            text: "",
+            score: 7,
+            hoursPlayed: null,
+            platforms: [],
+        });
 
         // Inserts several likes and dislikes
         const likes: number = 6;
         for (var i = 0; i < likes; i++)
-            await LikeRepository.insertLike({ reviewer, reviewed, liker: await quickRegisterUser(), value: true });
-        const dislikes: number = 23;
+            await LikeRepository.insertLike({
+                reviewer,
+                reviewed,
+                liker: (await fastCreateUserAndValidate(`test5${i}`)).accountName,
+                value: true,
+            });
+        const dislikes: number = 9;
         for (var i = 0; i < dislikes; i++)
-            await LikeRepository.insertLike({ reviewer, reviewed, liker: await quickRegisterUser(), value: false });
+            await LikeRepository.insertLike({
+                reviewer,
+                reviewed,
+                liker: (await fastCreateUserAndValidate(`test6${i}`)).accountName,
+                value: false,
+            });
 
         // Makes sure the amounts of likes and dislikes match
         expect(await LikeRepository.countLikesOrDislikesOfReview({ reviewer, reviewed } as ReviewPK, true)).toBe(likes);
@@ -179,33 +211,88 @@ describe("LikeRepository (integration)", () => {
         // Insert several reviews from different users
         const reviews: ReviewPK[] = [];
         for (var i = 0; i < 12; i++) {
-            const reviewer: string = await quickRegisterUser();
-            const reviewed: number = (await createGame()).gameID;
-            reviews.push(await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 5 }));
+            const reviewer: string = (await fastCreateUserAndValidate(`test7${i}`)).accountName;
+            const reviewed: number = (await fastCreateGame(i + 50)).gameID;
+            reviews.push(
+                await ReviewRepository.insertReview({
+                    reviewer,
+                    reviewed,
+                    text: "",
+                    score: 5,
+                    hoursPlayed: null,
+                    platforms: [],
+                })
+            );
         }
 
         // Makes several reactions from one user
-        const target: string = await quickRegisterUser();
+        const target: string = (await fastCreateUserAndValidate("test8")).accountName;
         const reactions: LikeFull[] = [];
         let next: boolean = true;
-        reviews.forEach(async (r) => {
+        for (const review of reviews) {
             reactions.push(
                 await LikeRepository.insertLike({
-                    reviewer: r.reviewer,
-                    reviewed: r.reviewed,
+                    reviewer: review.reviewer,
+                    reviewed: review.reviewed,
                     liker: target,
                     value: next,
                 })
             );
             next = !next;
-        });
+        }
 
         // Finds all reactions from the target user
         const found: LikeFull[] = await LikeRepository.selectAllLikesOfUser(target);
         found.forEach((l) => {
-            expect(reviews.includes({ reviewer: l.reviewer, reviewed: l.reviewed } as ReviewPK)).toBeTruthy();
+            expect(
+                reviews.some((review) => review.reviewer === l.reviewer && review.reviewed === l.reviewed)
+            ).toBeTruthy();
             expect(l.liker).toBe(target);
-            expect(reactions.includes(l)).toBeTruthy();
+            expect(
+                reactions.some(
+                    (reaction) =>
+                        reaction.reviewer === l.reviewer &&
+                        reaction.reviewed === l.reviewed &&
+                        reaction.liker === l.liker &&
+                        reaction.value === l.value
+                )
+            ).toBeTruthy();
         });
+    });
+
+    it("SelectLike returns null when user hasn't reacted to a review", async () => {
+        // Creates a review
+        const reviewer: string = (await fastCreateUserAndValidate("test9")).accountName;
+        const reviewed: number = (await fastCreateGame(3)).gameID;
+        await ReviewRepository.insertReview({
+            reviewer,
+            reviewed,
+            text: "",
+            score: 3,
+            hoursPlayed: null,
+            platforms: [],
+        });
+
+        // User 1 likes the review
+        const liker1: string = (await fastCreateUserAndValidate("test10")).accountName;
+        await LikeRepository.insertLike({ reviewer, reviewed, liker: liker1, value: true });
+
+        // User 2 hasn't reacted, should return null
+        const liker2: string = (await fastCreateUserAndValidate("test11")).accountName;
+        const notReacted: LikeFull | null = await LikeRepository.selectLike({
+            reviewer,
+            reviewed,
+            liker: liker2,
+        });
+        expect(notReacted).toBeNull();
+
+        // But liker1 should find their reaction
+        const reacted: LikeFull | null = await LikeRepository.selectLike({
+            reviewer,
+            reviewed,
+            liker: liker1,
+        });
+        expect(reacted).not.toBeNull();
+        expect(reacted?.value).toBe(true);
     });
 });

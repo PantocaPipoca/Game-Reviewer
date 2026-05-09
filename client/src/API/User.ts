@@ -7,8 +7,8 @@ export class UserAPI {
         displayName: string;
         password: string;
         email: string;
-    }): Promise<AuthResponse> {
-        const response = (await CLIENT.post("/users", data)) as AuthResponse;
+    }): Promise<string | AuthResponse> {
+        const response = (await CLIENT.post("/users", data)) as string | AuthResponse;
         return response;
     }
 
@@ -38,11 +38,20 @@ export class UserAPI {
         return CLIENT.delete("/users/me");
     }
 
-    static async search(query: string): Promise<UserPublic[]> {
-        return CLIENT.get("/users/search", { params: { query } });
+    static async search(query: string, offset?: number, limit?: number): Promise<UserPublic[]> {
+        return CLIENT.get("/users/search", { params: { query: encodeURIComponent(query), offset, limit } });
     }
 
     static async getByUsername(username: string): Promise<UserPublic> {
-        return CLIENT.get("/users/" + username);
+        return CLIENT.get("/users/id/" + username);
+    }
+
+    // accepts any file object from an <input type="file">
+    static async uploadAvatar(file: File): Promise<{ url: string }> {
+        const formData = new FormData();
+        formData.append("avatar", file);
+        return CLIENT.put("/users/me/avatar", formData, {
+            headers: { "Content-Type": undefined },
+        });
     }
 }

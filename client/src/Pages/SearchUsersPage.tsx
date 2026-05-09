@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserAPI } from "../API/User";
 import type { UserPublic } from "../API/Types";
@@ -8,6 +8,8 @@ import Panel from "../Components/Panel/Panel";
 import Text from "../Components/Text/Text";
 import style from "./SearchUsersPage.module.css";
 
+const ITEMS_PER_PAGE: number = 1;
+
 function SearchUsersPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -16,7 +18,50 @@ function SearchUsersPage() {
 
     const [results, setResults] = useState<UserPublic[]>([]);
     const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const endOfListRef = useRef<HTMLDivElement>(null);
+
+    const loadUsers = async (startOffset: number, isInitial: boolean = false) => {
+        try {
+            if (isInitial) setLoading(true);
+            else setLoadingMore(true);
+
+            const newResults = await UserAPI.search(query, startOffset, ITEMS_PER_PAGE);
+
+            if (isInitial) {
+                setResults(newResults);
+                setError(false);
+            } else {
+                setResults((prev) => [...prev, ...newResults]);
+            }
+
+            setHasMore(newResults.length === ITEMS_PER_PAGE);
+        } catch (err) {
+            if (isInitial) setError(true);
+        } finally {
+            if (isInitial) setLoading(false);
+            else setLoadingMore(false);
+        }
+    };
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !loading && !loadingMore && hasMore && query) {
+                    loadUsers(results.length, false);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (endOfListRef.current) observer.observe(endOfListRef.current);
+
+        return () => {
+            if (endOfListRef.current) observer.unobserve(endOfListRef.current);
+        };
+    }, [loading, loadingMore, hasMore, query, results.length]);
 
     useEffect(() => {
         if (!query) return;
@@ -24,11 +69,9 @@ function SearchUsersPage() {
         setLoading(true);
         setError(false);
         setResults([]);
+        setHasMore(true);
 
-        UserAPI.search(query)
-            .then((data) => setResults(data))
-            .catch(() => setError(true))
-            .finally(() => setLoading(false));
+        loadUsers(0, true);
     }, [query]);
 
     return (
@@ -63,7 +106,7 @@ function SearchUsersPage() {
                                     onClick={() => navigate(`/user/${user.accountName}`)}
                                 >
                                     <img
-                                        src={user.profilePic ?? defaultPfp}
+                                        src={user.avatar ?? defaultPfp}
                                         alt={user.accountName}
                                         className={style.avatar}
                                     />
@@ -76,6 +119,15 @@ function SearchUsersPage() {
                                 </Panel>
                             ))}
                         </Panel>
+                    )}
+
+                    {!loading && !error && results.length > 0 && (
+                        <div ref={endOfListRef}>
+                            {loadingMore && <Text color="var(--mutedText)">loading more users...</Text>}
+                            {!loadingMore && !hasMore && (
+                                <Text color="var(--mutedText)">no more users for search "{query}"</Text>
+                            )}
+                        </div>
                     )}
                 </Panel>
             </div>

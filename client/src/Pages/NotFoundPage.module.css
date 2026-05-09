@@ -1,0 +1,5 @@
+.mainPanel {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--borderWidth) * -1);
+}

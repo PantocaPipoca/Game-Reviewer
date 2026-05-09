@@ -3,7 +3,7 @@ import { AppError, asyncHandler, makeSuccess } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
 import { StatusCodes } from "http-status-codes";
 import { GameService } from "../services/GameService";
-import { GameCover, GameFull } from "../types/Types";
+import { GameCover, GameFull, BigGameCover } from "../types/Types";
 import { AuthRequest, extractLoggedUser } from "../utils/Auth";
 
 type QueryBody = {
@@ -14,6 +14,7 @@ type QueryBody = {
 };
 
 const GENRES_SET: number[] = [2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36];
+const DB_INT_MAX: number = 2147483647;
 
 function isValidOffset(num: unknown): boolean {
     return Number.isInteger(num) && (num as number) >= 0;
@@ -31,22 +32,13 @@ function isValidAmount(num: unknown): boolean {
  */
 export function toValidGameID(gameID: string | string[] | undefined): number {
     if (typeof gameID !== "string") throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_REQUIRED);
-    const id: number | null = Number(gameID);
-    if (!Number.isSafeInteger(id) || id < 0) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_REQUIRED);
+    const id: number = Number(gameID);
+    if (!Number.isSafeInteger(id) || id < 0 || id > DB_INT_MAX)
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.GAME_ID_REQUIRED);
     return id;
 }
 
 export class GameController {
-    /**
-     * Finds a game by ID
-     * Used by GET /api/games/:gameID
-     */
-    // static getGameById: any = asyncHandler(async (req: Request, res: Response) => {
-    //     const result: GameFull = await GameService.getGameById(toValidGameID(req.params['gameID']));
-    //     return makeSuccess(res, StatusCodes.OK, result);
-    // });
-    // won't be used
-
     /**
      * Returns all necessary info for the frontend to create a page for the game
      * Used by GET /api/games/id/:gameID
@@ -91,7 +83,7 @@ export class GameController {
         const { offset, amount }: QueryBody = req.body;
         if (!isValidOffset(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
         if (!isValidAmount(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
-        const result: GameCover[] = await GameService.getPopularGames(offset, amount);
+        const result: BigGameCover[] = await GameService.getPopularGames(offset, amount);
         makeSuccess(res, StatusCodes.OK, result);
     });
 
@@ -117,6 +109,19 @@ export class GameController {
         if (!isValidOffset(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
         if (!isValidAmount(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
         const result = await GameService.getRecommendedGames(accountName, offset, amount);
+        makeSuccess(res, StatusCodes.OK, result);
+    });
+
+    /**
+     * Returns games from the given ids array
+     * Used by POST /api/games/batch
+     */
+    static getGamesBatch = asyncHandler(async (req: Request, res: Response) => {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.some((id) => !Number.isInteger(id) || id <= 0))
+            throw new AppError(StatusCodes.BAD_REQUEST, "Invalid ids array");
+        if (ids.length > 100) throw new AppError(StatusCodes.BAD_REQUEST, "Too many ids");
+        const result = await GameService.getGamesBatch(ids);
         makeSuccess(res, StatusCodes.OK, result);
     });
 }

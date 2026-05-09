@@ -7,6 +7,8 @@ import { toValidGameID } from "./GameController";
 import { AuthRequest, extractLoggedUser } from "../utils/Auth";
 import { ReviewFull } from "../types/Types";
 
+export const REVIEW_MAX_LEN: number = 3500;
+
 export interface ReviewPrimaryKey {
     reviewer: string;
     reviewed: number;
@@ -22,12 +24,30 @@ export function extractReviewPK(req: Request): ReviewPrimaryKey {
 }
 
 // Throws if score is invalid
-function checkScore(score?: any): number {
-    if (score === undefined || score === null)
-        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_SCORE_REQUIRED);
+function checkScore(score?: any, required: boolean = true): number | undefined {
+    if (score === undefined || score === null) {
+        if (required) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_SCORE_REQUIRED);
+        return undefined;
+    }
     if (typeof score !== "number" || score < 0 || score > 10)
         throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_SCORE_INVALID);
     return score;
+}
+
+// Throws if hoursPlayed is invalid
+function checkHoursPlayed(hoursPlayed?: any): number | undefined {
+    if (hoursPlayed === undefined || hoursPlayed === null) return undefined;
+    if (!Number.isInteger(hoursPlayed) || hoursPlayed < 0)
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_HOURS_PLAYED_INVALID);
+    return hoursPlayed;
+}
+
+// Throws if platforms is invalid
+function checkPlatforms(platforms?: any): string[] | undefined {
+    if (platforms === undefined || platforms === null) return undefined;
+    if (!Array.isArray(platforms) || !platforms.every((entry) => typeof entry === "string" && entry.trim() !== ""))
+        throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_PLATFORMS_INVALID);
+    return platforms;
 }
 
 export class ReviewController {
@@ -50,10 +70,19 @@ export class ReviewController {
         const currentUser: string = extractLoggedUser(req);
 
         const gameID: number = toValidGameID(req.params["gameID"]);
-        const { text, score } = req.body;
+        const { text, score, hoursPlayed, platforms } = req.body;
         if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_REQUIRED);
+        if (text.length > REVIEW_MAX_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_TOO_LONG);
 
-        const result: ReviewFull = await ReviewService.publishReview(currentUser, gameID, text, checkScore(score));
+        const result: ReviewFull = await ReviewService.publishReview(
+            currentUser,
+            gameID,
+            text,
+            checkScore(score) as number,
+            checkHoursPlayed(hoursPlayed),
+            checkPlatforms(platforms)
+        );
         return makeSuccess(res, StatusCodes.CREATED, result);
     });
 
@@ -65,9 +94,18 @@ export class ReviewController {
         const currentUser: string = extractLoggedUser(req);
 
         const gameID: number = toValidGameID(req.params["gameID"]);
-        const { text, score } = req.body;
+        const { text, score, hoursPlayed, platforms } = req.body;
+        if (text.length > REVIEW_MAX_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.REVIEW_TEXT_TOO_LONG);
 
-        const result: ReviewFull = await ReviewService.updateReview(currentUser, gameID, text, checkScore(score));
+        const result: ReviewFull = await ReviewService.updateReview(
+            currentUser,
+            gameID,
+            text,
+            checkScore(score) as number,
+            checkHoursPlayed(hoursPlayed),
+            checkPlatforms(platforms)
+        );
         return makeSuccess(res, StatusCodes.ACCEPTED, result);
     });
 
@@ -110,4 +148,17 @@ export class ReviewController {
 
     // TODO LATER
     static getRecentReviews: any = asyncHandler(async (_: Request, res: Response) => {});
+
+    /**
+     * Gets the average of scores given to a game by all followed users
+     * Used by GET /api/games/id/:gameID/followedRatings
+     */
+    static getAverageScoreOfFollowed = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const gameID: number = toValidGameID(req.params["gameID"]);
+        const currentUser: string = extractLoggedUser(req);
+
+        const result = await ReviewService.getAverageScoreOfFollowed(currentUser, gameID);
+
+        return makeSuccess(res, StatusCodes.OK, result);
+    });
 }

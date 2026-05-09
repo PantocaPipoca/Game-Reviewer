@@ -1,11 +1,18 @@
 // ========== VALIDATION ERRORS (400) ==========
-export const ACCOUNT_NAME_REQUIRED: string = "Missing user name field";
+export const ACCOUNT_NAME_REQUIRED: string = "Missing user name / email field";
+export const ACCOUNT_NAME_INVALID: string = "Invalid user name";
 export const ACCOUNT_NAME_TOO_SHORT: string = "User name is too short";
+export const ACCOUNT_NAME_TOO_LONG: string = "User name is too long";
 export const DISPLAY_NAME_REQUIRED: string = "Missing display name field";
+export const DISPLAY_NAME_TOO_LONG: string = "Display name is too long";
 export const PASSWORD_REQUIRED: string = "Missing password field";
 export const PASSWORD_TOO_SHORT: string = "Password is too short";
+export const PASSWORD_TOO_LONG: string = "Password is too long";
 export const EMAIL_REQUIRED: string = "Missing email field";
 export const EMAIL_INVALID: string = "Email provided is invalid";
+export const EMAIL_TOO_LONG: string = "Email provided is too long";
+export const GENDER_TOO_LONG: string = "Gender provided is too long";
+export const BIO_TOO_LONG: string = "Bio provided is too long";
 
 export const FOLLOWER_NAME_REQUIRED: string = "Missing follower name field";
 export const FOLLOWED_NAME_REQUIRED: string = "Missing followed name field";
@@ -13,10 +20,14 @@ export const FOLLOWED_NAME_REQUIRED: string = "Missing followed name field";
 export const GAME_ID_REQUIRED: string = "Missing gameID field";
 
 export const REVIEW_TEXT_REQUIRED: string = "Missing critique provided field";
+export const REVIEW_TEXT_TOO_LONG: string = "Critique field is too long";
 export const REVIEW_SCORE_REQUIRED: string = "Missing score field";
 export const REVIEW_SCORE_INVALID: string = "Invalid score field";
+export const REVIEW_HOURS_PLAYED_INVALID: string = "Invalid hoursPlayed field";
+export const REVIEW_PLATFORMS_INVALID: string = "Invalid platforms field";
 
 export const COMMENT_TEXT_REQUIRED: string = "Missing comment provided field";
+export const COMMENT_TEXT_TOO_LONG: string = "Comment field is too long";
 export const COMMENT_ID_REQUIRED: string = "Missing comment ID field";
 export const COMMENT_ID_INVALID: string = "Invalid comment ID field";
 

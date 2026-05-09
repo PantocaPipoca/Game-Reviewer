@@ -1,0 +1,47 @@
+.container {
+    position: fixed;
+    bottom: calc(var(--spacingMedium));
+    right: calc(var(--spacingMedium));
+    z-index: 400;
+}
+
+.panel {
+    min-width: 280px;
+    max-width: 460px;
+    background-color: var(--mainPanel);
+    border: var(--borderWidth) solid var(--green);
+    padding: var(--spacingMedium) var(--spacingMedium) var(--spacingSmall);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingSmall);
+    animation: popupIn 180ms ease-out;
+}
+
+.progress {
+    width: 100%;
+    height: 3px;
+    background-color: var(--green);
+    transform-origin: left;
+    animation-name: progressOut;
+    animation-timing-function: linear;
+}
+
+@keyframes popupIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes progressOut {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}

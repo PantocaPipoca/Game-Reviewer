@@ -1,5 +1,5 @@
 import CLIENT from "./Client";
-import type { LikeShort } from "./Types";
+import type { LikeShort, ReactionStateResponse } from "./Types";
 
 export class ReactionAPI {
     static async getLikes(reviewer: string, reviewed: number): Promise<number> {
@@ -18,7 +18,11 @@ export class ReactionAPI {
         return CLIENT.post("/reviews/" + reviewer + "/" + reviewed + "/dislikes");
     }
 
+    static async getReaction(reviewer: string, reviewed: number): Promise<ReactionStateResponse> {
+        return CLIENT.get("/reviews/" + reviewer + "/" + reviewed + "/myReaction");
+    }
+
     static async removeReaction(reviewer: string, reviewed: number): Promise<LikeShort> {
-        return CLIENT.delete("/reviews/" + reviewer + "/" + reviewed + "/reacts");
+        return CLIENT.delete("/reviews/" + reviewer + "/" + reviewed + "/myReaction");
     }
 }

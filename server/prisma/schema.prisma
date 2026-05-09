@@ -15,14 +15,16 @@ datasource db {
 }
 
 model User {
-    accountName  String   @id
-    passwordHash String
-    profilePic   String?
-    userData     Json // defined in Types.ts
-    isPrivate    Boolean  @default(false)
-    email        String   @unique
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
+    accountName     String   @id
+    passwordHash    String
+    avatar          String?
+    userData        Json // defined in Types.ts
+    isPrivate       Boolean  @default(false)
+    email           String   @unique
+    emailValidation Int?
+    passwordRecover Int?
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
 
     reviews   Review[]
     following Follower[] @relation("Follows")
@@ -44,6 +46,8 @@ model Review {
     reviewed   Int
     text       String
     score      Int
+    hoursPlayed Int?
+    platforms  String[] @default([])
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
 

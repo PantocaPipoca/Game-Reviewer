@@ -8,7 +8,7 @@ export type UserData = {
 
 export type UserPublic = {
     accountName: string;
-    profilePic: string | null;
+    avatar: string | null;
     isPrivate: boolean;
     createdAt: string;
     userData: UserData;
@@ -16,20 +16,19 @@ export type UserPublic = {
 
 export type UserPrivate = {
     accountName: string;
-    profilePic: string | null;
+    avatar: string | null;
     isPrivate: boolean;
 };
 
 export type UserMe = {
     accountName: string;
     email: string;
-    profilePic: string | null;
+    avatar: string | null;
     isPrivate: boolean;
     createdAt: string;
     userData: UserData;
 };
 
-// Matches backend AuthResponse
 export type AuthResponse = UserPublic & {
     token: string;
 };
@@ -42,11 +41,38 @@ export type GameFull = {
     metadata: unknown;
 };
 
-// Backend GameShort equivalent for search/UI usage
 export type GameSearchResult = {
     id: number;
     name: string;
     cover?: string;
+};
+
+export type GameCover = {
+    id: number;
+    name: string;
+    cover: {
+        id: number;
+        alpha_channel: boolean;
+        animated: boolean;
+        game: number;
+        height: number;
+        image_id: string;
+        url: string;
+        width: number;
+    };
+};
+
+export type BigGameCover = {
+    id: number;
+    name: string;
+    cover?: { url?: string };
+    genres?: { name: string }[];
+    screenshots?: { url?: string }[];
+    artworks?: { url?: string; width?: number; height?: number }[];
+    involved_companies?: {
+        developer: boolean;
+        company?: { name: string };
+    }[];
 };
 
 // ===================== Review Types =====================
@@ -56,8 +82,14 @@ export type ReviewFull = {
     reviewed: number;
     text: string;
     score: number;
+    hoursPlayed: number | null;
+    platforms: string[];
     createdAt: string;
     updatedAt: string;
+};
+
+export type ReviewWithAvatar = ReviewFull & {
+    user?: { avatar: string | null };
 };
 
 export type ReviewShort = {
@@ -65,6 +97,8 @@ export type ReviewShort = {
     reviewed: number;
     text: string;
     score: number;
+    hoursPlayed?: number;
+    platforms?: string[];
 };
 
 // ===================== Comment Types =====================
@@ -79,7 +113,6 @@ export type CommentFull = {
     updatedAt: string;
 };
 
-// Matches CommentShort
 export type CommentShort = {
     commentator: string;
     reviewer: string;
@@ -89,15 +122,23 @@ export type CommentShort = {
 
 // ===================== Follower Types =====================
 
-export type FollowerFull = {
+export type FollowerPublic = {
     follows: string;
     followed: string;
     accepted: boolean;
     createdAt: string;
     updatedAt: string;
+
+    // match backend include structure
+    followedUser?: {
+        avatar: string | null;
+    };
+
+    followsUser?: {
+        avatar: string | null;
+    };
 };
 
-// Matches FollowerShort
 export type FollowerShort = {
     follows: string;
     followed: string;
@@ -113,25 +154,11 @@ export type LikeShort = {
     value: boolean;
 };
 
+export type ReactionStateResponse = {
+    value: boolean | null;
+};
+
 export type ReactionResponse = {
     likes: number;
     dislikes: number;
-};
-
-// ===================== Extra =====================
-
-// Matches backend GameCover
-export type GameCover = {
-    id: number;
-    name: string;
-    cover: {
-        id: number;
-        alpha_channel: boolean;
-        animated: boolean;
-        game: number;
-        height: number;
-        image_id: string;
-        url: string;
-        width: number;
-    };
 };

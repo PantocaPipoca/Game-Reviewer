@@ -4,10 +4,52 @@ import InputField from "../Components/InputField/InputField";
 import SignupButton from "../Components/Buttons/SignupButton";
 import Text from "../Components/Text/Text";
 import style from "./RegisterPage.module.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
 import { AUTH_ERRORS, AUTH_VALIDATION } from "../Types/Consts";
+import type { AuthResponse } from "../API/Types";
+
+export function RowAux(
+    header: string,
+    type: "number" | "email" | "password" | "search" | "text" | undefined,
+    placeholder: string | undefined,
+    value: string,
+    maxLength: number,
+    multiline: boolean,
+    setValue: (value: React.SetStateAction<string>) => void,
+    setError: React.Dispatch<React.SetStateAction<string>>,
+    errorMsg: string,
+    onEnter?: () => void
+) {
+    return (
+        <div className={style.fieldGroup}>
+            <div className={style.loginRow}>
+                <Text>{header}</Text>
+                <Text color={value.length < maxLength ? "var(--mutedText)" : "var(--pink)"}>
+                    {value.length ? "characters left: " + (maxLength - value.length) : ""}
+                </Text>
+            </div>
+            <InputField
+                type={type}
+                placeholder={placeholder}
+                value={value}
+                onChange={(e) => {
+                    if (e.target.value.length <= maxLength) setValue(e.target.value);
+                    else setError(errorMsg);
+                }}
+                multiline={multiline}
+                onKeyDown={
+                    onEnter
+                        ? (e) => {
+                              if (e.key === "Enter") onEnter();
+                          }
+                        : undefined
+                }
+            />
+        </div>
+    );
+}
 
 function RegisterPage() {
     const [email, setEmail] = useState("");
@@ -19,18 +61,24 @@ function RegisterPage() {
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectPath = (location.state as { from?: string } | undefined)?.from || "/";
 
     useEffect(() => {
         isAuthenticated().then((authenticated) => {
-            if (authenticated) navigate("/");
+            if (authenticated) navigate(redirectPath, { replace: true });
         });
-    }, [navigate]);
+    }, [navigate, redirectPath]);
 
     const handleSignup = async () => {
         setError("");
 
         if (!email || !userName || !displayName || !password) {
             setError(AUTH_ERRORS.requiredFields);
+            return;
+        }
+        if (!AUTH_VALIDATION.userRegex.test(userName)) {
+            setError(AUTH_ERRORS.invalidUserName);
             return;
         }
         if (!AUTH_VALIDATION.emailRegex.test(email)) {
@@ -52,13 +100,21 @@ function RegisterPage() {
 
         setLoading(true);
         try {
-            await UserAPI.register({
+            const user: string | AuthResponse = await UserAPI.register({
                 accountName: userName,
                 displayName,
                 password,
                 email,
             });
-            navigate("/");
+
+            if (typeof user === "object" && "token" in user) {
+                navigate(redirectPath, { replace: true });
+            } else {
+                navigate(`/validation#${user}`, {
+                    state: { from: redirectPath },
+                    replace: true,
+                });
+            }
         } catch (err: any) {
             const message = err.response?.data?.message || AUTH_ERRORS.registerFailed;
             setError(message);
@@ -73,55 +129,70 @@ function RegisterPage() {
                 <Text variant="h2">CREATE ACCOUNT</Text>
 
                 <div className={style.fields}>
-                    <div className={style.fieldGroup}>
-                        <Text>email</Text>
-                        <InputField
-                            type="email"
-                            placeholder="insert email ..."
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
+                    {RowAux(
+                        "email",
+                        "email",
+                        "insert email ...",
+                        email,
+                        AUTH_VALIDATION.maxEmailLength,
+                        false,
+                        setEmail,
+                        setError,
+                        AUTH_ERRORS.emailTooLong,
+                        handleSignup
+                    )}
 
-                    <div className={style.fieldGroup}>
-                        <Text>userName</Text>
-                        <InputField
-                            type="text"
-                            placeholder="insert userName ..."
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
-                        />
-                    </div>
+                    {RowAux(
+                        "userName",
+                        "text",
+                        "insert userName ...",
+                        userName,
+                        AUTH_VALIDATION.maxUserNameLength,
+                        false,
+                        setUserName,
+                        setError,
+                        AUTH_ERRORS.userNameTooLong,
+                        handleSignup
+                    )}
 
-                    <div className={style.fieldGroup}>
-                        <Text>displayName</Text>
-                        <InputField
-                            type="text"
-                            placeholder="insert displayName ..."
-                            value={displayName}
-                            onChange={(e) => setDisplayName(e.target.value)}
-                        />
-                    </div>
+                    {RowAux(
+                        "displayName",
+                        "text",
+                        "insert displayName ...",
+                        displayName,
+                        AUTH_VALIDATION.maxUserNameLength,
+                        false,
+                        setDisplayName,
+                        setError,
+                        AUTH_ERRORS.displayNameTooLong,
+                        handleSignup
+                    )}
 
-                    <div className={style.fieldGroup}>
-                        <Text>password</Text>
-                        <InputField
-                            type="password"
-                            placeholder="insert password ..."
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </div>
+                    {RowAux(
+                        "password",
+                        "password",
+                        "insert password ...",
+                        password,
+                        AUTH_VALIDATION.maxPasswordLength,
+                        false,
+                        setPassword,
+                        setError,
+                        AUTH_ERRORS.passwordTooLong,
+                        handleSignup
+                    )}
 
-                    <div className={style.fieldGroup}>
-                        <Text>confirm password</Text>
-                        <InputField
-                            type="password"
-                            placeholder="confirm password ..."
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
-                    </div>
+                    {RowAux(
+                        "confirm password",
+                        "password",
+                        "confirm password ...",
+                        confirmPassword,
+                        AUTH_VALIDATION.maxPasswordLength,
+                        false,
+                        setConfirmPassword,
+                        setError,
+                        AUTH_ERRORS.passwordTooLong,
+                        handleSignup
+                    )}
                 </div>
                 <SignupButton
                     color="var(--green)"
@@ -133,7 +204,7 @@ function RegisterPage() {
 
                 <div className={style.loginRow}>
                     <Text color="var(--mutedText)">already have an account?</Text>
-                    <Link to="/login" className={`body ${style.link}`}>
+                    <Link to="/login" state={{ from: redirectPath }} className={`body ${style.link}`}>
                         {`> `}LOGIN
                     </Link>
                 </div>

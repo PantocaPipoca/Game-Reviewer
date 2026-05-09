@@ -1,0 +1,13 @@
+.filterBar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacingMedium);
+    width: 100%;
+    padding: var(--spacingSmall) 0;
+    flex-wrap: wrap;
+}
+
+.filterGroup {
+    display: flex;
+    gap: var(--spacingSmall);
+}

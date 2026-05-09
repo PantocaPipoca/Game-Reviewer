@@ -30,13 +30,7 @@ const router: Router = Router({ mergeParams: true });
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: object
- *                              properties:
- *                                  status:
- *                                      type: string
- *                                      example: success
- *                                  data:
- *                                      type: integer
+ *                              $ref: '#/components/schemas/LikeCountResponse'
  *              400:
  *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
  *                  content:
@@ -78,13 +72,7 @@ router.get("/likes", LikeController.getLikes);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: object
- *                              properties:
- *                                  status:
- *                                      type: string
- *                                      example: success
- *                                  data:
- *                                      $ref: '#/components/schemas/Like'
+ *                              $ref: '#/components/schemas/LikeResponse'
  *              400:
  *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
  *                  content:
@@ -105,6 +93,48 @@ router.get("/likes", LikeController.getLikes);
  *                              $ref: '#/components/schemas/Error'
  */
 router.post("/likes", auth, LikeController.addLike);
+
+/**
+ * @swagger
+ *  /reviews/{reviewer}/{reviewed}/myReaction:
+ *      get:
+ *          tags: [Reactions]
+ *          summary: Gets the current user's reaction on a review
+ *          description: Returns the current user's like/dislike for a review, or null if the user has not reacted.
+ *          security:
+ *              - bearerAuth: []
+ *          parameters:
+ *              - in: path
+ *                name: reviewer
+ *                required: true
+ *                schema:
+ *                  type: string
+ *              - in: path
+ *                name: reviewed
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *          responses:
+ *              200:
+ *                  description: "**OK** — reaction retrieved successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/MyReactionResponse'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** — if the user or game doesn't exist, or if the user hasn't reviewed this game"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.get("/myReaction", auth, LikeController.getReaction);
 
 // ===================== DISLIKES =====================
 
@@ -132,13 +162,7 @@ router.post("/likes", auth, LikeController.addLike);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: object
- *                              properties:
- *                                  status:
- *                                      type: string
- *                                      example: success
- *                                  data:
- *                                      type: integer
+ *                              $ref: '#/components/schemas/LikeCountResponse'
  *              400:
  *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
  *                  content:
@@ -180,13 +204,7 @@ router.get("/dislikes", LikeController.getDislikes);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: object
- *                              properties:
- *                                  status:
- *                                      type: string
- *                                      example: success
- *                                  data:
- *                                      $ref: '#/components/schemas/Like'
+ *                              $ref: '#/components/schemas/LikeResponse'
  *              400:
  *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
  *                  content:
@@ -212,7 +230,7 @@ router.post("/dislikes", auth, LikeController.addDislike);
 
 /**
  * @swagger
- *  /reviews/{reviewer}/{reviewed}/reacts:
+ *  /reviews/{reviewer}/{reviewed}/myReaction:
  *      delete:
  *          tags: [Reactions]
  *          summary: Removes the current user's reaction from a review
@@ -236,13 +254,7 @@ router.post("/dislikes", auth, LikeController.addDislike);
  *                  content:
  *                      application/json:
  *                          schema:
- *                              type: object
- *                              properties:
- *                                  status:
- *                                      type: string
- *                                      example: success
- *                                  data:
- *                                      $ref: '#/components/schemas/Like'
+ *                              $ref: '#/components/schemas/LikeResponse'
  *              400:
  *                  description: "**Bad Request** — if any required path parameter is missing or invalid"
  *                  content:
@@ -262,6 +274,6 @@ router.post("/dislikes", auth, LikeController.addDislike);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.delete("/reacts", auth, LikeController.removeReactions);
+router.delete("/myReaction", auth, LikeController.removeReactions);
 
 export default router;

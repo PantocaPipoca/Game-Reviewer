@@ -1,5 +1,5 @@
 import { PRISMA } from "../Prisma";
-import { FollowerFull, FollowerShort, FollowerPK, UserPK } from "../types/Types";
+import { FollowerFull, FollowerShort, FollowerPK, UserPK, FollowerPublic } from "../types/Types";
 
 export class FollowerRepository {
     /**
@@ -51,13 +51,28 @@ export class FollowerRepository {
         });
     }
 
+    public static acceptAllFollowerRequestsToUser(userPK: UserPK): Promise<{ count: number }> {
+        return PRISMA.follower.updateMany({
+            where: {
+                followed: userPK,
+                accepted: false,
+            },
+            data: {
+                accepted: true,
+            },
+        });
+    }
+
     /**
      * @description Selects all Followers of a given User
      * @param userPK primary key of the User we want the Followers of
      * @returns a promise of the array of Followers that follow the given User
      */
-    public static selectAllFollowersOfUser(userPK: UserPK): Promise<FollowerFull[]> {
+    public static selectAllFollowersOfUser(userPK: UserPK): Promise<FollowerPublic[]> {
         return PRISMA.follower.findMany({
+            include: {
+                followsUser: { select: { avatar: true } },
+            },
             where: {
                 followed: userPK,
                 accepted: true,
@@ -70,8 +85,11 @@ export class FollowerRepository {
      * @param userPK primary key of the User that follows the others
      * @returns a promise of the array of Followers that the given User follows
      */
-    public static selectAllFollowedByUser(userPK: UserPK): Promise<FollowerFull[]> {
+    public static selectAllFollowedByUser(userPK: UserPK): Promise<FollowerPublic[]> {
         return PRISMA.follower.findMany({
+            include: {
+                followedUser: { select: { avatar: true } },
+            },
             where: {
                 follows: userPK,
                 accepted: true,
@@ -84,8 +102,11 @@ export class FollowerRepository {
      * @param userPK primary key of the User that the requests were addressed to
      * @returns a promise of the array of follow requests that are addressed the given User
      */
-    public static selectAllRequestsToUser(userPK: UserPK): Promise<FollowerFull[]> {
+    public static selectAllRequestsToUser(userPK: UserPK): Promise<FollowerPublic[]> {
         return PRISMA.follower.findMany({
+            include: {
+                followsUser: { select: { avatar: true } },
+            },
             where: {
                 followed: userPK,
                 accepted: false,
@@ -98,8 +119,11 @@ export class FollowerRepository {
      * @param userPK primary key of the User we want the follow requests made by
      * @returns a promise of the array of follow requests made from the given User
      */
-    public static selectAllRequestsFromUser(userPK: UserPK): Promise<FollowerFull[]> {
+    public static selectAllRequestsFromUser(userPK: UserPK): Promise<FollowerPublic[]> {
         return PRISMA.follower.findMany({
+            include: {
+                followedUser: { select: { avatar: true } },
+            },
             where: {
                 follows: userPK,
                 accepted: false,

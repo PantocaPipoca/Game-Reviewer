@@ -6,6 +6,8 @@ import { extractReviewPK, ReviewPrimaryKey } from "./ReviewController";
 import { CommentService } from "../services/CommentService";
 import { AuthRequest, extractLoggedUser } from "../utils/Auth";
 
+export const COMMENT_MAX_LEN: number = 1000;
+
 export class CommentController {
     /**
      * Gets the comments of a review
@@ -16,7 +18,11 @@ export class CommentController {
         const { reviewer, reviewed }: ReviewPrimaryKey = extractReviewPK(req);
 
         const result = await CommentService.getComments(reviewer, reviewed, currentUser);
-        return makeSuccess(res, StatusCodes.OK, result.map(c => ({ ...c, id: c.id.toString() })));
+        return makeSuccess(
+            res,
+            StatusCodes.OK,
+            result.map((c) => ({ ...c, id: c.id.toString() }))
+        );
     });
 
     /**
@@ -29,6 +35,9 @@ export class CommentController {
         const { reviewer, reviewed }: ReviewPrimaryKey = extractReviewPK(req);
         const { text } = req.body;
         if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_TEXT_REQUIRED);
+        if (text.length > COMMENT_MAX_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_TEXT_TOO_LONG);
+
         const result = await CommentService.publishComment(currentUser, reviewer, reviewed, text);
         return makeSuccess(res, StatusCodes.CREATED, { ...result, id: result.id.toString() });
     });
@@ -46,6 +55,8 @@ export class CommentController {
 
         const { text } = req.body;
         if (!text) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_TEXT_REQUIRED);
+        if (text.length > COMMENT_MAX_LEN)
+            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.COMMENT_TEXT_TOO_LONG);
 
         let id: bigint;
         try {

@@ -1,17 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Panel from "../Components/Panel/Panel";
 import Text from "../Components/Text/Text";
+import Button from "../Components/Buttons/Button";
 import style from "./UserPage.module.css";
 import { UserAPI } from "../API/User";
 import { isAuthenticated } from "../API/Auth";
-import type { ReviewFull, UserPublic } from "../API/Types";
-import defaultPfp from "../Assets/default-pfp.png";
-import Button from "../Components/Buttons/Button";
+import type { ReviewFull, UserPublic, ReviewWithAvatar } from "../API/Types";
+import defaultAvatar from "../Assets/default-pfp.png";
 import { FollowerAPI } from "../API/Follower";
 import { ReviewAPI } from "../API/Reviews";
+import { GameAPI } from "../API/Games";
 import FollowerListOverlay from "../Components/FollowerList/FollowerListOverlay";
+import { useSuccessPopup } from "../Hooks/SuccessPopup";
+import ReviewCard from "../Components/ReviewCard/ReviewCard";
+import ReviewFilter, { type SortField, type SortOrder } from "../Components/ReviewFilter/ReviewFilter";
+import UserStatsPanel from "../Components/UserStatsPanel/UserStatsPanel";
+import { sortReviews } from "../Utils/ReviewSort";
+
+const NO_COVER = "https://vglist.co/assets/no-cover-5b40e3b1.png";
+
+function getCoverUrl(game: any): string {
+    const url: string | undefined = game?.cover?.url;
+    if (!url) return NO_COVER;
+    const full = url.startsWith("//") ? `https:${url}` : url;
+    return full.replace("t_thumb", "t_cover_big");
+}
 
 type ReviewWithGame = ReviewFull & { gameName?: string; gameCover?: string };
 type FollowState = "not_following" | "pending" | "following";
@@ -20,6 +35,8 @@ type OverlayTab = "followers" | "following";
 function UserPage() {
     const { username } = useParams<{ username: string }>();
     const navigate = useNavigate();
+    const { showSuccess } = useSuccessPopup();
+
     const [profile, setProfile] = useState<UserPublic | null>(null);
     const [isOwner, setIsOwner] = useState(false);
     const [canView, setCanView] = useState(false);
@@ -30,6 +47,14 @@ function UserPage() {
     const [followState, setFollowState] = useState<FollowState>("not_following");
     const [followLoading, setFollowLoading] = useState(false);
     const [followOverlay, setFollowOverlay] = useState<OverlayTab | null>(null);
+
+    const [sortField, setSortField] = useState<SortField>("createdAt");
+    const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
+    type ReviewWithGame = ReviewWithAvatar & { gameName?: string; gameCover?: string };
+
+    // replace the useMemo block:
+    const sortedReviews = useMemo(() => sortReviews(reviews, sortField, sortOrder), [reviews, sortField, sortOrder]);
 
     useEffect(() => {
         load();
@@ -50,14 +75,24 @@ function UserPage() {
             setCanView(canView);
 
             if (currentUser && !owner) {
+                let isFollowing = false;
+
                 try {
                     const followers = await FollowerAPI.getFollowers(username!);
-                    const relation = followers.find((f) => f.follows === currentUser.accountName);
-                    if (!relation) setFollowState("not_following");
-                    else if (relation.accepted) setFollowState("following");
-                    else setFollowState("pending");
+                    isFollowing = !!followers.find((f) => f.follows === currentUser.accountName && f.accepted);
                 } catch {
-                    setFollowState("not_following");
+                    // private account currentUser not following yet
+                }
+
+                try {
+                    const sentRequests = await FollowerAPI.getRequestsSent();
+                    const isPending = !!sentRequests.find((f) => f.followed === username);
+
+                    if (isFollowing) setFollowState("following");
+                    else if (isPending) setFollowState("pending");
+                    else setFollowState("not_following");
+                } catch {
+                    setFollowState(isFollowing ? "following" : "not_following");
                 }
             }
 
@@ -73,23 +108,23 @@ function UserPage() {
                         following: following.length,
                         followers: followers.filter((f) => f.accepted).length,
                     });
+                    const uniqueIds = reviewData.map((r) => r.reviewed);
+                    const gameCovers = uniqueIds.length > 0 ? await GameAPI.getBatch(uniqueIds) : [];
+                    const coverMap = new Map(gameCovers.map((g) => [g.id, g]));
 
-                    const reviewsWithGames = await Promise.all(
-                        reviewData.map(async (review) => {
-                            try {
-                                return review as ReviewWithGame;
-                            } catch {
-                                return review as ReviewWithGame;
-                            }
-                        })
-                    );
-                    setReviews(reviewsWithGames);
-                } catch {
-                    // private or unavailable
-                }
+                    const reviewsWithGameInfo: ReviewWithGame[] = reviewData.map((review) => {
+                        const igdb = coverMap.get(review.reviewed);
+                        return {
+                            ...review,
+                            gameName: igdb?.name,
+                            gameCover: getCoverUrl(igdb),
+                        };
+                    });
+                    setReviews(reviewsWithGameInfo);
+                } catch {}
             }
         } catch (error: any) {
-            console.log("FAILED:", error?.response?.status, error?.response?.data, error?.message);
+            console.log("FAILED:", error?.response?.status, error?.message);
         } finally {
             setLoading(false);
         }
@@ -101,16 +136,27 @@ function UserPage() {
             return;
         }
         setFollowLoading(true);
+        const currentState = followState;
         try {
-            if (followState === "following" || followState === "pending") {
+            if (currentState === "following" || currentState === "pending") {
                 await FollowerAPI.unfollow(username!);
                 setFollowState("not_following");
-                if (followState === "following") setStats((s) => ({ ...s, followers: Math.max(0, s.followers - 1) }));
+                if (currentState === "following") {
+                    setStats((s) => ({ ...s, followers: Math.max(0, s.followers - 1) }));
+                    showSuccess("Unfollowed successfully.", 3);
+                } else {
+                    showSuccess("Follow request canceled successfully.", 3);
+                }
             } else {
                 await FollowerAPI.follow(username!);
                 const isPrivate = profile?.isPrivate;
                 setFollowState(isPrivate ? "pending" : "following");
-                if (!isPrivate) setStats((s) => ({ ...s, followers: s.followers + 1 }));
+                if (!isPrivate) {
+                    setStats((s) => ({ ...s, followers: s.followers + 1 }));
+                    showSuccess("Followed successfully.", 3);
+                } else {
+                    showSuccess("Follow request sent successfully.", 3);
+                }
             }
         } catch (error: any) {
             console.log("Follow action failed:", error?.response?.data);
@@ -119,7 +165,6 @@ function UserPage() {
         }
     }
 
-    // update stats in real time on remove
     function handleOverlayRemove(type: OverlayTab) {
         if (type === "followers") setStats((s) => ({ ...s, followers: Math.max(0, s.followers - 1) }));
         if (type === "following") setStats((s) => ({ ...s, following: Math.max(0, s.following - 1) }));
@@ -139,8 +184,12 @@ function UserPage() {
         }
         if (followState === "pending") {
             return (
-                <Button className={`${style.followButton} ${style.pendingButton}`} disabled>
-                    <Text color="var(--mutedText)">{`... PENDING`}</Text>
+                <Button
+                    className={`${style.followButton} ${style.pendingButton}`}
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                >
+                    <Text color="var(--mutedText)">{`X CANCEL REQUEST`}</Text>
                 </Button>
             );
         }
@@ -200,7 +249,11 @@ function UserPage() {
                         <div className={style.leftColumn}>
                             <Panel type="secondary" className={style.avatarPanel}>
                                 <div className={style.avatarWrapper}>
-                                    <img src={defaultPfp} alt={profile.accountName} className={style.avatar} />
+                                    <img
+                                        src={profile.avatar ?? defaultAvatar}
+                                        alt={profile.accountName}
+                                        className={style.avatar}
+                                    />
                                 </div>
                                 <Text variant="h3" color="var(--cyan)">
                                     {displayName}
@@ -255,7 +308,9 @@ function UserPage() {
                                     <Text variant="small" color="var(--mutedText)">
                                         {profile.userData.gender}
                                     </Text>
-                                    <Text variant="small">{profile.userData.bio}</Text>
+                                    <Text variant="small" multiline>
+                                        {profile.userData.bio}
+                                    </Text>
                                 </Panel>
                             </div>
                         ) : (
@@ -267,7 +322,7 @@ function UserPage() {
                         )}
                     </div>
 
-                    {canView ? (
+                    {canView && (
                         <>
                             <hr />
                             {reviews.length === 0 ? (
@@ -275,10 +330,36 @@ function UserPage() {
                                     <Text color="var(--pink)">NO ACTIVITY</Text>
                                 </Panel>
                             ) : (
-                                <div className={style.reviewList}></div>
+                                <div className={style.reviewSection}>
+                                    <UserStatsPanel reviews={reviews} />
+                                    <ReviewFilter
+                                        sortField={sortField}
+                                        sortOrder={sortOrder}
+                                        onSort={(field, order) => {
+                                            setSortField(field);
+                                            setSortOrder(order);
+                                        }}
+                                    />
+                                    <div className={style.reviewList}>
+                                        {sortedReviews.map((review) => (
+                                            <ReviewCard
+                                                key={`${review.reviewer}-${review.reviewed}`}
+                                                cover={review.gameCover}
+                                                gameName={review.gameName}
+                                                description={review.text}
+                                                rating={review.score}
+                                                hoursPlayed={review.hoursPlayed}
+                                                platforms={review.platforms}
+                                                showUser={false}
+                                                reviewer={review.reviewer}
+                                                reviewed={review.reviewed}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
                             )}
                         </>
-                    ) : null}
+                    )}
                 </Panel>
             </div>
 

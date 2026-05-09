@@ -32,3 +32,72 @@
     display: flex;
     gap: var(--spacingSmall);
 }
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingMedium);
+}
+
+.heroIntro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacingSmall);
+}
+
+.heroBlock {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacingMedium);
+
+    padding: var(--spacingMedium);
+
+    background-color: var(--terciaryPanel);
+
+    border-left: var(--borderWidth) solid var(--green);
+}
+
+.heroFeatureItem {
+    padding-left: var(--spacingMedium);
+    position: relative;
+
+    color: var(--mainText);
+}
+
+.heroFeatureItem::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+
+    color: var(--cyan);
+}
+
+.heroCta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacingMedium);
+
+    padding-top: var(--spacingMedium);
+}
+
+.heroCtaLinks {
+    display: flex;
+    gap: var(--spacingMedium);
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.heroLink {
+    text-decoration: none;
+}
+
+.heroLink:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+    text-decoration-style: solid;
+    text-decoration-thickness: 2.5px;
+    text-underline-offset: 8px;
+}

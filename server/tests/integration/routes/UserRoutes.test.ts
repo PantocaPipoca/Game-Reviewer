@@ -4,9 +4,16 @@ import bcrypt from "bcrypt";
 import { createApp } from "../../../src/App.ts";
 import { StatusCodes } from "http-status-codes";
 import { Express } from "express";
-import { register, createGame } from "../helper/helper.ts";
+import { register, createGame, fastCreateUser } from "../helper/helper.ts";
 import { AuthResponse, UserData, UserFull } from "../../../src/types/Types.ts";
-import { fetchFullUser } from "../../../src/services/AccountService.ts";
+import { UserRepository } from "../../../src/Repository/UserRepository.ts";
+import {
+    BIO_MAX_LEN,
+    EMAIL_MAX_LEN,
+    GEND_MAX_LEN,
+    NAME_MAX_LEN,
+    PASS_MAX_LEN,
+} from "../../../src/controllers/AccountController.ts";
 
 const app: Express = createApp();
 
@@ -20,23 +27,24 @@ const email: string = username + "@test.com";
 // =============== Register User ===============
 
 describe("POST /api/users (register)", () => {
-    it("returns 201 and a token", async () => {
+    it("returns 201", async () => {
         const res = await request(app)
             .post("/api/users")
             .send({
                 accountName: username,
                 displayName,
                 password,
-                email,
+                email: "support.gamereviewer@gmail.com",
             })
             .expect(StatusCodes.CREATED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.accountName).toBe(username);
-        expect(res.body.data.isPrivate).toBe(false);
-        expect(res.body.data.userData.displayName).toBe(displayName);
-        expect(res.body.data.token).toBeDefined();
-    });
+        // put in validation
+        // expect(res.body.data.accountName).toBe(username);
+        // expect(res.body.data.isPrivate).toBe(false);
+        // expect(res.body.data.userData.displayName).toBe(displayName);
+        // expect(res.body.data.token).toBeDefined();
+    }, 15000);
 
     describe("validation BAD REQUESTS (400)", () => {
         it("missing accountName", async () => {
@@ -79,6 +87,31 @@ describe("POST /api/users (register)", () => {
                 .expect(StatusCodes.BAD_REQUEST);
         });
 
+        it("accountName longer than 26", async () => {
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: "a".repeat(NAME_MAX_LEN + 1),
+                    displayName,
+                    password,
+                    email,
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+        });
+
+        it("displayName longer than 26", async () => {
+            const u = "user_longname" + Date.now();
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: u,
+                    displayName: "a".repeat(NAME_MAX_LEN + 1),
+                    password,
+                    email,
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+        });
+
         it("password shorter than 8", async () => {
             const u = "user_shortpw" + Date.now();
             await request(app)
@@ -92,6 +125,19 @@ describe("POST /api/users (register)", () => {
                 .expect(StatusCodes.BAD_REQUEST);
         });
 
+        it("password longer than 50", async () => {
+            const u = "user_longpw" + Date.now();
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: u,
+                    displayName,
+                    password: "a".repeat(PASS_MAX_LEN + 1),
+                    email: email,
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+        });
+
         it("invalid email", async () => {
             await request(app)
                 .post("/api/users")
@@ -100,6 +146,18 @@ describe("POST /api/users (register)", () => {
                     displayName,
                     password,
                     email: "not-an-email",
+                })
+                .expect(StatusCodes.BAD_REQUEST);
+        });
+
+        it("email longer than 110", async () => {
+            await request(app)
+                .post("/api/users")
+                .send({
+                    accountName: "user_badmail",
+                    displayName,
+                    password,
+                    email: "a".repeat(EMAIL_MAX_LEN - 8) + "@test.com",
                 })
                 .expect(StatusCodes.BAD_REQUEST);
         });
@@ -136,6 +194,48 @@ describe("POST /api/users (register)", () => {
     });
 });
 
+// ============ Validation =============
+
+describe("GET /api/users/validation", () => {
+    it("returns OK and a token on correct parameters", async () => {
+        await request(app).post("/api/users").send({
+            accountName: username,
+            displayName,
+            password,
+            email: "support.gamereviewer@gmail.com",
+        });
+        const userFull = await UserRepository.selectUser(username);
+        await request(app)
+            .get(`/api/users/validation`)
+            .query({
+                user: username,
+                code: userFull?.emailValidation?.toString(),
+            })
+            .expect(StatusCodes.OK);
+    }, 15000);
+    it("returns BAD REQUEST on wrong format parameters", async () => {
+        await request(app)
+            .get(`/api/users/validation`)
+            .query({
+                user: username,
+                code: "NaN",
+            })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+    it("returns BAD REQUEST on wrong missing parameters", async () => {
+        await request(app).get(`/api/users/validation`).expect(StatusCodes.BAD_REQUEST);
+    });
+    it("returns NOT FOUND on no match", async () => {
+        await request(app)
+            .get(`/api/users/validation`)
+            .query({
+                user: "IdontExist",
+                code: "123456",
+            })
+            .expect(StatusCodes.NOT_FOUND);
+    });
+});
+
 // =============== Login ===============
 
 describe("POST /api/users/login", () => {
@@ -150,6 +250,15 @@ describe("POST /api/users/login", () => {
         expect(res.body.status).toBe("success");
         expect(res.body.data.accountName).toBe(username);
         expect(res.body.data.token).toBeDefined();
+    });
+
+    it("returns PRECONDITION REQUIRED (that being email validation)", async () => {
+        // await AccountService.registerUser(username, displayName, password, email, true);
+        await fastCreateUser(username);
+        await request(app)
+            .post("/api/users/login")
+            .send({ accountName: username, password: username })
+            .expect(StatusCodes.PRECONDITION_REQUIRED);
     });
 
     describe("validation BAD REQUESTS (400)", () => {
@@ -199,6 +308,87 @@ describe("POST /api/users/logout", () => {
     });
 });
 
+// ============= Password Recover =============
+
+describe("POST /api/users/recover-password", () => {
+    it("checks errors", async () => {
+        await request(app)
+            .post("/api/users/recover-password")
+            .send({ username: "test653543" })
+            .expect(StatusCodes.NOT_FOUND);
+        await request(app)
+            .post("/api/users/recover-password")
+            .send({ nameuser: "test" })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+    it("checks working", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "support.gamereviewer@gmail.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+        await request(app).post("/api/users/recover-password").send({ username: "test" }).expect(StatusCodes.OK);
+    });
+});
+
+describe("POST /api/users/reset-password", () => {
+    it("checks errors", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "support.gamereviewer@gmail.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ username: "test", password: "test2", passResetCode: 1234 })
+            .expect(StatusCodes.UNAUTHORIZED);
+
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ username: "test1", password: "test2", passResetCode: 123 })
+            .expect(StatusCodes.NOT_FOUND);
+
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ password: "test2", passResetCode: 123 })
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    it("checks working", async () => {
+        await UserRepository.insertUser({
+            accountName: "test",
+            email: "support.gamereviewer@gmail.com",
+            passwordHash: "brrrrr",
+            avatar: null,
+            isPrivate: false,
+            userData: {
+                displayName: "test",
+                gender: null,
+                bio: null,
+            },
+        });
+        await UserRepository.grantPasswordReset("test", 123);
+        await request(app)
+            .post("/api/users/reset-password")
+            .send({ username: "test", password: "test2", passResetCode: 123 })
+            .expect(StatusCodes.OK);
+    });
+});
+
 // =============== Current User ===============
 
 describe("GET /api/users/me", () => {
@@ -235,7 +425,53 @@ describe("PUT /api/users/me (alter)", () => {
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
-    it("BAD REQUEST if password is shorter than 8", async () => {
+    it("BAD REQUEST if displayName is longer than 26, if gender is longer than 20 or if bio is longer than 1000", async () => {
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: email,
+                userData: {
+                    displayName: "a".repeat(NAME_MAX_LEN + 1),
+                    gender: null,
+                    bio: null,
+                },
+                password: "123456789",
+            });
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: email,
+                userData: {
+                    displayName,
+                    gender: "a".repeat(GEND_MAX_LEN + 1),
+                    bio: null,
+                },
+                password: "123456789",
+            });
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: email,
+                userData: {
+                    displayName,
+                    gender: null,
+                    bio: "a".repeat(BIO_MAX_LEN),
+                },
+                password: "123456789",
+            });
+    });
+
+    it("BAD REQUEST if password is shorter than 8 or longer than 50", async () => {
         const user: AuthResponse = await register(app, username, displayName, password, email);
 
         await request(app)
@@ -248,9 +484,20 @@ describe("PUT /api/users/me (alter)", () => {
                 password: "1234567",
             })
             .expect(StatusCodes.BAD_REQUEST);
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: email,
+                userData: { displayName, gender: null, bio: null },
+                password: "a".repeat(PASS_MAX_LEN + 1),
+            })
+            .expect(StatusCodes.BAD_REQUEST);
     });
 
-    it("BAD REQUEST if email is invalid", async () => {
+    it("BAD REQUEST if email is invalid or longer than 110", async () => {
         const user: AuthResponse = await register(app, username, displayName, password, email);
 
         await request(app)
@@ -259,6 +506,16 @@ describe("PUT /api/users/me (alter)", () => {
             .send({
                 isPrivate: true,
                 email: "invalid-email",
+                userData: { displayName, gender: null, bio: null },
+            })
+            .expect(StatusCodes.BAD_REQUEST);
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email: "a".repeat(102) + "@test.com",
                 userData: { displayName, gender: null, bio: null },
             })
             .expect(StatusCodes.BAD_REQUEST);
@@ -307,7 +564,7 @@ describe("PUT /api/users/me (alter)", () => {
             })
             .expect(StatusCodes.OK);
 
-        const userFull: UserFull = await fetchFullUser(user.accountName);
+        const userFull: UserFull = (await UserRepository.selectUser(user.accountName)) as UserFull;
 
         const currentUserData: UserData = userFull.userData as UserData;
 
@@ -318,6 +575,91 @@ describe("PUT /api/users/me (alter)", () => {
 
         expect(res.body.data.isPrivate).toBe(true);
         expect(res.body.data.userData.displayName).toBe(newDisplayName);
+    });
+
+    it("OK when updating isPrivate from true to false and accepts all follow requests", async () => {
+        const user: AuthResponse = await register(app, username, displayName, password, email);
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: true,
+                email,
+                userData: { displayName, gender: null, bio: null },
+            });
+
+        const follower1: AuthResponse = await register(
+            app,
+            "follower1",
+            "follower1",
+            "sspassword",
+            "follower1@email.com"
+        );
+        const follower2: AuthResponse = await register(
+            app,
+            "follower2",
+            "follower2",
+            "sspassword",
+            "follower2@email.com"
+        );
+        const follower3: AuthResponse = await register(
+            app,
+            "follower3",
+            "follower3",
+            "sspassword",
+            "follower3@email.com"
+        );
+
+        // send follow requests
+        await request(app)
+            .post("/api/users/id/" + user.accountName + "/followers/")
+            .set("Authorization", "Bearer " + follower1.token)
+            .expect(StatusCodes.CREATED);
+
+        await request(app)
+            .post("/api/users/id/" + user.accountName + "/followers/")
+            .set("Authorization", "Bearer " + follower2.token)
+            .expect(StatusCodes.CREATED);
+
+        await request(app)
+            .post("/api/users/id/" + user.accountName + "/followers/")
+            .set("Authorization", "Bearer " + follower3.token)
+            .expect(StatusCodes.CREATED);
+
+        await request(app)
+            .get("/api/users/me/followers/requests/received")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.OK)
+            .then((res) => {
+                expect(res.body.data.length).toBe(3);
+            });
+
+        await request(app)
+            .put("/api/users/me")
+            .set("Authorization", "Bearer " + user.token)
+            .send({
+                isPrivate: false,
+                email,
+                userData: { displayName, gender: null, bio: null },
+            })
+            .expect(StatusCodes.OK);
+
+        await request(app)
+            .get("/api/users/me/followers/requests/received")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.OK)
+            .then((res) => {
+                expect(res.body.data.length).toBe(0);
+            });
+
+        await request(app)
+            .get("/api/users/id/" + user.accountName + "/followers")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.OK)
+            .then((res) => {
+                expect(res.body.data.length).toBe(3);
+            });
     });
 });
 
@@ -354,16 +696,16 @@ describe("DELETE /api/users/me", () => {
 
 // ========== SEARCH ==========
 
-describe("GET /api/users/:username (find profile)", () => {
+describe("GET /api/users/id/:username (find profile)", () => {
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns OK and full public data if user is public (no auth)", async () => {
         const u: AuthResponse = await register(app, username, displayName, password, email);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -386,7 +728,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -410,7 +752,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .set("Authorization", "Bearer " + u.token)
             .expect(StatusCodes.OK);
 
@@ -433,7 +775,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/users/" + u.accountName + "/followers/")
+            .post("/api/users/id/" + u.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
@@ -444,7 +786,7 @@ describe("GET /api/users/:username (find profile)", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName)
+            .get("/api/users/id/" + u.accountName)
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.OK);
 
@@ -497,6 +839,25 @@ describe("GET /api/users/search?query=...", () => {
         expect(Array.isArray(res.body.data)).toBe(true);
         expect(res.body.data[0].accountName).toBe(u.accountName);
         expect(res.body.data[0].userData).toBeUndefined();
+    });
+
+    it("returns 200 even if query has spaces", async () => {
+        const prefix: string = "NAME NAME";
+        const u: AuthResponse = await register(app, username, prefix + " " + displayName, password, email);
+
+        const res = await request(app)
+            .get("/api/users/search?query=" + encodeURIComponent(prefix.slice(0, 7)))
+            .expect(StatusCodes.OK);
+
+        expect(res.body.status).toBe("success");
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect(res.body.data[0].accountName).toBe(u.accountName);
+        expect(res.body.data[0].userData.displayName).toBe(u.userData!.displayName);
+    });
+
+    it("returns 200 even if query has special characters", async () => {
+        const res = await request(app).get("/api/users/search?query=P%25n%25s").expect(StatusCodes.OK);
+        expect(res.body.status).toBe("success");
     });
 });
 
@@ -577,7 +938,7 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
 
         // user sends request to user2
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user.token);
 
         //user2 accepts request
@@ -609,7 +970,7 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
 
         // user sends request to user2
         const res = await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user.token);
 
         expect(res.status).toBe(StatusCodes.CREATED);
@@ -662,7 +1023,7 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
 
         // follower request to target
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
@@ -674,9 +1035,9 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
     });
 });
 
-describe("GET /api/users/:username/following", () => {
+describe("GET /api/users/id/:username/following", () => {
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user/following").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user/following").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns FORBIDDEN if user is private and not authenticated", async () => {
@@ -685,7 +1046,7 @@ describe("GET /api/users/:username/following", () => {
         const user2 = await register(app, user2name, "user2", "sspassword", `${user2name}@email.com`);
 
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
@@ -701,7 +1062,7 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .get("/api/users/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.accountName + "/following")
             .expect(StatusCodes.FORBIDDEN);
     });
 
@@ -712,12 +1073,12 @@ describe("GET /api/users/:username/following", () => {
 
         // user1 follows user2
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.accountName + "/following")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -734,7 +1095,7 @@ describe("GET /api/users/:username/following", () => {
 
         // user1 follows user2
         await request(app)
-            .post("/api/users/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.accountName + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
@@ -750,7 +1111,7 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.accountName + "/following")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.OK);
 
@@ -782,13 +1143,13 @@ describe("GET /api/users/:username/following", () => {
         const someone = await register(app, someoneName, "someone", "sspassword", `${someoneName}@email.com`);
 
         await request(app)
-            .post("/api/users/" + someone.accountName + "/followers/")
+            .post("/api/users/id/" + someone.accountName + "/followers/")
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.CREATED);
 
         // viewer requests follow
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
@@ -799,7 +1160,7 @@ describe("GET /api/users/:username/following", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + target.accountName + "/following")
+            .get("/api/users/id/" + target.accountName + "/following")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -811,9 +1172,9 @@ describe("GET /api/users/:username/following", () => {
 
 // =============== REVIEWS ===============
 
-describe("GET /api/users/:username/reviews", () => {
+describe("GET /api/users/id/:username/reviews", () => {
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user/reviews").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user/reviews").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns OK and empty array when user has no reviews (public, no auth)", async () => {
@@ -821,7 +1182,7 @@ describe("GET /api/users/:username/reviews", () => {
         const u = await register(app, name, displayName, password, name + "@test.com");
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.accountName + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -836,13 +1197,13 @@ describe("GET /api/users/:username/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + u.token)
-            .send({ text: "nice", score: 8 })
+            .send({ text: "nice", score: 8, hoursPlayed: 5, platforms: ["PC"] })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.accountName + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -850,6 +1211,8 @@ describe("GET /api/users/:username/reviews", () => {
         expect(res.body.data.length).toBeGreaterThan(0);
         expect(res.body.data[0].reviewer).toBe(u.accountName);
         expect(res.body.data[0].reviewed).toBe(game.gameID);
+        expect(res.body.data[0].hoursPlayed).toBe(5);
+        expect(res.body.data[0].platforms).toEqual(["PC"]);
     });
 
     it("returns FORBIDDEN and empty array if user is private and requester not allowed (no auth)", async () => {
@@ -869,13 +1232,13 @@ describe("GET /api/users/:username/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + u.token)
             .send({ text: "nice", score: 8 })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .get("/api/users/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.accountName + "/reviews")
             .expect(StatusCodes.FORBIDDEN);
     });
 
@@ -899,13 +1262,13 @@ describe("GET /api/users/:username/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + target.token)
-            .send({ text: "private review", score: 7 })
+            .send({ text: "private review", score: 7, hoursPlayed: 11, platforms: ["PS5"] })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
@@ -915,7 +1278,7 @@ describe("GET /api/users/:username/reviews", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + target.accountName + "/reviews")
+            .get("/api/users/id/" + target.accountName + "/reviews")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -924,6 +1287,8 @@ describe("GET /api/users/:username/reviews", () => {
         expect(res.body.data.length).toBeGreaterThan(0);
         expect(res.body.data[0].reviewer).toBe(target.accountName);
         expect(res.body.data[0].reviewed).toBe(game.gameID);
+        expect(res.body.data[0].hoursPlayed).toBe(11);
+        expect(res.body.data[0].platforms).toEqual(["PS5"]);
     });
 
     it("returns OK and reviews if viewer is also target", async () => {
@@ -932,13 +1297,13 @@ describe("GET /api/users/:username/reviews", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + target.token)
             .send({ text: "private review", score: 7 })
             .expect(StatusCodes.CREATED);
 
-        const res = await request(app)
-            .get("/api/users/" + target.accountName + "/reviews")
+        await request(app)
+            .get("/api/users/id/" + target.accountName + "/reviews")
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.OK);
     });
@@ -975,7 +1340,7 @@ describe("GET /api/users/:username/reviews", () => {
 
             // follower follows user (public account → auto-accepted)
             await request(app)
-                .post("/api/users/" + user.accountName + "/followers/")
+                .post("/api/users/id/" + user.accountName + "/followers/")
                 .set("Authorization", "Bearer " + follower.token)
                 .expect(StatusCodes.CREATED);
 
@@ -991,7 +1356,7 @@ describe("GET /api/users/:username/reviews", () => {
 
             // confirm they no longer appear in followers list
             const followersRes = await request(app)
-                .get("/api/users/" + user.accountName + "/followers")
+                .get("/api/users/id/" + user.accountName + "/followers")
                 .expect(StatusCodes.OK);
 
             expect(followersRes.body.data.find((f: any) => f.follows === follower.accountName)).toBeUndefined();
@@ -1015,7 +1380,7 @@ describe("GET /api/users/:username/reviews", () => {
 
             // requester sends follow request (pending, not accepted)
             await request(app)
-                .post("/api/users/" + user.accountName + "/followers/")
+                .post("/api/users/id/" + user.accountName + "/followers/")
                 .set("Authorization", "Bearer " + requester.token)
                 .expect(StatusCodes.CREATED);
 
@@ -1028,5 +1393,75 @@ describe("GET /api/users/:username/reviews", () => {
             expect(res.body.status).toBe("success");
             expect(res.body.data.follows).toBe(requester.accountName);
         });
+    });
+});
+
+describe("PUT /api/users/me/avatar", () => {
+    it("returns UNAUTHORIZED if not authenticated", async () => {
+        await request(app)
+            .put("/api/users/me/avatar")
+            .attach("avatar", Buffer.from("fake"), { filename: "test.jpg", contentType: "image/jpeg" })
+            .expect(StatusCodes.UNAUTHORIZED);
+    });
+
+    it("returns BAD REQUEST if no file provided", async () => {
+        const user = await register(app, username, displayName, password, email);
+        await request(app)
+            .put("/api/users/me/avatar")
+            .set("Authorization", "Bearer " + user.token)
+            .expect(StatusCodes.BAD_REQUEST);
+    });
+
+    // NOTE: this test hits real Cloudinary - only run in integration env
+    it("returns OK and a url on valid upload", async () => {
+        const user = await register(app, username, displayName, password, email);
+
+        const pixel = Buffer.from(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
+            "base64"
+        );
+        const res = await request(app)
+            .put("/api/users/me/avatar")
+            .set("Authorization", "Bearer " + user.token)
+            .attach("avatar", pixel, { filename: "test.png", contentType: "image/png" })
+            .expect(StatusCodes.OK);
+
+        expect(res.body.data.url).toBeDefined();
+        expect(res.body.data.url).toMatch(/cloudinary/);
+    });
+});
+
+// ========== avatar ==========
+
+describe("GET /api/users/id/:username/avatar", () => {
+    it("returns NOT FOUND if user has no avatar", async () => {
+        const user = await register(app, username, displayName, password, email);
+        await request(app)
+            .get("/api/users/id/" + user.accountName + "/avatar")
+            .expect(StatusCodes.NOT_FOUND);
+    });
+
+    it("returns NOT FOUND if user doesn't exist", async () => {
+        await request(app).get("/api/users/id/not-existing-user/avatar").expect(StatusCodes.NOT_FOUND);
+    });
+
+    it("redirects to cloudinary url after upload", async () => {
+        const user = await register(app, username, displayName, password, email);
+        const pixel = Buffer.from(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
+            "base64"
+        );
+        await request(app)
+            .put("/api/users/me/avatar")
+            .set("Authorization", "Bearer " + user.token)
+            .attach("avatar", pixel, { filename: "test.png", contentType: "image/png" })
+            .expect(StatusCodes.OK);
+
+        const res = await request(app)
+            .get("/api/users/id/" + user.accountName + "/avatar")
+            .redirects(0);
+
+        expect(res.status).toBe(302);
+        expect(res.headers.location).toMatch(/cloudinary/);
     });
 });

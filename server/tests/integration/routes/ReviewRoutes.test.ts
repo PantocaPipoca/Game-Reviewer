@@ -48,9 +48,9 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
-            .send({ text: "great game", score: 8 })
+            .send({ text: "great game", score: 8, hoursPlayed: 32, platforms: ["PC"] })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
@@ -62,6 +62,8 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         expect(res.body.data.reviewed).toBe(game.gameID);
         expect(res.body.data.text).toBe("great game");
         expect(res.body.data.score).toBe(8);
+        expect(res.body.data.hoursPlayed).toBe(32);
+        expect(res.body.data.platforms).toEqual(["PC"]);
         expect(res.body.data.createdAt).toBeDefined();
         expect(res.body.data.updatedAt).toBeDefined();
     });
@@ -71,7 +73,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "private review", score: 6 })
             .expect(StatusCodes.CREATED);
@@ -98,7 +100,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + reviewer.token)
             .send({ text: "private review", score: 6 })
             .expect(StatusCodes.CREATED);
@@ -126,7 +128,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + reviewer.token)
             .send({ text: "private review", score: 6 })
             .expect(StatusCodes.CREATED);
@@ -142,7 +144,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/users/" + reviewer.accountName + "/followers/")
+            .post("/api/users/id/" + reviewer.accountName + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
@@ -166,7 +168,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/games/" + game.gameID + "/reviews")
+            .post("/api/games/id/" + game.gameID + "/reviews")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "my review", score: 9 })
             .expect(StatusCodes.CREATED);

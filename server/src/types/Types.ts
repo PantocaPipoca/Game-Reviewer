@@ -10,15 +10,21 @@ export type UserData = {
 
 export type UserFull = User;
 
-export type UserShort = Omit<UserFull, "createdAt" | "updatedAt" | "userData"> & {
+export type UserShort = Omit<
+    UserFull,
+    "createdAt" | "updatedAt" | "userData" | "emailValidation" | "passwordRecover"
+> & {
     userData: Prisma.InputJsonValue;
 };
 
-export type UserPublic = Omit<UserFull, "passwordHash" | "email" | "updatedAt" | "userData"> & {
+export type UserPublic = Omit<
+    UserFull,
+    "passwordHash" | "email" | "updatedAt" | "userData" | "emailValidation" | "passwordRecover"
+> & {
     userData: UserData;
 };
 
-export type UserMe = Omit<UserFull, "passwordHash" | "updatedAt" | "createdAt">;
+export type UserMe = Omit<UserFull, "passwordHash" | "updatedAt" | "createdAt" | "emailValidation" | "passwordRecover">;
 
 export type UserPrivate = Omit<UserPublic, "userData" | "createdAt">;
 
@@ -42,6 +48,10 @@ export type GamePK = number;
 
 export type ReviewFull = Review;
 
+export type ReviewWithAvatar = ReviewFull & {
+    user?: { avatar: string | null };
+};
+
 export type ReviewShort = Omit<ReviewFull, "createdAt" | "updatedAt">;
 
 export type ReviewPK = {
@@ -64,6 +74,19 @@ export type GameCover = {
     };
 };
 
+export type BigGameCover = {
+    id: number;
+    name: string;
+    cover?: { url?: string };
+    genres?: { name: string }[];
+    screenshots?: { url?: string }[];
+    artworks?: { url?: string }[];
+    involved_companies?: {
+        developer: boolean;
+        company?: { name: string };
+    }[];
+};
+
 // ===================== Reaction Types =====================
 
 export type LikeFull = Like;
@@ -81,6 +104,10 @@ export type ReactionResponse = {
     dislikes: number;
 };
 
+export type CurrentReactionResponse = {
+    value: boolean | null;
+};
+
 // ===================== Comment Types =====================
 
 export type CommentFull = Comment;
@@ -92,6 +119,15 @@ export type CommentPK = bigint;
 // ===================== Follower Types =====================
 
 export type FollowerFull = Follower;
+
+export type FollowerPublic = FollowerFull & {
+    followedUser?: {
+        avatar: string | null;
+    };
+    followsUser?: {
+        avatar: string | null;
+    };
+};
 
 export type FollowerShort = Omit<FollowerFull, "createdAt" | "updatedAt">;
 

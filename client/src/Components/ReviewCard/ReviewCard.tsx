@@ -1,21 +1,24 @@
 import style from "./ReviewCard.module.css";
 import Panel from "../Panel/Panel";
 import Text from "../Text/Text";
-import Star from "../Star/Star";
+import Star from "../SVGs/Star";
+import { Link, useNavigate } from "react-router-dom";
+import ReviewReactions from "../ReviewReactions/ReviewReactions";
 
 const MAX_STARS = 5;
 
 export type ReviewCardProps = {
     cover?: string;
-    title?: string;
+    gameName?: string;
     description?: string;
-    upvotes?: number;
-    downvotes?: number;
     rating?: number;
-
     showUser?: boolean;
     userName?: string;
     userAvatar?: string;
+    hoursPlayed?: number | null;
+    platforms?: string[];
+    reviewer: string;
+    reviewed: number;
 };
 
 function normalizeRating(rating: number) {
@@ -41,52 +44,69 @@ function getStars(rating: number): ("full" | "half" | "empty")[] {
 
 function ReviewCard({
     cover = "https://vglist.co/assets/no-cover-5b40e3b1.png",
-    title = "###",
+    gameName,
     description = "###",
-    upvotes = 0,
-    downvotes = 0,
     rating = 0,
     showUser = false,
     userName = "######",
     userAvatar = "https://i.pinimg.com/736x/2f/15/f2/2f15f2e8c688b3120d3d26467b06330c.jpg",
+    hoursPlayed = null,
+    platforms = [],
+    reviewer,
+    reviewed,
 }: ReviewCardProps) {
     const normalizedRating = normalizeRating(rating);
     const stars = getStars(normalizedRating);
+    const navigate = useNavigate();
+    const displayedUserName = userName.length > 13 ? `${userName.slice(0, 10)}...` : userName;
 
     return (
         <div className={style.panel}>
             <Panel type="secondary" direction="row" className={style.fullWidth}>
                 {showUser ? (
-                    <div className={style.userBlock}>
+                    <div
+                        className={style.sideBlock}
+                        onClick={() => navigate(`/user/${reviewer}`)}
+                        role="button"
+                        tabIndex={0}
+                    >
                         <img src={userAvatar} className={style.avatar} />
-                        <Text variant="body">{userName}</Text>
+                        <Text variant="h3" className={style.userName} title={userName}>
+                            {displayedUserName}
+                        </Text>
                     </div>
                 ) : (
-                    <img src={cover} className={style.cover} />
+                    <div className={style.sideBlock} onClick={() => navigate(`/game/${reviewed}`)} role="button">
+                        <img src={cover} className={style.cover} />
+                        {gameName && (
+                            <Text variant="body" className={style.gameName}>
+                                {gameName}
+                            </Text>
+                        )}
+                    </div>
                 )}
 
                 <div className={style.infoColumn}>
-                    <div className={style.topRow}>
-                        <Text variant="h2">{title}</Text>
-
-                        <div className={style.stars}>
-                            {stars.map((type, index) => (
-                                <Star key={index} type={type} size={18} />
-                            ))}
-                        </div>
+                    <div className={style.stars}>
+                        {stars.map((type, index) => (
+                            <Star key={index} type={type} size={32} />
+                        ))}
                     </div>
 
-                    <Text variant="body">{description}</Text>
+                    <Text variant="body" className={style.description} multiline>
+                        {description}
+                    </Text>
+                    <Text variant="body" color="var(--mutedText)">
+                        {`Hours Played: ${hoursPlayed ?? 0} | Platform: ${platforms.length > 0 ? platforms.join(", ") : "N/A"}`}
+                    </Text>
 
                     <div className={style.bottomRow}>
-                        <a href="/review/yah" className={style.seeMore}>
-                            <Text color="var(--pink)">{`> `}See More</Text>
-                        </a>
-
-                        <img src="https://cdn-icons-png.flaticon.com/512/889/889140.png" className={style.upVote} />
-                        <Text variant="h3">{upvotes}</Text>
-                        <img src="https://cdn-icons-png.flaticon.com/512/8255/8255194.png" className={style.upVote} />
-                        <Text variant="h3">{downvotes}</Text>
+                        <Link to={`/review/${reviewer}/${reviewed}`} className={style.seeMore}>
+                            <Text variant="h3" color="var(--pink)">
+                                {`> `}See More
+                            </Text>
+                        </Link>
+                        <ReviewReactions className={style.voteActions} reviewer={reviewer} reviewed={reviewed} />
                     </div>
                 </div>
             </Panel>

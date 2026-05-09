@@ -1,0 +1,2543 @@
+Fetching IGDB IDs for 538 unique games...
+"Dark Souls":
+  → id: 2155  name: "Dark Souls"
+  → id: 11133  name: "Dark Souls III"
+  → id: 2368  name: "Dark Souls II"
+
+"Dark Souls II":
+  → id: 2368  name: "Dark Souls II"
+  → id: 194724  name: "Dark Souls II: Augur of Darkness"
+
+"Dark Souls III":
+  → id: 11133  name: "Dark Souls III"
+  → id: 321183  name: "Little Big Planet 3: Dark Souls 3 Costume pack"
+  → id: 141472  name: "The Witcher 3: Wild Hunt + Dark Souls III"
+
+"Elden Ring":
+  → id: 325591  name: "Elden Ring Nightreign"
+  → id: 119133  name: "Elden Ring"
+
+"Sekiro: Shadows Die Twice":
+  → id: 76882  name: "Sekiro: Shadows Die Twice"
+  → id: 103282  name: "Sekiro: Shadows Die Twice - Collector's Edition"
+  → id: 365281  name: "Sekiro: Shadows Die Twice - Game of the Year Edition"
+
+"Demon's Souls":
+  → id: 371977  name: "Soul Demon Hunters"
+  → id: 134606  name: "Demon's Souls"
+  → id: 5619  name: "Demon's Souls"
+
+"Bloodborne":
+  → id: 7334  name: "Bloodborne"
+  → id: 28734  name: "Bloodborne 2"
+  → id: 179685  name: "Bloodborne PSX"
+
+"Hollow Knight":
+  → id: 365702  name: "Hollow Knight"
+  → id: 14593  name: "Hollow Knight"
+  → id: 372563  name: "Hollow Knight Silksong"
+
+"Celeste":
+  → id: 26226  name: "Celeste"
+  → id: 76427  name: "Celeste Witch"
+  → id: 91484  name: "Marie Celeste"
+
+"Hades":
+  → id: 113112  name: "Hades"
+  → id: 80529  name: "Hades"
+  → id: 134619  name: "Hades 2"
+
+"Dead Cells":
+  → id: 351296  name: "Dead Cells+"
+  → id: 26855  name: "Dead Cells"
+  → id: 142877  name: "Dead Cells: Fatal Falls"
+
+"Salt and Sanctuary":
+  → id: 7709  name: "Salt and Sanctuary"
+  → id: 136349  name: "Salt and Sanctuary: Drowned Tome Edition"
+
+"Blasphemous":
+  → id: 274522  name: "Blasphemous + Blasphemous 2 Bundle"
+  → id: 26820  name: "Blasphemous"
+  → id: 165390  name: "Blasphemous II"
+
+"Blasphemous 2":
+  → id: 165390  name: "Blasphemous II"
+  → id: 274522  name: "Blasphemous + Blasphemous 2 Bundle"
+  → id: 317595  name: "Blasphemous II: Mea Culpa"
+
+"Nioh":
+  → id: 12571  name: "Nioh"
+  → id: 140972  name: "Nioh 2: The Complete Edition"
+  → id: 140049  name: "Nioh 2: Darkness in the Capital"
+
+"Nioh 2":
+  → id: 140972  name: "Nioh 2: The Complete Edition"
+  → id: 140049  name: "Nioh 2: Darkness in the Capital"
+  → id: 103330  name: "Nioh 2"
+
+"Lies of P":
+  → id: 148241  name: "Lies of P"
+  → id: 331204  name: "Lies of P: Overture"
+  → id: 348364  name: "Lies of P: Overture Bundle"
+
+"Lords of the Fallen":
+  → id: 800  name: "Myth: The Fallen Lords"
+  → id: 80150  name: "Fallen Lords: Condemnation"
+  → id: 194987  name: "Lords of the Fallen"
+
+"Remnant: From the Ashes":
+  → id: 105049  name: "Remnant: From the Ashes"
+  → id: 134829  name: "Remnant: From the Ashes - Subject 2923"
+
+"Remnant II":
+  → id: 228535  name: "Remnant II"
+  → id: 317619  name: "Remnant II: The Dark Horizon"
+  → id: 229643  name: "Burden 2: Remnants"
+
+"Mortal Shell":
+  → id: 132050  name: "Mortal Shell"
+  → id: 347633  name: "Mortal Shell II"
+  → id: 194075  name: "Elden Shell: Mortal Ring"
+
+"The Surge":
+  → id: 11590  name: "The Surge"
+  → id: 86477  name: "The Surge 2"
+  → id: 343610  name: "Surge"
+
+"The Surge 2":
+  → id: 86477  name: "The Surge 2"
+  → id: 125153  name: "The Surge 2: The Kraken"
+  → id: 202217  name: "The Surge 2: Limited Edition"
+
+"Star Wars Jedi: Fallen Order":
+  → id: 74701  name: "Star Wars Jedi: Fallen Order"
+  → id: 117405  name: "Star Wars Jedi: Fallen Order - Deluxe Edition"
+
+"Star Wars Jedi: Survivor":
+  → id: 201156  name: "Star Wars Jedi: Survivor"
+  → id: 227942  name: "Star Wars Jedi: Survivor - Deluxe Edition"
+
+"Tunic":
+  → id: 23733  name: "Tunic"
+  → id: 243617  name: "Tunics!"
+  → id: 300510  name: "Tunic GBC"
+
+"Nine Sols":
+  → id: 194821  name: "Nine Sols"
+
+"Ori and the Blind Forest":
+  → id: 19456  name: "Ori and the Blind Forest: Definitive Edition"
+  → id: 7344  name: "Ori and the Blind Forest"
+
+"Ori and the Will of the Wisps":
+  → id: 37001  name: "Ori and the Will of the Wisps"
+  → id: 136149  name: "Ori and the Will of the Wisps: Collector's Edition"
+
+"Axiom Verge":
+  → id: 8652  name: "Axiom Verge"
+  → id: 127269  name: "Axiom Verge 2"
+  → id: 172714  name: "Axiom Verge 1 & 2 Double Pack"
+
+"Axiom Verge 2":
+  → id: 127269  name: "Axiom Verge 2"
+  → id: 172714  name: "Axiom Verge 1 & 2 Double Pack"
+
+"Metroid Dread":
+  → id: 323061  name: "Metroid Dread"
+  → id: 233651  name: "Metroid Dread"
+  → id: 15698  name: "Metroid Dread"
+
+"Metroid Prime":
+  → id: 134257  name: "Metroid Prime"
+  → id: 134258  name: "Metroid Prime 2: Dark Echoes"
+  → id: 37136  name: "Metroid Prime 4: Beyond"
+
+"Metroid Prime Remastered":
+  → id: 236663  name: "Metroid Prime Remastered"
+
+"Castlevania: Symphony of the Night":
+  → id: 1128  name: "Castlevania: Symphony of the Night"
+  → id: 213878  name: "Castlevania: Symphony of the Night"
+  → id: 223449  name: "Castlevania: Symphony of the Night"
+
+"Castlevania: Aria of Sorrow":
+  → id: 173088  name: "Castlevania: Aria of Sorrow Alter"
+  → id: 1134  name: "Castlevania: Aria of Sorrow"
+  → id: 398836  name: "Castlevania: Aria of Sorrow"
+
+"Minecraft":
+  → id: 135400  name: "Minecraft"
+  → id: 254125  name: "Minecraft: Frozen"
+  → id: 240149  name: "Minecraft Tower Defence"
+
+"Grand Theft Auto V":
+  → id: 239064  name: "Grand Theft Auto V"
+  → id: 1020  name: "Grand Theft Auto V"
+  → id: 45131  name: "Grand Theft Auto V: Special Edition"
+
+"Red Dead Redemption 2":
+  → id: 25076  name: "Red Dead Redemption 2"
+  → id: 103206  name: "Red Dead Redemption II: Ultimate Edition"
+  → id: 262052  name: "Red Dead Redemption & Red Dead Redemption 2 Bundle"
+
+"The Last of Us":
+  → id: 26192  name: "The Last of Us Part II"
+  → id: 1009  name: "The Last of Us"
+  → id: 204350  name: "The Last of Us Part I"
+
+"The Last of Us Part II":
+  → id: 26192  name: "The Last of Us Part II"
+  → id: 277143  name: "The Last of Us Part II Remastered"
+  → id: 279776  name: "The Last of Us Part II Remastered: W.L.F. Edition"
+
+"God of War":
+  → id: 19560  name: "God of War"
+  → id: 1291  name: "God of War: Ascension"
+  → id: 112875  name: "God of War Ragnarök"
+
+"God of War Ragnarok":
+  → id: 323174  name: "Ragnarok: War of Gods"
+  → id: 112875  name: "God of War Ragnarök"
+  → id: 209806  name: "God of War Ragnarök: Jötnar Edition"
+
+"Marvel's Spider-Man":
+  → id: 109419  name: "Marvel's Spider-Man: The Heist"
+  → id: 109421  name: "Marvel's Spider-Man: Turf Wars"
+  → id: 109422  name: "Marvel's Spider-Man: Silver Lining"
+
+"Marvel's Spider-Man 2":
+  → id: 127044  name: "Marvel's Spider-Man 2"
+  → id: 254219  name: "Marvel's Spider-Man 2: Launch Edition"
+  → id: 272315  name: "Marvel's Spider-Man 2: Collector's Edition"
+
+"Uncharted 4: A Thief's End":
+  → id: 7331  name: "Uncharted 4: A Thief's End"
+  → id: 382528  name: "Uncharted 4: A Thief's End - Patch 1.18"
+  → id: 168668  name: "Uncharted 4: A Thief's End - Remastered"
+
+"Horizon Zero Dawn":
+  → id: 11156  name: "Horizon Zero Dawn"
+  → id: 317103  name: "Horizon Zero Dawn Remastered"
+  → id: 136150  name: "Horizon Zero Dawn: Limited Edition"
+
+"Horizon Forbidden West":
+  → id: 112874  name: "Horizon Forbidden West"
+  → id: 171276  name: "Horizon Forbidden West: Launch Edition"
+  → id: 228533  name: "Horizon Forbidden West: Burning Shores"
+
+"Ghost of Tsushima":
+  → id: 75235  name: "Ghost of Tsushima"
+  → id: 140042  name: "Ghost of Tsushima: Legends"
+  → id: 154772  name: "Ghost of Tsushima: Iki Island"
+
+"Cyberpunk 2077":
+  → id: 277807  name: "Cyberpunk 2077: Ultimate Edition"
+  → id: 220278  name: "Cyberpunk 2077: Project Orion"
+  → id: 1877  name: "Cyberpunk 2077"
+
+"Watch Dogs 2":
+  → id: 19441  name: "Watch Dogs 2"
+  → id: 136697  name: "Watch Dogs + Watch Dogs 2 Double Pack"
+  → id: 28377  name: "Watch Dogs 2: No Compromise"
+
+"Assassin's Creed Odyssey":
+  → id: 164698  name: "Assassin's Creed Bundle: Assassin's Creed Valhalla, Assassin's Creed Odyssey, and Assassin's Creed Origins"
+  → id: 24811  name: "Assassin's Creed: Odyssey - Deluxe Edition"
+  → id: 23648  name: "Assassin's Creed: Odyssey - Gold Edition"
+
+"Assassin's Creed Origins":
+  → id: 28540  name: "Assassin's Creed Origins"
+  → id: 39044  name: "Assassin's Creed: Origins - Gold Edition"
+  → id: 39034  name: "Assassin's Creed: Origins - Deluxe Edition"
+
+"Assassin's Creed Valhalla":
+  → id: 133004  name: "Assassin's Creed Valhalla"
+  → id: 164698  name: "Assassin's Creed Bundle: Assassin's Creed Valhalla, Assassin's Creed Odyssey, and Assassin's Creed Origins"
+  → id: 185706  name: "Assassin's Creed Valhalla: Dawn of Ragnarök"
+
+"Far Cry 5":
+  → id: 146032  name: "Far Cry 5 + Far Cry: New Dawn Double Pack"
+  → id: 164613  name: "Far Cry 5 + Far Cry New Dawn Deluxe Edition Bundle"
+  → id: 28552  name: "Far Cry 5"
+
+"Far Cry 6":
+  → id: 126290  name: "Far Cry 6"
+  → id: 182124  name: "Far Cry 6: Control"
+  → id: 182123  name: "Far Cry 6: Collapse"
+
+"Just Cause 4":
+  → id: 103261  name: "Just Cause 4"
+  → id: 125637  name: "Just Cause 4: Reloaded"
+  → id: 118919  name: "Just Cause 4: Los Demonios"
+
+"Saints Row IV":
+  → id: 1981  name: "Saints Row IV"
+  → id: 23420  name: "Saints Row IV: How the Saints Save Christmas"
+  → id: 53572  name: "Saints Row IV: 100% Uncut"
+
+"Borderlands 2":
+  → id: 1011  name: "Borderlands 2"
+  → id: 110835  name: "Borderlands 2 VR"
+
+"Borderlands 3":
+  → id: 19164  name: "Borderlands 3"
+  → id: 293719  name: "Borderlands 3: Season Pass 2"
+  → id: 259759  name: "Borderlands 3: Designer's Cut"
+
+"Half-Life 2":
+  → id: 267639  name: "Half-Life 2: MMod - Half-Life 2: Update"
+  → id: 271415  name: "Half-Life 2: MMod - Half-Life 2: Episode Two"
+  → id: 271414  name: "Half-Life 2: MMod - Half-Life 2: Episode One"
+
+"Half-Life":
+  → id: 267639  name: "Half-Life 2: MMod - Half-Life 2: Update"
+  → id: 271414  name: "Half-Life 2: MMod - Half-Life 2: Episode One"
+  → id: 271415  name: "Half-Life 2: MMod - Half-Life 2: Episode Two"
+
+"System Shock 2":
+  → id: 143964  name: "System Shock 2: 25th Anniversary Remaster"
+  → id: 22  name: "System Shock 2"
+
+"Deus Ex":
+  → id: 46712  name: "Deus Ex: Complete"
+  → id: 42  name: "Deus Ex: Invisible War"
+  → id: 230249  name: "Deus Ex: Zodiac"
+
+"Thief: The Dark Project":
+  → id: 2  name: "Thief: The Dark Project"
+  → id: 9227  name: "Thief Gold"
+  → id: 3  name: "Thief: Deadly Shadows"
+
+"Thief II: The Metal Age":
+  → id: 1  name: "Thief II: The Metal Age"
+
+"Baldur's Gate":
+  → id: 119171  name: "Baldur's Gate III"
+  → id: 124786  name: "Baldur's Gate and Baldur's Gate II: Enhanced Editions"
+  → id: 82  name: "Baldur's Gate II: Throne of Bhaal"
+
+"Baldur's Gate II: Shadows of Amn":
+  → id: 6  name: "Baldur's Gate II: Shadows of Amn"
+  → id: 91241  name: "Baldur's Gate II: Shadows of Amn - Collectors' Edition"
+
+"Planescape: Torment":
+  → id: 832  name: "Planescape: Torment"
+  → id: 27988  name: "Planescape: Torment - Enhanced Edition"
+
+"Fallout":
+  → id: 17  name: "Fallout Tactics: Brotherhood of Steel"
+  → id: 45128  name: "Fallout Trilogy"
+  → id: 14  name: "Fallout 2"
+
+"Fallout 2":
+  → id: 14  name: "Fallout 2"
+  → id: 229978  name: "Fallout 2 Remake"
+  → id: 141570  name: "Fallout 76: Season 2 - Armor Ace"
+
+"Diablo":
+  → id: 380541  name: "Diablo IV: Season of Divine Intervention"
+  → id: 372053  name: "Diablo IV: Season of Infernal Chaos"
+  → id: 3182  name: "Diablo III: Reaper of Souls"
+
+"Diablo II":
+  → id: 126  name: "Diablo II"
+  → id: 142803  name: "Diablo II: Resurrected"
+  → id: 246  name: "Diablo II: Lord of Destruction"
+
+"StarCraft":
+  → id: 239  name: "StarCraft II: Wings of Liberty"
+  → id: 230  name: "StarCraft"
+  → id: 46986  name: "StarCraft II: Trilogy"
+
+"Warcraft III: Reign of Chaos":
+  → id: 132  name: "Warcraft III: Reign of Chaos"
+
+"Age of Empires II":
+  → id: 9950  name: "Age of Empires II: Forgotten Empires"
+  → id: 327  name: "Age of Empires II: The Age of Kings"
+  → id: 144346  name: "Age of Empires II Mobile"
+
+"Age of Empires III":
+  → id: 299  name: "Age of Empires III"
+  → id: 144347  name: "Age of Empires III Mobile"
+  → id: 50919  name: "Age of Empires III: Gold Edition"
+
+"Command & Conquer: Red Alert 2":
+  → id: 245  name: "Command & Conquer: Red Alert 2"
+  → id: 648  name: "Command & Conquer: Red Alert 2 - Yuri's Revenge"
+  → id: 180284  name: "Command & Conquer: Red Alert 2 - Mental Omega"
+
+"Quake":
+  → id: 196490  name: "Quake: Coffee Quake"
+  → id: 283197  name: "Quake + Quake II Enhanced Bundle"
+  → id: 332258  name: "Quake"
+
+"Quake II":
+  → id: 332259  name: "Quake II"
+  → id: 262016  name: "Quake II"
+  → id: 261085  name: "Quake II"
+
+"Doom":
+  → id: 121503  name: "Doom II"
+  → id: 7351  name: "Doom"
+  → id: 291028  name: "Five Nights at Freddy's 1 Doom"
+
+"Doom II":
+  → id: 313164  name: "Doom II"
+  → id: 313126  name: "Doom + Doom II"
+  → id: 260018  name: "Doom II"
+
+"Duke Nukem 3D":
+  → id: 85709  name: "Duke Nukem 3D: Plutonium Pak"
+  → id: 50347  name: "Duke Nukem 3D: Atomic Edition"
+  → id: 262683  name: "Duke Nukem 3D"
+
+"Ultima VII: The Black Gate":
+  → id: 6165  name: "Ultima VII: The Black Gate"
+
+"Morrowind":
+  → id: 56  name: "The Elder Scrolls III: Morrowind"
+  → id: 24775  name: "The Elder Scrolls III: Morrowind - Game of the Year Edition"
+  → id: 27030  name: "The Elder Scrolls Online: Morrowind"
+
+"Oblivion":
+  → id: 59  name: "The Elder Scrolls IV: Oblivion"
+  → id: 267306  name: "The Elder Scrolls IV: Oblivion Remastered"
+  → id: 231795  name: "Oblivion Eagle"
+
+"Gothic":
+  → id: 2481  name: "Gothic II: The Night of the Raven"
+  → id: 3234  name: "Arcania: Gothic 4"
+
+"Gothic II":
+  → id: 2262  name: "Gothic II"
+  → id: 272459  name: "Gothic II: Odyssey"
+  → id: 2481  name: "Gothic II: The Night of the Raven"
+
+"Risen":
+  → id: 2444  name: "Risen"
+  → id: 226682  name: "Risen"
+  → id: 128025  name: "Risen Kingdom"
+
+"Prince of Persia: The Sands of Time":
+  → id: 836  name: "Prince of Persia: The Sands of Time"
+  → id: 213051  name: "Prince of Persia: The Sands of Time"
+  → id: 142650  name: "Prince of Persia: The Sands of Time"
+
+"Beyond Good & Evil":
+  → id: 1341  name: "Beyond Good & Evil"
+  → id: 1936  name: "Beyond Good & Evil 2"
+  → id: 20437  name: "Beyond Good & Evil HD"
+
+"Psychonauts":
+  → id: 1339  name: "Psychonauts"
+  → id: 14741  name: "Psychonauts 2"
+  → id: 220473  name: "Psychedelia: The Psychonaut"
+
+"Jade Empire":
+  → id: 5867  name: "Jade Empire"
+  → id: 10  name: "Jade Empire: Special Edition"
+  → id: 47318  name: "Jade Empire: Limited Edition"
+
+"Knights of the Old Republic":
+  → id: 22659  name: "Star Wars: The Old Republic - Knights of the Eternal Throne"
+  → id: 11178  name: "Star Wars: The Old Republic - Knights of the Fallen Empire"
+  → id: 116  name: "Star Wars: Knights of the Old Republic"
+
+"Knights of the Old Republic II":
+  → id: 118  name: "Star Wars: Knights of the Old Republic II - The Sith Lords"
+
+"Max Payne":
+  → id: 19  name: "Max Payne 2: The Fall of Max Payne"
+  → id: 196251  name: "Max Payne"
+  → id: 18  name: "Max Payne"
+
+"Max Payne 2":
+  → id: 196252  name: "Max Payne 2"
+  → id: 19  name: "Max Payne 2: The Fall of Max Payne"
+  → id: 320154  name: "Max Payne 2: Mona the Assassin"
+
+"Mafia":
+  → id: 325379  name: "Mafia"
+  → id: 314276  name: "Mafia: The Old Country"
+  → id: 39  name: "Mafia"
+
+"Mafia II":
+  → id: 40  name: "Mafia II"
+  → id: 272451  name: "Mafia II Mobile"
+  → id: 275238  name: "Mafia II: Made Man Pack"
+
+"Counter-Strike":
+  → id: 266357  name: "Counter-Strike"
+  → id: 241  name: "Counter-Strike"
+  → id: 242408  name: "Counter-Strike 2"
+
+"Team Fortress 2":
+  → id: 256431  name: "Team Fortress 2: War! Update"
+  → id: 256427  name: "Team Fortress 2: Terrifying Team Fortress Haunted Hallowe'en Special"
+  → id: 256488  name: "Team Fortress 2: Australian Christmas"
+
+"Portal":
+  → id: 193776  name: "Portal Maze 2"
+  → id: 317175  name: "Brazilian Drug Dealer 3: I Opened a Portal to Hell in the Favela Trying To Revive Mit Aia I Need to Close It"
+  → id: 170873  name: "Portal Knights: Portal Pioneer Pack"
+
+"Portal 2":
+  → id: 193776  name: "Portal Maze 2"
+  → id: 99969  name: "Portal 2: In Motion"
+  → id: 72  name: "Portal 2"
+
+"Left 4 Dead":
+  → id: 199894  name: "Zombie Army 4: Dead War - Left 4 Dead Bundle"
+  → id: 224370  name: "Zombie Army 4: Dead War - Left 4 Dead Character Pack 2"
+  → id: 155449  name: "Zombie Army 4: Dead War - Left 4 Dead Character Pack 1"
+
+"Left 4 Dead 2":
+  → id: 124  name: "Left 4 Dead 2"
+  → id: 358402  name: "Left 4 Dead 2: Nightmare"
+  → id: 358317  name: "Left 4 Dead 2 Beta Pack"
+
+"Grim Fandango":
+  → id: 181  name: "Grim Fandango"
+  → id: 8682  name: "Grim Fandango Remastered"
+
+"The Secret of Monkey Island":
+  → id: 191638  name: "The Secret of Monkey Island: Recoded"
+  → id: 60  name: "The Secret of Monkey Island"
+  → id: 65  name: "The Secret of Monkey Island: Special Edition"
+
+"Day of the Tentacle":
+  → id: 193  name: "Day of the Tentacle"
+  → id: 15862  name: "Day of the Tentacle Remastered"
+
+"Full Throttle":
+  → id: 180  name: "Full Throttle"
+  → id: 308176  name: "Full Throttle"
+  → id: 46843  name: "Full Throttle"
+
+"Myst":
+  → id: 141568  name: "Myst"
+  → id: 8475  name: "Myst V: End of Ages"
+  → id: 236  name: "Myst"
+
+"Fortnite":
+  → id: 303239  name: "Fortnite: May 2024 Fortnite Crew Pack"
+  → id: 231090  name: "Fortnite"
+  → id: 1905  name: "Fortnite"
+
+"Apex Legends":
+  → id: 114795  name: "Apex Legends"
+  → id: 146328  name: "Apex Legends: Legacy"
+  → id: 176896  name: "Apex Legends: Escape"
+
+"Call of Duty: Modern Warfare":
+  → id: 260780  name: "Call of Duty: Modern Warfare III"
+  → id: 119177  name: "Call of Duty: Modern Warfare"
+  → id: 21198  name: "Call of Duty: Modern Warfare - Mobilized"
+
+"Call of Duty: Warzone":
+  → id: 217815  name: "Call of Duty: Warzone"
+  → id: 131800  name: "Call of Duty: Warzone"
+  → id: 217618  name: "Call of Duty: Warzone Mobile"
+
+"Destiny 2":
+  → id: 345365  name: "Bound Destiny 2: Destiny's Requiem"
+  → id: 25657  name: "Destiny 2"
+  → id: 331040  name: "Destiny 2: Heresy"
+
+"Anthem":
+  → id: 103276  name: "Anthem: Legion of Dawn Edition"
+  → id: 36950  name: "Anthem"
+  → id: 81491  name: "Shengnü Zhi Ge: Heroine Anthem II - The Angel of Sarem"
+
+"No Man's Sky":
+  → id: 329714  name: "No Man's Sky: Worlds Part II"
+  → id: 308973  name: "No Man's Sky: Worlds Part I"
+  → id: 336874  name: "No Man's Sky: Relics"
+
+"Fallout 76":
+  → id: 103020  name: "Fallout 76"
+  → id: 297701  name: "Fallout 76: Atlantic City - America's Playground"
+  → id: 217785  name: "Fallout 76: The Pitt"
+
+"Battlefield 2042":
+  → id: 125166  name: "Battlefield 2042"
+  → id: 293915  name: "Battlefield 2042: Year 1 Pass"
+  → id: 169199  name: "Battlefield 2042: Gold Edition"
+
+"Halo Infinite":
+  → id: 103281  name: "Halo Infinite"
+  → id: 283342  name: "Halo Infinite: CU29"
+  → id: 381718  name: "Halo Infinite: Operation Infinite"
+
+"Skull and Bones":
+  → id: 37062  name: "Skull and Bones"
+  → id: 85176  name: "House M.D.: Episode 3 - Skull and Bones"
+  → id: 301749  name: "Skull and Bones: Deluxe Edition"
+
+"Redfall":
+  → id: 152247  name: "Redfall"
+  → id: 233871  name: "Redfall: Bite Back Edition"
+  → id: 350534  name: "Redfall: Steelbook Launch Edition"
+
+"Suicide Squad: Kill the Justice League":
+  → id: 136627  name: "Suicide Squad: Kill the Justice League"
+  → id: 317868  name: "Suicide Squad: Kill the Justice League - Season of the Joker"
+  → id: 239147  name: "Suicide Squad: Kill The Justice League - Deluxe Edition"
+
+"Starfield":
+  → id: 96437  name: "Starfield"
+  → id: 104915  name: "Starfield Wars"
+  → id: 314267  name: "Starfield: Rev-8"
+
+"Concord":
+  → id: 250632  name: "Concord"
+  → id: 107972  name: "Concord"
+  → id: 122000  name: "Eternal Concord"
+
+"Stardew Valley":
+  → id: 17000  name: "Stardew Valley"
+  → id: 210537  name: "Stardew Valley Expanded"
+  → id: 42895  name: "Stardew Valley: Collector's Edition"
+
+"Terraria":
+  → id: 1879  name: "Terraria"
+  → id: 3021  name: "Terraria 2"
+  → id: 295662  name: "Terraria: Journey's End"
+
+"Undertale":
+  → id: 12517  name: "Undertale"
+  → id: 178026  name: "Undertale 2"
+  → id: 324938  name: "Undertale 3D"
+
+"Deltarune":
+  → id: 171233  name: "Deltarune"
+  → id: 277964  name: "Deltarune 97"
+  → id: 360308  name: "Deltarune Yellow"
+
+"Disco Elysium":
+  → id: 140050  name: "Disco Elysium: Game Boy Edition"
+  → id: 335434  name: "Disco Elysium"
+  → id: 26472  name: "Disco Elysium"
+
+"Outer Wilds":
+  → id: 11737  name: "Outer Wilds"
+  → id: 146761  name: "Outer Wilds: Echoes of the Eye"
+  → id: 173172  name: "Outer Wilds: Archaeologist Edition"
+
+"Return of the Obra Dinn":
+  → id: 9643  name: "Return of the Obra Dinn"
+
+"Papers Please":
+  → id: 2935  name: "Papers, Please"
+  → id: 297332  name: "Toilet Paper Please"
+  → id: 185237  name: "No More Papers Please"
+
+"Shovel Knight":
+  → id: 7444  name: "Shovel Knight"
+  → id: 305757  name: "Shovel Knight: Shovel of Hope DX"
+  → id: 122097  name: "Shovel Knight Dig"
+
+"Cuphead":
+  → id: 9061  name: "Cuphead"
+  → id: 237497  name: "Cuphead"
+  → id: 357448  name: "Cuphead Wii U"
+
+"Into the Breach":
+  → id: 20193  name: "SCP: Containment Breach"
+  → id: 244682  name: "Future Breach 64"
+  → id: 27117  name: "Into the Breach"
+
+"FTL: Faster Than Light":
+  → id: 3075  name: "FTL: Faster Than Light"
+  → id: 20098  name: "FTL: Advanced Edition"
+
+"Risk of Rain 2":
+  → id: 28512  name: "Risk of Rain 2"
+  → id: 189842  name: "Risk of Rain 2: Survivors of the Void"
+  → id: 201040  name: "Risk of Rain 2 + Survivors of the Void"
+
+"Noita":
+  → id: 52006  name: "Noita"
+
+"Baba Is You":
+  → id: 334743  name: "Baba Is You: Baba Make Level"
+  → id: 209470  name: "Baba is You Xtreme"
+  → id: 76638  name: "Baba Is You"
+
+"Neon White":
+  → id: 143612  name: "Neon White"
+
+"Katana Zero":
+  → id: 20150  name: "Katana Zero"
+  → id: 339625  name: "Katana Zero DLC"
+
+"Hotline Miami":
+  → id: 1384  name: "Hotline Miami"
+  → id: 138275  name: "Payday 2: Hotline Miami"
+  → id: 99733  name: "Hotline Miami Collection"
+
+"Hotline Miami 2: Wrong Number":
+  → id: 2126  name: "Hotline Miami 2: Wrong Number"
+  → id: 124881  name: "Hotline Miami 2: Wrong Number - Digital Special Edition"
+
+"Hyper Light Drifter":
+  → id: 107295  name: "Hyper Light Drifter: Special Edition"
+  → id: 9806  name: "Hyper Light Drifter"
+  → id: 196209  name: "Hyper Light Drifter: Collector's Edition"
+
+"A Short Hike":
+  → id: 116753  name: "A Short Hike"
+
+"Night in the Woods":
+  → id: 55865  name: "Night in the Woods: Longest Night"
+  → id: 10148  name: "Night in the Woods"
+  → id: 128760  name: "A Night in the Woods"
+
+"Gris":
+  → id: 22917  name: "Gris"
+  → id: 320697  name: "Gris + Neva Bundle"
+  → id: 350799  name: "Gris: Deluxe Edition"
+
+"Spiritfarer":
+  → id: 119304  name: "Spiritfarer"
+  → id: 218758  name: "Spiritfarer: Lily Update"
+  → id: 218759  name: "Spiritfarer: Beverly Update"
+
+"Unpacking":
+  → id: 134276  name: "Unpacking"
+  → id: 115843  name: "Unpacking"
+  → id: 322531  name: "Unpacking Universe Dreams"
+
+"Vampire Survivors":
+  → id: 357404  name: "Vampire Survivors+"
+  → id: 186725  name: "Vampire Survivors"
+  → id: 377650  name: "Vampire Survivors VR"
+
+"Dave the Diver":
+  → id: 203722  name: "Dave the Diver"
+  → id: 279619  name: "Dave the Diver: Dredge"
+  → id: 314281  name: "Dave the Diver: Mxmtoon"
+
+"Dredge":
+  → id: 395816  name: "Dredge+"
+  → id: 164867  name: "Dredge"
+  → id: 305098  name: "Dredge: The Iron Rig"
+
+"Omori":
+  → id: 255559  name: ""Omori" "Mod" Made to Appeal to "Omori" "Fans""
+  → id: 26673  name: "Omori"
+
+"Eastward":
+  → id: 24417  name: "Eastward"
+  → id: 282127  name: "Yatagarasu Enter the Eastward"
+  → id: 266688  name: "Eastward: Octopia!"
+
+"Unsighted":
+  → id: 111815  name: "Unsighted"
+
+"Momodora: Reverie Under the Moonlight":
+  → id: 18182  name: "Momodora: Reverie Under the Moonlight"
+
+"Enter the Gungeon":
+  → id: 11182  name: "Enter the Gungeon"
+  → id: 228735  name: "Enter/Exit the Gungeon"
+  → id: 338088  name: "Enter the Gungeon 2"
+
+"Slay the Spire":
+  → id: 296831  name: "Slay the Spire II"
+  → id: 40477  name: "Slay the Spire"
+  → id: 198469  name: "Downfall: A Slay the Spire Fan Expansion"
+
+"Monster Train":
+  → id: 129483  name: "Monster Train"
+  → id: 332273  name: "Monster Train 2"
+  → id: 346010  name: "Monster Train Collection"
+
+"Inscryption":
+  → id: 139090  name: "Inscryption"
+  → id: 283444  name: "Inscryption Pico-8"
+  → id: 186306  name: "Inscryption: Kaycee's Mod"
+
+"Doki Doki Literature Club":
+  → id: 152122  name: "Doki Doki Literature Club Plus!"
+  → id: 309582  name: "Doki Doki Literature Club"
+  → id: 55935  name: "Doki Doki Literature Club!"
+
+"The Witcher 3: Wild Hunt":
+  → id: 141472  name: "The Witcher 3: Wild Hunt + Dark Souls III"
+  → id: 1942  name: "The Witcher 3: Wild Hunt"
+  → id: 22439  name: "The Witcher 3: Wild Hunt - Game of the Year Edition"
+
+"Baldur's Gate 3":
+  → id: 119171  name: "Baldur's Gate III"
+  → id: 357173  name: "Baldur's Gate III: The Black Hound"
+  → id: 279660  name: "Baldur's Gate 3: Deluxe Edition"
+
+"The Elder Scrolls V: Skyrim":
+  → id: 472  name: "The Elder Scrolls V: Skyrim"
+  → id: 37034  name: "The Elder Scrolls V: Skyrim"
+  → id: 37088  name: "The Elder Scrolls V: Skyrim VR"
+
+"Dragon Age: Origins":
+  → id: 76  name: "Dragon Age: Origins"
+  → id: 77  name: "Dragon Age: Origins - Awakening"
+  → id: 17464  name: "Dragon Age: Origins - Witch Hunt"
+
+"Dragon Age: Inquisition":
+  → id: 1887  name: "Dragon Age: Inquisition"
+  → id: 20189  name: "Dragon Age: Inquisition - Trespasser"
+  → id: 20188  name: "Dragon Age: Inquisition - The Descent"
+
+"Divinity: Original Sin 2":
+  → id: 154209  name: "Divinity: Original Sin II - Divine Edition"
+  → id: 144597  name: "Divinity: Original Sin 2 - Divine Ascension"
+  → id: 11800  name: "Divinity: Original Sin II"
+
+"Pathfinder: Kingmaker":
+  → id: 36929  name: "Pathfinder: Kingmaker"
+  → id: 124898  name: "Pathfinder: Kingmaker - Bloody Mess"
+  → id: 210942  name: "Pathfinder: Kingmaker - Noble Edition"
+
+"Pathfinder: Wrath of the Righteous":
+  → id: 127254  name: "Pathfinder: Wrath of the Righteous"
+  → id: 193127  name: "Pathfinder: Wrath of the Righteous - Paint of War"
+  → id: 193128  name: "Pathfinder: Wrath of the Righteous - Faces of War"
+
+"Pillars of Eternity":
+  → id: 1593  name: "Pillars of Eternity"
+  → id: 26951  name: "Pillars of Eternity II: Deadfire"
+  → id: 51889  name: "Pillars of Eternity: Hero Edition"
+
+"Pillars of Eternity II: Deadfire":
+  → id: 26951  name: "Pillars of Eternity II: Deadfire"
+  → id: 124958  name: "Pillars of Eternity II: Deadfire - Beast of Winter"
+  → id: 83894  name: "Pillars of Eternity II: Deadfire - Deluxe Edition"
+
+"Tyranny":
+  → id: 18398  name: "Tyranny"
+  → id: 289346  name: "Tank Tyranny"
+  → id: 149260  name: "Tyrannis"
+
+"Wasteland 3":
+  → id: 24863  name: "Wasteland 3"
+  → id: 154225  name: "Wasteland 3: Deluxe Edition"
+  → id: 139893  name: "Wasteland 3: Day One Edition"
+
+"Torment: Tides of Numenera":
+  → id: 2004  name: "Torment: Tides of Numenera"
+  → id: 51801  name: "Torment: Tides of Numenera - Legacy Edition"
+  → id: 26538  name: "Torment: Tides of Numenera - Day One Edition"
+
+"Mass Effect Legendary Edition":
+  → id: 140839  name: "Mass Effect Legendary Edition"
+
+"Mass Effect 2":
+  → id: 13790  name: "Mass Effect 2: Firewalker Pack"
+  → id: 74  name: "Mass Effect 2"
+  → id: 245113  name: "Mass Effect 2"
+
+"Mass Effect 3":
+  → id: 202174  name: "Mass Effect 3: N7 Digital Deluxe Edition"
+  → id: 245478  name: "Mass Effect 3"
+  → id: 75  name: "Mass Effect 3"
+
+"Dragon's Dogma":
+  → id: 115060  name: "Dragon's Dogma II"
+  → id: 308568  name: "Dragon's Dogma II: Dragon's Dogma Music & Sound Collection - Custom Sounds"
+  → id: 3968  name: "Dragon's Dogma"
+
+"Dragon's Dogma 2":
+  → id: 115060  name: "Dragon's Dogma II"
+  → id: 308568  name: "Dragon's Dogma II: Dragon's Dogma Music & Sound Collection - Custom Sounds"
+  → id: 288657  name: "Dragon's Dogma II: Deluxe Edition"
+
+"Monster Hunter: World":
+  → id: 36926  name: "Monster Hunter: World"
+  → id: 113344  name: "Monster Hunter: World - Iceborne"
+  → id: 81355  name: "Monster Hunter: World - Steelbook Edition"
+
+"Monster Hunter Rise":
+  → id: 207388  name: "Monster Hunter Rise + Sunbreak"
+  → id: 208042  name: "Monster Hunter Rise + Sunbreak: Deluxe Edition"
+  → id: 138950  name: "Monster Hunter Rise"
+
+"Xenoblade Chronicles 3":
+  → id: 241167  name: "Xenoblade Chronicles 3 + Xenoblade Chronicles 3 Expansion Pass"
+  → id: 191411  name: "Xenoblade Chronicles 3"
+  → id: 236668  name: "Xenoblade Chronicles 3: DLC Wave 3"
+
+"Xenoblade Chronicles 2":
+  → id: 254099  name: "Xenoblade Chronicles 2 and Xenoblade Chronicles 2 Expansion Pass Bundle"
+  → id: 26766  name: "Xenoblade Chronicles 2"
+  → id: 245690  name: "Xenoblade Chronicles 2: Expansion Pass"
+
+"Final Fantasy XIV Online":
+  → id: 386  name: "Final Fantasy XIV Online"
+  → id: 14729  name: "Final Fantasy XIV Online"
+  → id: 293777  name: "Final Fantasy XIV Online: Starter Edition"
+
+"Final Fantasy XVI":
+  → id: 31551  name: "Final Fantasy XVI"
+  → id: 295968  name: "Final Fantasy XVI: Collector's Edition"
+  → id: 279665  name: "Final Fantasy XVI Expansion Pass"
+
+"Final Fantasy VII Remake":
+  → id: 11169  name: "Final Fantasy VII Remake"
+  → id: 144024  name: "Final Fantasy VII Remake Intergrade"
+  → id: 144037  name: "Final Fantasy VII Remake: Episode Intermission"
+
+"Final Fantasy VII Rebirth":
+  → id: 133236  name: "Final Fantasy VII Rebirth"
+  → id: 266734  name: "Final Fantasy VII Rebirth: Deluxe Edition"
+  → id: 266735  name: "Final Fantasy VII Rebirth: Collector's Edition"
+
+"Persona 5 Royal":
+  → id: 134222  name: "Persona 5 Royal: Launch Edition"
+  → id: 114283  name: "Persona 5 Royal"
+  → id: 266009  name: "Persona 3 Reload: Persona 5 Royal Persona Set 1"
+
+"Persona 4 Golden":
+  → id: 2985  name: "Persona 4 Golden"
+  → id: 301578  name: "Persona 3 Reload: Persona 4 Golden Persona Set"
+  → id: 234702  name: "Persona 4 Golden"
+
+"Persona 3 Reload":
+  → id: 266008  name: "Persona 3 Reload: Persona 5 Royal Persona Set 2"
+  → id: 301578  name: "Persona 3 Reload: Persona 4 Golden Persona Set"
+  → id: 266009  name: "Persona 3 Reload: Persona 5 Royal Persona Set 1"
+
+"Nier: Automata":
+  → id: 11208  name: "NieR: Automata"
+  → id: 113345  name: "Nier: Automata - Game of the Yorha Edition"
+  → id: 206805  name: "Nier: Automata - The End of Yorha Edition"
+
+"Nier Replicant":
+  → id: 80468  name: "Nier Replicant"
+  → id: 131999  name: "NieR Replicant ver.1.22474487139..."
+  → id: 375545  name: "NieR Replicant: Red and Black"
+
+"Kingdom Come: Deliverance":
+  → id: 298526  name: "Kingdom Come: Deliverance II"
+  → id: 4843  name: "Kingdom Come: Deliverance"
+  → id: 104985  name: "Kingdom Come: Deliverance - From the Ashes"
+
+"Kingdom Come: Deliverance II":
+  → id: 367246  name: "Dead Island 2: Kingdom Come - Deliverance II Weapon Pack"
+  → id: 298526  name: "Kingdom Come: Deliverance II"
+  → id: 326773  name: "Kingdom Come: Deliverance II - Day One Edition"
+
+"DOOM Eternal":
+  → id: 103298  name: "Doom Eternal"
+  → id: 140521  name: "Eternal Doom"
+
+"Call of Duty 4: Modern Warfare":
+  → id: 135294  name: "Call of Duty 4: Modern Warfare"
+  → id: 134651  name: "Call of Duty 4: Modern Warfare"
+
+"Call of Duty: Modern Warfare 2":
+  → id: 559  name: "Call of Duty: Modern Warfare 2"
+  → id: 200165  name: "Call of Duty: Modern Warfare II"
+  → id: 135298  name: "Call of Duty: Modern Warfare 2 - Force Recon"
+
+"Call of Duty: Black Ops":
+  → id: 545  name: "Call of Duty: Black Ops"
+  → id: 136212  name: "Call of Duty: Black Ops III"
+  → id: 83727  name: "Call of Duty: Black Ops 4"
+
+"Call of Duty: Black Ops II":
+  → id: 1122  name: "Call of Duty: Black Ops II"
+  → id: 21865  name: "Call of Duty: Black Ops II"
+  → id: 330137  name: "Call Of Duty: Black Ops 6 - Season 2"
+
+"Call of Duty: Black Ops Cold War":
+  → id: 137001  name: "Call of Duty: Black Ops Cold War"
+  → id: 141574  name: "Call of Duty: Black Ops Cold War - Season One"
+  → id: 172674  name: "Call of Duty: Black Ops Cold War - Season Six"
+
+"Counter-Strike: Global Offensive":
+  → id: 1372  name: "Counter-Strike: Global Offensive"
+  → id: 172876  name: "Counter-Strike: Global Offensive - Operation Riptide"
+
+"Counter-Strike 2":
+  → id: 242408  name: "Counter-Strike 2"
+  → id: 76823  name: "Counter-Strike Online 2"
+
+"Halo: Combat Evolved":
+  → id: 740  name: "Halo: Combat Evolved"
+  → id: 324563  name: "Halo: Combat Evolved VR"
+  → id: 2640  name: "Halo: Combat Evolved Anniversary"
+
+"Halo 2":
+  → id: 986  name: "Halo 2"
+  → id: 45149  name: "Halo 2: Limited Collector's Edition"
+  → id: 257553  name: "Halo 2 Uncut"
+
+"Halo 3":
+  → id: 989  name: "Halo 3: ODST"
+  → id: 163108  name: "Halo 3 + Halo Wars"
+  → id: 43955  name: "Halo 3: Legendary Edition"
+
+"Halo 5: Guardians":
+  → id: 6803  name: "Halo 5: Guardians"
+  → id: 45145  name: "Halo 5: Guardians - Limited Edition"
+  → id: 75413  name: "Halo 5: Guardians - Digital Deluxe Edition"
+
+"Titanfall 2":
+  → id: 17447  name: "Titanfall 2"
+  → id: 53805  name: "Titanfall 2: Deluxe Edition"
+  → id: 36700  name: "Titanfall 2: Monarch's Reign"
+
+"Battlefield 1":
+  → id: 94085  name: "Battlefield 1: Revolution"
+  → id: 18320  name: "Battlefield 1"
+  → id: 112636  name: "Battlefield 1: Deluxe Collector's Edition"
+
+"Battlefield V":
+  → id: 83728  name: "Battlefield V"
+  → id: 89571  name: "Battlefield V: Deluxe Edition"
+  → id: 134372  name: "Battlefield V: Year 2 Edition"
+
+"Valorant":
+  → id: 304134  name: "Grit & Valor: 1949"
+  → id: 126459  name: "Valorant"
+  → id: 326576  name: "Valor of Man"
+
+"Rainbow Six Siege":
+  → id: 7360  name: "Rainbow Six Siege"
+  → id: 158944  name: "Tom Clancy's Rainbow Six Siege: North Star"
+  → id: 198266  name: "Tom Clancy's Rainbow Six Siege: Demon Veil"
+
+"Escape from Tarkov":
+  → id: 15536  name: "Escape from Tarkov"
+  → id: 203610  name: "Escape from Tarkov: Arena"
+  → id: 399116  name: "Escape from Tarkov: Bear - G99"
+
+"Hunt: Showdown":
+  → id: 7291  name: "Hunt: Showdown 1896"
+  → id: 241309  name: "Hunt: Showdown 1896 - Biatatá: Still Waters Run Deep"
+  → id: 231342  name: "Hunt: Showdown 1896 - La Luz Mala"
+
+"Insurgency: Sandstorm":
+  → id: 18088  name: "Insurgency: Sandstorm"
+  → id: 293920  name: "Insurgency: Sandstorm - Year 1 Pass"
+  → id: 293921  name: "Insurgency: Sandstorm - Year 2 Pass"
+
+"Ready or Not":
+  → id: 28489  name: "Ready or Not"
+  → id: 360775  name: "Ready or Not: VRO Mod"
+  → id: 389071  name: "Ready or Die"
+
+"Deep Rock Galactic":
+  → id: 27134  name: "Deep Rock Galactic"
+  → id: 302936  name: "Deep Rock Galactic: Order of the Deep Pack"
+  → id: 224166  name: "Deep Rock Galactic: Season 3 - Plaguefall"
+
+"Helldivers 2":
+  → id: 250616  name: "Helldivers 2"
+  → id: 325601  name: "Helldivers 2: Omens of Tyranny"
+  → id: 365642  name: "Helldivers 2: Into the Unjust"
+
+"Wolfenstein: The New Order":
+  → id: 2031  name: "Wolfenstein: The New Order"
+  → id: 42935  name: "Wolfenstein: The New Order - Occupied Edition"
+  → id: 136008  name: "Wolfenstein: The New Order and The Old Blood Double Pack"
+
+"Wolfenstein II: The New Colossus":
+  → id: 36952  name: "Wolfenstein II: The New Colossus"
+  → id: 38025  name: "Wolfenstein II: The New Colossus Collector's Edition"
+  → id: 52133  name: "Wolfenstein II: The New Colossus Digital Deluxe Edition"
+
+"Metro 2033":
+  → id: 495  name: "Metro 2033"
+  → id: 251142  name: "Metro 2033"
+  → id: 59064  name: "Metro 2033: Wars"
+
+"Metro: Last Light":
+  → id: 539  name: "Metro: Last Light"
+  → id: 50199  name: "Metro: Last Light Redux"
+  → id: 128648  name: "Metro: Last Light - Tower Pack"
+
+"Metro Exodus":
+  → id: 37016  name: "Metro Exodus"
+  → id: 121756  name: "Metro Exodus: Sam's Story"
+  → id: 95059  name: "Metro Exodus: Gold Edition"
+
+"STALKER: Shadow of Chernobyl":
+  → id: 320  name: "S.T.A.L.K.E.R.: Shadow of Chernobyl"
+
+"STALKER: Clear Sky":
+  → id: 4840  name: "S.T.A.L.K.E.R.: Clear Sky"
+  → id: 343443  name: "S.T.A.L.K.E.R.: Clear Sky - Enhanced Edition"
+
+"STALKER: Call of Pripyat":
+  → id: 7605  name: "S.T.A.L.K.E.R.: Call of Pripyat"
+
+"STALKER 2: Heart of Chornobyl":
+  → id: 101440  name: "S.T.A.L.K.E.R. 2: Heart of Chornobyl"
+  → id: 169175  name: "S.T.A.L.K.E.R. 2: Heart of Chornobyl - Deluxe Edition"
+  → id: 169174  name: "S.T.A.L.K.E.R. 2: Heart of Chornobyl - Ultimate Edition"
+
+"Crysis":
+  → id: 296  name: "Crysis"
+  → id: 188543  name: "Crysis 4"
+
+"Crysis 2":
+  → id: 471  name: "Crysis 2"
+  → id: 165126  name: "Crysis 2 Remastered"
+
+"Crysis 3":
+  → id: 1268  name: "Crysis 3"
+  → id: 165127  name: "Crysis 3 Remastered"
+  → id: 46635  name: "Crysis 3: Hunter Edition"
+
+"Bioshock":
+  → id: 152660  name: "BioShock"
+  → id: 538  name: "BioShock Infinite"
+  → id: 21  name: "BioShock 2"
+
+"BioShock Infinite":
+  → id: 538  name: "BioShock Infinite"
+  → id: 20115  name: "BioShock Infinite: Clash in the Clouds"
+
+"Bioshock 2":
+  → id: 21  name: "BioShock 2"
+  → id: 34294  name: "BioShock 2 Remastered"
+
+"F.E.A.R.":
+  → id: 294292  name: "Fear of Fear"
+  → id: 254396  name: "Fear Assessment+"
+  → id: 154699  name: "Fear"
+
+"Superhot":
+  → id: 7205  name: "SuperHot"
+  → id: 25632  name: "SuperHot VR"
+  → id: 195987  name: "SuperHot Quake"
+
+"Amid Evil":
+  → id: 74904  name: "Amid Evil"
+  → id: 154191  name: "Amid Evil: Warrior Edition"
+  → id: 198154  name: "Amid Evil VR"
+
+"Ion Fury":
+  → id: 54844  name: "Ion Fury"
+  → id: 145471  name: "Ion Fury: Aftershock"
+  → id: 274835  name: "Ion Fury + Aftershock"
+
+"Dusk":
+  → id: 55863  name: "Jake Hunter Detective Story: Ghost of the Dusk"
+  → id: 132646  name: "Zelda 64: Dawn & Dusk"
+  → id: 152265  name: "Dusk '82"
+
+"Ultrakill":
+  → id: 124333  name: "Ultrakill"
+  → id: 299549  name: "ULTRAKILL: Masquerade Divinity"
+
+"Prodeus":
+  → id: 112613  name: "Prodeus"
+  → id: 276509  name: "Prodeus: The Elder Veil"
+
+"The Witcher 2: Assassins of Kings":
+  → id: 478  name: "The Witcher 2: Assassins of Kings"
+  → id: 22319  name: "The Witcher 2: Assassins of Kings - Dark Edition"
+
+"The Witcher":
+  → id: 194662  name: "The Witcher IV"
+  → id: 1942  name: "The Witcher 3: Wild Hunt"
+  → id: 80  name: "The Witcher"
+
+"Divinity: Original Sin":
+  → id: 154209  name: "Divinity: Original Sin II - Divine Edition"
+  → id: 144597  name: "Divinity: Original Sin 2 - Divine Ascension"
+  → id: 5082  name: "Divinity: Original Sin"
+
+"Fallout: New Vegas":
+  → id: 16  name: "Fallout: New Vegas"
+  → id: 10304  name: "Fallout: New Vegas - Dead Money"
+  → id: 10305  name: "Fallout: New Vegas - Honest Hearts"
+
+"Fallout 3":
+  → id: 202170  name: "Fallout 3: The Pitt & Fallout 3: Operation Anchorage"
+  → id: 15  name: "Fallout 3"
+  → id: 21892  name: "Fallout 3: Game of the Year Edition"
+
+"Fallout 4":
+  → id: 9630  name: "Fallout 4"
+  → id: 54612  name: "Fallout 4: Game of the Year Edition"
+  → id: 27922  name: "Fallout 4 VR"
+
+"Final Fantasy VI":
+  → id: 158985  name: "Final Fantasy VI"
+  → id: 288348  name: "Final Fantasy VI"
+  → id: 146218  name: "Final Fantasy VI"
+
+"Final Fantasy VII":
+  → id: 127879  name: "Final Fantasy VII & Final Fantasy VIII Remastered Twin Pack"
+  → id: 207021  name: "Final Fantasy VII"
+  → id: 207028  name: "Final Fantasy VII"
+
+"Final Fantasy VIII":
+  → id: 203524  name: "Final Fantasy VIII"
+  → id: 203538  name: "Final Fantasy VIII"
+  → id: 425  name: "Final Fantasy VIII"
+
+"Final Fantasy IX":
+  → id: 340349  name: "Final Fantasy IX"
+  → id: 205673  name: "Final Fantasy IX"
+  → id: 88970  name: "Final Fantasy IX"
+
+"Final Fantasy X":
+  → id: 418  name: "Final Fantasy X"
+  → id: 146774  name: "Final Fantasy X International"
+  → id: 266285  name: "Final Fantasy X: Fantasy War"
+
+"Final Fantasy XII: The Zodiac Age":
+  → id: 19455  name: "Final Fantasy XII: The Zodiac Age"
+  → id: 136364  name: "Final Fantasy XII: The Zodiac Age - Collector's Edition"
+  → id: 136173  name: "Final Fantasy XII: The Zodiac Age - Limited Steelbook Edition"
+
+"Chrono Trigger":
+  → id: 206320  name: "Chrono Trigger"
+  → id: 79447  name: "Chrono Trigger: Character Library"
+  → id: 79448  name: "Chrono Trigger: Music Library"
+
+"Chrono Cross":
+  → id: 335488  name: "Chrono Cross"
+  → id: 1804  name: "Chrono Cross"
+  → id: 191404  name: "Chrono Cross: The Radical Dreamers Edition"
+
+"Shin Megami Tensei V: Vengeance":
+  → id: 287850  name: "Shin Megami Tensei V: Vengeance"
+  → id: 364400  name: "Shin Megami Tensei V: Vengeance Randomizer"
+  → id: 306561  name: "Shin Megami Tensei V: Vengeance - DLC All-in-One"
+
+"Xenoblade Chronicles":
+  → id: 241167  name: "Xenoblade Chronicles 3 + Xenoblade Chronicles 3 Expansion Pass"
+  → id: 254099  name: "Xenoblade Chronicles 2 and Xenoblade Chronicles 2 Expansion Pass Bundle"
+  → id: 2364  name: "Xenoblade Chronicles"
+
+"Tales of Arise":
+  → id: 119270  name: "Tales of Arise"
+  → id: 169243  name: "Tales of Arise: Deluxe Edition"
+  → id: 266719  name: "Tales of Arise: Beyond the Dawn"
+
+"Tales of Berseria":
+  → id: 18812  name: "Tales of Berseria"
+  → id: 378125  name: "Tales of Berseria Remastered"
+  → id: 42923  name: "Tales of Berseria: Collector's Edition"
+
+"Octopath Traveler":
+  → id: 304800  name: "Octopath Traveler + Octopath Traveler II Bundle"
+  → id: 26765  name: "Octopath Traveler"
+  → id: 358535  name: "Octopath Traveler 0"
+
+"Octopath Traveler II":
+  → id: 217554  name: "Octopath Traveler II"
+  → id: 304800  name: "Octopath Traveler + Octopath Traveler II Bundle"
+  → id: 243868  name: "Octopath Traveler II: Steelbook Edition"
+
+"Triangle Strategy":
+  → id: 318779  name: "Triangle Strategy"
+  → id: 143610  name: "Triangle Strategy"
+  → id: 203811  name: "Triangle Strategy: Tacticians's Limited Edition"
+
+"Fire Emblem: Three Houses":
+  → id: 26845  name: "Fire Emblem: Three Houses"
+  → id: 293730  name: "Fire Emblem: Three Houses + Expansion Pass"
+  → id: 293729  name: "Fire Emblem: Three Houses - Expansion Pass"
+
+"Tactics Ogre: Reborn":
+  → id: 212584  name: "Tactics Ogre: Reborn"
+
+"Shadowrun: Dragonfall":
+  → id: 22652  name: "Shadowrun: Dragonfall"
+  → id: 8864  name: "Shadowrun: Dragonfall - Director's Cut"
+
+"Shadowrun: Hong Kong":
+  → id: 11772  name: "Shadowrun: Hong Kong"
+  → id: 35842  name: "Shadowrun: Hong Kong - Extended Edition"
+  → id: 216373  name: "Shadowrun: Hong Kong - Extended Edition Deluxe"
+
+"Solasta: Crown of the Magister":
+  → id: 120170  name: "Solasta: Crown of the Magister"
+  → id: 242515  name: "Solasta: Crown of the Magister - Palace of Ice"
+  → id: 195735  name: "Solasta: Crown of the Magister - Lost Valley"
+
+"Neverwinter Nights 2":
+  → id: 214  name: "Neverwinter Nights 2"
+  → id: 22588  name: "Neverwinter Nights 2: Gold"
+  → id: 28972  name: "Neverwinter Nights 2: Platinum"
+
+"Minecraft Dungeons":
+  → id: 395525  name: "Minecraft Dungeons II"
+  → id: 110474  name: "Minecraft Dungeons"
+  → id: 251497  name: "Minecraft: Dungeons & Dragons"
+
+"Valheim":
+  → id: 104967  name: "Valheim"
+  → id: 300972  name: "Valheim: Ashlands"
+  → id: 227760  name: "Valheim: Mistlands"
+
+"Subnautica":
+  → id: 143025  name: "Subnautica + Subnautica Below Zero Double Pack"
+  → id: 9254  name: "Subnautica"
+  → id: 320140  name: "Subnautica 2"
+
+"Subnautica: Below Zero":
+  → id: 143025  name: "Subnautica + Subnautica Below Zero Double Pack"
+  → id: 107315  name: "Subnautica: Below Zero"
+
+"The Forest":
+  → id: 99425  name: "Märchen Forest: Mylne and the Forest Gift"
+  → id: 274403  name: "Lotte’s Forest: The Tale of Love"
+  → id: 321403  name: "Slendrina Must Die: The Forest"
+
+"Sons of the Forest":
+  → id: 127346  name: "Sons of the Forest"
+  → id: 315283  name: "Sons Of The Dream Forest"
+
+"7 Days to Die":
+  → id: 5574  name: "7 Days to Die"
+  → id: 353298  name: "7 Days to Die: The Desert Armor Set"
+  → id: 353300  name: "7 Days to Die: The Hoarder Armor Set"
+
+"Rust":
+  → id: 3277  name: "Rust"
+  → id: 299432  name: "Rust"
+  → id: 361433  name: "Rust Moon"
+
+"Ark: Survival Evolved":
+  → id: 10239  name: "Ark: Survival Evolved"
+  → id: 136152  name: "Ark: Survival Evolved - Limited Collector's Edition"
+  → id: 118717  name: "Ark: Survival Evolved: Explorer's Edition"
+
+"Palworld":
+  → id: 151665  name: "Palworld"
+  → id: 369677  name: "Palworld: Palfarm"
+  → id: 296045  name: "Palworld: Pokémon Mod"
+
+"Astroneer":
+  → id: 13205  name: "Astroneer"
+  → id: 234025  name: "Astroneer: Rails"
+  → id: 91912  name: "AstroN"
+
+"Satisfactory":
+  → id: 90558  name: "Satisfactory"
+  → id: 359662  name: "Satisfactory Modeler"
+  → id: 276907  name: "Satisfactory: Update 8"
+
+"Factorio":
+  → id: 7046  name: "Factorio"
+  → id: 326052  name: "Factorio: IR3"
+  → id: 326049  name: "Factorio: Nullius"
+
+"Dyson Sphere Program":
+  → id: 139078  name: "Dyson Sphere Program"
+
+"Core Keeper":
+  → id: 152127  name: "Core Keeper"
+  → id: 379253  name: "Core Keeper: Void & Voltage"
+  → id: 335161  name: "Core Keeper: Bags & Blasts"
+
+"Grounded":
+  → id: 325249  name: "DCS World: AV-8B Kerman Campaign by Ground Pounder Sims"
+  → id: 324733  name: "DCS World: F-16C Last Out: Weasels over Syria II Campaign"
+  → id: 125624  name: "Grounded"
+
+"Raft":
+  → id: 27082  name: "Raft"
+  → id: 348504  name: "Raft Days"
+  → id: 34862  name: "C:\raft"
+
+"Green Hell":
+  → id: 203842  name: "Hell Green Blue"
+  → id: 101461  name: "Green Hell"
+  → id: 152223  name: "Green Hell VR"
+
+"The Long Dark":
+  → id: 325596  name: "Blackfrost: The Long Dark 2"
+  → id: 8347  name: "The Long Dark"
+  → id: 231021  name: "The Long Dark: Wintermute"
+
+"Project Zomboid":
+  → id: 3189  name: "Project Zomboid"
+  → id: 298763  name: "ZomboidGuessr"
+
+"RimWorld":
+  → id: 9789  name: "RimWorld"
+  → id: 131676  name: "RimWorld: Royalty"
+  → id: 370333  name: "RimWorld: P-Music"
+
+"Dwarf Fortress":
+  → id: 6341  name: "Dwarf Fortress"
+  → id: 228456  name: "Dwarf Fortress"
+  → id: 104312  name: "Dwarf Fortress Remote"
+
+"My Time at Portia":
+  → id: 43165  name: "My Time at Portia"
+  → id: 224111  name: "My Time at Portia: Deluxe Edition"
+  → id: 223726  name: "My Time at Portia: NPC Attire Package"
+
+"My Time at Sandrock":
+  → id: 140427  name: "My Time at Sandrock"
+  → id: 306487  name: "My Time at Sandrock: Online"
+  → id: 275147  name: "My Time at Sandrock: Deluxe Edition"
+
+"Shadow of the Colossus":
+  → id: 139896  name: "Shadow of the Colossus"
+  → id: 37094  name: "Shadow of the Colossus"
+  → id: 2207  name: "Shadow of the Colossus"
+
+"Ico":
+  → id: 144612  name: "Ico"
+  → id: 7170  name: "Ico"
+  → id: 178660  name: "I.C.O."
+
+"Death Stranding":
+  → id: 19564  name: "Death Stranding"
+  → id: 228530  name: "Death Stranding 2: On the Beach"
+  → id: 152063  name: "Death Stranding: Director's Cut"
+
+"Control":
+  → id: 154237  name: "Star Control I & II"
+  → id: 139615  name: "Control: Override"
+  → id: 89823  name: "Galaxy Control: Arena Station"
+
+"Alan Wake":
+  → id: 185246  name: "Alan Wake II"
+  → id: 1062  name: "Alan Wake"
+  → id: 250806  name: "Alan Wake II: Deluxe Edition"
+
+"Alan Wake 2":
+  → id: 185246  name: "Alan Wake II"
+  → id: 250806  name: "Alan Wake II: Deluxe Edition"
+  → id: 311975  name: "Alan Wake II: Deluxe Edition"
+
+"Prey":
+  → id: 19531  name: "Prey"
+  → id: 546  name: "Prey"
+  → id: 21337  name: "Prey the Stars"
+
+"Resident Evil":
+  → id: 22993  name: "Resident Evil Archives: Resident Evil"
+  → id: 167078  name: "Resident Evil 2 + Resident Evil 3 Bundle"
+  → id: 23251  name: "Resident Evil Archives: Resident Evil Zero"
+
+"Resident Evil 2":
+  → id: 167078  name: "Resident Evil 2 + Resident Evil 3 Bundle"
+  → id: 347128  name: "Resident Evil 2"
+  → id: 396728  name: "Resident Evil 2"
+
+"Resident Evil 3":
+  → id: 115115  name: "Resident Evil 3"
+  → id: 347129  name: "Resident Evil 3: Nemesis"
+  → id: 396730  name: "Resident Evil 3: Nemesis"
+
+"Resident Evil 4":
+  → id: 145201  name: "Resident Evil 4 and Resident Evil Code: Veronica X Bundle"
+  → id: 145191  name: "Resident Evil 4"
+
+"Resident Evil 5":
+  → id: 847  name: "Resident Evil 5"
+  → id: 23014  name: "Resident Evil 5: Versus"
+  → id: 23215  name: "Resident Evil 5 Remastered"
+
+"Resident Evil 6":
+  → id: 1082  name: "Resident Evil 6"
+  → id: 79137  name: "Resident Evil 6: Archives"
+  → id: 41858  name: "Resident Evil 6 Remastered"
+
+"Resident Evil 7: Biohazard":
+  → id: 19562  name: "Resident Evil 7: Biohazard"
+  → id: 102075  name: "Resident Evil 7: Biohazard - Cloud"
+  → id: 75236  name: "Resident Evil 7: Biohazard - End of Zoe"
+
+"Resident Evil Village":
+  → id: 142813  name: "Resident Evil Village & Resident Evil 7 Complete Bundle"
+  → id: 55163  name: "Resident Evil Village"
+  → id: 324804  name: "Resident Evil Village: VR Mode"
+
+"Resident Evil: Code Veronica":
+  → id: 968  name: "Resident Evil Code: Veronica"
+  → id: 24369  name: "Resident Evil Code: Veronica X"
+  → id: 20622  name: "Resident Evil Code: Veronica X HD"
+
+"Resident Evil: Revelations":
+  → id: 150045  name: "Resident Evil: Revelations"
+  → id: 978  name: "Resident Evil: Revelations"
+  → id: 7725  name: "Resident Evil: Revelations 2"
+
+"Resident Evil: Revelations 2":
+  → id: 7725  name: "Resident Evil: Revelations 2"
+  → id: 53506  name: "Resident Evil: Revelations 2 - Deluxe Edition"
+  → id: 254130  name: "Resident Evil Revelations 2: Season Pass"
+
+"Silent Hill":
+  → id: 484  name: "Silent Hill: Origins"
+  → id: 22066  name: "Silent Hill 2: Restless Dreams"
+  → id: 234020  name: "Silent Hill 2: Streets of Rage"
+
+"Silent Hill 2":
+  → id: 222485  name: "Silent Hill 2"
+  → id: 222341  name: "Silent Hill 2"
+  → id: 22066  name: "Silent Hill 2: Restless Dreams"
+
+"Silent Hill 3":
+  → id: 222486  name: "Silent Hill 3"
+  → id: 134265  name: "Silent Hill: Mobile 3"
+  → id: 482  name: "Silent Hill 3"
+
+"Silent Hill 4: The Room":
+  → id: 483  name: "Silent Hill 4: The Room"
+
+"Amnesia: The Dark Descent":
+  → id: 111  name: "Amnesia: The Dark Descent"
+
+"Amnesia: Rebirth":
+  → id: 131785  name: "Amnesia: Rebirth"
+
+"SOMA":
+  → id: 9727  name: "Soma"
+  → id: 144855  name: "Soma Union"
+  → id: 72802  name: "Myth of Soma"
+
+"Penumbra: Overture":
+  → id: 8944  name: "Penumbra: Overture"
+
+"Alien: Isolation":
+  → id: 197779  name: "Alien: Isolation"
+  → id: 319082  name: "Alien: Isolation 2"
+  → id: 4754  name: "Alien: Isolation"
+
+"Dead Space":
+  → id: 131931  name: "Dead Space"
+  → id: 159119  name: "Dead Space"
+  → id: 985  name: "Dead Space: Extraction"
+
+"Dead Space 2":
+  → id: 264868  name: "Dead Space 2"
+  → id: 38  name: "Dead Space 2"
+
+"Dead Space 3":
+  → id: 1216  name: "Dead Space 3"
+  → id: 10173  name: "Dead Space 3: Awakened"
+
+"Dead Space Remake":
+  ❌ No results
+
+"The Callisto Protocol":
+  → id: 141538  name: "The Callisto Protocol"
+  → id: 285092  name: "The Callisto Protocol: Gore Skin"
+  → id: 285093  name: "The Callisto Protocol: Snake Skin"
+
+"Outlast":
+  → id: 1910  name: "Outlast"
+  → id: 14390  name: "Outlast II"
+  → id: 281781  name: "Outlast Mobile"
+
+"Outlast 2":
+  → id: 14390  name: "Outlast II"
+
+"Outlast: Trials":
+  → id: 127165  name: "The Outlast Trials"
+  → id: 332013  name: "The Outlast Trials: Exotica Pack"
+  → id: 324578  name: "The Outlast Trials: Project Breach"
+
+"Layers of Fear":
+  → id: 204363  name: "Layers of Fear"
+  → id: 239163  name: "Layers of Fear"
+  → id: 12482  name: "Layers of Fear"
+
+"Visage":
+  → id: 18020  name: "Visage"
+  → id: 101622  name: "Fading Visage"
+  → id: 228048  name: "Des Visages, Des Fissures"
+
+"Phasmophobia":
+  → id: 132516  name: "Phasmophobia"
+  → id: 268059  name: "Phasmophobia: Ascension"
+  → id: 114459  name: "Phasmophobia: Hall of Specters 3D"
+
+"Fatal Frame":
+  → id: 321739  name: "Fatal Frame"
+  → id: 217577  name: "Fatal Frame: Mask of the Lunar Eclipse"
+  → id: 5106  name: "Fatal Frame"
+
+"Fatal Frame II: Crimson Butterfly":
+  → id: 366890  name: "Fatal Frame II: Crimson Butterfly Remake"
+  → id: 5105  name: "Fatal Frame II: Crimson Butterfly"
+  → id: 24161  name: "Fatal Frame II: Crimson Butterfly - Director's Cut"
+
+"Condemned: Criminal Origins":
+  → id: 6942  name: "Condemned: Criminal Origins"
+
+"Blair Witch":
+  → id: 18489  name: "Blair Witch Volume 1: Rustin Parr"
+  → id: 18491  name: "Blair Witch Volume 3: The Elly Kedward Tale"
+  → id: 18490  name: "Blair Witch Volume 2: The Legend of Coffin Rock"
+
+"Little Nightmares":
+  → id: 9174  name: "Little Nightmares"
+  → id: 262529  name: "Little Nightmares III"
+  → id: 121760  name: "Little Nightmares II"
+
+"Little Nightmares II":
+  → id: 121760  name: "Little Nightmares II"
+  → id: 139822  name: "Little Nightmares II: TV Edition"
+  → id: 139821  name: "Little Nightmares II: Day 1 Edition"
+
+"Five Nights at Freddy's":
+  → id: 223088  name: "Five Nights at Freddy's"
+  → id: 265911  name: "Five Nights at Freddy's"
+  → id: 8499  name: "Five Nights at Freddy's"
+
+"The Evil Within":
+  → id: 4786  name: "The Evil Within"
+  → id: 36813  name: "The Evil Within 2"
+  → id: 154961  name: "The Evil Within Bundle"
+
+"The Evil Within 2":
+  → id: 36813  name: "The Evil Within 2"
+  → id: 145339  name: "Pack Horreur I Resident Evil 7 + Resident Evil 4 + The Evil Within 2"
+
+"The Medium":
+  → id: 133308  name: "The Medium"
+  → id: 151559  name: "Medium-naut"
+  → id: 166687  name: "The Medium + Observer: System Redux + Darq: Complete Edition Bundle"
+
+"Signalis":
+  → id: 103244  name: "Signalis"
+
+"Crow Country":
+  → id: 273522  name: "Crow Country"
+
+"Observer":
+  → id: 265130  name: "Observer"
+  → id: 19545  name: "Observer"
+  → id: 292217  name: "No Observer"
+
+"StarCraft II: Wings of Liberty":
+  → id: 239  name: "StarCraft II: Wings of Liberty"
+  → id: 282514  name: "StarCraft II: Wings of Liberty - Collector's Edition"
+
+"Age of Empires IV":
+  → id: 55029  name: "Age of Empires IV"
+  → id: 361886  name: "Age of Empires IV: Dynasties of the East"
+  → id: 262704  name: "Age of Empires IV: The Sultans Ascend"
+
+"Age of Mythology":
+  → id: 324  name: "Age of Mythology"
+  → id: 21221  name: "Age of Empires: Mythologies"
+  → id: 129851  name: "Age of Mythology: Gold Edition"
+
+"Company of Heroes":
+  → id: 654  name: "Company of Heroes"
+  → id: 156150  name: "Company of Heroes 3"
+  → id: 1369  name: "Company of Heroes 2"
+
+"Company of Heroes 2":
+  → id: 1369  name: "Company of Heroes 2"
+  → id: 52793  name: "Company of Heroes 2: Case Blue"
+  → id: 168290  name: "Company of Heroes 2: US Forces Commander - Rifle Company"
+
+"Company of Heroes 3":
+  → id: 156150  name: "Company of Heroes 3"
+  → id: 333222  name: "Company of Heroes 3: Fire & Steel"
+  → id: 376703  name: "Company of Heroes 3: Endure & Defy"
+
+"Total War: Shogun 2":
+  → id: 83518  name: "Total War: Shogun 2 - Saints and Heroes Unit Pack"
+  → id: 83512  name: "Total War: Shogun 2 - Otomo Clan Pack DLC"
+  → id: 83514  name: "Total War: Shogun 2 - The Hattori Clan Pack"
+
+"Total War: Warhammer III":
+  → id: 143114  name: "Total War: Warhammer III"
+  → id: 251224  name: "Total War: Warhammer III - Thrones of Decay"
+  → id: 296620  name: "Total War: Warhammer III - Thrones of Decay: Elspeth"
+
+"Total War: Three Kingdoms":
+  → id: 167644  name: "Total War: Three Kingdoms - Shi Xie"
+  → id: 167642  name: "Total War: Three Kingdoms - Tao Qian"
+  → id: 167640  name: "Total War: Three Kingdoms - Eight Princes"
+
+"Civilization VI":
+  → id: 341802  name: "Sid Meier's Civilization VI: Aztec Civilization Pack"
+  → id: 164403  name: "Sid Meier's Civilization VI: Nubia Civilization & Scenario Pack"
+  → id: 164399  name: "Sid Meier's Civilization VI: Poland Civilization & Scenario Pack"
+
+"Civilization V":
+  → id: 164395  name: "Sid Meier's Civilization V: Cradle of Civilization Map Pack - Asia"
+  → id: 164394  name: "Sid Meier's Civilization V: Cradle of Civilization Map Pack - Americas"
+  → id: 164396  name: "Sid Meier's Civilization V: Cradle of Civilization Map Pack - Mesopotamia"
+
+"Humankind":
+  → id: 121731  name: "Humankind"
+  → id: 169173  name: "Humankind: Deluxe Edition"
+  → id: 204916  name: "Humankind: Heritage Edition"
+
+"Endless Legend":
+  → id: 9278  name: "Endless Legend"
+  → id: 329138  name: "Endless Legend 2"
+  → id: 166330  name: "Endless Legend: Monstrous Tales"
+
+"Endless Space 2":
+  → id: 355686  name: "Endless Space 2: Lost Symphony"
+  → id: 355694  name: "Endless Space 2: Harmonic Memories"
+  → id: 11550  name: "Endless Space 2"
+
+"Stellaris":
+  → id: 11582  name: "Stellaris"
+  → id: 148794  name: "Stellaris: Nemesis"
+  → id: 399970  name: "Stellaris: Nomads"
+
+"Crusader Kings III":
+  → id: 124954  name: "Crusader Kings III"
+  → id: 352850  name: "Crusader Kings III: Chapter IV"
+  → id: 241169  name: "Crusader Kings III: Chapter I"
+
+"Crusader Kings II":
+  → id: 2918  name: "Crusader Kings II"
+  → id: 22669  name: "Crusader Kings II: Conclave"
+  → id: 110889  name: "Crusader Kings II: Holy Fury"
+
+"Europa Universalis IV":
+  → id: 1904  name: "Europa Universalis IV"
+  → id: 52968  name: "Europa Universalis IV Collection"
+  → id: 149956  name: "Europa Universalis IV: Dharma"
+
+"Hearts of Iron IV":
+  → id: 15894  name: "Hearts of Iron IV"
+  → id: 47308  name: "Hearts of Iron IV: Hero Edition"
+  → id: 115063  name: "Hearts of Iron IV: Man the Guns"
+
+"Victoria 3":
+  → id: 148372  name: "Victoria 3"
+  → id: 240900  name: "Victoria 3: Update 1.2"
+  → id: 241091  name: "Victoria 3: Grand Edition"
+
+"XCOM 2":
+  → id: 86268  name: "XCOM 2 Collection"
+  → id: 21427  name: "XCOM 2: Deluxe Edition"
+  → id: 37060  name: "XCOM 2: War of the Chosen"
+
+"XCOM: Enemy Unknown":
+  → id: 1318  name: "XCOM: Enemy Unknown"
+  → id: 95365  name: "XCOM: Enemy Unknown Plus"
+  → id: 52118  name: "XCOM: Enemy Unknown - The Complete Edition"
+
+"Phoenix Point":
+  → id: 27804  name: "Phoenix Point"
+  → id: 159694  name: "Phoenix Point: Year One Edition - Festering Skies"
+  → id: 198293  name: "Phoenix Point: Kaos Engines"
+
+"Mutant Year Zero: Road to Eden":
+  → id: 89560  name: "Mutant Year Zero: Road to Eden"
+  → id: 154204  name: "Mutant Year Zero: Road to Eden - Fan Edition"
+
+"Jagged Alliance 3":
+  → id: 72767  name: "Jagged Alliance 3"
+  → id: 249259  name: "Jagged Alliance 3: Tactical Edition"
+
+"Northgard":
+  → id: 18918  name: "Northgard"
+  → id: 154196  name: "Northgard: Sváfnir, Clan of the Snake"
+  → id: 218693  name: "Northgard: Hræsvelg, Clan of the Eagle"
+
+"Frostpunk":
+  → id: 23248  name: "Frostpunk"
+  → id: 164290  name: "Frostpunk 2"
+  → id: 199959  name: "Frostpunk: Beyond the Ice"
+
+"Frostpunk 2":
+  → id: 164290  name: "Frostpunk 2"
+  → id: 376982  name: "Frostpunk 2: Deluxe Edition"
+  → id: 397575  name: "Frostpunk 2: Breach of Trust"
+
+"They Are Billions":
+  → id: 36616  name: "They Are Billions"
+  → id: 348721  name: "Mr. Billion"
+  → id: 125040  name: "Billion Beat"
+
+"Against the Storm":
+  → id: 115538  name: "The Demon Crystal 3: Dark Storm"
+  → id: 48170  name: "Metal Storm"
+  → id: 368  name: "Heroes of Might and Magic IV: The Gathering Storm"
+
+"Iron Harvest":
+  → id: 25581  name: "Iron Harvest"
+  → id: 154221  name: "Iron Harvest: Deluxe Edition"
+  → id: 154193  name: "Iron Harvest: Operation Eagle"
+
+"The Legend of Zelda: Breath of the Wild":
+  → id: 237895  name: "The Legend of Zelda: Breath of the Wild and The Legend of Zelda: Breath of the Wild Expansion Pass Bundle"
+  → id: 210652  name: "The Legend of Zelda: Breath of the Wild Multiplayer"
+  → id: 41826  name: "The Legend of Zelda: Breath of the Wild - The Champions' Ballad"
+
+"The Legend of Zelda: Tears of the Kingdom":
+  → id: 119388  name: "The Legend of Zelda: Tears of the Kingdom"
+  → id: 357440  name: "The Legend of Zelda: Tears of the Kingdom Online"
+  → id: 256282  name: "The Legend of Zelda: Tears of the Kingdom Randomizer"
+
+"Hogwarts Legacy":
+  → id: 136625  name: "Hogwarts Legacy"
+  → id: 237565  name: "Hogwarts Legacy: Dark Arts Pack"
+  → id: 214873  name: "Hogwarts Legacy: Deluxe Edition"
+
+"Dying Light":
+  → id: 3042  name: "Dying Light"
+  → id: 138379  name: "Dying Light: Hellraid"
+  → id: 76891  name: "Dying Light: Bad Blood"
+
+"Dying Light 2: Stay Human":
+  → id: 102584  name: "Dying Light 2: Stay Human"
+  → id: 256113  name: "Dying Light 2: Stay Human - Hakon Bundle"
+  → id: 237692  name: "Dying Light 2: Stay Human - Rais Bundle"
+
+"Days Gone":
+  → id: 19561  name: "Days Gone"
+  → id: 31820  name: "Long Gone Days"
+  → id: 126104  name: "Days Gone 2"
+
+"Mafia: Definitive Edition":
+  → id: 134070  name: "Mafia: Definitive Edition"
+  → id: 134071  name: "Mafia II: Definitive Edition"
+  → id: 392531  name: "Mafia: Definitive Edition - Chicago Outfit Pack"
+
+"Mafia III":
+  → id: 11492  name: "Mafia III"
+  → id: 78802  name: "Mafia III: Rivals"
+  → id: 39761  name: "Mafia III: Faster, Baby!"
+
+"Immortals Fenyx Rising":
+  → id: 119357  name: "Immortals Fenyx Rising"
+  → id: 142848  name: "Immortals Fenyx Rising: A New God"
+  → id: 293724  name: "Immortals Fenyx Rising: Season Pass"
+
+"Genshin Impact":
+  → id: 288670  name: "Genshin Impact: Blades Weaving Betwixt Brocade"
+  → id: 279333  name: "Genshin Impact: Roses and Muskets"
+  → id: 273864  name: "Genshin Impact: Masquerade of the Guilty"
+
+"Black Desert Online":
+  → id: 139914  name: "Black Desert Online: Prestige Edition"
+
+"Watch Dogs: Legion":
+  → id: 100413  name: "Watch Dogs: Legion"
+  → id: 164616  name: "Watch Dogs: Legion - Deluxe Edition"
+  → id: 119575  name: "Watch Dogs: Legion - Gold Edition"
+
+"Assassin's Creed Mirage":
+  → id: 271474  name: "Assassin's Creed Mirage & Assassin's Creed Valhalla Bundle"
+  → id: 360516  name: "Assassin's Creed Mirage: Master Assassin Pack"
+  → id: 276451  name: "Assassin’s Creed Mirage: Master Assassin Edition"
+
+"Far Cry 3":
+  → id: 529  name: "Far Cry 3"
+  → id: 25467  name: "Far Cry 3: Deluxe Edition"
+  → id: 86389  name: "Far Cry 3: Classic Edition"
+
+"Far Cry 4":
+  → id: 164801  name: "Far Cry 4 + Far Cry: Primal Bundle"
+  → id: 136307  name: "Far Cry 4 + Far Cry Primal Double Pack"
+
+"Gotham Knights":
+  → id: 136993  name: "Gotham Knights"
+  → id: 281430  name: "Gotham Knights: Heroic Assault"
+  → id: 227103  name: "Gotham Knights: Visionary Pack"
+
+"Street Fighter 6":
+  → id: 191692  name: "Street Fighter 6"
+  → id: 239146  name: "Street Fighter 6: Mad Gear Box"
+  → id: 308225  name: "Street Fighter 6: Year 2 Character Pass"
+
+"Street Fighter V":
+  → id: 8258  name: "Street Fighter V"
+  → id: 146526  name: "Street Fighter V: A Shadow Falls"
+  → id: 344815  name: "Street Fighter V: G"
+
+"Street Fighter IV":
+  → id: 884  name: "Street Fighter IV"
+  → id: 7198  name: "Super Street Fighter IV"
+  → id: 61360  name: "Street Fighter IV: Arena"
+
+"Tekken 8":
+  → id: 217590  name: "Tekken 8"
+  → id: 333580  name: "Tekken 8: Phoenix Gate"
+  → id: 310478  name: "Tekken 8: Lidia Sobieska"
+
+"Tekken 7":
+  → id: 7498  name: "Tekken 7"
+  → id: 118958  name: "Tekken 7: Ultimate Tekken Bowl & Additional Costumes"
+  → id: 394038  name: "Tekken 7"
+
+"Tekken 6":
+  → id: 272551  name: "Tekken 6"
+  → id: 195868  name: "Tekken 6"
+  → id: 1247  name: "Tekken 6"
+
+"Mortal Kombat 1":
+  → id: 239392  name: "Mortal Kombat 1"
+  → id: 250148  name: "Mortal Kombat 1: Premium Edition"
+  → id: 279419  name: "Mortal Kombat 1: Janet Cage Kameo"
+
+"Mortal Kombat 11":
+  → id: 276518  name: "Mortal Kombat 11: Aftermath"
+  → id: 133278  name: "Mortal Kombat 11: Kombat Pack"
+  → id: 128009  name: "Mortal Kombat 11: The Joker"
+
+"Mortal Kombat X":
+  → id: 241492  name: "Mortal Kombat X"
+  → id: 7292  name: "Mortal Kombat X"
+  → id: 141052  name: "Mortal Kombat X: Goro"
+
+"Guilty Gear Strive":
+  → id: 264825  name: "Guilty Gear: Strive - Guilty Gear 25th Anniversary: Special Additional Color Pack"
+  → id: 264824  name: "Guilty Gear: Strive - Guilty Gear 25th Anniversary: Appreciation Color Pack"
+  → id: 125764  name: "Guilty Gear: Strive"
+
+"Dragon Ball FighterZ":
+  → id: 144760  name: "Dragon Ball FighterZ and Dragon Ball Xenoverse 2 Double Pack"
+  → id: 144704  name: "Dragon Ball FighterZ: Zamasu (Fused)"
+  → id: 144714  name: "Dragon Ball FighterZ: FighterZ Pass"
+
+"Granblue Fantasy Versus: Rising":
+  → id: 232699  name: "Granblue Fantasy Versus: Rising"
+  → id: 334145  name: "Granblue Fantasy Versus: Rising - Color Set 5"
+  → id: 334146  name: "Granblue Fantasy Versus: Rising - Color Set 6"
+
+"The King of Fighters XV":
+  → id: 113104  name: "The King of Fighters XV"
+  → id: 195801  name: "The King of Fighters XV: Team Garou"
+  → id: 323408  name: "The King of Fighters XV: Omega Rugal"
+
+"Samurai Shodown":
+  → id: 109277  name: "Samurai Shodown"
+  → id: 142821  name: "Samurai Shodown Enhanced"
+  → id: 19986  name: "Samurai Shodown II"
+
+"Super Smash Bros. Ultimate":
+  → id: 90101  name: "Super Smash Bros. Ultimate"
+  → id: 250575  name: "Super Smash Bros. Ultimate: Waluigi Moveset"
+  → id: 133835  name: "Super Smash Bros. Ultimate: Challenger Pack 6"
+
+"Super Smash Bros. Melee":
+  → id: 165116  name: "Super Smash Bros. Melee: 20XX Edition"
+  → id: 1627  name: "Super Smash Bros. Melee"
+  → id: 331009  name: "Super Smash Bros. Melee: Footstools"
+
+"Brawlhalla":
+  → id: 10233  name: "Brawlhalla"
+  → id: 342110  name: "Brawlhalla: Valhalla Pack"
+  → id: 342230  name: "Brawlhalla: BCX 2017 Pack"
+
+"Rivals of Aether":
+  → id: 21646  name: "Rivals of Aether"
+  → id: 245847  name: "Rivals of Aether II"
+  → id: 325924  name: "Rivals of Aether: Norm"
+
+"Skullgirls":
+  → id: 9425  name: "Skullgirls"
+  → id: 280378  name: "Skullgirls: Marie"
+  → id: 85703  name: "Skullgirls Encore"
+
+"Soul Calibur VI":
+  → id: 76885  name: "SoulCalibur VI"
+
+"Dead or Alive 6":
+  → id: 155431  name: "Dead or Alive 6: Nico"
+  → id: 103269  name: "Dead or Alive 6"
+  → id: 389425  name: "Dead or Alive 6 Last Round"
+
+"Melty Blood: Type Lumina":
+  → id: 153649  name: "Melty Blood: Type Lumina - Melty Blood Archives"
+  → id: 145017  name: "Melty Blood: Type Lumina"
+  → id: 165597  name: "Melty Blood: Type Lumina - Deluxe Edition"
+
+"Under Night In-Birth II":
+  → id: 260087  name: "Under Night In-Birth II Sys:Celes"
+  → id: 309084  name: "Under Night In-Birth II: Character - Uzuki"
+  → id: 288065  name: "Under Night In-Birth II Sys:Celes - Season Pass"
+
+"Forza Horizon 5":
+  → id: 171270  name: "Forza Horizon 5: Premium Edition"
+  → id: 171269  name: "Forza Horizon 5: Deluxe Edition"
+  → id: 141503  name: "Forza Horizon 5"
+
+"Forza Horizon 4":
+  → id: 111318  name: "Forza Horizon 4: Deluxe Edition"
+  → id: 110392  name: "Forza Horizon 4: Ultimate Edition"
+  → id: 112024  name: "Forza Horizon 4: Fortune Island"
+
+"Forza Motorsport":
+  → id: 78511  name: "Forza Motorsport"
+  → id: 26911  name: "Forza Motorsport 6: Apex"
+  → id: 36872  name: "Forza Motorsport 7"
+
+"Gran Turismo 7":
+  → id: 101006  name: "Gran Turismo 7"
+  → id: 370002  name: "Gran Turismo 7: Spec III"
+  → id: 377243  name: "Gran Turismo 7: Power Pack"
+
+"Gran Turismo Sport":
+  → id: 138777  name: "Gran Turismo Sport: Spec II"
+  → id: 14363  name: "Gran Turismo Sport"
+  → id: 168552  name: "Gran Turismo Sport: Limited Edition"
+
+"Need for Speed: Heat":
+  → id: 140381  name: "Need for Speed: Heat - McLaren F1 Black Market Delivery"
+  → id: 136012  name: "Need for Speed: Heat - Deluxe Edition"
+  → id: 119161  name: "Need for Speed: Heat"
+
+"Need for Speed: Hot Pursuit Remastered":
+  → id: 139346  name: "Need for Speed: Hot Pursuit - Remastered"
+
+"Need for Speed: Most Wanted":
+  → id: 210161  name: "Need for Speed: Most Wanted"
+  → id: 3193  name: "Need for Speed: Most Wanted"
+  → id: 98  name: "Need for Speed: Most Wanted"
+
+"Need for Speed: Underground 2":
+  → id: 242997  name: "Need for Speed: Underground 2"
+  → id: 229854  name: "Need for Speed: Underground 2"
+  → id: 97  name: "Need for Speed: Underground 2"
+
+"The Crew Motorfest":
+  → id: 234256  name: "The Crew: Motorfest"
+  → id: 305243  name: "The Crew: Motorfest - Season 7"
+  → id: 305242  name: "The Crew: Motorfest - Season 4"
+
+"Dirt Rally 2.0":
+  → id: 110411  name: "Dirt Rally 2.0"
+  → id: 166338  name: "DiRT Rally 2.0: Wales (Rally Location)"
+  → id: 166343  name: "DiRT Rally 2.0: Greece (Rally Location)"
+
+"F1 23":
+  → id: 240558  name: "F1 23"
+  → id: 248192  name: "F1 23: Champions Edition"
+
+"Assetto Corsa":
+  → id: 156162  name: "Assetto Corsa: Porsche Pack II"
+  → id: 5597  name: "Assetto Corsa"
+  → id: 165873  name: "Assetto Corsa Competizione: GT4 Pack DLC"
+
+"Assetto Corsa Competizione":
+  → id: 171274  name: "Assetto Corsa Competizione"
+  → id: 89444  name: "Assetto Corsa Competizione"
+  → id: 165873  name: "Assetto Corsa Competizione: GT4 Pack DLC"
+
+"Wreckfest":
+  → id: 3772  name: "Wreckfest"
+  → id: 312277  name: "Wreckfest 2"
+
+"Burnout Paradise Remastered":
+  → id: 78153  name: "Burnout Paradise Remastered"
+
+"Mario Kart 8 Deluxe":
+  → id: 26764  name: "Mario Kart 8 Deluxe"
+  → id: 203219  name: "Mario Kart 8 Deluxe + Super Mario Party Double Pack"
+  → id: 191419  name: "Mario Kart 8 Deluxe: Booster Course Pass"
+
+"Crash Team Racing Nitro-Fueled":
+  → id: 136027  name: "Crash Team Racing Nitro-Fueled + Crash Bandicoot N'Sane Trilogy Bundle"
+  → id: 113113  name: "Crash Team Racing Nitro-Fueled"
+  → id: 136126  name: "Crash Team Racing Nitro-Fueled + Spyro Reignited Trilogy Bundle"
+
+"Riders Republic":
+  → id: 138766  name: "Riders Republic"
+  → id: 305247  name: "Riders Republic: Season 11"
+  → id: 293718  name: "Riders Republic: Season Pass"
+
+"Dishonored":
+  → id: 533  name: "Dishonored"
+  → id: 267308  name: "Dishonored 3"
+
+"Dishonored 2":
+  → id: 11118  name: "Dishonored 2"
+  → id: 255606  name: "Dishonored 2: Limited Edition"
+  → id: 308562  name: "Dishonored 2: Steelbook Edition"
+
+"Dishonored: Death of the Outsider":
+  → id: 37030  name: "Dishonored: Death of the Outsider"
+  → id: 83510  name: "Dishonored: Death of the Outsider Deluxe Bundle"
+
+"Deus Ex: Human Revolution":
+  → id: 43  name: "Deus Ex: Human Revolution"
+  → id: 46713  name: "Deus Ex: Human Revolution - Limited Edition"
+  → id: 118891  name: "Deus Ex: Human Revolution - Complete Edition"
+
+"Deus Ex: Mankind Divided":
+  → id: 9498  name: "Deus Ex: Mankind Divided"
+  → id: 24465  name: "Deus Ex: Mankind Divided - System Rift"
+  → id: 374695  name: "Deus Ex: Mankind Divided - Assault Pack"
+
+"Metal Gear Solid":
+  → id: 393642  name: "Metal Gear Solid"
+  → id: 41037  name: "Metal Gear Solid: Integral"
+  → id: 21073  name: "Metal Gear Solid: Snake Eater 3D"
+
+"Metal Gear Solid 2: Sons of Liberty":
+  → id: 376  name: "Metal Gear Solid 2: Sons of Liberty"
+  → id: 55041  name: "Metal Gear Solid 2: Sons of Liberty - HD Edition"
+  → id: 43388  name: "Metal Gear Solid 2: Sons of Liberty - Limited Edition"
+
+"Metal Gear Solid 3: Snake Eater":
+  → id: 43264  name: "Metal Gear Solid 3: Snake Eater - Limited Metal Edition"
+  → id: 379  name: "Metal Gear Solid 3: Snake Eater"
+  → id: 99821  name: "Metal Gear Solid 3: Snake Eater - HD Edition"
+
+"Metal Gear Solid V: The Phantom Pain":
+  → id: 1985  name: "Metal Gear Solid V: The Phantom Pain"
+  → id: 298021  name: "Metal Gear Solid V: The Phantom Pain - Special Edition"
+  → id: 136221  name: "Metal Gear Solid V: The Phantom Pain - Day One Edition"
+
+"Hitman":
+  → id: 140502  name: "Hitman 3: Cloud Version"
+  → id: 233572  name: "Hitman 3 Access Pass: Hitman 2 Standard"
+  → id: 307377  name: "Hitman 3 Access Pass: Hitman 2 Expansion Pass"
+
+"Hitman 2":
+  → id: 103210  name: "Hitman 2"
+  → id: 748  name: "Hitman 2: Silent Assassin"
+  → id: 167964  name: "Hitman 2: Isle of Sgàil"
+
+"Hitman 3":
+  → id: 140502  name: "Hitman 3: Cloud Version"
+  → id: 134595  name: "Hitman 3"
+  → id: 233572  name: "Hitman 3 Access Pass: Hitman 2 Standard"
+
+"Splinter Cell":
+  → id: 20573  name: "Tom Clancy's Splinter Cell Trilogy HD"
+  → id: 134350  name: "Tom Clancy's Splinter Cell"
+  → id: 911  name: "Tom Clancy's Splinter Cell: Chaos Theory"
+
+"Splinter Cell: Chaos Theory":
+  → id: 911  name: "Tom Clancy's Splinter Cell: Chaos Theory"
+  → id: 243021  name: "Tom Clancy's Splinter Cell: Chaos Theory"
+  → id: 243020  name: "Tom Clancy's Splinter Cell: Chaos Theory"
+
+"Splinter Cell: Blacklist":
+  → id: 1305  name: "Tom Clancy's Splinter Cell: Blacklist"
+  → id: 53944  name: "Tom Clancy's Splinter Cell: Blacklist - Digital Deluxe Edition"
+  → id: 42971  name: "Tom Clancy's Splinter Cell: Blacklist - Ultimatum Edition"
+
+"Assassin's Creed":
+  → id: 164698  name: "Assassin's Creed Bundle: Assassin's Creed Valhalla, Assassin's Creed Odyssey, and Assassin's Creed Origins"
+  → id: 353891  name: "Assassin's Creed II Game of the Year Edition + Assassin's Creed"
+  → id: 216319  name: "Assassin's Creed Jade"
+
+"Assassin's Creed II":
+  → id: 127  name: "Assassin's Creed II"
+  → id: 18865  name: "Assassin's Creed II: Discovery"
+  → id: 27857  name: "Assassin's Creed II: Deluxe Edition"
+
+"Mark of the Ninja":
+  → id: 94969  name: "Mark of the Ninja: Remastered"
+  → id: 2129  name: "Mark of the Ninja"
+  → id: 26891  name: "Mark of the Ninja: Special Edition DLC"
+
+"Aragami":
+  → id: 18853  name: "Aragami"
+  → id: 138031  name: "Aragami 2"
+  → id: 100437  name: "Aragami: Shadow Edition"
+
+"Aragami 2":
+  → id: 138031  name: "Aragami 2"
+
+"Styx: Master of Shadows":
+  → id: 6072  name: "Styx: Master of Shadows"
+
+"Styx: Shards of Darkness":
+  → id: 13554  name: "Styx: Shards of Darkness"
+
+"Microsoft Flight Simulator":
+  → id: 3356  name: "Microsoft Flight Simulator 4.0"
+  → id: 3357  name: "Microsoft Flight Simulator 5.0"
+  → id: 3354  name: "Microsoft Flight Simulator 2.0"
+
+"Cities: Skylines":
+  → id: 119961  name: "Cities: Skylines - Green Cities"
+  → id: 119963  name: "Cities: Skylines - Rock City Radio"
+  → id: 9066  name: "Cities: Skylines"
+
+"Cities: Skylines II":
+  → id: 240902  name: "Cities: Skylines II"
+  → id: 254212  name: "Cities: Skylines II - Day 1 Edition"
+  → id: 294381  name: "Cities: Skylines II - Bridges & Ports"
+
+"Planet Coaster":
+  → id: 18829  name: "Planet Coaster"
+  → id: 160289  name: "Planet Coaster: Magnificent Rides Collection"
+  → id: 308099  name: "Planet Coaster 2"
+
+"Planet Zoo":
+  → id: 226998  name: "Planet Zoo: Africa Pack"
+  → id: 117717  name: "Planet Zoo"
+  → id: 226995  name: "Planet Zoo: Aquatic Pack"
+
+"Two Point Hospital":
+  → id: 223155  name: "Two Point Hospital and Two Point Campus Double Pack"
+  → id: 82117  name: "Two Point Hospital"
+  → id: 144913  name: "Two Point Hospital: Bigfoot"
+
+"Two Point Campus":
+  → id: 150512  name: "Two Point Campus"
+  → id: 276941  name: "Two Point Campus: Brainy Bundle"
+  → id: 241307  name: "Two Point Campus: School Spirits"
+
+"Prison Architect":
+  → id: 1338  name: "Prison Architect"
+  → id: 82440  name: "Prison Architect: All Day and a Night Edition"
+  → id: 282913  name: "Prison Architect 2"
+
+"Tropico 6":
+  → id: 36649  name: "Tropico 6"
+  → id: 155172  name: "Tropico 6: Spitter"
+  → id: 165412  name: "Tropico 6: Festival"
+
+"Surviving Mars":
+  → id: 28574  name: "Surviving Mars"
+  → id: 115113  name: "Surviving Mars: Space Race"
+  → id: 335133  name: "Surviving Mars: Pioneer"
+
+"The Sims 4":
+  → id: 159337  name: "The Sims 4: Sims' Night Out Bundle"
+  → id: 225463  name: "The Sims 4: Everyday Sims Bundle"
+  → id: 3212  name: "The Sims 4"
+
+"The Sims 3":
+  → id: 327976  name: "The Sims 3"
+  → id: 264365  name: "The Sims 3"
+  → id: 248566  name: "The Sims 3"
+
+"Farming Simulator 22":
+  → id: 296643  name: "Farming Simulator 22: Farm Production Pack"
+  → id: 146112  name: "Farming Simulator 22"
+  → id: 206527  name: "Farming Simulator 22: Zetor 25 K"
+
+"Euro Truck Simulator 2":
+  → id: 52973  name: "Euro Truck Simulator 2: Legendary Edition"
+  → id: 3070  name: "Euro Truck Simulator 2"
+  → id: 375302  name: "Euro Truck Simulator 2: Isle of Ireland"
+
+"American Truck Simulator":
+  → id: 9667  name: "American Truck Simulator"
+  → id: 234266  name: "American Truck Simulator: Western Star 5700XE"
+  → id: 348972  name: "American Truck Simulator: Iowa"
+
+"Snowrunner":
+  → id: 107215  name: "SnowRunner"
+  → id: 294987  name: "SnowRunner: The Atom"
+  → id: 397684  name: "SnowRunner: Season 20"
+
+"PowerWash Simulator":
+  → id: 251557  name: "PowerWash Simulator VR"
+  → id: 400248  name: "PowerWash Simulator"
+  → id: 138590  name: "PowerWash Simulator"
+
+"Kerbal Space Program":
+  → id: 3102  name: "Kerbal Space Program"
+  → id: 121759  name: "Kerbal Space Program 2"
+  → id: 124959  name: "Kerbal Space Program: Making History"
+
+"Kerbal Space Program 2":
+  → id: 121759  name: "Kerbal Space Program 2"
+
+"Space Engineers":
+  → id: 3239  name: "Space Engineers"
+  → id: 326578  name: "Space Engineers 2"
+  → id: 310403  name: "Space Engineers: Signal Pack"
+
+"House Flipper":
+  → id: 27744  name: "House Flipper"
+  → id: 381165  name: "Heart Flipper: A House Flipper Dating Sim"
+  → id: 191797  name: "House Flipper 2"
+
+"Super Mario Odyssey":
+  → id: 235169  name: "Super Mario Odyssey F.L.U.D.D."
+  → id: 132640  name: "Super Mario Odyssey 64"
+  → id: 221524  name: "Super Mario Odyssey: Balloon World"
+
+"Super Mario Bros. Wonder":
+  → id: 254339  name: "Super Mario Bros. Wonder"
+  → id: 366881  name: "Super Mario Bros. Wonder: Nintendo Switch 2 Edition + Meetup in Bellabel Park"
+
+"Super Mario Galaxy":
+  → id: 366878  name: "Super Mario Galaxy + Super Mario Galaxy 2"
+  → id: 288078  name: "Super Mario Galaxy 2 2: Super Mario Galaxy 1"
+  → id: 229246  name: "Super Mario Galaxy"
+
+"Super Mario Galaxy 2":
+  → id: 288078  name: "Super Mario Galaxy 2 2: Super Mario Galaxy 1"
+  → id: 1078  name: "Super Mario Galaxy 2"
+  → id: 366878  name: "Super Mario Galaxy + Super Mario Galaxy 2"
+
+"Donkey Kong Country: Tropical Freeze":
+  → id: 85576  name: "Donkey Kong Country: Tropical Freeze"
+  → id: 2923  name: "Donkey Kong Country: Tropical Freeze"
+
+"Rayman Legends":
+  → id: 1968  name: "Rayman Legends"
+  → id: 193359  name: "Rayman Legends"
+  → id: 61350  name: "Rayman Legends Beatbox"
+
+"Crash Bandicoot N. Sane Trilogy":
+  → id: 26196  name: "Crash Bandicoot N. Sane Trilogy"
+  → id: 229857  name: "Crash Bandicoot N. Sane Trilogy: Future Tense"
+
+"Spyro Reignited Trilogy":
+  → id: 87683  name: "Spyro Reignited Trilogy"
+  → id: 136126  name: "Crash Team Racing Nitro-Fueled + Spyro Reignited Trilogy Bundle"
+
+"Sonic Mania":
+  → id: 317341  name: "Sonic Mania & Sonic Plus"
+  → id: 94873  name: "Sonic Mania Plus"
+  → id: 145254  name: "Sonic Double Pack: Sonic Mania Plus & Sonic Forces"
+
+"Sonic Frontiers":
+  → id: 150010  name: "Sonic Frontiers"
+  → id: 254487  name: "Sonic Frontiers: Sonic’s Birthday Bash"
+  → id: 325364  name: "Sonic Frontiers: Sonic Adventure 2 Shoes"
+
+"Sonic Generations":
+  → id: 128798  name: "Sonic Generations"
+  → id: 506  name: "Sonic Generations"
+  → id: 320894  name: "Sonic Generations"
+
+"A Hat in Time":
+  → id: 6705  name: "A Hat in Time"
+  → id: 292696  name: "Among Us VR: Limited Time Hat: Overscoped"
+  → id: 144070  name: "A Hat on Time"
+
+"Kirby and the Forgotten Land":
+  → id: 208400  name: "Kirby and the Forgotten Land"
+  → id: 172427  name: "Kirby and the Forgotten Land"
+  → id: 338074  name: "Kirby and the Forgotten Land: Nintendo Switch 2 Edition + Star-Crossed World"
+
+"Bloodstained: Ritual of the Night":
+  → id: 10760  name: "Bloodstained: Ritual of the Night"
+  → id: 151940  name: "Bloodstained: Ritual of the Night 2"
+  → id: 155036  name: "Bloodstained: Ritual of the Night - IGA's Back Pack"
+
+"Ender Lilies: Quietus of the Knights":
+  → id: 138858  name: "Ender Lilies: Quietus of the Knights"
+
+"Messenger":
+  → id: 370380  name: "Messenger"
+  → id: 282711  name: "A Messenger"
+  → id: 44838  name: "The Messenger"
+
+"Ghost Song":
+  → id: 18849  name: "Ghost Song"
+
+"Haiku: The Robot":
+  → id: 231993  name: "Haiku, the Baby Robot"
+  → id: 132565  name: "Haiku, the Robot"
+
+"Afterimage":
+  → id: 185642  name: "Afterimage"
+  → id: 297224  name: "Afterimage Mobile"
+  → id: 234215  name: "Afterimage: Deluxe Edition"
+
+"What Remains of Edith Finch":
+  → id: 11233  name: "What Remains of Edith Finch"
+
+"Gone Home":
+  → id: 1906  name: "Gone Home"
+  → id: 82387  name: "Gone Home: Console Edition"
+
+"Firewatch":
+  → id: 9730  name: "Firewatch"
+  → id: 251228  name: "Firewatch: Audio Tour"
+
+"Oxenfree":
+  → id: 14587  name: "Oxenfree"
+  → id: 145784  name: "Oxenfree II: Lost Signals"
+  → id: 22446  name: "Oxenfree: Director's Cut"
+
+"Oxenfree II: Lost Signals":
+  → id: 145784  name: "Oxenfree II: Lost Signals"
+
+"Journey":
+  → id: 137294  name: "The Sims 4: Journey to Batuu"
+  → id: 27959  name: "Shin Megami Tensei: Strange Journey Redux"
+  → id: 120329  name: "Layton's Mystery Journey: Katrielle and the Millionaires' Conspiracy - Deluxe Edition"
+
+"The Stanley Parable":
+  → id: 3035  name: "The Stanley Parable"
+  → id: 18453  name: "The Stanley Parable"
+  → id: 14544  name: "The Stanley Parable Demonstration"
+
+"The Stanley Parable: Ultra Deluxe":
+  → id: 113119  name: "The Stanley Parable: Ultra Deluxe"
+
+"The Forgotten City":
+  → id: 103320  name: "The Forgotten City"
+  → id: 297448  name: "The Forgotten City"
+  → id: 173145  name: "The Forgotten City: Cloud Version"
+
+"Pentiment":
+  → id: 204623  name: "Pentiment"
+
+"Norco":
+  → id: 129097  name: "Norco"
+  → id: 196196  name: "Norco: Special Edition"
+
+"Citizen Sleeper":
+  → id: 152271  name: "Citizen Sleeper"
+  → id: 210738  name: "Citizen Sleeper: Episode - Flux"
+  → id: 252853  name: "Citizen Sleeper 2: Starward Vector"
+
+"Life is Strange":
+  → id: 62151  name: "Life is Strange 2"
+  → id: 7599  name: "Life is Strange"
+  → id: 386431  name: "Life is Strange: Reunion"
+
+"Life is Strange 2":
+  → id: 62151  name: "Life is Strange 2"
+  → id: 113432  name: "Life is Strange 2: Episode 2 - Rules"
+  → id: 119055  name: "Life is Strange 2: Episode 4 - Faith"
+
+"Life is Strange: True Colors":
+  → id: 144765  name: "Life is Strange: True Colors"
+  → id: 145814  name: "Life is Strange: True Colors - Deluxe Edition"
+  → id: 312108  name: "Life is Strange: True Colors - Alex Outfit Pack"
+
+"The Walking Dead":
+  → id: 1871  name: "The Walking Dead"
+  → id: 358407  name: "Dead by Daylight: The Walking Dead"
+  → id: 334440  name: "Tibia: The Walking Dead"
+
+"The Wolf Among Us":
+  → id: 127111  name: "The Wolf Among Us: Episode 5 - Cry Wolf"
+  → id: 2993  name: "The Wolf Among Us"
+  → id: 127107  name: "The Wolf Among Us: Episode 1 - Faith"
+
+"Detroit: Become Human":
+  → id: 14362  name: "Detroit: Become Human"
+  → id: 136651  name: "Detroit: Become Human - Premium Edition"
+  → id: 135973  name: "Detroit: Become Human - Collector's Edition"
+
+"Heavy Rain":
+  → id: 493  name: "Heavy Rain"
+  → id: 144777  name: "Heavy Rain: Move Edition"
+  → id: 14668  name: "Heavy Rain: The Taxidermist"
+
+"Beyond: Two Souls":
+  → id: 1342  name: "Beyond: Two Souls"
+  → id: 44547  name: "Heavy Rain & Beyond: Two Souls - Collection"
+  → id: 42998  name: "Beyond: Two Souls - Special Edition"
+
+"Until Dawn":
+  → id: 18980  name: "Warhammer 40,000: Dawn of War III"
+  → id: 275501  name: "Harlequin Fair: Harbour Dawn"
+  → id: 284721  name: "Until Dawn"
+
+"The Quarry":
+  → id: 194404  name: "The Quarry"
+  → id: 163746  name: "Old Quarry"
+  → id: 31299  name: "Hunt: The Unknown Quarry"
+
+"Man of Medan":
+  → id: 55047  name: "The Dark Pictures Anthology: Man of Medan"
+  → id: 169246  name: "The Dark Pictures Anthology: Little Hope & Man of Medan Bundle"
+
+"Little Hope":
+  → id: 360805  name: "Little H.O.P.E."
+  → id: 122120  name: "The Dark Pictures Anthology: Little Hope"
+
+"House of Ashes":
+  → id: 287834  name: "Monsters & Mortals: House of Ashes"
+  → id: 140617  name: "The Dark Pictures Anthology: House of Ashes"
+
+"OneShot":
+  → id: 225565  name: "OneShot"
+  → id: 23181  name: "OneShot"
+  → id: 92400  name: "Oneshot Voca"
+
+"Pyre":
+  → id: 18822  name: "Pyre"
+  → id: 141069  name: "Immortal: Gates of Pyre"
+  → id: 148072  name: "Pyre on Fire: Ten Pages"
+
+"World of Warcraft":
+  → id: 123  name: "World of Warcraft"
+  → id: 143683  name: "World of Warcraft: Burning Crusade Classic"
+
+"Guild Wars 2":
+  → id: 1183  name: "Guild Wars 2"
+  → id: 304360  name: "Guild Wars 2: Janthir Wilds"
+  → id: 53387  name: "Guild Wars 2: Path of Fire"
+
+"Elder Scrolls Online":
+  → id: 1081  name: "The Elder Scrolls Online"
+  → id: 113996  name: "The Elder Scrolls Online: Elsweyr"
+  → id: 233587  name: "The Elder Scrolls Online: Necrom"
+
+"Lost Ark":
+  → id: 26128  name: "Lost Ark"
+  → id: 382572  name: "Ark: Lost Colony"
+
+"New World":
+  → id: 148455  name: "Final Fantasy VI: Brave New World"
+  → id: 229098  name: "Pokémon Digimon New World"
+  → id: 11095  name: "Atlantis III: The New World"
+
+"Star Wars: The Old Republic":
+  → id: 114  name: "Star Wars: The Old Republic"
+  → id: 202715  name: "Star Wars: The Old Republic - Onslaught"
+  → id: 375222  name: "Star Wars: The Old Republic - Enter the Fight"
+
+"Path of Exile":
+  → id: 125642  name: "Path of Exile 2"
+  → id: 1911  name: "Path of Exile"
+  → id: 393960  name: "Path of Exile: Mirage"
+
+"Path of Exile 2":
+  → id: 125642  name: "Path of Exile 2"
+  → id: 379282  name: "Path of Exile 2: Fate of the Vaal"
+  → id: 378276  name: "Path of Exile 2: The Last of the Druids"
+
+"Diablo IV":
+  → id: 125165  name: "Diablo IV"
+  → id: 299726  name: "Diablo IV: Loot Reborn"
+  → id: 352222  name: "Diablo IV: Sins of the Horadrim"
+
+"Diablo III":
+  → id: 3182  name: "Diablo III: Reaper of Souls"
+  → id: 120  name: "Diablo III"
+  → id: 47452  name: "Diablo III: Reaper of Souls - Ultimate Evil Edition"
+
+"Torchlight II":
+  → id: 1337  name: "Torchlight II"
+
+"Grim Dawn":
+  → id: 1907  name: "Grim Dawn"
+  → id: 105041  name: "Grim Dawn: Forgotten Gods"
+  → id: 154544  name: "Grim Dawn: Definitive Edition"
+
+"Last Epoch":
+  → id: 95118  name: "Last Epoch"
+  → id: 369988  name: "Last Epoch: Orobyss"
+  → id: 286976  name: "Last Epoch: Fallen Ronin"
+
+"Old School RuneScape":
+  → id: 79824  name: "Old School RuneScape"
+
+"Albion Online":
+  → id: 19698  name: "Albion Online"
+  → id: 227616  name: "Albion Online: Beyond the Veil"
+
+"Warframe":
+  → id: 325577  name: "Warframe: Nyx Warframe"
+  → id: 2903  name: "Warframe"
+  → id: 263563  name: "Warframe: 1999"
+
+"Honkai: Star Rail":
+  → id: 298930  name: "Honkai: Star Rail - Then Wake to Weep"
+  → id: 290387  name: "Honkai: Star Rail - Into the Yawning Chasm"
+  → id: 304993  name: "Honkai: Star Rail - Farewell, Penacony"
+
+"Throne and Liberty":
+  → id: 117294  name: "Throne and Liberty"
+

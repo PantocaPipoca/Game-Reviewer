@@ -1,5 +1,5 @@
 import { PRISMA } from "../Prisma";
-import { ReviewFull, ReviewShort, ReviewPK, GamePK, UserPK } from "../types/Types";
+import { ReviewFull, ReviewShort, ReviewPK, GamePK, UserPK, ReviewWithAvatar } from "../types/Types";
 
 export class ReviewRepository {
     /**
@@ -39,6 +39,8 @@ export class ReviewRepository {
             data: {
                 text: review.text,
                 score: review.score,
+                hoursPlayed: review.hoursPlayed,
+                platforms: review.platforms,
             },
         });
     }
@@ -59,10 +61,11 @@ export class ReviewRepository {
      * @param gamePK primary key of the Game which we want the Reviews of
      * @returns a promise of the Array of Reviews
      */
-    public static selectAllReviewsOfGame(gamePK: GamePK): Promise<ReviewFull[]> {
+    public static selectAllReviewsOfGame(gamePK: GamePK): Promise<ReviewWithAvatar[]> {
         return PRISMA.review.findMany({
             where: { reviewed: gamePK },
-        });
+            include: { user: { select: { avatar: true } } },
+        }) as Promise<ReviewWithAvatar[]>;
     }
 
     /**
@@ -70,9 +73,41 @@ export class ReviewRepository {
      * @param userPK primary key of the User which we want the Reviews of
      * @returns a promise of the Array of Reviews
      */
-    public static selectAllReviewsOfUser(userPK: UserPK): Promise<ReviewFull[]> {
+    public static selectAllReviewsOfUser(userPK: UserPK): Promise<ReviewWithAvatar[]> {
         return PRISMA.review.findMany({
             where: { reviewer: userPK },
-        });
+            include: { user: { select: { avatar: true } } },
+        }) as Promise<ReviewWithAvatar[]>;
+    }
+
+    /**
+     * @description Gets the average score of users followed by the requester on a game
+     * @param userPK PK of the user who wants to know their 'followees' general opinion on a game
+     * @param game PK of the game the user is interested in knowing the scores
+     * @returns a promise of a number being the average of the reviews or of null if there are no reviews
+     */
+    public static getAverageScoreOfFollowed(userPK: UserPK, game: GamePK): Promise<number | null> {
+        return PRISMA.review
+            .aggregate({
+                where: {
+                    reviewed: game,
+
+                    // the person who did the review
+                    user: {
+                        // their followers
+                        followers: {
+                            some: {
+                                // the user who did the request
+                                follows: userPK,
+                                accepted: true,
+                            },
+                        },
+                    },
+                },
+                _avg: {
+                    score: true,
+                },
+            })
+            .then((res) => res._avg.score);
     }
 }

@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { AppError } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
-import { GamePK, LikeFull, LikeShort, ReviewFull, UserPK, ReactionResponse } from "../types/Types";
+import { GamePK, LikeFull, LikeShort, ReviewFull, UserPK, ReactionResponse, CurrentReactionResponse } from "../types/Types";
 import { fetchFullUser } from "./AccountService";
 import { ReviewRepository } from "../Repository/ReviewRepository";
 import { LikeRepository } from "../Repository/LikeRepository";
@@ -27,6 +27,38 @@ export class LikeService {
             likes,
             dislikes,
         } as ReactionResponse;
+    }
+
+    /**
+     * Gets the current user's reaction on a review
+     * @param currentUser the user checking the reaction
+     * @param reviewer the reviewer of the target review
+     * @param gameID the game ID of the target review
+     * @returns the current reaction, if any
+     */
+    static async getCurrentReaction(
+        currentUser: UserPK | undefined,
+        reviewer: UserPK,
+        gameID: GamePK
+    ): Promise<CurrentReactionResponse> {
+        const review: ReviewFull | null = await ReviewRepository.selectReview({ reviewer, reviewed: gameID });
+        if (!review) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
+
+        if (!currentUser) {
+            return { value: null };
+        }
+
+        await fetchFullUser(currentUser);
+
+        const existing: LikeFull | null = await LikeRepository.selectLike({
+            liker: currentUser,
+            reviewer,
+            reviewed: gameID,
+        });
+
+        return {
+            value: existing?.value ?? null,
+        } as CurrentReactionResponse;
     }
 
     /**

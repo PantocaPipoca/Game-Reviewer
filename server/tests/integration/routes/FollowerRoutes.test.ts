@@ -22,9 +22,9 @@ const email2: string = username2 + "@test.com";
 
 // =============== FOLLOWERS ===============
 
-describe("GET /api/users/:username/followers", () => {
+describe("GET /api/users/id/:username/followers", () => {
     it("returns NOT FOUND if user doesn't exist", async () => {
-        await request(app).get("/api/users/not-existing-user/followers").expect(StatusCodes.NOT_FOUND);
+        await request(app).get("/api/users/id/not-existing-user/followers").expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns FORBIDDEN if target is private", async () => {
@@ -39,10 +39,10 @@ describe("GET /api/users/:username/followers", () => {
                 isPrivate: true,
                 email,
                 userData: { displayName, gender: "", bio: "" },
-            })
+            });
 
         await request(app)
-            .get("/api/users/" + target.accountName + "/followers")
+            .get("/api/users/id/" + target.accountName + "/followers")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.FORBIDDEN);
     });
@@ -59,11 +59,11 @@ describe("GET /api/users/:username/followers", () => {
                 isPrivate: true,
                 email,
                 userData: { displayName, gender: "", bio: "" },
-            })
+            });
 
         // follower follows target
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
@@ -74,7 +74,7 @@ describe("GET /api/users/:username/followers", () => {
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/" + target.accountName + "/followers")
+            .get("/api/users/id/" + target.accountName + "/followers")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.OK);
 
@@ -89,12 +89,12 @@ describe("GET /api/users/:username/followers", () => {
 
         // follower follows target
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/" + target.accountName + "/followers")
+            .get("/api/users/id/" + target.accountName + "/followers")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -106,12 +106,12 @@ describe("GET /api/users/:username/followers", () => {
 
 // ================ FOLLOW user ================
 
-describe("POST /api/users/:username/followers", () => {
+describe("POST /api/users/id/:username/followers", () => {
     it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
         const user = await register(app, username, displayName, password, email);
 
         await request(app)
-            .post("/api/users//followers")
+            .post("/api/users/id//followers")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -119,20 +119,20 @@ describe("POST /api/users/:username/followers", () => {
     it("returns NOT FOUND if user doesn't exist", async () => {
         const user = await register(app, username, displayName, password, email);
         await request(app)
-            .post("/api/users/not-existing-user/followers")
+            .post("/api/users/id/not-existing-user/followers")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns UNAUTHORIZED if not authenticated", async () => {
-        await request(app).post("/api/users/me/followers").expect(StatusCodes.UNAUTHORIZED);
+        await request(app).post("/api/users/id/me/followers").expect(StatusCodes.UNAUTHORIZED);
     });
 
     it("returns CONFLICT if user tries to follow themselves", async () => {
         const user = await register(app, username, displayName, password, email);
 
         await request(app)
-            .post("/api/users/" + user.accountName + "/followers")
+            .post("/api/users/id/" + user.accountName + "/followers")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.CONFLICT);
     });
@@ -142,12 +142,12 @@ describe("POST /api/users/:username/followers", () => {
         const follower: AuthResponse = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CONFLICT);
     });
@@ -157,7 +157,7 @@ describe("POST /api/users/:username/followers", () => {
         const follower: AuthResponse = await register(app, username2, displayName2, password2, email2);
 
         const res = await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
@@ -182,7 +182,7 @@ describe("POST /api/users/:username/followers", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
@@ -195,12 +195,12 @@ describe("POST /api/users/:username/followers", () => {
 
 // =============== Unfollow/Delete request ===============
 
-describe("DELETE /api/users/:username/followers", () => {
+describe("DELETE /api/users/id/:username/followers", () => {
     it("returns NOT FOUND if username param missing (route won't match -> 404)", async () => {
         const user = await register(app, username, displayName, password, email);
 
         await request(app)
-            .delete("/api/users//followers")
+            .delete("/api/users/id//followers")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -208,7 +208,7 @@ describe("DELETE /api/users/:username/followers", () => {
     it("returns NOT FOUND if user doesn't exist", async () => {
         const user = await register(app, username, displayName, password, email);
         await request(app)
-            .delete("/api/users/not-existing-user/followers")
+            .delete("/api/users/id/not-existing-user/followers")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -218,13 +218,13 @@ describe("DELETE /api/users/:username/followers", () => {
         const user = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/users/" + target.accountName + "/followers/")
+            .delete("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
 
     it("returns UNAUTHORIZED if not authenticated", async () => {
-        await request(app).delete("/api/users/me/followers").expect(StatusCodes.UNAUTHORIZED);
+        await request(app).delete("/api/users/id/me/followers").expect(StatusCodes.UNAUTHORIZED);
     });
 
     it("returns NOT FOUND if user is not following target", async () => {
@@ -232,7 +232,7 @@ describe("DELETE /api/users/:username/followers", () => {
         const user = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/users/" + target.accountName + "/followers/")
+            .delete("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -242,12 +242,12 @@ describe("DELETE /api/users/:username/followers", () => {
         const follower: AuthResponse = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/users/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .delete("/api/users/" + target.accountName + "/followers/")
+            .delete("/api/users/id/" + target.accountName + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.ACCEPTED);
 

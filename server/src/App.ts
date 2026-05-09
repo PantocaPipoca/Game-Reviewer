@@ -5,14 +5,41 @@ import { AppError } from "./utils/ErrorHandler";
 import { StatusCodes } from "http-status-codes";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
-import SWAGGER_SPEC from "./Swagger.js";
+import SWAGGER_SPEC from "./utils/Swagger.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { doubleCsrf } from "csrf-csrf";
 import { middleware as openAPIValidator } from "express-openapi-validator";
+import pinoHttp from "pino-http";
+import logger from "./utils/Logger.js";
+import { register, httpRequestDuration, httpRequestsTotal } from "./utils/Metrics.js";
+import { randomUUID } from "crypto";
 
 export function createApp(): Express {
     const app: Express = express();
+
+    app.use(
+        pinoHttp({
+            logger,
+            genReqId: (req) => (req.headers["x-request-id"] as string) || randomUUID(),
+            autoLogging: {
+                ignore: (req) => req.url === "/api/health" || req.url === "/api/metrics",
+            },
+        })
+    );
+
+    // Metrics
+    app.use((req, res, next) => {
+        const start = Date.now();
+        res.on("finish", () => {
+            const duration = (Date.now() - start) / 1000;
+            const route = req.route?.path ?? req.path;
+            const labels = { method: req.method, route, status_code: res.statusCode };
+            httpRequestDuration.observe(labels, duration);
+            httpRequestsTotal.inc(labels);
+        });
+        next();
+    });
 
     app.use(
         cors({
@@ -29,10 +56,11 @@ export function createApp(): Express {
     // limiter
     const limiter = rateLimit({
         windowMs: 60 * 1000,
-        max: parseInt(process.env["RATE_LIMIT_MAX"] ?? "200"),
+        max: parseInt(process.env["RATE_LIMIT_MAX"] ?? "50000"), // value for testing: 50000 per minute
         standardHeaders: true,
         legacyHeaders: false,
         handler: (_req, res) => {
+            logger.warn({ ip: _req.ip, path: _req.path }, "Rate limit exceeded");
             res.status(429).json({ status: "error", message: "Too many requests" });
         },
     });
@@ -70,8 +98,12 @@ export function createApp(): Express {
     // Big int to string
     app.set("json replacer", (_key: string, value: any) => (typeof value === "bigint" ? value.toString() : value));
 
-    // Health check
     app.get("/api/health", (_, res) => res.json({ status: "ok", message: "Game Reviewer API" }));
+
+    app.get("/api/metrics", async (_req, res) => {
+        res.set("Content-Type", register.contentType);
+        res.end(await register.metrics());
+    });
 
     // Swagger docs
     if (process.env["NODE_ENV"] !== "production") {
@@ -80,14 +112,15 @@ export function createApp(): Express {
     }
 
     // Contract validator
-    /* app.use(
+    app.use(
         openAPIValidator({
             apiSpec: SWAGGER_SPEC as any,
             validateRequests: true,
             validateResponses: true,
             validateSecurity: false,
+            ignorePaths: /\/users\/(me\/avatar|id\/.*\/avatar)/, // ignore /users/me/avatar and /users/id/{id}/avatar
         })
-    ); */
+    );
 
     // App routes
     app.use("/api", router);
@@ -122,7 +155,7 @@ export function createApp(): Express {
             });
         }
 
-        console.error(err);
+        logger.error(err, "Unhandled server error");
 
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             status: "error",

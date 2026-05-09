@@ -40,3 +40,75 @@
     opacity: 0.45;
     cursor: not-allowed;
 }
+
+.edit {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.createReview {
+    width: 64px;
+    height: 40px;
+    border-color: var(--mainText);
+    background-color: var(--transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 12px;
+    padding-bottom: 18px;
+}
+
+.createReviewFull {
+    width: 100%;
+}
+
+.createComment {
+    width: 64px;
+    display: flex;
+    align-items: center;
+}
+
+.voteButton {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: var(--borderWidth) solid transparent;
+    background-color: transparent;
+    color: var(--mainText);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.voteButton:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+.voteButton:active {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+.voteButtonActive {
+    border-color: var(--pink);
+    color: var(--pink);
+}
+
+.voteIcon {
+    width: 20px;
+    height: 20px;
+}
+
+.filterButton {
+    padding: 0.8em 1.2em;
+    background-color: var(--secondaryPanel);
+    white-space: nowrap;
+}
+
+.filterButtonActive {
+    border-color: var(--pink);
+}

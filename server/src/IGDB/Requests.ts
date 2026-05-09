@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 // import { GameCover } from "../types/Types";
 import { GameRepository } from "../Repository/GameRepository";
-import { UserPK, GameCover } from "../types/Types";
+import { UserPK, GameCover, BigGameCover } from "../types/Types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,44 +63,42 @@ export class IGDB {
         fs.writeFileSync(FILE_PATH, JSON.stringify(IGDB.tokenInfo, null, 2));
     }
 
-    private static get safeAccessToken(): string {
-        const token = IGDB.tokenInfo.access_token;
-        if (typeof token !== "string" || !/^[A-Za-z0-9_\-]+$/.test(token)) {
-            throw new Error("Invalid access token format");
-        }
-        return token;
-    }
-
     private static async handleToken(): Promise<void> {
         if (!IGDB.readToken) {
             try {
                 const fileContent = fs.readFileSync(FILE_PATH, "utf-8");
                 const fileData: TokenData = JSON.parse(fileContent);
-
-                const token = typeof fileData.access_token === "string" ? fileData.access_token : "";
-                const expiresAt = typeof fileData.expires_at === "number" ? fileData.expires_at : 0;
-
-                IGDB.tokenInfo = { access_token: token, expires_at: expiresAt };
+                IGDB.tokenInfo = fileData;
             } catch {
-                IGDB.tokenInfo = { access_token: "", expires_at: 0 };
+                const fileData: TokenData = {
+                    access_token: "placeholder",
+                    expires_at: 0,
+                };
+                IGDB.tokenInfo = fileData;
             }
             IGDB.readToken = true;
         }
 
+        const expires_at = IGDB.tokenInfo.expires_at;
         const now = Math.floor(Date.now() / 1000);
-        if (now > IGDB.tokenInfo.expires_at) await IGDB.getNewToken();
+        if (now > expires_at) await IGDB.getNewToken();
         await IGDB.sleep();
     }
 
-    // DONE
-    // used for the game page
+    /**
+     * Fetches full game details by IGDB ID.
+     * Used for the game info page. Returns a single game object with all relevant fields or null if not found.
+     * @param ID IGDB game ID
+     * @returns The game object or null if no match
+     */
+
     public static async getGameByID(ID: number): Promise<any> {
         await IGDB.handleToken();
         return fetch("https://api.igdb.com/v4/games", {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields
@@ -179,7 +177,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields:
@@ -201,9 +199,12 @@ export class IGDB {
         }).then((res) => res.json() as Promise<GameCover[]>);
     }
 
-    // DONE
-    // used to get games obtained through a search in our db
-    public static async getGivenGames(gameIDs: number[]) {
+    /**
+     * Fetches detailed info for a list of game IDs from IGDB.
+     * @param gameIDs Array of IGDB game IDs
+     * @returns Array of BigGameCover objects (id, name, cover, genres, screenshots, artworks, involved_companies)
+     */
+    public static async getGivenGames(gameIDs: number[]): Promise<BigGameCover[]> {
         const gameIDListString: string = `(${gameIDs.join(",")})`;
 
         await IGDB.handleToken();
@@ -211,19 +212,27 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields
                     id,
                     name,
-                    cover.*
+                    cover.url,
+                    genres.name,
+                    screenshots.url,
+                    artworks.url,
+                    artworks.width,
+                    artworks.height,
+                    involved_companies.developer,
+                    involved_companies.company.name
                 ;
-
                 where id = ${gameIDListString} &
                 cover != null;
+                
+                limit ${gameIDs.length};
             `,
-        }).then((res) => res.json() as Promise<GameCover[]>);
+        }).then((res) => res.json() as Promise<BigGameCover[]>);
     }
 
     // DONE
@@ -235,7 +244,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields
@@ -267,7 +276,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                 fields genres;
@@ -290,7 +299,7 @@ export class IGDB {
             method: "POST",
             headers: {
                 "Client-ID": IGDB.clientId,
-                Authorization: `Bearer ${IGDB.safeAccessToken}`,
+                Authorization: `Bearer ${IGDB.tokenInfo.access_token}`,
             },
             body: `
                     fields *;

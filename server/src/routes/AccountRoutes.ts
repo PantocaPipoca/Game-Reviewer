@@ -1,4 +1,5 @@
 ﻿import { Router } from "express";
+import multer from "multer";
 import { AccountController } from "../controllers/AccountController";
 import { ReviewController } from "../controllers/ReviewController";
 import { optionalAuth, auth } from "../utils/Auth";
@@ -6,6 +7,18 @@ import { FollowerController } from "../controllers/FollowerController";
 import FollowerRoutes from "./FollowerRoutes";
 
 const router: Router = Router({ mergeParams: true });
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (_req, file, cb) => {
+        if (!file.mimetype.startsWith("image/")) {
+            cb(new Error("Only image files are allowed"));
+            return;
+        }
+        cb(null, true);
+    },
+});
 
 // ===================== AUTHENTICATION =====================
 
@@ -44,9 +57,11 @@ const router: Router = Router({ mergeParams: true });
  *                                      type: string
  *                                      example: success
  *                                  data:
- *                                      $ref: '#/components/schemas/AuthResponse'
+ *                                      oneOf:
+ *                                          - type: string
+ *                                          - $ref: '#/components/schemas/AuthResponse'
  *              400:
- *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 characters, if the password is shorter than 8 characters, or if the email provided is invalid"
+ *                  description: "**Bad Request** — if any of the required fields is missing, if the account name is shorter than 3 or longer than 26 characters, if the display name is longer than 26 characters, if the password is shorter than 8 or longer than 50 characters, or if the email provided is invalid or longer than 110 characters"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -65,6 +80,55 @@ const router: Router = Router({ mergeParams: true });
  *                              $ref: '#/components/schemas/Error'
  */
 router.post("/", AccountController.register);
+// will not return a token and will just return a message that states a confirmation code has been sent to the given email
+
+/**
+ * @swagger
+ *  /users/validation:
+ *      get:
+ *          tags: [Users]
+ *          summary: Validates a new user using email
+ *          description: Validates a user using their username and a code sent to their email
+ *          parameters:
+ *              - name: user
+ *                in: query
+ *                required: true
+ *                schema:
+ *                  type: string
+ *              - name: code
+ *                in: query
+ *                required: true
+ *                schema:
+ *                  type: integer
+ *
+ *          responses:
+ *              200:
+ *                  description: "**OK** — Validation successful and received a token"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: sucsess
+ *                                  data:
+ *                                      $ref: '#/components/schemas/AuthResponse'
+ *              400:
+ *                  description: "**Bad Request** — if any of the required fields is missing or is in the wrong format"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** — if no account corresponds to the account name and code"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *
+ */
+router.get("/validation", AccountController.validate);
 
 /**
  * @swagger
@@ -110,6 +174,18 @@ router.post("/", AccountController.register);
  *                      application/json:
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
+ *              428:
+ *                  description: "**Precondition Required** — user still needs confirmation email"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
  */
 router.post("/login", AccountController.login);
 
@@ -146,7 +222,114 @@ router.post("/login", AccountController.login);
  */
 router.post("/logout", auth, AccountController.logout);
 
-// ===================== USER MANAGEMENT =====================
+/**
+ * @swagger
+ *  /users/recover-password:
+ *      post:
+ *          tags: [users]
+ *          summary: gives the user a code via email that allows them to change password
+ *          description: gives the user a code via email that allows them to change password
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [username]
+ *                          properties:
+ *                              username:
+ *                                  type: string
+ *          responses:
+ *              200:
+ *                  description: "**OK** — code sent sucsessfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
+ *              400:
+ *                  description: "**BAD REQUEST** — when no account name was given or was the wrong format"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**NOT FOUND** — when no user was found"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              503:
+ *                  description: "**SERVICE_UNAVAILABLE** — when server cant send an email"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.post("/recover-password", AccountController.grantPasswordReset);
+
+/**
+ * @swagger
+ *  /users/reset-password:
+ *      post:
+ *          tags: [users]
+ *          summary: resets the users password to the given one
+ *          description: resets the users password to the given one
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          required: [username, passResetCode, password]
+ *                          properties:
+ *                              username:
+ *                                  type: string
+ *                              password:
+ *                                  type: string
+ *                              passResetCode:
+ *                                  type: number
+ *          responses:
+ *              200:
+ *                  description: "**OK** — password reset successfuly"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: string
+ *              400:
+ *                  description: "**BAD REQUEST** — when there are missing parameters or given in the wrong format"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**UNAUTHORIZED** — when the code does not correspond to the account"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**NOT FOUND** — when no user was found"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *
+ */
+router.post("/reset-password", AccountController.usePasswordReset);
+
+// ===================== CURRENT USER MANAGEMENT =====================
 
 /**
  * @swagger
@@ -221,7 +404,7 @@ router.get("/me", auth, AccountController.getCurrentUser);
  *                                  data:
  *                                      $ref: '#/components/schemas/UserPublic'
  *              400:
- *                  description: "**Bad Request** — if the password (if provided) is shorter than 8 characters, or if the email (if provided) is invalid"
+ *                  description: "**Bad Request** — if the password (if provided) is shorter than 8 or longer than 50 characters, if the displayName (if provided) is longer than 26 characters, if the email (if provided) is invalid or longer than 110 characters, if the gender (if provided) is longer than 20 characters or if the bio (if provided) is longer than 1000 characters"
  *                  content:
  *                      application/json:
  *                          schema:
@@ -284,7 +467,129 @@ router.put("/me", auth, AccountController.alter);
  */
 router.delete("/me", auth, AccountController.remove);
 
-// ===================== FOLLOWER REQUESTS =====================
+/**
+ * @swagger
+ *  /users/me/avatar:
+ *      put:
+ *          tags: [Users]
+ *          summary: Uploads or replaces the current user's profile picture
+ *          description: Accepts a multipart/form-data request with an image file. Max size 5MB. Returns the Cloudinary URL of the uploaded image.
+ *          security:
+ *              - bearerAuth: []
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  multipart/form-data:
+ *                      schema:
+ *                          type: object
+ *                          required: [avatar]
+ *                          properties:
+ *                              avatar:
+ *                                  type: string
+ *                                  format: binary
+ *          responses:
+ *              200:
+ *                  description: "**OK** — avatar uploaded successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: object
+ *                                      properties:
+ *                                          url:
+ *                                              type: string
+ *                                              example: "https://res.cloudinary.com/..."
+ *              400:
+ *                  description: "**Bad Request** — if no file was provided or the file exceeds 5MB"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              401:
+ *                  description: "**Unauthorized** — if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.put("/me/avatar", auth, upload.single("avatar"), AccountController.uploadAvatar);
+
+/**
+ * @swagger
+ *  /users/id/{username}/avatar:
+ *      get:
+ *          tags: [Users]
+ *          summary: Redirects to the profile picture of a user
+ *          description: Returns a 302 redirect to the Cloudinary URL of the user's profile picture.
+ *          parameters:
+ *              - in: path
+ *                name: username
+ *                required: true
+ *                schema:
+ *                  type: string
+ *          responses:
+ *              302:
+ *                  description: "**Found** — redirects to the image URL"
+ *              400:
+ *                  description: "**Bad Request** — if the username is missing"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** — if the user doesn't exist or has no profile picture set"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.get("/id/:username/avatar", AccountController.getAvatar);
+
+// ===================== CURRENT USER FOLLOWER MANAGEMENT =====================
+
+/**
+ * @swagger
+ *  /users/me/followers/requests/sent:
+ *      get:
+ *          tags: [Followers]
+ *          summary: Gets the pending follower requests made by the current user
+ *          description: Gets the pending follower requests made by the current user
+ *          security:
+ *              - bearerAuth: []
+ *          responses:
+ *              200:
+ *                  description: "**OK** — pending requests retrieved successfully"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *                                  data:
+ *                                      type: array
+ *                                      items:
+ *                                          $ref: '#/components/schemas/FollowerPublic'
+ *              401:
+ *                  description: "**Unauthorized** - if no account is logged in"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ *              404:
+ *                  description: "**Not Found** — if the authenticated user doesn't exist"
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Error'
+ */
+router.get("/me/followers/requests/sent", auth, FollowerController.getPendingRequestsFromUser);
 
 /**
  * @swagger
@@ -309,7 +614,7 @@ router.delete("/me", auth, AccountController.remove);
  *                                  data:
  *                                      type: array
  *                                      items:
- *                                          $ref: '#/components/schemas/Follower'
+ *                                          $ref: '#/components/schemas/FollowerPublic'
  *              401:
  *                  description: "**Unauthorized** - if no account is logged in"
  *                  content:
@@ -324,45 +629,6 @@ router.delete("/me", auth, AccountController.remove);
  *                              $ref: '#/components/schemas/Error'
  */
 router.get("/me/followers/requests/received", auth, FollowerController.getPendingRequestsToUser);
-
-/**
- * @swagger
- *  /users/me/followers/requests/sent:
- *      get:
- *          tags: [Followers]
- *          summary: Gets the pending follower requests made by a user (for private accounts)
- *          description: Gets the pending follower requests made by a user (for private accounts)
- *          security:
- *              - bearerAuth: []
- *          responses:
- *              200:
- *                  description: "**OK** — pending requests retrieved successfully"
- *                  content:
- *                      application/json:
- *                          schema:
- *                              type: object
- *                              properties:
- *                                  status:
- *                                      type: string
- *                                      example: success
- *                                  data:
- *                                      type: array
- *                                      items:
- *                                          $ref: '#/components/schemas/Follower'
- *              401:
- *                  description: "**Unauthorized** - if no account is logged in"
- *                  content:
- *                      application/json:
- *                          schema:
- *                              $ref: '#/components/schemas/Error'
- *              404:
- *                  description: "**Not Found** — if the authenticated user doesn't exist"
- *                  content:
- *                      application/json:
- *                          schema:
- *                              $ref: '#/components/schemas/Error'
- */
-router.get("/me/followers/requests/sent", auth, FollowerController.getPendingRequestsFromUser);
 
 /**
  * @swagger
@@ -532,6 +798,16 @@ router.delete("/me/followers/:username", auth, FollowerController.removeFollower
  *                required: true
  *                schema:
  *                  type: string
+ *              - in: query
+ *                name: offset
+ *                required: false
+ *                schema:
+ *                  type: integer
+ *              - in: query
+ *                name: limit
+ *                required: false
+ *                schema:
+ *                  type: integer
  *          responses:
  *              200:
  *                  description: "**OK** — accounts found successfully"
@@ -558,12 +834,12 @@ router.get("/search", optionalAuth, AccountController.search);
 
 // ===================== USER SUB-RESOURCES =====================
 
-// api/users/:username/followers routes are handled by FollowerRoutes
-router.use("/:username/followers", FollowerRoutes);
+// api/users/id/:username/followers routes are handled by FollowerRoutes
+router.use("/id/:username/followers", FollowerRoutes);
 
 /**
  * @swagger
- *  /users/{username}/following:
+ *  /users/id/{username}/following:
  *      get:
  *          tags: [Followers]
  *          summary: Gets the users followed by a user
@@ -588,7 +864,7 @@ router.use("/:username/followers", FollowerRoutes);
  *                                  data:
  *                                      type: array
  *                                      items:
- *                                          $ref: '#/components/schemas/Follower'
+ *                                          $ref: '#/components/schemas/FollowerPublic'
  *              400:
  *                  description: "**Bad Request** — if no user name was provided"
  *                  content:
@@ -608,11 +884,11 @@ router.use("/:username/followers", FollowerRoutes);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:username/following", optionalAuth, FollowerController.getFollowingByUser);
+router.get("/id/:username/following", optionalAuth, FollowerController.getFollowingByUser);
 
 /**
  * @swagger
- *  /users/{username}/reviews:
+ *  /users/id/{username}/reviews:
  *      get:
  *          tags: [Reviews]
  *          summary: Gets the reviews of a user
@@ -657,13 +933,11 @@ router.get("/:username/following", optionalAuth, FollowerController.getFollowing
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:username/reviews", optionalAuth, ReviewController.getReviewsByUser);
-
-// ===================== FIND USER PROFILE =====================
+router.get("/id/:username/reviews", optionalAuth, ReviewController.getReviewsByUser);
 
 /**
  * @swagger
- *  /users/{username}:
+ *  /users/id/{username}:
  *      get:
  *          tags: [Users]
  *          summary: Finds an account by its name
@@ -703,6 +977,6 @@ router.get("/:username/reviews", optionalAuth, ReviewController.getReviewsByUser
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.get("/:username", optionalAuth, AccountController.findByUsername);
+router.get("/id/:username", optionalAuth, AccountController.findByUsername);
 
 export default router;

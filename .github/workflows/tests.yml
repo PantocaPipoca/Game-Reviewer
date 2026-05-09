@@ -42,8 +42,14 @@ jobs:
             RATE_LIMIT_MAX: "10000"
             CSRF_SECRET: test_secret
             NODE_ENV: test
+            PINO_LOG_LEVEL: error
             IGDB_CLIENT_ID: ${{ secrets.IGDB_CLIENT_ID }}
             IGDB_CLIENT_SECRET: ${{ secrets.IGDB_CLIENT_SECRET }}
+            EMAIL: ${{ secrets.EMAIL }}
+            EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+            CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+            CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+            CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
         steps:
             - uses: actions/checkout@v5

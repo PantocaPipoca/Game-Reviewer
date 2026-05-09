@@ -1,15 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import style from "./GameInfoPage.module.css";
 import Panel from "../Components/Panel/Panel";
 import Navbar from "../Components/Navbar/Navbar";
 import Text from "../Components/Text/Text";
-import Star from "../Components/Star/Star";
+import Star from "../Components/SVGs/Star";
 import type { CssVar } from "../Types/Types";
 import ReviewCard from "../Components/ReviewCard/ReviewCard";
+import CreateReviewButton from "../Components/Buttons/CreateReviewButton";
+import ReviewFilter, { type SortField, type SortOrder } from "../Components/ReviewFilter/ReviewFilter";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
-import type { ReviewFull } from "../API/Types";
+import { UserAPI } from "../API/User";
+import type { GameFull, ReviewFull, ReviewWithAvatar } from "../API/Types";
+import Carousel, { EXPO_ART_TYPE, EXPO_VIDEO_TYPE } from "../Components/Carousel/Carousel";
+import type { GameExpoProps } from "../Components/GameCards/GameExpo";
+import GameExpo from "../Components/GameCards/GameExpo";
+import { sortReviews } from "../Utils/ReviewSort";
+
+const noCoverUrl: string = "https://vglist.co/assets/no-cover-5b40e3b1.png";
 
 type RatingType = "user" | "your" | "friends";
 
@@ -32,7 +41,14 @@ function getRatingColor(type: RatingType): CssVar {
 function RatingRow({ type, value }: { type: RatingType; value?: number }) {
     const color: CssVar = getRatingColor(type);
     const isYourRating: boolean = type === "your";
-    const displayValue: number = value ?? 0;
+    const hasValue: boolean = value !== undefined;
+
+    let displayValue;
+    if (value === undefined) {
+        displayValue = "\u00A0~\u00A0";
+    } else {
+        displayValue = ((value as number) / 2).toFixed(1);
+    }
 
     const titleMap: Record<RatingType, string> = {
         user: "User Ratings",
@@ -43,10 +59,9 @@ function RatingRow({ type, value }: { type: RatingType; value?: number }) {
     return (
         <div className={style.ratingRow}>
             <Text variant="h2">{titleMap[type]}</Text>
-
             <div className={style.ratingContent}>
                 <Star type="full" size={46} color={color} />
-                {isYourRating ? <button>+</button> : <Text variant="h1">{displayValue.toFixed(1)}</Text>}
+                {isYourRating && !hasValue ? <CreateReviewButton /> : <Text variant="h1">{displayValue}</Text>}
             </div>
         </div>
     );
@@ -83,28 +98,38 @@ function InfoSection({ title, items }: infoItemProps) {
 
 function getCoverUrl(game: any): string {
     const url: string | undefined = game?.cover?.url;
-    if (!url) return "https://vglist.co/assets/no-cover-5b40e3b1.png";
-    const full = url.startsWith("//") ? `https:${url}` : url;
+    if (!url) return noCoverUrl;
+    const full: string = url.startsWith("//") ? `https:${url}` : url;
     return full.replace("t_thumb", "t_cover_big");
 }
 
 function getScreenshotUrl(screenshot: any): string {
     const url: string | undefined = screenshot?.url;
-    if (!url) return "https://vglist.co/assets/no-cover-5b40e3b1.png";
-    const full = url.startsWith("//") ? `https:${url}` : url;
+    if (!url) return noCoverUrl;
+    const full: string = url.startsWith("//") ? `https:${url}` : url;
     return full.replace("t_thumb", "t_screenshot_big");
 }
 
 function getArtworkUrl(artwork: any): string {
     const url: string | undefined = artwork?.url;
-    if (!url) return "https://vglist.co/assets/no-cover-5b40e3b1.png";
-    const full = url.startsWith("//") ? `https:${url}` : url;
+    if (!url) return noCoverUrl;
+    const full: string = url.startsWith("//") ? `https:${url}` : url;
     return full.replace("t_thumb", "t_1080p");
 }
 
-function computeAverageScore(reviews: ReviewFull[]): number {
-    if (reviews.length === 0) return 0;
-    const total = reviews.reduce((sum, r) => sum + r.score, 0);
+function getVideoObject(video: any): GameExpoProps {
+    const url: string | undefined = video?.video_id;
+    const name: string | undefined = video?.name;
+    if (!url || !name || url.startsWith("//")) return { url: noCoverUrl, isVideo: false } as GameExpoProps;
+    return {
+        url: `https://www.youtube.com/embed/${url}?enablejsapi=1`,
+        isVideo: true,
+    } as GameExpoProps;
+}
+
+function computeAverageScore(reviews: ReviewFull[]): number | undefined {
+    if (reviews.length === 0) return undefined;
+    const total: number = reviews.reduce((sum, r) => sum + r.score, 0);
     return parseFloat((total / reviews.length).toFixed(1));
 }
 
@@ -112,9 +137,17 @@ function GameInfoPage() {
     const { gameID } = useParams<{ gameID: string }>();
 
     const [game, setGame] = useState<any | null>(null);
-    const [reviews, setReviews] = useState<ReviewFull[]>([]);
+    const [reviews, setReviews] = useState<ReviewWithAvatar[]>([]);
+    const [myReview, setMyReview] = useState<ReviewFull | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+
+    const [sortField, setSortField] = useState<SortField>("createdAt");
+    const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
+    const [followedScore, setFollowedScore] = useState<number | undefined>(undefined);
+
+    const sortedReviews = useMemo(() => sortReviews(reviews, sortField, sortOrder), [reviews, sortField, sortOrder]);
 
     useEffect(() => {
         if (!gameID) return;
@@ -122,15 +155,34 @@ function GameInfoPage() {
         async function load() {
             setLoading(true);
             setError(false);
+            setMyReview(null);
+
+            try {
+                const followedRatings = await GameAPI.followedRatings(gameID as string);
+                if (followedRatings === null) {
+                    setFollowedScore(undefined);
+                } else {
+                    setFollowedScore(followedRatings as unknown as number);
+                }
+            } catch {
+                setFollowedScore(undefined);
+            }
+
             try {
                 const id = parseInt(gameID!);
-                const [gameResult, reviewResult] = await Promise.allSettled([
+                if (Number.isNaN(id)) {
+                    setError(true);
+                    return;
+                }
+
+                const [gameResult, reviewResult, ownReviewResult] = await Promise.allSettled([
                     GameAPI.getById(id),
                     ReviewAPI.getByGame(id),
+                    UserAPI.getMe().then((me) => ReviewAPI.get(me.accountName, id)),
                 ]);
 
                 if (gameResult.status === "fulfilled") {
-                    const igdbData = Array.isArray(gameResult.value)
+                    const igdbData: GameFull | null = Array.isArray(gameResult.value)
                         ? (gameResult.value[0] ?? null)
                         : (gameResult.value ?? null);
                     setGame(igdbData);
@@ -140,6 +192,10 @@ function GameInfoPage() {
 
                 if (reviewResult.status === "fulfilled") {
                     setReviews(reviewResult.value);
+                }
+
+                if (ownReviewResult.status === "fulfilled") {
+                    setMyReview(ownReviewResult.value);
                 }
             } catch {
                 setError(true);
@@ -179,17 +235,16 @@ function GameInfoPage() {
         .map((ic: any) => ic.company?.name as string)
         .filter(Boolean);
 
-    // First artwork, then first screenshot
+    const videos: any[] = game?.videos ?? [];
     const artworks: any[] = game?.artworks ?? [];
     const screenshots: any[] = game?.screenshots ?? [];
-    const mediaUrl: string =
-        artworks.length > 0
-            ? getArtworkUrl(artworks[0])
-            : screenshots.length > 0
-              ? getScreenshotUrl(screenshots[0])
-              : "https://vglist.co/assets/no-cover-5b40e3b1.png";
+    let carouselItems: GameExpoProps[] = [];
+    videos.forEach((v) => carouselItems.push(getVideoObject(v)));
+    artworks.forEach((a) => carouselItems.push({ url: getArtworkUrl(a), isVideo: false }));
+    screenshots.forEach((s) => carouselItems.push({ url: getScreenshotUrl(s), isVideo: false }));
+    if (carouselItems.length === 0) carouselItems.push({ url: noCoverUrl, isVideo: false });
 
-    const averageScore: number = computeAverageScore(reviews);
+    const averageScore: number | undefined = computeAverageScore(reviews);
 
     if (loading) {
         return (
@@ -227,15 +282,16 @@ function GameInfoPage() {
                             <Panel type="secondary" className={style.coverPanel}>
                                 <img src={coverUrl} className={style.cover} />
                                 <hr />
-                                <Text className={style.gameName}>{gameName}</Text>
+                                <Text className={style.gameName} title={gameName}>
+                                    {gameName}
+                                </Text>
                             </Panel>
                             <Panel type="secondary" className={style.bottomLeftRow}>
                                 <RatingRow type="user" value={averageScore} />
                                 <hr />
-                                <RatingRow type="your" />
+                                <RatingRow type="your" value={myReview?.score} />
                                 <hr />
-                                <RatingRow type="friends" value={0} />
-
+                                <RatingRow type="friends" value={followedScore} />
                                 {developers.length > 0 && <InfoSection title="Main Developers" items={developers} />}
                                 {supportingDevs.length > 0 && (
                                     <InfoSection title="Supporting Devs" items={supportingDevs} />
@@ -247,9 +303,14 @@ function GameInfoPage() {
                         </div>
 
                         <div className={style.rightColumn}>
-                            <Panel type="secondary">
-                                <img src={mediaUrl} className={style.media} />
-                            </Panel>
+                            <Carousel
+                                items={carouselItems}
+                                pageSize={1}
+                                renderItem={(url) => ({
+                                    node: GameExpo(url),
+                                    type: url.isVideo ? EXPO_VIDEO_TYPE : EXPO_ART_TYPE,
+                                })}
+                            />
                             <Panel type="secondary">
                                 <div className={style.description}>
                                     {genres.length > 0 && <DescriptionField label="Genre" value={genres.join(", ")} />}
@@ -260,14 +321,29 @@ function GameInfoPage() {
                                 </div>
                             </Panel>
 
-                            {reviews.map((review) => (
+                            {reviews.length > 0 && (
+                                <ReviewFilter
+                                    sortField={sortField}
+                                    sortOrder={sortOrder}
+                                    onSort={(field, order) => {
+                                        setSortField(field);
+                                        setSortOrder(order);
+                                    }}
+                                />
+                            )}
+
+                            {sortedReviews.map((review) => (
                                 <ReviewCard
                                     key={`${review.reviewer}-${review.reviewed}`}
-                                    title={review.reviewer}
                                     description={review.text}
                                     rating={review.score}
+                                    hoursPlayed={review.hoursPlayed}
+                                    platforms={review.platforms}
                                     showUser
                                     userName={review.reviewer}
+                                    userAvatar={review.user?.avatar ?? undefined}
+                                    reviewer={review.reviewer}
+                                    reviewed={review.reviewed}
                                 />
                             ))}
 

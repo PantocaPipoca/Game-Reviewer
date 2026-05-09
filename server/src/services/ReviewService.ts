@@ -1,11 +1,21 @@
 import { StatusCodes } from "http-status-codes";
 import { AppError } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
-import { GameFull, GamePK, GameShort, ReviewFull, UserPK, UserPublic } from "../types/Types";
+import {
+    GameFull,
+    GamePK,
+    GameShort,
+    ReviewFull,
+    ReviewShort,
+    ReviewWithAvatar,
+    UserPK,
+    UserPublic,
+} from "../types/Types";
 import { canViewUser, fetchPublicUser } from "./AccountService";
 import { GameRepository } from "../Repository/GameRepository";
 import { ReviewRepository } from "../Repository/ReviewRepository";
 import { IGDB } from "../IGDB/Requests";
+import logger from "../utils/Logger";
 
 // Throws if the game doesn't exist
 async function fetchGame(gameID: number): Promise<GameFull> {
@@ -29,9 +39,15 @@ export class ReviewService {
         return review;
     }
 
-    static async publishReview(currentUser: UserPK, gameID: GamePK, text: string, score: number): Promise<ReviewFull> {
+    static async publishReview(
+        currentUser: UserPK,
+        gameID: GamePK,
+        text: string,
+        score: number,
+        hoursPlayed?: number,
+        platforms?: string[]
+    ): Promise<ReviewFull> {
         await fetchPublicUser(currentUser);
-        await fetchGame(gameID);
 
         if ((await GameRepository.selectGame(gameID)) === null) {
             let IGDBgame: any = await IGDB.getGameByID(gameID);
@@ -43,7 +59,7 @@ export class ReviewService {
                 gameName: IGDBgame.name,
                 metadata: { genres: await IGDB.getGenresOfGames([gameID]) }, // TODO: swap this function for ours
             };
-            GameRepository.insertGame(dbGame);
+            await GameRepository.insertGame(dbGame);
         } else {
             // check if review already exists
             const existing: ReviewFull | null = await ReviewRepository.selectReview({
@@ -53,15 +69,27 @@ export class ReviewService {
             if (existing) throw new AppError(StatusCodes.CONFLICT, ErrorMessage.REVIEW_ALREADY_EXISTS);
         }
 
-        return (await ReviewRepository.insertReview({
+        const reviewData: ReviewShort = {
             reviewer: currentUser,
             reviewed: gameID,
             text,
             score,
-        })) as ReviewFull;
+            hoursPlayed: hoursPlayed ?? null,
+            platforms: platforms ?? [],
+        };
+
+        logger.info({ username: currentUser, gameID }, "Review published");
+        return (await ReviewRepository.insertReview(reviewData)) as ReviewFull;
     }
 
-    static async updateReview(currentUser: UserPK, gameID: GamePK, text?: string, score?: number): Promise<ReviewFull> {
+    static async updateReview(
+        currentUser: UserPK,
+        gameID: GamePK,
+        text?: string,
+        score?: number,
+        hoursPlayed?: number,
+        platforms?: string[]
+    ): Promise<ReviewFull> {
         await fetchPublicUser(currentUser);
         await fetchGame(gameID);
 
@@ -71,12 +99,16 @@ export class ReviewService {
         });
         if (!existing) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
-        return (await ReviewRepository.updateReview({
+        const reviewData: ReviewShort = {
             reviewer: currentUser,
             reviewed: gameID,
             text: text ?? existing.text,
             score: score ?? existing.score,
-        })) as ReviewFull;
+            hoursPlayed: hoursPlayed ?? existing.hoursPlayed,
+            platforms: platforms ?? existing.platforms,
+        };
+
+        return (await ReviewRepository.updateReview(reviewData)) as ReviewFull;
     }
 
     static async removeReview(currentUser: UserPK, gameID: GamePK): Promise<ReviewFull> {
@@ -89,14 +121,16 @@ export class ReviewService {
         });
         if (!existing) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.REVIEW_NOT_FOUND);
 
+        logger.info({ username: currentUser, gameID }, "Review deleted");
         return (await ReviewRepository.deleteReview({ reviewer: currentUser, reviewed: gameID })) as ReviewFull;
     }
 
-    static async getReviewsByGame(gameID: GamePK, currentUser?: UserPK): Promise<ReviewFull[]> {
+    static async getReviewsByGame(gameID: GamePK, currentUser?: UserPK, all?: boolean): Promise<ReviewWithAvatar[]> {
         const game: GameFull | null = await GameRepository.selectGame(gameID);
         if (!game) throw new AppError(StatusCodes.NOT_FOUND, ErrorMessage.GAME_NOT_FOUND);
 
-        const reviews: ReviewFull[] = await ReviewRepository.selectAllReviewsOfGame(gameID);
+        const reviews: ReviewWithAvatar[] = await ReviewRepository.selectAllReviewsOfGame(gameID);
+        if (all) return reviews;
 
         // filter based on privacy
         const visibleReviews: ReviewFull[] = [];
@@ -104,28 +138,23 @@ export class ReviewService {
             const user: UserPublic = await fetchPublicUser(review.reviewer); // This will hurt in performance
             if (await canViewUser(user, currentUser)) {
                 visibleReviews.push({
-                    reviewer: review.reviewer,
-                    reviewed: review.reviewed,
-                    text: review.text,
-                    score: review.score,
-                    createdAt: review.createdAt,
-                    updatedAt: review.updatedAt,
+                    ...review,
                 });
             }
         }
-
-        return visibleReviews as ReviewFull[];
+        return visibleReviews as ReviewWithAvatar[];
     }
 
-    static async getReviewsByUser(username: UserPK, currentUser?: UserPK): Promise<ReviewFull[]> {
+    static async getReviewsByUser(username: UserPK, currentUser?: UserPK): Promise<ReviewWithAvatar[]> {
         const user: UserPublic = await fetchPublicUser(username);
 
-        const canView = await canViewUser(user, currentUser);
+        const canView: boolean = await canViewUser(user, currentUser);
         if (!canView) throw new AppError(StatusCodes.FORBIDDEN, ErrorMessage.UNAUTHORIZED_ACTION);
 
-        return (await ReviewRepository.selectAllReviewsOfUser(username)) as ReviewFull[];
+        return (await ReviewRepository.selectAllReviewsOfUser(username)) as ReviewWithAvatar[];
     }
 
-    // TODO Later
-    static async getRecentReviews(gameID: GamePK): Promise<void> {}
+    static getAverageScoreOfFollowed(user: string, game: number) {
+        return ReviewRepository.getAverageScoreOfFollowed(user, game);
+    }
 }
