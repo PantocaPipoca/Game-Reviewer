@@ -3,7 +3,7 @@ import type { AuthResponse, UserMe, UserPublic } from "./Types";
 
 export class UserAPI {
     static async register(data: {
-        accountName: string;
+        username: string;
         displayName: string;
         password: string;
         email: string;
@@ -12,7 +12,7 @@ export class UserAPI {
         return response;
     }
 
-    static async login(data: { accountName: string; password: string }): Promise<AuthResponse> {
+    static async login(data: { username: string; password: string }): Promise<AuthResponse> {
         const response = (await CLIENT.post("/users/login", data)) as AuthResponse;
         return response;
     }

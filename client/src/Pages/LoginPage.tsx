@@ -25,26 +25,26 @@ function LoginPage() {
     }, [navigate, redirectPath]);
 
     const handleLogin = async () => {
-        const accountName = identifier.trim();
+        const username = identifier.trim();
         setError("");
 
-        if (!accountName || !password) {
+        if (!username || !password) {
             setError(AUTH_ERRORS.requiredFields);
             return;
         }
 
-        if (!AUTH_VALIDATION.userRegex.test(accountName) && !AUTH_VALIDATION.emailRegex.test(accountName)) {
+        if (!AUTH_VALIDATION.userRegex.test(username) && !AUTH_VALIDATION.emailRegex.test(username)) {
             setError(AUTH_ERRORS.invalidUserName);
             return;
         }
 
         setLoading(true);
         try {
-            await UserAPI.login({ accountName, password });
+            await UserAPI.login({ username, password });
             navigate(redirectPath, { replace: true });
         } catch (err: any) {
             if (err.response.status == 428) {
-                navigate(`/validation#${accountName}`, {
+                navigate(`/validation#${username}`, {
                     state: { from: redirectPath },
                     replace: true,
                 });

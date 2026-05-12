@@ -61,7 +61,7 @@ export async function fetchPublicUser(username: UserPK): Promise<UserPublic> {
  */
 export function userFullToPublic(user: UserFull): UserPublic {
     return {
-        accountName: user.accountName,
+        username: user.username,
         avatar: user.avatar,
         isPrivate: user.isPrivate,
         userData: user.userData as UserData,
@@ -86,12 +86,12 @@ export async function canViewUser(targetUser: UserPublic, currentUser?: UserPK):
     if (!currentUser) return false;
 
     // own account - always visible
-    if (targetUser.accountName === currentUser) return true;
+    if (targetUser.username === currentUser) return true;
 
     // check if currentUser follows targetUser
     const followRelation = await FollowerRepository.selectFollower({
         follows: currentUser,
-        followed: targetUser.accountName,
+        followed: targetUser.username,
     });
 
     return followRelation !== null && followRelation.accepted; // has to be accepted
@@ -134,7 +134,7 @@ export class AccountService {
         };
 
         const newUser: UserFull = await UserRepository.insertUser({
-            accountName: username,
+            username: username,
             avatar: null,
             isPrivate: false, // default to public account
             passwordHash,
@@ -151,7 +151,7 @@ export class AccountService {
                     html: `<h1>${newUser.emailValidation}</h1>`,
                 });
             } catch (err) {
-                await UserRepository.deleteUser(newUser.accountName);
+                await UserRepository.deleteUser(newUser.username);
                 logger.error({ err, username }, "Verification email failed to send");
                 throw new AppError(
                     StatusCodes.SERVICE_UNAVAILABLE,
@@ -159,9 +159,9 @@ export class AccountService {
                 );
             }
             logger.info({ username }, "New user registered");
-            return newUser.accountName;
+            return newUser.username;
         } else {
-            return AccountService.verify(newUser.accountName, newUser.emailValidation as number);
+            return AccountService.verify(newUser.username, newUser.emailValidation as number);
         }
     }
 
@@ -171,19 +171,19 @@ export class AccountService {
      * @param codeNum - code previously sent by email
      * @returns auth response with token
      */
-    static async verify(accountName: string, codeNum: number): Promise<AuthResponse> {
+    static async verify(username: string, codeNum: number): Promise<AuthResponse> {
         try {
-            const validatedUser: UserFull = await UserRepository.verify(accountName, codeNum);
-            const token = generateToken(validatedUser.accountName);
+            const validatedUser: UserFull = await UserRepository.verify(username, codeNum);
+            const token = generateToken(validatedUser.username);
             return {
-                accountName: validatedUser.accountName,
+                username: validatedUser.username,
                 isPrivate: validatedUser.isPrivate,
                 userData: validatedUser.userData as UserData,
                 createdAt: validatedUser.createdAt,
                 token,
             } as AuthResponse;
         } catch (err) {
-            logger.warn({ err, accountName }, "Verification failed");
+            logger.warn({ err, username }, "Verification failed");
             throw new AppError(StatusCodes.NOT_FOUND, "wrong code");
         }
     }
@@ -219,10 +219,10 @@ export class AccountService {
         }
 
         // Generate JWT token
-        const token: string = generateToken(user.accountName);
+        const token: string = generateToken(user.username);
         logger.info({ username }, "User logged in");
         return {
-            accountName: user.accountName,
+            username: user.username,
             isPrivate: user.isPrivate,
             userData: user.userData as UserData,
             createdAt: user.createdAt,
@@ -241,7 +241,7 @@ export class AccountService {
         const user: UserFull | null = await UserRepository.selectUser(currentUser);
         if (!user) throw new AppError(StatusCodes.UNAUTHORIZED, ErrorMessage.INVALID_CREDENTIALS);
         return {
-            accountName: user.accountName,
+            username: user.username,
             email: user.email,
             avatar: user.avatar,
             isPrivate: user.isPrivate,
@@ -260,7 +260,7 @@ export class AccountService {
      * @param avatar - new avatar URL (optional)
      * @returns updated user data
      */
-    static async alterUser(
+    static async updateUser(
         currentUser: UserPK,
         isPrivate: boolean,
         email: string,
@@ -290,7 +290,7 @@ export class AccountService {
         };
 
         const updated: UserFull = await UserRepository.updateUser({
-            accountName: currentUser,
+            username: currentUser,
             avatar: avatar ?? user.avatar,
             isPrivate: isPrivate ?? user.isPrivate,
             passwordHash,
@@ -308,7 +308,7 @@ export class AccountService {
      */
     static async removeUser(currentUser: UserPK): Promise<UserPublic> {
         const user: UserFull = await fetchFullUser(currentUser);
-        const deletedUser: UserFull = await UserRepository.deleteUser(user.accountName);
+        const deletedUser: UserFull = await UserRepository.deleteUser(user.username);
         logger.info({ username: currentUser }, "User account deleted");
         return userFullToPublic(deletedUser);
     }
@@ -329,7 +329,7 @@ export class AccountService {
 
         if (canView) {
             return {
-                accountName: user.accountName,
+                username: user.username,
                 avatar: user.avatar,
                 isPrivate: user.isPrivate,
                 userData: user.userData as UserData,
@@ -337,7 +337,7 @@ export class AccountService {
             } as UserPublic;
         } else {
             return {
-                accountName: user.accountName,
+                username: user.username,
                 avatar: user.avatar,
                 isPrivate: user.isPrivate,
             } as UserPrivate;
@@ -362,7 +362,7 @@ export class AccountService {
         return users.map((u, i) => {
             if (canViewList[i]) {
                 return {
-                    accountName: u.accountName,
+                    username: u.username,
                     avatar: u.avatar,
                     isPrivate: u.isPrivate,
                     userData: u.userData as UserData,
@@ -370,7 +370,7 @@ export class AccountService {
                 } as UserPublic;
             }
             return {
-                accountName: u.accountName,
+                username: u.username,
                 avatar: u.avatar,
                 isPrivate: u.isPrivate,
             } as UserPrivate;

@@ -13,7 +13,7 @@ import {
     GEND_MAX_LEN,
     NAME_MAX_LEN,
     PASS_MAX_LEN,
-} from "../../../src/controllers/AccountController.ts";
+} from "../../../src/controllers/UserController.ts";
 
 const app: Express = createApp();
 
@@ -31,7 +31,7 @@ describe("POST /api/users (register)", () => {
         const res = await request(app)
             .post("/api/users")
             .send({
-                accountName: username,
+                username: username,
                 displayName,
                 password,
                 email: "support.gamereviewer@gmail.com",
@@ -40,14 +40,14 @@ describe("POST /api/users (register)", () => {
 
         expect(res.body.status).toBe("success");
         // put in validation
-        // expect(res.body.data.accountName).toBe(username);
+        // expect(res.body.data.username).toBe(username);
         // expect(res.body.data.isPrivate).toBe(false);
         // expect(res.body.data.userData.displayName).toBe(displayName);
         // expect(res.body.data.token).toBeDefined();
     }, 15000);
 
     describe("validation BAD REQUESTS (400)", () => {
-        it("missing accountName", async () => {
+        it("missing username", async () => {
             await request(app)
                 .post("/api/users")
                 .send({ displayName, password, email })
@@ -57,29 +57,29 @@ describe("POST /api/users (register)", () => {
         it("missing displayName", async () => {
             await request(app)
                 .post("/api/users")
-                .send({ accountName: "user" + Date.now(), password, email })
+                .send({ username: "user" + Date.now(), password, email })
                 .expect(StatusCodes.BAD_REQUEST);
         });
 
         it("missing password", async () => {
             await request(app)
                 .post("/api/users")
-                .send({ accountName: "user" + Date.now(), displayName, email })
+                .send({ username: "user" + Date.now(), displayName, email })
                 .expect(StatusCodes.BAD_REQUEST);
         });
 
         it("missing email", async () => {
             await request(app)
                 .post("/api/users")
-                .send({ accountName: "user" + Date.now(), displayName, password })
+                .send({ username: "user" + Date.now(), displayName, password })
                 .expect(StatusCodes.BAD_REQUEST);
         });
 
-        it("accountName shorter than 3", async () => {
+        it("username shorter than 3", async () => {
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: "us",
+                    username: "us",
                     displayName,
                     password,
                     email,
@@ -87,11 +87,11 @@ describe("POST /api/users (register)", () => {
                 .expect(StatusCodes.BAD_REQUEST);
         });
 
-        it("accountName longer than 26", async () => {
+        it("username longer than 26", async () => {
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: "a".repeat(NAME_MAX_LEN + 1),
+                    username: "a".repeat(NAME_MAX_LEN + 1),
                     displayName,
                     password,
                     email,
@@ -104,7 +104,7 @@ describe("POST /api/users (register)", () => {
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: u,
+                    username: u,
                     displayName: "a".repeat(NAME_MAX_LEN + 1),
                     password,
                     email,
@@ -117,7 +117,7 @@ describe("POST /api/users (register)", () => {
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: u,
+                    username: u,
                     displayName,
                     password: "1234567",
                     email: email,
@@ -130,7 +130,7 @@ describe("POST /api/users (register)", () => {
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: u,
+                    username: u,
                     displayName,
                     password: "a".repeat(PASS_MAX_LEN + 1),
                     email: email,
@@ -142,7 +142,7 @@ describe("POST /api/users (register)", () => {
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: "user_badmail",
+                    username: "user_badmail",
                     displayName,
                     password,
                     email: "not-an-email",
@@ -154,7 +154,7 @@ describe("POST /api/users (register)", () => {
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: "user_badmail",
+                    username: "user_badmail",
                     displayName,
                     password,
                     email: "a".repeat(EMAIL_MAX_LEN - 8) + "@test.com",
@@ -164,13 +164,13 @@ describe("POST /api/users (register)", () => {
     });
 
     describe("conflicts (409)", () => {
-        it("duplicate accountName", async () => {
+        it("duplicate username", async () => {
             await register(app, username, displayName, password, email);
 
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: username,
+                    username: username,
                     displayName,
                     password,
                     email: username + "2@test.com",
@@ -184,7 +184,7 @@ describe("POST /api/users (register)", () => {
             await request(app)
                 .post("/api/users")
                 .send({
-                    accountName: username + "2",
+                    username: username + "2",
                     displayName,
                     password,
                     email,
@@ -199,7 +199,7 @@ describe("POST /api/users (register)", () => {
 describe("GET /api/users/validation", () => {
     it("returns OK and a token on correct parameters", async () => {
         await request(app).post("/api/users").send({
-            accountName: username,
+            username: username,
             displayName,
             password,
             email: "support.gamereviewer@gmail.com",
@@ -244,11 +244,11 @@ describe("POST /api/users/login", () => {
 
         const res = await request(app)
             .post("/api/users/login")
-            .send({ accountName: username, password })
+            .send({ username: username, password })
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.accountName).toBe(username);
+        expect(res.body.data.username).toBe(username);
         expect(res.body.data.token).toBeDefined();
     });
 
@@ -257,17 +257,17 @@ describe("POST /api/users/login", () => {
         await fastCreateUser(username);
         await request(app)
             .post("/api/users/login")
-            .send({ accountName: username, password: username })
+            .send({ username: username, password: username })
             .expect(StatusCodes.PRECONDITION_REQUIRED);
     });
 
     describe("validation BAD REQUESTS (400)", () => {
-        it("missing accountName", async () => {
+        it("missing username", async () => {
             await request(app).post("/api/users/login").send({ password }).expect(StatusCodes.BAD_REQUEST);
         });
 
         it("missing password", async () => {
-            await request(app).post("/api/users/login").send({ accountName: username }).expect(StatusCodes.BAD_REQUEST);
+            await request(app).post("/api/users/login").send({ username: username }).expect(StatusCodes.BAD_REQUEST);
         });
     });
 
@@ -275,7 +275,7 @@ describe("POST /api/users/login", () => {
         it("user NOT FOUND (404)", async () => {
             await request(app)
                 .post("/api/users/login")
-                .send({ accountName: "no_user_has_this_name", password })
+                .send({ username: "no_user_has_this_name", password })
                 .expect(StatusCodes.UNAUTHORIZED);
         });
 
@@ -284,7 +284,7 @@ describe("POST /api/users/login", () => {
 
             await request(app)
                 .post("/api/users/login")
-                .send({ accountName: username, password: "wrong_pass" })
+                .send({ username: username, password: "wrong_pass" })
                 .expect(StatusCodes.UNAUTHORIZED);
         });
     });
@@ -323,7 +323,7 @@ describe("POST /api/users/recover-password", () => {
     });
     it("checks working", async () => {
         await UserRepository.insertUser({
-            accountName: "test",
+            username: "test",
             email: "support.gamereviewer@gmail.com",
             passwordHash: "brrrrr",
             avatar: null,
@@ -341,7 +341,7 @@ describe("POST /api/users/recover-password", () => {
 describe("POST /api/users/reset-password", () => {
     it("checks errors", async () => {
         await UserRepository.insertUser({
-            accountName: "test",
+            username: "test",
             email: "support.gamereviewer@gmail.com",
             passwordHash: "brrrrr",
             avatar: null,
@@ -370,7 +370,7 @@ describe("POST /api/users/reset-password", () => {
 
     it("checks working", async () => {
         await UserRepository.insertUser({
-            accountName: "test",
+            username: "test",
             email: "support.gamereviewer@gmail.com",
             passwordHash: "brrrrr",
             avatar: null,
@@ -406,7 +406,7 @@ describe("GET /api/users/me", () => {
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.accountName).toBe(user.accountName);
+        expect(res.body.data.username).toBe(user.username);
         expect(res.body.data.isPrivate).toBeDefined();
 
         expect(res.body.data.userData).toBeDefined();
@@ -564,7 +564,7 @@ describe("PUT /api/users/me (alter)", () => {
             })
             .expect(StatusCodes.OK);
 
-        const userFull: UserFull = (await UserRepository.selectUser(user.accountName)) as UserFull;
+        const userFull: UserFull = (await UserRepository.selectUser(user.username)) as UserFull;
 
         const currentUserData: UserData = userFull.userData as UserData;
 
@@ -613,17 +613,17 @@ describe("PUT /api/users/me (alter)", () => {
 
         // send follow requests
         await request(app)
-            .post("/api/users/id/" + user.accountName + "/followers/")
+            .post("/api/users/id/" + user.username + "/followers/")
             .set("Authorization", "Bearer " + follower1.token)
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/id/" + user.accountName + "/followers/")
+            .post("/api/users/id/" + user.username + "/followers/")
             .set("Authorization", "Bearer " + follower2.token)
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/id/" + user.accountName + "/followers/")
+            .post("/api/users/id/" + user.username + "/followers/")
             .set("Authorization", "Bearer " + follower3.token)
             .expect(StatusCodes.CREATED);
 
@@ -654,7 +654,7 @@ describe("PUT /api/users/me (alter)", () => {
             });
 
         await request(app)
-            .get("/api/users/id/" + user.accountName + "/followers")
+            .get("/api/users/id/" + user.username + "/followers")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.OK)
             .then((res) => {
@@ -705,11 +705,11 @@ describe("GET /api/users/id/:username (find profile)", () => {
         const u: AuthResponse = await register(app, username, displayName, password, email);
 
         const res = await request(app)
-            .get("/api/users/id/" + u.accountName)
+            .get("/api/users/id/" + u.username)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.accountName).toBe(u.accountName);
+        expect(res.body.data.username).toBe(u.username);
         expect(res.body.data.userData).toBeDefined();
         expect(res.body.data.createdAt).toBeDefined();
     });
@@ -728,11 +728,11 @@ describe("GET /api/users/id/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/id/" + u.accountName)
+            .get("/api/users/id/" + u.username)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.accountName).toBe(u.accountName);
+        expect(res.body.data.username).toBe(u.username);
         expect(res.body.data.isPrivate).toBe(true);
         expect(res.body.data.userData).toBeUndefined();
         expect(res.body.data.createdAt).toBeUndefined();
@@ -752,7 +752,7 @@ describe("GET /api/users/id/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/id/" + u.accountName)
+            .get("/api/users/id/" + u.username)
             .set("Authorization", "Bearer " + u.token)
             .expect(StatusCodes.OK);
 
@@ -775,18 +775,18 @@ describe("GET /api/users/id/:username (find profile)", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/users/id/" + u.accountName + "/followers/")
+            .post("/api/users/id/" + u.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         // accept request
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + follower.accountName)
+            .put("/api/users/me/followers/requests/received/" + follower.username)
             .set("Authorization", "Bearer " + u.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/id/" + u.accountName)
+            .get("/api/users/id/" + u.username)
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.OK);
 
@@ -809,12 +809,12 @@ describe("GET /api/users/search?query=...", () => {
         const u: AuthResponse = await register(app, username, displayName, password, email);
 
         const res = await request(app)
-            .get("/api/users/search?query=" + u.accountName.slice(0, 4))
+            .get("/api/users/search?query=" + u.username.slice(0, 4))
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
-        expect(res.body.data[0].accountName).toBe(u.accountName);
+        expect(res.body.data[0].username).toBe(u.username);
         expect(res.body.data[0].userData.displayName).toBe(u.userData!.displayName);
     });
 
@@ -832,12 +832,12 @@ describe("GET /api/users/search?query=...", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/search?query=" + u.accountName.slice(0, 4))
+            .get("/api/users/search?query=" + u.username.slice(0, 4))
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
-        expect(res.body.data[0].accountName).toBe(u.accountName);
+        expect(res.body.data[0].username).toBe(u.username);
         expect(res.body.data[0].userData).toBeUndefined();
     });
 
@@ -851,7 +851,7 @@ describe("GET /api/users/search?query=...", () => {
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
-        expect(res.body.data[0].accountName).toBe(u.accountName);
+        expect(res.body.data[0].username).toBe(u.username);
         expect(res.body.data[0].userData.displayName).toBe(u.userData!.displayName);
     });
 
@@ -916,7 +916,7 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
         const token: string = user.token;
 
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + user2.accountName)
+            .put("/api/users/me/followers/requests/received/" + user2.username)
             .set("Authorization", "Bearer " + token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -938,17 +938,17 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
 
         // user sends request to user2
         await request(app)
-            .post("/api/users/id/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.username + "/followers/")
             .set("Authorization", "Bearer " + user.token);
 
         //user2 accepts request
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + user.accountName)
+            .put("/api/users/me/followers/requests/received/" + user.username)
             .set("Authorization", "Bearer " + user2.token)
             .expect(StatusCodes.ACCEPTED);
 
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + user.accountName)
+            .put("/api/users/me/followers/requests/received/" + user.username)
             .set("Authorization", "Bearer " + user2.token)
             .expect(StatusCodes.CONFLICT);
     });
@@ -970,14 +970,14 @@ describe("PUT /api/users/me/followers/requests/received/:username", () => {
 
         // user sends request to user2
         const res = await request(app)
-            .post("/api/users/id/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.username + "/followers/")
             .set("Authorization", "Bearer " + user.token);
 
         expect(res.status).toBe(StatusCodes.CREATED);
 
         //user2 accepts request
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + user.accountName)
+            .put("/api/users/me/followers/requests/received/" + user.username)
             .set("Authorization", "Bearer " + user2.token)
             .expect(StatusCodes.ACCEPTED);
     });
@@ -1002,7 +1002,7 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
         const follower: AuthResponse = await register(app, "user2", "user2", "sspassword", "u2@email.com");
 
         await request(app)
-            .delete("/api/users/me/followers/requests/received/" + follower.accountName)
+            .delete("/api/users/me/followers/requests/received/" + follower.username)
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -1023,13 +1023,13 @@ describe("DELETE /api/users/me/followers/requests/received/:username", () => {
 
         // follower request to target
         await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         // target rejects
         await request(app)
-            .delete("/api/users/me/followers/requests/received/" + follower.accountName)
+            .delete("/api/users/me/followers/requests/received/" + follower.username)
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.ACCEPTED);
     });
@@ -1046,7 +1046,7 @@ describe("GET /api/users/id/:username/following", () => {
         const user2 = await register(app, user2name, "user2", "sspassword", `${user2name}@email.com`);
 
         await request(app)
-            .post("/api/users/id/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.username + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
@@ -1062,7 +1062,7 @@ describe("GET /api/users/id/:username/following", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .get("/api/users/id/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.username + "/following")
             .expect(StatusCodes.FORBIDDEN);
     });
 
@@ -1073,19 +1073,19 @@ describe("GET /api/users/id/:username/following", () => {
 
         // user1 follows user2
         await request(app)
-            .post("/api/users/id/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.username + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/id/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.username + "/following")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
         expect(res.body.data).toHaveLength(1);
-        expect(res.body.data[0].follows).toBe(user1.accountName);
-        expect(res.body.data[0].followed).toBe(user2.accountName);
+        expect(res.body.data[0].follows).toBe(user1.username);
+        expect(res.body.data[0].followed).toBe(user2.username);
     });
 
     it("returns OK and following list for private user (self auth)", async () => {
@@ -1095,7 +1095,7 @@ describe("GET /api/users/id/:username/following", () => {
 
         // user1 follows user2
         await request(app)
-            .post("/api/users/id/" + user2.accountName + "/followers/")
+            .post("/api/users/id/" + user2.username + "/followers/")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.CREATED);
 
@@ -1111,15 +1111,15 @@ describe("GET /api/users/id/:username/following", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/id/" + user1.accountName + "/following")
+            .get("/api/users/id/" + user1.username + "/following")
             .set("Authorization", "Bearer " + user1.token)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
         expect(res.body.data).toHaveLength(1);
-        expect(res.body.data[0].follows).toBe(user1.accountName);
-        expect(res.body.data[0].followed).toBe(user2.accountName);
+        expect(res.body.data[0].follows).toBe(user1.username);
+        expect(res.body.data[0].followed).toBe(user2.username);
     });
 
     it("returns OK and following list for private user (viewer is accepted follower)", async () => {
@@ -1143,24 +1143,24 @@ describe("GET /api/users/id/:username/following", () => {
         const someone = await register(app, someoneName, "someone", "sspassword", `${someoneName}@email.com`);
 
         await request(app)
-            .post("/api/users/id/" + someone.accountName + "/followers/")
+            .post("/api/users/id/" + someone.username + "/followers/")
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.CREATED);
 
         // viewer requests follow
         await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
         // target accepts
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + viewer.accountName)
+            .put("/api/users/me/followers/requests/received/" + viewer.username)
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/id/" + target.accountName + "/following")
+            .get("/api/users/id/" + target.username + "/following")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -1182,7 +1182,7 @@ describe("GET /api/users/id/:username/reviews", () => {
         const u = await register(app, name, displayName, password, name + "@test.com");
 
         const res = await request(app)
-            .get("/api/users/id/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.username + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -1203,13 +1203,13 @@ describe("GET /api/users/id/:username/reviews", () => {
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/id/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.username + "/reviews")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
         expect(res.body.data.length).toBeGreaterThan(0);
-        expect(res.body.data[0].reviewer).toBe(u.accountName);
+        expect(res.body.data[0].reviewer).toBe(u.username);
         expect(res.body.data[0].reviewed).toBe(game.gameID);
         expect(res.body.data[0].hoursPlayed).toBe(5);
         expect(res.body.data[0].platforms).toEqual(["PC"]);
@@ -1238,7 +1238,7 @@ describe("GET /api/users/id/:username/reviews", () => {
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .get("/api/users/id/" + u.accountName + "/reviews")
+            .get("/api/users/id/" + u.username + "/reviews")
             .expect(StatusCodes.FORBIDDEN);
     });
 
@@ -1268,24 +1268,24 @@ describe("GET /api/users/id/:username/reviews", () => {
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + viewer.accountName)
+            .put("/api/users/me/followers/requests/received/" + viewer.username)
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/id/" + target.accountName + "/reviews")
+            .get("/api/users/id/" + target.username + "/reviews")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
         expect(res.body.data.length).toBeGreaterThan(0);
-        expect(res.body.data[0].reviewer).toBe(target.accountName);
+        expect(res.body.data[0].reviewer).toBe(target.username);
         expect(res.body.data[0].reviewed).toBe(game.gameID);
         expect(res.body.data[0].hoursPlayed).toBe(11);
         expect(res.body.data[0].platforms).toEqual(["PS5"]);
@@ -1303,7 +1303,7 @@ describe("GET /api/users/id/:username/reviews", () => {
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .get("/api/users/id/" + target.accountName + "/reviews")
+            .get("/api/users/id/" + target.username + "/reviews")
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.OK);
     });
@@ -1328,7 +1328,7 @@ describe("GET /api/users/id/:username/reviews", () => {
             const other = await register(app, otherName, "Other", password, `${otherName}@test.com`);
 
             await request(app)
-                .delete("/api/users/me/followers/" + other.accountName)
+                .delete("/api/users/me/followers/" + other.username)
                 .set("Authorization", "Bearer " + user.token)
                 .expect(StatusCodes.NOT_FOUND);
         });
@@ -1340,26 +1340,26 @@ describe("GET /api/users/id/:username/reviews", () => {
 
             // follower follows user (public account → auto-accepted)
             await request(app)
-                .post("/api/users/id/" + user.accountName + "/followers/")
+                .post("/api/users/id/" + user.username + "/followers/")
                 .set("Authorization", "Bearer " + follower.token)
                 .expect(StatusCodes.CREATED);
 
             // user removes follower
             const res = await request(app)
-                .delete("/api/users/me/followers/" + follower.accountName)
+                .delete("/api/users/me/followers/" + follower.username)
                 .set("Authorization", "Bearer " + user.token)
                 .expect(StatusCodes.ACCEPTED);
 
             expect(res.body.status).toBe("success");
-            expect(res.body.data.follows).toBe(follower.accountName);
-            expect(res.body.data.followed).toBe(user.accountName);
+            expect(res.body.data.follows).toBe(follower.username);
+            expect(res.body.data.followed).toBe(user.username);
 
             // confirm they no longer appear in followers list
             const followersRes = await request(app)
-                .get("/api/users/id/" + user.accountName + "/followers")
+                .get("/api/users/id/" + user.username + "/followers")
                 .expect(StatusCodes.OK);
 
-            expect(followersRes.body.data.find((f: any) => f.follows === follower.accountName)).toBeUndefined();
+            expect(followersRes.body.data.find((f: any) => f.follows === follower.username)).toBeUndefined();
         });
 
         it("returns 202 and removes a pending follower request (private account)", async () => {
@@ -1380,18 +1380,18 @@ describe("GET /api/users/id/:username/reviews", () => {
 
             // requester sends follow request (pending, not accepted)
             await request(app)
-                .post("/api/users/id/" + user.accountName + "/followers/")
+                .post("/api/users/id/" + user.username + "/followers/")
                 .set("Authorization", "Bearer " + requester.token)
                 .expect(StatusCodes.CREATED);
 
             // user dismisses the pending request via this route
             const res = await request(app)
-                .delete("/api/users/me/followers/" + requester.accountName)
+                .delete("/api/users/me/followers/" + requester.username)
                 .set("Authorization", "Bearer " + user.token)
                 .expect(StatusCodes.ACCEPTED);
 
             expect(res.body.status).toBe("success");
-            expect(res.body.data.follows).toBe(requester.accountName);
+            expect(res.body.data.follows).toBe(requester.username);
         });
     });
 });
@@ -1437,7 +1437,7 @@ describe("GET /api/users/id/:username/avatar", () => {
     it("returns NOT FOUND if user has no avatar", async () => {
         const user = await register(app, username, displayName, password, email);
         await request(app)
-            .get("/api/users/id/" + user.accountName + "/avatar")
+            .get("/api/users/id/" + user.username + "/avatar")
             .expect(StatusCodes.NOT_FOUND);
     });
 
@@ -1458,7 +1458,7 @@ describe("GET /api/users/id/:username/avatar", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/users/id/" + user.accountName + "/avatar")
+            .get("/api/users/id/" + user.username + "/avatar")
             .redirects(0);
 
         expect(res.status).toBe(302);

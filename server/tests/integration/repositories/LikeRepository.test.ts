@@ -8,7 +8,7 @@ let i = 4;
 describe("LikeRepository (integration)", () => {
     // Auxiliary function, inserts review
     async function insertReviewAndReaction(value: boolean): Promise<LikeFull> {
-        const reviewer: string = (await fastCreateUserAndValidate(`user${i++}`)).accountName;
+        const reviewer: string = (await fastCreateUserAndValidate(`user${i++}`)).username;
         const reviewed: number = (await fastCreateGame(i++)).gameID;
         await ReviewRepository.insertReview({
             reviewer,
@@ -18,7 +18,7 @@ describe("LikeRepository (integration)", () => {
             hoursPlayed: null,
             platforms: [],
         });
-        const liker: string = (await fastCreateUserAndValidate(`user${i++}`)).accountName;
+        const liker: string = (await fastCreateUserAndValidate(`user${i++}`)).username;
         return await LikeRepository.insertLike({ reviewer, reviewed, liker, value });
     }
 
@@ -33,7 +33,7 @@ describe("LikeRepository (integration)", () => {
 
     it("Inserts and selects a reaction", async () => {
         // Inserts review
-        const reviewer: string = (await fastCreateUserAndValidate("test1")).accountName;
+        const reviewer: string = (await fastCreateUserAndValidate("test1")).username;
         const reviewed: number = (await fastCreateGame(1)).gameID;
         await ReviewRepository.insertReview({
             reviewer,
@@ -45,12 +45,12 @@ describe("LikeRepository (integration)", () => {
         });
 
         // Inserts like
-        const liker: string = (await fastCreateUserAndValidate("test2")).accountName;
+        const liker: string = (await fastCreateUserAndValidate("test2")).username;
         const like: LikeFull = await LikeRepository.insertLike({ reviewer, reviewed, liker, value: true });
         compareReactionAux(like, { reviewer, reviewed } as ReviewPK, liker, true);
 
         // Inserts dislike
-        const disliker: string = (await fastCreateUserAndValidate("test3")).accountName;
+        const disliker: string = (await fastCreateUserAndValidate("test3")).username;
         const dislike: LikeFull = await LikeRepository.insertLike({
             reviewer,
             reviewed,
@@ -171,7 +171,7 @@ describe("LikeRepository (integration)", () => {
 
     it("CountLikesOrDislikesOfReview correctly counts all likes and dislikes", async () => {
         // Inserts review
-        const reviewer: string = (await fastCreateUserAndValidate("test4")).accountName;
+        const reviewer: string = (await fastCreateUserAndValidate("test4")).username;
         const reviewed: number = (await fastCreateGame(2)).gameID;
         await ReviewRepository.insertReview({
             reviewer,
@@ -188,7 +188,7 @@ describe("LikeRepository (integration)", () => {
             await LikeRepository.insertLike({
                 reviewer,
                 reviewed,
-                liker: (await fastCreateUserAndValidate(`test5${i}`)).accountName,
+                liker: (await fastCreateUserAndValidate(`test5${i}`)).username,
                 value: true,
             });
         const dislikes: number = 9;
@@ -196,7 +196,7 @@ describe("LikeRepository (integration)", () => {
             await LikeRepository.insertLike({
                 reviewer,
                 reviewed,
-                liker: (await fastCreateUserAndValidate(`test6${i}`)).accountName,
+                liker: (await fastCreateUserAndValidate(`test6${i}`)).username,
                 value: false,
             });
 
@@ -211,7 +211,7 @@ describe("LikeRepository (integration)", () => {
         // Insert several reviews from different users
         const reviews: ReviewPK[] = [];
         for (var i = 0; i < 12; i++) {
-            const reviewer: string = (await fastCreateUserAndValidate(`test7${i}`)).accountName;
+            const reviewer: string = (await fastCreateUserAndValidate(`test7${i}`)).username;
             const reviewed: number = (await fastCreateGame(i + 50)).gameID;
             reviews.push(
                 await ReviewRepository.insertReview({
@@ -226,7 +226,7 @@ describe("LikeRepository (integration)", () => {
         }
 
         // Makes several reactions from one user
-        const target: string = (await fastCreateUserAndValidate("test8")).accountName;
+        const target: string = (await fastCreateUserAndValidate("test8")).username;
         const reactions: LikeFull[] = [];
         let next: boolean = true;
         for (const review of reviews) {
@@ -262,7 +262,7 @@ describe("LikeRepository (integration)", () => {
 
     it("SelectLike returns null when user hasn't reacted to a review", async () => {
         // Creates a review
-        const reviewer: string = (await fastCreateUserAndValidate("test9")).accountName;
+        const reviewer: string = (await fastCreateUserAndValidate("test9")).username;
         const reviewed: number = (await fastCreateGame(3)).gameID;
         await ReviewRepository.insertReview({
             reviewer,
@@ -274,11 +274,11 @@ describe("LikeRepository (integration)", () => {
         });
 
         // User 1 likes the review
-        const liker1: string = (await fastCreateUserAndValidate("test10")).accountName;
+        const liker1: string = (await fastCreateUserAndValidate("test10")).username;
         await LikeRepository.insertLike({ reviewer, reviewed, liker: liker1, value: true });
 
         // User 2 hasn't reacted, should return null
-        const liker2: string = (await fastCreateUserAndValidate("test11")).accountName;
+        const liker2: string = (await fastCreateUserAndValidate("test11")).username;
         const notReacted: LikeFull | null = await LikeRepository.selectLike({
             reviewer,
             reviewed,

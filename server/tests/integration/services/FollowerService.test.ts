@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import { FollowerFull } from "../../../src/types/Types";
 import { FollowerService } from "../../../src/services/FollowerService";
-import { AccountService } from "../../../src/services/AccountService";
+import { AccountService } from "../../../src/services/UserService";
 import {
     fastCreateFollower,
     fastCreateUserAndValidate,
@@ -20,24 +20,24 @@ describe("FollowerService (integration)", () => {
     // Auxiliary function, creates two private users, registers them and returns their usernames and emails
     async function registerUsersAux(): Promise<UserMicroPair> {
         const user1: UserMicro = makeSomeUser();
-        // await AccountService.registerUser(user1.accountName, "USER1", "12345678", user1.email, false);
-        // await AccountService.alterUser(user1.accountName, true, user1.email, {
+        // await AccountService.registerUser(user1.username, "USER1", "12345678", user1.email, false);
+        // await AccountService.updateUser(user1.username, true, user1.email, {
         //     displayName: "name",
         //     gender: null,
         //     bio: null,
         // });
-        await fastCreateUserAndValidate(user1.accountName);
-        await fastMakeUserPrivate(user1.accountName);
+        await fastCreateUserAndValidate(user1.username);
+        await fastMakeUserPrivate(user1.username);
 
         const user2: UserMicro = makeSomeUser();
-        // await AccountService.registerUser(user2.accountName, "USER2", "87654321", user2.email, false);
-        // await AccountService.alterUser(user2.accountName, true, user2.email, {
+        // await AccountService.registerUser(user2.username, "USER2", "87654321", user2.email, false);
+        // await AccountService.updateUser(user2.username, true, user2.email, {
         //     displayName: "name2",
         //     gender: null,
         //     bio: null,
         // });
-        await fastCreateUserAndValidate(user2.accountName);
-        await fastMakeUserPrivate(user2.accountName);
+        await fastCreateUserAndValidate(user2.username);
+        await fastMakeUserPrivate(user2.username);
 
         return { user1, user2 } as UserMicroPair;
     }
@@ -68,8 +68,8 @@ describe("FollowerService (integration)", () => {
     it("RequestFollower requests a follow, doesn't make duplicates or between the same user", async () => {
         // Register two users
         const pair: UserMicroPair = await registerUsersAux();
-        const us1: string = pair.user1.accountName;
-        const us2: string = pair.user2.accountName;
+        const us1: string = pair.user1.username;
+        const us2: string = pair.user2.username;
 
         // Check if the data from the database matches expectations
         const response: FollowerFull = await requestFollowerAux(us1, us2);
@@ -84,8 +84,8 @@ describe("FollowerService (integration)", () => {
     it("AcceptFollower accepts a follow request, not if it doesn't exist or was already accepted", async () => {
         // Register two users
         const pair: UserMicroPair = await registerUsersAux();
-        const us1: string = pair.user1.accountName;
-        const us2: string = pair.user2.accountName;
+        const us1: string = pair.user1.username;
+        const us2: string = pair.user2.username;
 
         // Fails, not yet requested
         await expect(acceptFollowerAux(us1, us2)).rejects.toBeDefined();
@@ -102,8 +102,8 @@ describe("FollowerService (integration)", () => {
     it("RemoveFollower removes a follower, not if they didn't follow", async () => {
         // Register two users
         const pair: UserMicroPair = await registerUsersAux();
-        const us1: string = pair.user1.accountName;
-        const us2: string = pair.user2.accountName;
+        const us1: string = pair.user1.username;
+        const us2: string = pair.user2.username;
 
         // Fails, not requested
         await expect(removeFollowerAux(us1, us2)).rejects.toBeDefined();
@@ -123,39 +123,39 @@ describe("FollowerService (integration)", () => {
     it("GetFollowers and GetPendingRequestsToUser correctly identify a user's followers and pending requests, respectively", async () => {
         // Register a target user
         const user: UserMicro = makeSomeUser();
-        const us1: string = user.accountName;
+        const us1: string = user.username;
         // await AccountService.registerUser(us1, "USER1", "12345678", user.email, false);
         // // Make target user private
-        // await AccountService.alterUser(us1, true, "1234email@email.com", {
+        // await AccountService.updateUser(us1, true, "1234email@email.com", {
         //     displayName: "USER1",
         //     gender: null,
         //     bio: null,
         // });
 
-        await fastCreateUserAndValidate(user.accountName);
-        await fastMakeUserPrivate(user.accountName);
+        await fastCreateUserAndValidate(user.username);
+        await fastMakeUserPrivate(user.username);
 
         // Registers a number of users to follow the target user
         const followers: string[] = [];
         for (var i = 0; i < 8; i++) {
             const f: UserMicro = makeSomeUser();
-            followers.push(f.accountName);
-            // await AccountService.registerUser(f.accountName, "FOLLOWER" + i, "12345678", f.email, false);
-            // await FollowerService.requestFollower(f.accountName, us1);
-            // await FollowerService.acceptFollower(us1, f.accountName);
-            await fastCreateUserAndValidate(f.accountName);
-            await fastCreateFollower(f.accountName, us1, true);
+            followers.push(f.username);
+            // await AccountService.registerUser(f.username, "FOLLOWER" + i, "12345678", f.email, false);
+            // await FollowerService.requestFollower(f.username, us1);
+            // await FollowerService.acceptFollower(us1, f.username);
+            await fastCreateUserAndValidate(f.username);
+            await fastCreateFollower(f.username, us1, true);
         }
 
         // Registers a number of users to request to follow the target user
         const requests: string[] = [];
         for (var i = 0; i < 6; i++) {
             const d: UserMicro = makeSomeUser();
-            requests.push(d.accountName);
-            // await AccountService.registerUser(d.accountName, "DUMMY" + i, "12345678", d.email, false);
-            // await FollowerService.requestFollower(d.accountName, us1);
-            await fastCreateUserAndValidate(d.accountName);
-            await fastCreateFollower(d.accountName, us1, false);
+            requests.push(d.username);
+            // await AccountService.registerUser(d.username, "DUMMY" + i, "12345678", d.email, false);
+            // await FollowerService.requestFollower(d.username, us1);
+            await fastCreateUserAndValidate(d.username);
+            await fastCreateFollower(d.username, us1, false);
         }
 
         // Checks if the users in the first array follow the target user
@@ -176,42 +176,42 @@ describe("FollowerService (integration)", () => {
     it("GetFollowed and GetPendingRequestsFromUser correctly identify who a user follows and asked to follow them, respectively", async () => {
         // Registers a target user
         const user: UserMicro = makeSomeUser();
-        const us1: string = user.accountName;
+        const us1: string = user.username;
         await AccountService.registerUser(us1, "USER1", "12345678", "us1@test.com", false);
 
         // Registers a number of (private) users for the target user to follow
         const followed: string[] = [];
         for (var i = 0; i < 7; i++) {
             const f: UserMicro = makeSomeUser();
-            followed.push(f.accountName);
-            // await AccountService.registerUser(f.accountName, "FOLLOWED" + i, "12345678", f.email, false);
-            // await AccountService.alterUser(f.accountName, true, f.email, {
+            followed.push(f.username);
+            // await AccountService.registerUser(f.username, "FOLLOWED" + i, "12345678", f.email, false);
+            // await AccountService.updateUser(f.username, true, f.email, {
             //     displayName: "name",
             //     gender: null,
             //     bio: null,
             // });
-            // await FollowerService.requestFollower(us1, f.accountName);
-            // await FollowerService.acceptFollower(f.accountName, us1);
-            await fastCreateUserAndValidate(f.accountName);
-            await fastMakeUserPrivate(f.accountName);
-            await fastCreateFollower(us1, f.accountName, true);
+            // await FollowerService.requestFollower(us1, f.username);
+            // await FollowerService.acceptFollower(f.username, us1);
+            await fastCreateUserAndValidate(f.username);
+            await fastMakeUserPrivate(f.username);
+            await fastCreateFollower(us1, f.username, true);
         }
 
         // Registers a number of (private) users for the target user to follow request
         const requests: string[] = [];
         for (var i = 0; i < 5; i++) {
             const d: UserMicro = makeSomeUser();
-            requests.push(d.accountName);
-            // await AccountService.registerUser(d.accountName, "DUMMY" + i, "12345678", d.email, false);
-            // await AccountService.alterUser(d.accountName, true, d.email, {
+            requests.push(d.username);
+            // await AccountService.registerUser(d.username, "DUMMY" + i, "12345678", d.email, false);
+            // await AccountService.updateUser(d.username, true, d.email, {
             //     displayName: "name",
             //     gender: null,
             //     bio: null,
             // });
-            // await FollowerService.requestFollower(us1, d.accountName);
-            await fastCreateUserAndValidate(d.accountName);
-            await fastMakeUserPrivate(d.accountName);
-            await fastCreateFollower(us1, d.accountName, false);
+            // await FollowerService.requestFollower(us1, d.username);
+            await fastCreateUserAndValidate(d.username);
+            await fastMakeUserPrivate(d.username);
+            await fastCreateFollower(us1, d.username, false);
         }
 
         // Checks if the target user follows the users in the first array

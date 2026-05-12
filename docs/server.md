@@ -40,8 +40,10 @@ Environment variables of the server are set in `/server/.env`
   Logs will be written to the file `/observability/logs/app.log`.<br>
   No `/api/docs` and `/api/docs.json` routes.<br>
   Errors that are not from the `AppError` class will be sanitized to a safe error message, not exposing internal information (e.g. 400: Bad request).
+  No email validation to let you test the Web App when SMTP is disabled.
 - `development`<br>
-  No email validation needed when creating user accounts.<br>
+  No email validation.
 - `test`<br>
+  Email validation is activated<br>
   Used to run unit & integration tests - see `docs/testing.md` to run tests.
   Doesn't print logs to stdout.
