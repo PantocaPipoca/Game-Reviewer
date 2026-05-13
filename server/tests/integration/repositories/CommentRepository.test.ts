@@ -8,10 +8,10 @@ let i = 1;
 describe("CommentRepository (integration)", () => {
     // Auxiliary function, inserts review
     async function insertReviewAndComment(comment: string): Promise<CommentFull> {
-        const reviewer: string = (await fastCreateUserAndValidate(`test${i++}`)).accountName;
+        const reviewer: string = (await fastCreateUserAndValidate(`test${i++}`)).username;
         const reviewed: number = (await fastCreateGame(i++)).gameID;
         await ReviewRepository.insertReview({ reviewer, reviewed, text: "", score: 2, platforms: [], hoursPlayed: 0 });
-        const commentator: string = (await fastCreateUserAndValidate(`test${i++}`)).accountName;
+        const commentator: string = (await fastCreateUserAndValidate(`test${i++}`)).username;
         return await CommentRepository.insertComment({
             reviewer,
             reviewed,
@@ -63,7 +63,7 @@ describe("CommentRepository (integration)", () => {
     it("SelectCommentsOfSameReview finds all comments on a review", async () => {
         // Insert review
         const review: ReviewPK = {
-            reviewer: (await fastCreateUserAndValidate("test1")).accountName,
+            reviewer: (await fastCreateUserAndValidate("test1")).username,
             reviewed: (await fastCreateGame(1)).gameID,
         };
         await ReviewRepository.insertReview({
@@ -81,7 +81,7 @@ describe("CommentRepository (integration)", () => {
         // Creates several commentators
         const commentators: string[] = [];
         for (var i = 0; i < 5; i++) {
-            commentators.push((await fastCreateUserAndValidate(`test2${i + 100}`)).accountName);
+            commentators.push((await fastCreateUserAndValidate(`test2${i + 100}`)).username);
             await CommentRepository.insertComment({
                 reviewer: review.reviewer,
                 reviewed: review.reviewed,
@@ -103,7 +103,7 @@ describe("CommentRepository (integration)", () => {
         // Insert several reviews from different users
         const reviews: ReviewPK[] = [];
         for (var i = 0; i < 15; i++) {
-            const reviewer: string = (await fastCreateUserAndValidate(`test3${i}`)).accountName;
+            const reviewer: string = (await fastCreateUserAndValidate(`test3${i}`)).username;
             const reviewed: number = (await fastCreateGame(i)).gameID;
             await ReviewRepository.insertReview({
                 reviewer,
@@ -117,7 +117,7 @@ describe("CommentRepository (integration)", () => {
         }
 
         // Makes several comments from one user
-        const target: string = (await fastCreateUserAndValidate("test2")).accountName;
+        const target: string = (await fastCreateUserAndValidate("test2")).username;
         const comments: CommentFull[] = [];
         reviews.forEach(async (r) =>
             comments.push(

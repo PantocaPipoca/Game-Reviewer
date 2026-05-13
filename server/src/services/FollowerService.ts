@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { AppError } from "../utils/ErrorHandler";
-import { fetchFullUser, canViewUser, fetchPublicUser } from "./AccountService";
+import { fetchFullUser, canViewUser, fetchPublicUser } from "./UserService";
 import { FollowerFull, FollowerPublic, UserPK, UserPublic } from "../types/Types";
 import { FollowerRepository } from "../Repository/FollowerRepository";
 import * as ErrorMessage from "../utils/ErrorMessage";
