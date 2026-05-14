@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ..
+
 set -e
 
 (
@@ -17,7 +19,7 @@ set -e
 (
     source server/.env.example
 
-    echo "NODE_ENV=development" > server/.env
+    echo "NODE_ENV=production" > server/.env
 
     echo >> server/.env
 
@@ -49,8 +51,8 @@ set -e
 
     echo "EMAIL=$EMAIL" >> server/.env
 
-    echo "(ATENÇÃO!!! uma vez usada numa máquina essa password não funcionará noutras máquinas)"
-    printf "Insira uma das passwords da API de email fornecidas: "
+    echo "(WARNING!!! once an email is sent using a password, that password will only ever work on the machine that sent it)"
+    printf "Insert one of the given email API passwords: "
     read -s EMAIL_PASSWORD
     echo "EMAIL_PASSWORD=$EMAIL_PASSWORD" >> server/.env
     echo
@@ -60,16 +62,10 @@ set -e
 
 docker compose up --build -d
 
-sleep 5 # por algum motivo o docker da detatch antes de inicializar totalmente
+sleep 5 # for some reason docker detatches from the terminal before fully starting
 
 npx tsx server/src/Seed.ts
 
-echo "página iniciada em http://localhost:5173"
+echo "client server started on http://localhost:5173"
 
-echo "documentação da API em http://localhost:3000/api/docs"
-
-echo "pare a execução com \"./stop\" e/ou recomece com \"./restart\""
-
-echo "a validaçao por email pode ser ativada ao alterar o valor \"NODE_ENV\" no ficheiro \"server/.env\" de \"development\" para \"production\""
-echo "mas não funciona com a internet da UAlg ou se utilizar uma VPN"
-echo "(para esta mudança ter efeito é necessário reiniciar a aplicação)"
+echo "stop execution with \"./stop\" and/or restart with \"./restart\""
