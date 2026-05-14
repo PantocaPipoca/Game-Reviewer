@@ -49,14 +49,6 @@ set -e
 
     echo >> server/.env
 
-    echo "EMAIL=$EMAIL" >> server/.env
-
-    echo "(WARNING!!! once an email is sent using a password, that password will only ever work on the machine that sent it)"
-    printf "Insert one of the given email API passwords: "
-    read -s EMAIL_PASSWORD
-    echo "EMAIL_PASSWORD=$EMAIL_PASSWORD" >> server/.env
-    echo
-
     echo >> server/.env
 )
 
