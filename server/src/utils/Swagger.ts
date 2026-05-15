@@ -27,7 +27,7 @@ const OPTIONS: swaggerJsdoc.Options = {
                 UserPublic: {
                     type: "object",
                     properties: {
-                        accountName: { type: "string" },
+                        username: { type: "string" },
                         avatar: { type: "string", nullable: true },
                         isPrivate: { type: "boolean" },
                         userData: {
@@ -45,7 +45,7 @@ const OPTIONS: swaggerJsdoc.Options = {
                 UserMe: {
                     type: "object",
                     properties: {
-                        accountName: { type: "string" },
+                        username: { type: "string" },
                         email: { type: "string", format: "email" },
                         avatar: { type: "string", nullable: true },
                         isPrivate: { type: "boolean" },

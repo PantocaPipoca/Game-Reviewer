@@ -8,17 +8,17 @@ let i = 1;
 describe("ReviewRepository (integration)", () => {
     // Auxiliary function, inserts a user, game and review
     async function makeReviewPK(): Promise<ReviewPK> {
-        const accountName: string = `repo_user_${Date.now()}`;
+        const username: string = `repo_user_${Date.now()}`;
         await UserRepository.insertUser({
-            accountName,
+            username,
             passwordHash: "hash",
             avatar: null,
             userData: { displayName: "Repo", gender: null, bio: null },
             isPrivate: false,
-            email: `${accountName}@test.com`,
+            email: `${username}@test.com`,
         });
         const game: GameFull = await fastCreateGame(i++);
-        return { reviewer: accountName, reviewed: game.gameID } as ReviewPK;
+        return { reviewer: username, reviewed: game.gameID } as ReviewPK;
     }
 
     // Auxiliary function, inserts a review

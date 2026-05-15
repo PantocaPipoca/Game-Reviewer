@@ -98,22 +98,22 @@ function SearchUsersPage() {
                         <Panel type="secondary" className={style.list}>
                             {results.map((user) => (
                                 <Panel
-                                    key={user.accountName}
+                                    key={user.username}
                                     type="terciary"
                                     className={style.userRow}
                                     direction="row"
                                     interactive
-                                    onClick={() => navigate(`/user/${user.accountName}`)}
+                                    onClick={() => navigate(`/user/${user.username}`)}
                                 >
                                     <img
                                         src={user.avatar ?? defaultPfp}
-                                        alt={user.accountName}
+                                        alt={user.username}
                                         className={style.avatar}
                                     />
                                     <div className={style.userMeta}>
-                                        <Text variant="h3">{user.userData.displayName || user.accountName}</Text>
+                                        <Text variant="h3">{user.userData.displayName || user.username}</Text>
                                         <Text variant="body" color="var(--mutedText)">
-                                            @{user.accountName}
+                                            @{user.username}
                                         </Text>
                                     </div>
                                 </Panel>

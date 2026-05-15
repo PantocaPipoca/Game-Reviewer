@@ -35,7 +35,7 @@ describe("FollowerRepository (integration)", () => {
     it("InsertFollower inserts follower, not if duplicate; SelectFollower finds follower", async () => {
         // Creates two private users
         const user1: UserFull = await UserRepository.insertUser({
-            accountName: "test1",
+            username: "test1",
             passwordHash: "test",
             avatar: null,
             userData: {},
@@ -44,7 +44,7 @@ describe("FollowerRepository (integration)", () => {
         });
 
         const user2: UserFull = await UserRepository.insertUser({
-            accountName: "test2",
+            username: "test2",
             passwordHash: "test",
             avatar: null,
             userData: {},
@@ -53,24 +53,24 @@ describe("FollowerRepository (integration)", () => {
         });
 
         // Inserts a follow request
-        const f1: FollowerFull = await insertFollowerAux(user1.accountName, user2.accountName);
-        checkFollowerAux(f1, user1.accountName, user2.accountName, false);
+        const f1: FollowerFull = await insertFollowerAux(user1.username, user2.username);
+        checkFollowerAux(f1, user1.username, user2.username, false);
 
         // Finds the follow request
         const f2: FollowerFull | null = await FollowerRepository.selectFollower({
-            follows: user1.accountName,
-            followed: user2.accountName,
+            follows: user1.username,
+            followed: user2.username,
         });
-        checkFollowerAux(f2, user1.accountName, user2.accountName, false);
+        checkFollowerAux(f2, user1.username, user2.username, false);
 
         // Fails, duplicate request
-        await expect(insertFollowerAux(user1.accountName, user2.accountName)).rejects.toBeDefined();
+        await expect(insertFollowerAux(user1.username, user2.username)).rejects.toBeDefined();
     });
 
     it("UpdateFollower accepts follower, not if non-existent", async () => {
         // Creates two private users
         const user1: UserFull = await UserRepository.insertUser({
-            accountName: "test1",
+            username: "test1",
             passwordHash: "test",
             avatar: null,
             userData: {},
@@ -79,7 +79,7 @@ describe("FollowerRepository (integration)", () => {
         });
 
         const user2: UserFull = await UserRepository.insertUser({
-            accountName: "test2",
+            username: "test2",
             passwordHash: "test",
             avatar: null,
             userData: {},
@@ -88,19 +88,19 @@ describe("FollowerRepository (integration)", () => {
         });
 
         // Fails, not yet requested
-        await expect(updateFollowerAux(user1.accountName, user2.accountName)).rejects.toBeDefined();
+        await expect(updateFollowerAux(user1.username, user2.username)).rejects.toBeDefined();
 
         // Inserts a follow request and updates it
-        const f1: FollowerFull | null = await insertFollowerAux(user1.accountName, user2.accountName);
-        checkFollowerAux(f1, user1.accountName, user2.accountName, false);
-        const f2: FollowerFull = await updateFollowerAux(user1.accountName, user2.accountName);
-        checkFollowerAux(f2, user1.accountName, user2.accountName, true);
+        const f1: FollowerFull | null = await insertFollowerAux(user1.username, user2.username);
+        checkFollowerAux(f1, user1.username, user2.username, false);
+        const f2: FollowerFull = await updateFollowerAux(user1.username, user2.username);
+        checkFollowerAux(f2, user1.username, user2.username, true);
     });
 
     it("DeleteFollower removes follower, not if non-existent", async () => {
         // Creates two private users
         const user1: UserFull = await UserRepository.insertUser({
-            accountName: "test1",
+            username: "test1",
             passwordHash: "test",
             avatar: null,
             userData: {},
@@ -109,7 +109,7 @@ describe("FollowerRepository (integration)", () => {
         });
 
         const user2: UserFull = await UserRepository.insertUser({
-            accountName: "test2",
+            username: "test2",
             passwordHash: "test",
             avatar: null,
             userData: {},
@@ -118,17 +118,17 @@ describe("FollowerRepository (integration)", () => {
         });
 
         // Fails, not yet requested
-        await expect(deleteFollowerAux(user1.accountName, user2.accountName)).rejects.toBeDefined();
+        await expect(deleteFollowerAux(user1.username, user2.username)).rejects.toBeDefined();
 
         // Inserts a follow request and deletes it
-        await insertFollowerAux(user1.accountName, user2.accountName);
-        const f1: FollowerFull = await deleteFollowerAux(user1.accountName, user2.accountName);
-        checkFollowerAux(f1, user1.accountName, user2.accountName, false);
+        await insertFollowerAux(user1.username, user2.username);
+        const f1: FollowerFull = await deleteFollowerAux(user1.username, user2.username);
+        checkFollowerAux(f1, user1.username, user2.username, false);
 
         // Inserts another follow request, accepts it and deletes it
-        await insertFollowerAux(user1.accountName, user2.accountName);
-        await updateFollowerAux(user1.accountName, user2.accountName);
-        const f2: FollowerFull = await deleteFollowerAux(user1.accountName, user2.accountName);
-        checkFollowerAux(f2, user1.accountName, user2.accountName, true);
+        await insertFollowerAux(user1.username, user2.username);
+        await updateFollowerAux(user1.username, user2.username);
+        const f2: FollowerFull = await deleteFollowerAux(user1.username, user2.username);
+        checkFollowerAux(f2, user1.username, user2.username, true);
     });
 });

@@ -5,14 +5,12 @@ import Text from "../Text/Text";
 
 export type GameCardProps = {
     name?: string;
-    rating?: number;
     cover?: string;
     gameID: number;
 };
 
 function GameCard({
     name = "$$$$$$$$$$$$",
-    rating = 0.0,
     cover = "https://vglist.co/assets/no-cover-5b40e3b1.png",
     gameID,
 }: GameCardProps) {
@@ -30,10 +28,6 @@ function GameCard({
                 <Text variant="body" title={name}>
                     {displayedName}
                 </Text>
-            </div>
-            <div className={style.rating}>
-                <img className={style.star} src="https://cdn-icons-png.flaticon.com/512/541/541415.png" />
-                <Text variant="small">{rating}</Text>
             </div>
         </Panel>
     );

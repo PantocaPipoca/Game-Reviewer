@@ -42,7 +42,7 @@ describe("GET /api/users/id/:username/followers", () => {
             });
 
         await request(app)
-            .get("/api/users/id/" + target.accountName + "/followers")
+            .get("/api/users/id/" + target.username + "/followers")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.FORBIDDEN);
     });
@@ -63,24 +63,24 @@ describe("GET /api/users/id/:username/followers", () => {
 
         // follower follows target
         await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         // follower accepts
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + follower.accountName)
+            .put("/api/users/me/followers/requests/received/" + follower.username)
             .set("Authorization", "Bearer " + target.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/users/id/" + target.accountName + "/followers")
+            .get("/api/users/id/" + target.username + "/followers")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data[0].follows).toBe(follower.accountName);
-        expect(res.body.data[0].followed).toBe(target.accountName);
+        expect(res.body.data[0].follows).toBe(follower.username);
+        expect(res.body.data[0].followed).toBe(target.username);
     });
 
     it("returns OK when target is public", async () => {
@@ -89,18 +89,18 @@ describe("GET /api/users/id/:username/followers", () => {
 
         // follower follows target
         await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/users/id/" + target.accountName + "/followers")
+            .get("/api/users/id/" + target.username + "/followers")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
-        expect(res.body.data[0].follows).toBe(follower.accountName);
-        expect(res.body.data[0].followed).toBe(target.accountName);
+        expect(res.body.data[0].follows).toBe(follower.username);
+        expect(res.body.data[0].followed).toBe(target.username);
     });
 });
 
@@ -132,7 +132,7 @@ describe("POST /api/users/id/:username/followers", () => {
         const user = await register(app, username, displayName, password, email);
 
         await request(app)
-            .post("/api/users/id/" + user.accountName + "/followers")
+            .post("/api/users/id/" + user.username + "/followers")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.CONFLICT);
     });
@@ -142,12 +142,12 @@ describe("POST /api/users/id/:username/followers", () => {
         const follower: AuthResponse = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CONFLICT);
     });
@@ -157,13 +157,13 @@ describe("POST /api/users/id/:username/followers", () => {
         const follower: AuthResponse = await register(app, username2, displayName2, password2, email2);
 
         const res = await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.follows).toBe(follower.accountName);
-        expect(res.body.data.followed).toBe(target.accountName);
+        expect(res.body.data.follows).toBe(follower.username);
+        expect(res.body.data.followed).toBe(target.username);
         expect(res.body.data.accepted).toBe(true);
     });
 
@@ -182,13 +182,13 @@ describe("POST /api/users/id/:username/followers", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.follows).toBe(follower.accountName);
-        expect(res.body.data.followed).toBe(target.accountName);
+        expect(res.body.data.follows).toBe(follower.username);
+        expect(res.body.data.followed).toBe(target.username);
         expect(res.body.data.accepted).toBe(false);
     });
 });
@@ -218,7 +218,7 @@ describe("DELETE /api/users/id/:username/followers", () => {
         const user = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/users/id/" + target.accountName + "/followers/")
+            .delete("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -232,7 +232,7 @@ describe("DELETE /api/users/id/:username/followers", () => {
         const user = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/users/id/" + target.accountName + "/followers/")
+            .delete("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -242,17 +242,17 @@ describe("DELETE /api/users/id/:username/followers", () => {
         const follower: AuthResponse = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/users/id/" + target.accountName + "/followers/")
+            .post("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .delete("/api/users/id/" + target.accountName + "/followers/")
+            .delete("/api/users/id/" + target.username + "/followers/")
             .set("Authorization", "Bearer " + follower.token)
             .expect(StatusCodes.ACCEPTED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.follows).toBe(follower.accountName);
-        expect(res.body.data.followed).toBe(target.accountName);
+        expect(res.body.data.follows).toBe(follower.username);
+        expect(res.body.data.followed).toBe(target.username);
     });
 });

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ..
+
 cd server/
 
 npm install

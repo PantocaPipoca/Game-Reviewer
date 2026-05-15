@@ -4,7 +4,7 @@ import * as ErrorMessage from "../utils/ErrorMessage";
 import { ReviewRepository } from "../Repository/ReviewRepository";
 import { CommentRepository } from "../Repository/CommentRepository";
 import { CommentFull, CommentPK, GamePK, ReviewFull, UserPK } from "../types/Types";
-import { canViewUser, fetchPublicUser } from "./AccountService";
+import { canViewUser, fetchPublicUser } from "./UserService";
 
 export class CommentService {
     /**

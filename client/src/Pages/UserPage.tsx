@@ -67,7 +67,7 @@ function UserPage() {
                 isAuthenticated().then((ok) => (ok ? UserAPI.getMe() : null)),
             ]);
             setProfile(profileData);
-            const owner = currentUser?.accountName === profileData.accountName;
+            const owner = currentUser?.username === profileData.username;
             setIsOwner(owner);
             setIsLoggedIn(!!currentUser);
 
@@ -79,7 +79,7 @@ function UserPage() {
 
                 try {
                     const followers = await FollowerAPI.getFollowers(username!);
-                    isFollowing = !!followers.find((f) => f.follows === currentUser.accountName && f.accepted);
+                    isFollowing = !!followers.find((f) => f.follows === currentUser.username && f.accepted);
                 } catch {
                     // private account currentUser not following yet
                 }
@@ -238,7 +238,7 @@ function UserPage() {
             year: "numeric",
         });
 
-    const displayName = profile.userData?.displayName ?? profile.accountName;
+    const displayName = profile.userData?.displayName ?? profile.username;
 
     return (
         <div>
@@ -251,7 +251,7 @@ function UserPage() {
                                 <div className={style.avatarWrapper}>
                                     <img
                                         src={profile.avatar ?? defaultAvatar}
-                                        alt={profile.accountName}
+                                        alt={profile.username}
                                         className={style.avatar}
                                     />
                                 </div>

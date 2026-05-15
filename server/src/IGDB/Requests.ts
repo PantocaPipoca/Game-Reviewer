@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 // import { GameCover } from "../types/Types";
 import { GameRepository } from "../Repository/GameRepository";
 import { UserPK, GameCover, BigGameCover } from "../types/Types";
+import { AppError } from "../utils/ErrorHandler";
+import { StatusCodes } from "http-status-codes";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,7 +53,7 @@ export class IGDB {
 
     private static async getNewToken(): Promise<void> {
         if (IGDB.clientId == undefined || IGDB.secret == undefined)
-            throw new Error("missing IGDB_CLIENT_ID and IGDB_CLIENT_SECRET variables in .env");
+            throw new AppError(StatusCodes.SERVICE_UNAVAILABLE, "IGDB credentials missing");
 
         const auth: AuthResponseIGDB = await fetch(
             `https://id.twitch.tv/oauth2/token?client_id=${IGDB.clientId}&client_secret=${IGDB.secret}&grant_type=client_credentials`,

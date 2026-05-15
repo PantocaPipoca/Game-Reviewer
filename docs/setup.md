@@ -4,7 +4,7 @@ You can run this project in two ways: Docker or Locally
 
 ## Docker (Recommended)
 
-> **Prerequisites:** Docker must be installed and running.
+> **Prerequisites:** Docker and Docker Compose must be installed and running.
 
 **1. Clone repository:**
 
@@ -12,6 +12,14 @@ You can run this project in two ways: Docker or Locally
 git clone https://github.com/PantocaPipoca/Game-Reviewer.git
 cd Game-Reviewer
 ```
+
+Run script `scripts/projectInit.sh` to run containers, initialize environment variables and seed the database (will take a bit longer because of the seeder) - need to be ran from `/scripts` directory using:
+
+```bash
+bash projectInit.sh
+```
+
+**OR continue manually:**
 
 **2. Create `.env` and `server/.env` files and start the containers:**
 
@@ -34,11 +42,19 @@ docker compose up -d --build
 - Prometheus: http://localhost:9090
 - Grafana: http://localhost:3001
 
-#### Remove IDE syntax errors
+### Remove IDE syntax errors
 
 If you want to remove the errors in your IDE:
 
 > **Prerequisites:** Node.js must be installed.
+
+Run `scripts/devEnvInit.sh` - need to be ran from `/scripts` directory using
+
+```bash
+bash devEnvInit.sh
+```
+
+**OR continue manually:**
 
 **1. Generate the Prisma client (from the `server` directory):**
 
@@ -56,10 +72,8 @@ cd server && npm install && cd ../client && npm install
 
 ## Run Locally
 
-## Run Locally
-
 > **Prerequisites:** Node.js and PostgreSQL must be installed and running locally.
-> **Note:** The observability stack (Grafana, Prometheus, Loki, Alloy) requires Docker. To run it alongside the local server: `docker compose up -d grafana prometheus loki alloy`.
+> **Note:** The observability stack (Grafana, Prometheus, Loki, Alloy) requires Docker.
 
 **1. Clone the repo:**
 

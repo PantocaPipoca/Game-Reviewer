@@ -48,7 +48,7 @@ function EditProfilePage() {
                 return;
             }
             const me: UserMe = await UserAPI.getMe();
-            setCurrentUsername(me.accountName);
+            setCurrentUsername(me.username);
             setAvatarUrl(me.avatar ?? null);
             setDisplayName(me.userData?.displayName ?? "");
             setGender(me.userData?.gender ?? "");

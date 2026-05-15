@@ -1,5 +1,7 @@
 # Observability
 
+> Prerequisites: Docker, Docker Compose
+
 ## Pipeline
 
 #### Logs
@@ -25,18 +27,18 @@ App (/api/metrics) => Prometheus => Grafana
 
 JSON in production. Every request line has method, URL, status code, response time and a `reqId` for tracing. Sensitive fields (`email`, `token`, `cookie`) are redacted automatically. In production logs are also written to `observability/logs/app.log`.
 
-## Log levels
+### PINO_LOG_LEVEL
 
-| Level   | When                                                                   |
-| ------- | ---------------------------------------------------------------------- |
-| `trace` | Very detailed internal flow (function entry/exit, variables, payloads) |
-| `debug` | Useful debugging info (intermediate states)                            |
-| `info`  | Normal operations (requests, startup, user actions)                    |
-| `warn`  | Unexpected but handled issues (retries, invalid input, rate limits)    |
-| `error` | Failures that affect a request or feature                              |
-| `fatal` | Critical errors causing process crash / shutdown                       |
+| Level   | Description                                                           |
+| ------- | --------------------------------------------------------------------- |
+| `trace` | Most detailed logs                                                    |
+| `debug` | Debug information for development and troubleshooting.                |
+| `info`  | General application events (server start, requests, jobs, etc.).      |
+| `warn`  | Non-critical issues or unexpected situations that should be reviewed. |
+| `error` | Errors that affect a specific operation or request.                   |
+| `fatal` | Critical errors that cause the application to stop or crash.          |
 
-> Change the level at runtime by setting `PINO_LOG_LEVEL` in `server/.env`.
+> Change the level by setting `PINO_LOG_LEVEL` in `server/.env`.
 
 ## Grafana
 
@@ -59,4 +61,4 @@ There are 4 alerts defined:
 | `HighLatency`     | p95 latency exceeds 2s for 5m           | warning  |
 | `HighMemoryUsage` | Node.js heap usage above 95% for 5m     | warning  |
 
-! There's no contact points predefined, it has to be added manually.
+> There's no contact points predefined, it has to be added manually.

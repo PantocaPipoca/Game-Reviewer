@@ -1,12 +1,13 @@
 # Tests
 
-This project has **unit** and **integration** tests. Integration tests use a **real PostgreSQL database** (`test_db`) and require migrations to be applied before running.
-
-Use `runTests.sh` to run tests in Docker via Bash.
+This project has **unit** and **integration** tests.
+Integration tests use a **real PostgreSQL database** (`test_db`) and require migrations to be applied before running - explained bellow.
 
 ## Run Tests in Docker (Recommended)
 
-> Prerequisites: Docker must be installed and running.
+Run script `scripts/runTests.sh` to run this commands in bash automatically.
+
+> Prerequisites: Docker and Docker Compose must be installed and running.
 
 1. Start the containers:
 
@@ -36,7 +37,7 @@ docker compose exec server sh -lc "npm test"
 
 ## Run Tests Locally
 
-> Prerequisites: PostgreSQL must be installed and running locally.
+> Prerequisites: PostgreSQL must be installed and running, along with the client and server (`/docs/setup.md`).
 
 1. Create the test database:
 
