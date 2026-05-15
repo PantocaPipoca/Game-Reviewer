@@ -9,6 +9,7 @@ import Button from "../Components/Buttons/Button";
 import Star from "../Components/SVGs/Star";
 import { GameAPI } from "../API/Games";
 import { ReviewAPI } from "../API/Reviews";
+import { UserAPI } from "../API/User";
 import defaultPfp from "../Assets/default-pfp.png";
 import style from "./CreateReviewPage.module.css";
 import { REVIEW_CONSTS, REVIEW_ERRORS } from "../Types/Consts";
@@ -50,6 +51,7 @@ function CreateReviewPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
     const [rating, setRating] = useState(0);
     const [hoverScore, setHoverScore] = useState<number | null>(null);
@@ -66,6 +68,12 @@ function CreateReviewPage() {
                 const loadedGame = (await GameAPI.getById(Number(gameID))) as unknown as GameLike | GameLike[];
                 const normalizedGame = Array.isArray(loadedGame) ? (loadedGame[0] ?? null) : loadedGame;
                 setGame(normalizedGame ?? null);
+                try {
+                    const me = await UserAPI.getMe();
+                    setAvatarUrl(me.avatar ?? null);
+                } catch {
+                    setAvatarUrl(null);
+                }
             } catch {
                 setError(true);
             } finally {
@@ -200,7 +208,13 @@ function CreateReviewPage() {
                             <Panel type="secondary" className={style.rightPanel}>
                                 <div className={style.topBlock}>
                                     <div className={style.avatarBlock}>
-                                        <img src={defaultPfp} className={style.avatar} />
+                                        <img
+                                            src={avatarUrl ?? defaultPfp}
+                                            className={style.avatar}
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src = defaultPfp;
+                                            }}
+                                        />
                                         <Text variant="body" color="var(--mutedText)">
                                             you
                                         </Text>
