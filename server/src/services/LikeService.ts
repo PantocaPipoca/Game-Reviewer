@@ -1,8 +1,16 @@
 import { StatusCodes } from "http-status-codes";
 import { AppError } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
-import { GamePK, LikeFull, LikeShort, ReviewFull, UserPK, ReactionResponse, CurrentReactionResponse } from "../types/Types";
-import { fetchFullUser } from "./AccountService";
+import {
+    GamePK,
+    LikeFull,
+    LikeShort,
+    ReviewFull,
+    UserPK,
+    ReactionResponse,
+    CurrentReactionResponse,
+} from "../types/Types";
+import { fetchFullUser } from "./UserService";
 import { ReviewRepository } from "../Repository/ReviewRepository";
 import { LikeRepository } from "../Repository/LikeRepository";
 

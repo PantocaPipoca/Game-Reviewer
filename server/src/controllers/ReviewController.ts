@@ -90,7 +90,7 @@ export class ReviewController {
      * Updates a user's review
      * Used by PUT /api/reviews/:reviewer/:reviewed
      */
-    static alterReview: any = asyncHandler(async (req: AuthRequest, res: Response) => {
+    static updateReview: any = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
 
         const gameID: number = toValidGameID(req.params["gameID"]);

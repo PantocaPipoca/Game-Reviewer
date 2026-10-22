@@ -15,7 +15,7 @@ datasource db {
 }
 
 model User {
-    accountName     String   @id
+    username     String   @id
     passwordHash    String
     avatar          String?
     userData        Json // defined in Types.ts
@@ -51,7 +51,7 @@ model Review {
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
 
-    user User @relation(fields: [reviewer], references: [accountName], onDelete: Cascade)
+    user User @relation(fields: [reviewer], references: [username], onDelete: Cascade)
     game Game @relation(fields: [reviewed], references: [gameID], onDelete: Cascade)
 
     comments Comment[]
@@ -70,8 +70,8 @@ model Follower {
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
 
-    followsUser  User @relation("Follows", fields: [follows], references: [accountName], onDelete: Cascade)
-    followedUser User @relation("Followed", fields: [followed], references: [accountName], onDelete: Cascade)
+    followsUser  User @relation("Follows", fields: [follows], references: [username], onDelete: Cascade)
+    followedUser User @relation("Followed", fields: [followed], references: [username], onDelete: Cascade)
 
     @@id([follows, followed])
     @@index([followed])
@@ -87,7 +87,7 @@ model Comment {
     updatedAt   DateTime @updatedAt
 
     review Review @relation(fields: [reviewer, reviewed], references: [reviewer, reviewed], onDelete: Cascade)
-    user   User   @relation(fields: [commentator], references: [accountName], onDelete: Cascade)
+    user   User   @relation(fields: [commentator], references: [username], onDelete: Cascade)
 
     @@index([reviewer, reviewed])
     @@index([commentator])
@@ -102,7 +102,7 @@ model Like {
     updatedAt DateTime @updatedAt
 
     review Review @relation(fields: [reviewer, reviewed], references: [reviewer, reviewed], onDelete: Cascade)
-    user   User   @relation(fields: [liker], references: [accountName], onDelete: Cascade)
+    user   User   @relation(fields: [liker], references: [username], onDelete: Cascade)
 
     @@id([liker, reviewer, reviewed])
     @@index([reviewer, reviewed])

@@ -11,7 +11,7 @@ import {
     UserPK,
     UserPublic,
 } from "../types/Types";
-import { canViewUser, fetchPublicUser } from "./AccountService";
+import { canViewUser, fetchPublicUser } from "./UserService";
 import { GameRepository } from "../Repository/GameRepository";
 import { ReviewRepository } from "../Repository/ReviewRepository";
 import { IGDB } from "../IGDB/Requests";

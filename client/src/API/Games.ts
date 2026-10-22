@@ -43,7 +43,7 @@ export class GameAPI {
     }
 
     static async followedRatings(gameID: string | number) {
-        CLIENT.get(`/games/id/${gameID}/followedRatings`, {
+        return CLIENT.get(`/games/id/${gameID}/followedRatings`, {
             headers: { "Cache-Control": "no-cache" },
         });
     }

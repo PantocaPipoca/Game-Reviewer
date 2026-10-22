@@ -30,7 +30,7 @@ function ResetPassPage() {
                 username,
                 password,
             });
-            await UserAPI.login({ accountName: username, password });
+            await UserAPI.login({ username: username, password });
             navigate("/");
         } catch (err: any) {
             const message = err.response?.data?.message || "wrong code";

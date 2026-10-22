@@ -62,7 +62,7 @@ function EditReviewPage() {
     const [reviewText, setReviewText] = useState("");
     const [formError, setFormError] = useState("");
     const [userAvatar, setUserAvatar] = useState<string>(defaultPfp);
-    const [accountName, setAccountName] = useState<string | undefined>(undefined);
+    const [username, setAccountName] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (!gameID) return;
@@ -73,11 +73,11 @@ function EditReviewPage() {
                 const id = parseInt(gameID!);
                 const me = await UserAPI.getMe();
                 setUserAvatar(me.avatar ?? defaultPfp);
-                setAccountName(me.accountName);
+                setAccountName(me.username);
 
                 const [gameResult, reviewResult] = await Promise.allSettled([
                     GameAPI.getById(id),
-                    ReviewAPI.get(me.accountName, id),
+                    ReviewAPI.get(me.username, id),
                 ]);
 
                 if (gameResult.status === "fulfilled") {
@@ -233,7 +233,7 @@ function EditReviewPage() {
     }
 
     function handleProfileClick() {
-        if (accountName) navigate(`/user/${accountName}`);
+        if (username) navigate(`/user/${username}`);
     }
 
     return (

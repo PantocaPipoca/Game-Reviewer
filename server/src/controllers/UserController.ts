@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AppError, asyncHandler, makeSuccess } from "../utils/ErrorHandler";
 import * as ErrorMessage from "../utils/ErrorMessage";
 import { StatusCodes } from "http-status-codes";
-import { AccountService } from "../services/AccountService";
+import { AccountService } from "../services/UserService";
 import { AuthResponse, UserMe, UserPrivate, UserPublic } from "../types/Types";
 import { AuthRequest, clearAuthCookie, extractLoggedUser, setAuthCookie } from "../utils/Auth";
 import { sanitizeString } from "../utils/Sanitize";
@@ -27,16 +27,15 @@ export class AccountController {
      * Does not require previous authentication
      */
     static register = asyncHandler(async (req: Request, res: Response) => {
-        const { accountName, displayName, password, email } = req.body;
-        if (!accountName) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        const { username, displayName, password, email } = req.body;
+        if (!username) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
         if (!displayName) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.DISPLAY_NAME_REQUIRED);
         if (!password) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
         if (!email) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_REQUIRED);
-        if (!USER_REGEX.test(accountName))
-            throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_INVALID);
-        if (accountName.length < NAME_MIN_LEN)
+        if (!USER_REGEX.test(username)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_INVALID);
+        if (username.length < NAME_MIN_LEN)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_SHORT);
-        if (accountName.length > NAME_MAX_LEN)
+        if (username.length > NAME_MAX_LEN)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_TOO_LONG);
         if (displayName.length > NAME_MAX_LEN)
             throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.DISPLAY_NAME_TOO_LONG);
@@ -47,11 +46,11 @@ export class AccountController {
         if (email.length > EMAIL_MAX_LEN) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.EMAIL_TOO_LONG);
 
         const result: string | AuthResponse = await AccountService.registerUser(
-            accountName,
+            username,
             displayName,
             password,
             email,
-            process.env["NODE_ENV"] !== "development"
+            process.env["NODE_ENV"] === "test" // only validate email in tests
         );
         return makeSuccess(res, StatusCodes.CREATED, result);
     });
@@ -80,11 +79,11 @@ export class AccountController {
      * Does not require previous authentication
      */
     static login = asyncHandler(async (req: Request, res: Response) => {
-        const { accountName, password } = req.body;
-        if (!accountName) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
+        const { username, password } = req.body;
+        if (!username) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.ACCOUNT_NAME_REQUIRED);
         if (!password) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.PASSWORD_REQUIRED);
 
-        const sanitizedName = sanitizeString(accountName);
+        const sanitizedName = sanitizeString(username);
         const result: AuthResponse = await AccountService.loginUser(sanitizedName, password);
         setAuthCookie(res, result.token);
         return makeSuccess(res, StatusCodes.OK, result);
@@ -117,7 +116,7 @@ export class AccountController {
      * Used by PUT /api/users/me
      * Requires previous authentication
      */
-    static alter = asyncHandler(async (req: AuthRequest, res: Response) => {
+    static update = asyncHandler(async (req: AuthRequest, res: Response) => {
         const currentUser: string = extractLoggedUser(req);
         const { profilePic, isPrivate, password, email, userData } = req.body;
 
@@ -147,7 +146,7 @@ export class AccountController {
                 throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.BIO_TOO_LONG);
         }
 
-        const result: UserMe = await AccountService.alterUser(
+        const result: UserMe = await AccountService.updateUser(
             currentUser,
             isPrivate,
             email,

@@ -5,21 +5,21 @@ import { UserFull, UserShort } from "../../../src/types/Types";
 describe("UserRepository (integration)", () => {
     // Auxiliary function, inserts a user
     async function insertAux(): Promise<UserFull> {
-        const accountName: string = `repo_user_${Date.now()}`;
+        const username: string = `repo_user_${Date.now()}`;
         return await UserRepository.insertUser({
-            accountName,
+            username,
             avatar: null,
             passwordHash: "hash",
             userData: { displayName: "Repo", gender: null, bio: null },
             isPrivate: false,
-            email: `${accountName}@test.com`,
+            email: `${username}@test.com`,
         });
     }
 
     // Auxiliary function, checks a user's data against expected values
     function checkUserAux(user: UserFull | null, name: string, email: string | null): void {
         expect(user).not.toBeNull();
-        expect(user?.accountName).toBe(name);
+        expect(user?.username).toBe(name);
         expect(user?.email).toBe(email);
     }
 
@@ -28,13 +28,13 @@ describe("UserRepository (integration)", () => {
         const user: UserFull = await insertAux();
 
         // Checks whether the user exists and checks
-        const found: UserFull | null = await UserRepository.selectUser(user.accountName);
-        checkUserAux(found, user.accountName, user.email);
+        const found: UserFull | null = await UserRepository.selectUser(user.username);
+        checkUserAux(found, user.username, user.email);
 
         // Fails, duplicate user
         await expect(
             UserRepository.insertUser({
-                accountName: user.accountName,
+                username: user.username,
                 passwordHash: "",
                 email: "",
                 isPrivate: true,
@@ -46,8 +46,8 @@ describe("UserRepository (integration)", () => {
         const user: UserFull = await insertAux();
 
         expect(user.emailValidation).not.toBeNull();
-        expect(UserRepository.verify(user.accountName, -1)).rejects.toBeDefined();
-        const validatedUser = await UserRepository.verify(user.accountName, user.emailValidation as number);
+        expect(UserRepository.verify(user.username, -1)).rejects.toBeDefined();
+        const validatedUser = await UserRepository.verify(user.username, user.emailValidation as number);
         expect(validatedUser.emailValidation).toBeNull();
     });
 
@@ -59,20 +59,20 @@ describe("UserRepository (integration)", () => {
 
         // Updates user with new data and checks
         const found: UserFull = await UserRepository.updateUser({
-            accountName: user.accountName,
+            username: user.username,
             avatar: null,
             passwordHash,
             userData: { displayName: "Repo", gender: null, bio: null },
             isPrivate: true,
             email: newEmail,
         });
-        checkUserAux(found, user.accountName, newEmail);
+        checkUserAux(found, user.username, newEmail);
         expect(found.passwordHash).toBe(passwordHash);
         expect(found.isPrivate).toBe(true);
 
         // Checks if the same is true for the result of selectUser
-        const found2: UserFull | null = await UserRepository.selectUser(user.accountName);
-        checkUserAux(found2, user.accountName, newEmail);
+        const found2: UserFull | null = await UserRepository.selectUser(user.username);
+        checkUserAux(found2, user.username, newEmail);
         expect(found2?.passwordHash).toBe(passwordHash);
         expect(found2?.isPrivate).toBe(true);
     });
@@ -81,7 +81,7 @@ describe("UserRepository (integration)", () => {
         // Inserts user
         const user: UserFull = await insertAux();
         await UserRepository.updateUser({
-            accountName: user.accountName,
+            username: user.username,
             passwordHash: user.passwordHash,
             avatar: null,
             userData: {},
@@ -90,17 +90,17 @@ describe("UserRepository (integration)", () => {
         });
 
         // Deletes user and checks if the data matches the old
-        const found: UserFull = await UserRepository.deleteUser(user.accountName);
-        checkUserAux(found, user.accountName, user.email);
+        const found: UserFull = await UserRepository.deleteUser(user.username);
+        checkUserAux(found, user.username, user.email);
 
         // Checks whether the user doesn't exist
-        const notFound: UserFull | null = await UserRepository.selectUser(user.accountName);
+        const notFound: UserFull | null = await UserRepository.selectUser(user.username);
         expect(notFound).toBeNull();
     });
 
     it("checks grantPasswordReset is working", async () => {
         await UserRepository.insertUser({
-            accountName: "test",
+            username: "test",
             email: "test@test.com",
             passwordHash: "brrrrr",
             avatar: null,
@@ -124,7 +124,7 @@ describe("UserRepository (integration)", () => {
 
     it("checks grantPasswordReset is working", async () => {
         await UserRepository.insertUser({
-            accountName: "test",
+            username: "test",
             email: "test@test.com",
             passwordHash: "test1",
             avatar: null,
@@ -153,9 +153,9 @@ describe("UserRepository (integration)", () => {
         const user: UserFull = await insertAux();
         const url = "https://res.cloudinary.com/test/avatars/test.jpg";
 
-        await UserRepository.updateAvatar(user.accountName, url);
+        await UserRepository.updateAvatar(user.username, url);
 
-        const found: UserFull | null = await UserRepository.selectUser(user.accountName);
+        const found: UserFull | null = await UserRepository.selectUser(user.username);
         expect(found).not.toBeNull();
         expect(found?.avatar).toBe(url);
     });
@@ -165,17 +165,17 @@ describe("UserRepository (integration)", () => {
         const url1 = "https://res.cloudinary.com/test/avatars/first.jpg";
         const url2 = "https://res.cloudinary.com/test/avatars/second.jpg";
 
-        await UserRepository.updateAvatar(user.accountName, url1);
-        await UserRepository.updateAvatar(user.accountName, url2);
+        await UserRepository.updateAvatar(user.username, url1);
+        await UserRepository.updateAvatar(user.username, url2);
 
-        const found: UserFull | null = await UserRepository.selectUser(user.accountName);
+        const found: UserFull | null = await UserRepository.selectUser(user.username);
         expect(found?.avatar).toBe(url2);
     });
 
     it("getAvatar returns null if no picture is set", async () => {
         const user: UserFull = await insertAux();
 
-        const pic = await UserRepository.getAvatar(user.accountName);
+        const pic = await UserRepository.getAvatar(user.username);
         expect(pic).toBeNull();
     });
 
@@ -183,8 +183,8 @@ describe("UserRepository (integration)", () => {
         const user: UserFull = await insertAux();
         const url = "https://res.cloudinary.com/test/avatars/test.jpg";
 
-        await UserRepository.updateAvatar(user.accountName, url);
-        const pic = await UserRepository.getAvatar(user.accountName);
+        await UserRepository.updateAvatar(user.username, url);
+        const pic = await UserRepository.getAvatar(user.username);
 
         expect(pic).toBe(url);
     });

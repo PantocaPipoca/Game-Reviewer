@@ -454,7 +454,7 @@ router.post("/id/:gameID/reviews", auth, ReviewController.publishReview);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.put("/id/:gameID/reviews", auth, ReviewController.alterReview);
+router.put("/id/:gameID/reviews", auth, ReviewController.updateReview);
 
 /**
  * @swagger

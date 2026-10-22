@@ -41,7 +41,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
         const game = await createGame();
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID + "/comments")
+            .get("/api/reviews/" + user.username + "/" + game.gameID + "/comments")
             .expect(StatusCodes.NOT_FOUND);
     });
 
@@ -49,7 +49,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
         const { reviewer, gameID } = await setupReview();
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -62,21 +62,21 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "nice review!" })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
         expect(res.body.data).toHaveLength(1);
-        expect(res.body.data[0].commentator).toBe(commenter.accountName);
+        expect(res.body.data[0].commentator).toBe(commenter.username);
         expect(res.body.data[0].text).toBe("nice review!");
-        expect(res.body.data[0].reviewer).toBe(reviewer.accountName);
+        expect(res.body.data[0].reviewer).toBe(reviewer.username);
         expect(res.body.data[0].reviewed).toBe(gameID);
     });
 
@@ -94,7 +94,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .expect(StatusCodes.FORBIDDEN);
     });
 
@@ -114,17 +114,17 @@ describe("GET /api/reviews/:reviewer/:reviewed/comments", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/users/id/" + reviewer.accountName + "/followers/")
+            .post("/api/users/id/" + reviewer.username + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + viewer.accountName)
+            .put("/api/users/me/followers/requests/received/" + viewer.username)
             .set("Authorization", "Bearer " + reviewer.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
@@ -140,7 +140,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
         const { reviewer, gameID } = await setupReview();
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .send({ text: "great review" })
             .expect(StatusCodes.UNAUTHORIZED);
     });
@@ -150,7 +150,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
         const game = await createGame();
 
         await request(app)
-            .post("/api/reviews/" + user.accountName + "/" + game.gameID + "/comments")
+            .post("/api/reviews/" + user.username + "/" + game.gameID + "/comments")
             .set("Authorization", "Bearer " + user.token)
             .send({ text: "great review" })
             .expect(StatusCodes.NOT_FOUND);
@@ -161,7 +161,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({})
             .expect(StatusCodes.BAD_REQUEST);
@@ -172,7 +172,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "a".repeat(COMMENT_MAX_LEN + 1) })
             .expect(StatusCodes.BAD_REQUEST);
@@ -183,14 +183,14 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         const res = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "great review!" })
             .expect(StatusCodes.CREATED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.commentator).toBe(commenter.accountName);
-        expect(res.body.data.reviewer).toBe(reviewer.accountName);
+        expect(res.body.data.commentator).toBe(commenter.username);
+        expect(res.body.data.reviewer).toBe(reviewer.username);
         expect(res.body.data.reviewed).toBe(gameID);
         expect(res.body.data.text).toBe("great review!");
         expect(res.body.data.id).toBeDefined();
@@ -201,12 +201,12 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
         const { reviewer, gameID } = await setupReview();
 
         const res = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + reviewer.token)
             .send({ text: "thanks for reading!" })
             .expect(StatusCodes.CREATED);
 
-        expect(res.body.data.commentator).toBe(reviewer.accountName);
+        expect(res.body.data.commentator).toBe(reviewer.username);
     });
 
     it("allows multiple comments from different users on the same review", async () => {
@@ -214,19 +214,19 @@ describe("POST /api/reviews/:reviewer/:reviewed/comments", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "first comment" })
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "second comment" })
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .expect(StatusCodes.OK);
 
         expect(res.body.data).toHaveLength(2);
@@ -240,7 +240,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const { reviewer, gameID } = await setupReview();
 
         await request(app)
-            .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/1")
+            .put("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/1")
             .send({ text: "updated" })
             .expect(StatusCodes.UNAUTHORIZED);
     });
@@ -250,7 +250,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/not-a-number")
+            .put("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/not-a-number")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "updated" })
             .expect(StatusCodes.BAD_REQUEST);
@@ -261,7 +261,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/99999")
+            .put("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/99999")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "updated" })
             .expect(StatusCodes.NOT_FOUND);
@@ -272,7 +272,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "original comment" })
             .expect(StatusCodes.CREATED);
@@ -281,7 +281,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
 
         // reviewer tries to edit commenter's comment
         await request(app)
-            .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
+            .put("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/" + commentID)
             .set("Authorization", "Bearer " + reviewer.token)
             .send({ text: "tampered" })
             .expect(StatusCodes.FORBIDDEN);
@@ -292,7 +292,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "original comment" })
             .expect(StatusCodes.CREATED);
@@ -300,7 +300,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commentID = createRes.body.data.id;
 
         await request(app)
-            .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
+            .put("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/" + commentID)
             .set("Authorization", "Bearer " + commenter.token)
             .send({})
             .expect(StatusCodes.BAD_REQUEST);
@@ -311,7 +311,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "original comment" })
             .expect(StatusCodes.CREATED);
@@ -319,7 +319,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commentID = createRes.body.data.id;
 
         await request(app)
-            .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
+            .put("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/" + commentID)
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "a".repeat(COMMENT_MAX_LEN + 1) })
             .expect(StatusCodes.BAD_REQUEST);
@@ -330,7 +330,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "original comment" })
             .expect(StatusCodes.CREATED);
@@ -338,7 +338,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commentID = createRes.body.data.id;
 
         const res = await request(app)
-            .put("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
+            .put("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/" + commentID)
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "updated comment" })
             .expect(StatusCodes.ACCEPTED);
@@ -346,7 +346,7 @@ describe("PUT /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         expect(res.body.status).toBe("success");
         expect(res.body.data.id).toBe(commentID);
         expect(res.body.data.text).toBe("updated comment");
-        expect(res.body.data.commentator).toBe(commenter.accountName);
+        expect(res.body.data.commentator).toBe(commenter.username);
     });
 });
 
@@ -357,7 +357,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const { reviewer, gameID } = await setupReview();
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/1")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/1")
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
@@ -366,7 +366,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/not-a-number")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/not-a-number")
             .set("Authorization", "Bearer " + commenter.token)
             .expect(StatusCodes.BAD_REQUEST);
     });
@@ -376,7 +376,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/99999")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/99999")
             .set("Authorization", "Bearer " + commenter.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -386,7 +386,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "a comment" })
             .expect(StatusCodes.CREATED);
@@ -394,7 +394,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commentID = createRes.body.data.id;
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/" + commentID)
             .set("Authorization", "Bearer " + reviewer.token)
             .expect(StatusCodes.FORBIDDEN);
     });
@@ -404,7 +404,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "to be deleted" })
             .expect(StatusCodes.CREATED);
@@ -412,14 +412,14 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commentID = createRes.body.data.id;
 
         const res = await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/" + commentID)
             .set("Authorization", "Bearer " + commenter.token)
             .expect(StatusCodes.ACCEPTED);
 
         expect(res.body.status).toBe("success");
         expect(res.body.data.id).toBe(commentID);
         expect(res.body.data.text).toBe("to be deleted");
-        expect(res.body.data.commentator).toBe(commenter.accountName);
+        expect(res.body.data.commentator).toBe(commenter.username);
     });
 
     it("returns NOT FOUND if trying to delete the same comment twice", async () => {
@@ -427,7 +427,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commenter = await register(app, username2, displayName2, password2, email2);
 
         const createRes = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/comments")
             .set("Authorization", "Bearer " + commenter.token)
             .send({ text: "to be deleted" })
             .expect(StatusCodes.CREATED);
@@ -435,12 +435,12 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/comments/:id", () => {
         const commentID = createRes.body.data.id;
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/" + commentID)
             .set("Authorization", "Bearer " + commenter.token)
             .expect(StatusCodes.ACCEPTED);
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/comments/" + commentID)
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/comments/" + commentID)
             .set("Authorization", "Bearer " + commenter.token)
             .expect(StatusCodes.NOT_FOUND);
     });

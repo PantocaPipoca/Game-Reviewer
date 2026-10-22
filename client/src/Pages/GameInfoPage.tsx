@@ -178,7 +178,7 @@ function GameInfoPage() {
                 const [gameResult, reviewResult, ownReviewResult] = await Promise.allSettled([
                     GameAPI.getById(id),
                     ReviewAPI.getByGame(id),
-                    UserAPI.getMe().then((me) => ReviewAPI.get(me.accountName, id)),
+                    UserAPI.getMe().then((me) => ReviewAPI.get(me.username, id)),
                 ]);
 
                 if (gameResult.status === "fulfilled") {

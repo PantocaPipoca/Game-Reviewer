@@ -55,7 +55,7 @@ function Navbar() {
 
                 if (authenticated) {
                     const me = await UserAPI.getMe();
-                    setUsername(me.accountName);
+                    setUsername(me.username);
                     setAvatar(me.avatar ?? null);
                     try {
                         const pending = await FollowerAPI.getRequestsReceived();

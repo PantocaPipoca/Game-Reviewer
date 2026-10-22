@@ -30,7 +30,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         const user = await register(app, username, displayName, password, email);
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/99999")
+            .get("/api/reviews/" + user.username + "/99999")
             .expect(StatusCodes.NOT_FOUND);
     });
 
@@ -39,7 +39,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
         const game = await createGame();
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + user.username + "/" + game.gameID)
             .expect(StatusCodes.NOT_FOUND);
     });
 
@@ -54,11 +54,11 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.CREATED);
 
         const res = await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + user.username + "/" + game.gameID)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.reviewer).toBe(user.accountName);
+        expect(res.body.data.reviewer).toBe(user.username);
         expect(res.body.data.reviewed).toBe(game.gameID);
         expect(res.body.data.text).toBe("great game");
         expect(res.body.data.score).toBe(8);
@@ -89,7 +89,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + user.username + "/" + game.gameID)
             .expect(StatusCodes.FORBIDDEN);
     });
 
@@ -116,7 +116,7 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + reviewer.username + "/" + game.gameID)
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.FORBIDDEN);
     });
@@ -144,22 +144,22 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.OK);
 
         await request(app)
-            .post("/api/users/id/" + reviewer.accountName + "/followers/")
+            .post("/api/users/id/" + reviewer.username + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + viewer.accountName)
+            .put("/api/users/me/followers/requests/received/" + viewer.username)
             .set("Authorization", "Bearer " + reviewer.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + reviewer.username + "/" + game.gameID)
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.reviewer).toBe(reviewer.accountName);
+        expect(res.body.data.reviewer).toBe(reviewer.username);
         expect(res.body.data.reviewed).toBe(game.gameID);
     });
 
@@ -184,11 +184,11 @@ describe("GET /api/reviews/:reviewer/:reviewed", () => {
             .expect(StatusCodes.OK);
 
         const res = await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID)
+            .get("/api/reviews/" + user.username + "/" + game.gameID)
             .set("Authorization", "Bearer " + user.token)
             .expect(StatusCodes.OK);
 
-        expect(res.body.data.reviewer).toBe(user.accountName);
+        expect(res.body.data.reviewer).toBe(user.username);
         expect(res.body.data.text).toBe("my review");
     });
 });

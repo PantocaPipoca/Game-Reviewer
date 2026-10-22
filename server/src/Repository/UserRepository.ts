@@ -12,7 +12,7 @@ export class UserRepository {
      */
     public static selectUser(userPK: UserPK): Promise<UserFull | null> {
         return PRISMA.user.findUnique({
-            where: { accountName: userPK },
+            where: { username: userPK },
         });
     }
 
@@ -34,7 +34,7 @@ export class UserRepository {
      */
     public static updateUser(user: UserShort): Promise<UserFull> {
         return PRISMA.user.update({
-            where: { accountName: user.accountName },
+            where: { username: user.username },
             data: {
                 passwordHash: user.passwordHash,
                 avatar: user.avatar,
@@ -58,19 +58,19 @@ export class UserRepository {
      */
     public static deleteUser(userPK: UserPK): Promise<UserFull> {
         return PRISMA.user.delete({
-            where: { accountName: userPK },
+            where: { username: userPK },
         });
     }
 
     /**
      * @description verifies a User in the database
-     * @param accountName primary key of User
+     * @param username primary key of User
      * @param codeNum secret code that proves the email is valid
      * @returns a promise of the verified User
      */
-    public static verify(accountName: UserPK, codeNum: number): Promise<UserFull> {
+    public static verify(username: UserPK, codeNum: number): Promise<UserFull> {
         return PRISMA.user.update({
-            where: { accountName: accountName, emailValidation: codeNum },
+            where: { username: username, emailValidation: codeNum },
             data: {
                 emailValidation: null,
             },
@@ -104,7 +104,7 @@ export class UserRepository {
             where: {
                 OR: [
                     {
-                        accountName: {
+                        username: {
                             contains: nameFilter,
                             mode: "insensitive",
                         },
@@ -127,24 +127,24 @@ export class UserRepository {
         return PRISMA.user.findMany(query);
     }
 
-    static async updateAvatar(accountName: string, url: string): Promise<void> {
+    static async updateAvatar(username: string, url: string): Promise<void> {
         await PRISMA.user.update({
-            where: { accountName },
+            where: { username },
             data: { avatar: url },
         });
     }
 
-    static async getAvatar(accountName: string): Promise<string | null> {
+    static async getAvatar(username: string): Promise<string | null> {
         const user = await PRISMA.user.findUnique({
-            where: { accountName },
+            where: { username },
             select: { avatar: true },
         });
         return user?.avatar ?? null;
     }
 
-    public static grantPasswordReset(accountName: UserPK, passRecoverCode: number): Promise<UserFull> {
+    public static grantPasswordReset(username: UserPK, passRecoverCode: number): Promise<UserFull> {
         return PRISMA.user.update({
-            where: { accountName },
+            where: { username },
             data: {
                 passwordRecover: passRecoverCode,
             },
@@ -152,18 +152,18 @@ export class UserRepository {
     }
 
     public static async usePasswordReset(
-        accountName: UserPK,
+        username: UserPK,
         passRecoverCode: number,
         newPassword: string
     ): Promise<UserFull> {
-        const user: UserFull | null = await this.selectUser(accountName);
+        const user: UserFull | null = await this.selectUser(username);
         if (user?.passwordRecover !== passRecoverCode) {
             throw new Error("wrong code");
         }
 
         return PRISMA.user.update({
             where: {
-                accountName,
+                username,
                 passwordRecover: passRecoverCode,
             },
             data: {

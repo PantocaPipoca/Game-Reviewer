@@ -40,7 +40,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/likes", () => {
         const game = await createGame();
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID + "/likes")
+            .get("/api/reviews/" + user.username + "/" + game.gameID + "/likes")
             .expect(StatusCodes.NOT_FOUND);
     });
 
@@ -48,7 +48,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/likes", () => {
         const { reviewer, gameID } = await setupReview();
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -60,12 +60,12 @@ describe("GET /api/reviews/:reviewer/:reviewed/likes", () => {
         const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .expect(StatusCodes.OK);
 
         expect(res.body.data).toBe(1);
@@ -79,7 +79,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
         const { reviewer, gameID } = await setupReview();
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
@@ -89,7 +89,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
         const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + user.accountName + "/" + game.gameID + "/likes")
+            .post("/api/reviews/" + user.username + "/" + game.gameID + "/likes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -99,13 +99,13 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
         const liker = await register(app, username2, displayName2, password2, email2);
 
         const res = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.ACCEPTED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.liker).toBe(liker.accountName);
-        expect(res.body.data.reviewer).toBe(reviewer.accountName);
+        expect(res.body.data.liker).toBe(liker.username);
+        expect(res.body.data.reviewer).toBe(reviewer.username);
         expect(res.body.data.reviewed).toBe(gameID);
         expect(res.body.data.value).toBe(true);
     });
@@ -115,12 +115,12 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
         const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.ACCEPTED);
 
@@ -128,7 +128,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
 
         // dislike count should now be 0
         const dislikesRes = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .expect(StatusCodes.OK);
 
         expect(dislikesRes.body.data).toBe(0);
@@ -138,11 +138,11 @@ describe("POST /api/reviews/:reviewer/:reviewed/likes", () => {
         const { reviewer, gameID } = await setupReview();
 
         const res = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + reviewer.token)
             .expect(StatusCodes.ACCEPTED);
 
-        expect(res.body.data.liker).toBe(reviewer.accountName);
+        expect(res.body.data.liker).toBe(reviewer.username);
         expect(res.body.data.value).toBe(true);
     });
 });
@@ -155,7 +155,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/dislikes", () => {
         const game = await createGame();
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID + "/dislikes")
+            .get("/api/reviews/" + user.username + "/" + game.gameID + "/dislikes")
             .expect(StatusCodes.NOT_FOUND);
     });
 
@@ -163,7 +163,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/dislikes", () => {
         const { reviewer, gameID } = await setupReview();
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .expect(StatusCodes.OK);
 
         expect(res.body.status).toBe("success");
@@ -175,12 +175,12 @@ describe("GET /api/reviews/:reviewer/:reviewed/dislikes", () => {
         const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .expect(StatusCodes.OK);
 
         expect(res.body.data).toBe(1);
@@ -194,7 +194,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
         const { reviewer, gameID } = await setupReview();
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
@@ -204,7 +204,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
         const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + user.accountName + "/" + game.gameID + "/dislikes")
+            .post("/api/reviews/" + user.username + "/" + game.gameID + "/dislikes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -214,13 +214,13 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
         const liker = await register(app, username2, displayName2, password2, email2);
 
         const res = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.ACCEPTED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.liker).toBe(liker.accountName);
-        expect(res.body.data.reviewer).toBe(reviewer.accountName);
+        expect(res.body.data.liker).toBe(liker.username);
+        expect(res.body.data.reviewer).toBe(reviewer.username);
         expect(res.body.data.reviewed).toBe(gameID);
         expect(res.body.data.value).toBe(false);
     });
@@ -230,12 +230,12 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
         const liker = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .set("Authorization", "Bearer " + liker.token)
             .expect(StatusCodes.ACCEPTED);
 
@@ -243,7 +243,7 @@ describe("POST /api/reviews/:reviewer/:reviewed/dislikes", () => {
 
         // like count should now be 0
         const likesRes = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .expect(StatusCodes.OK);
 
         expect(likesRes.body.data).toBe(0);
@@ -257,7 +257,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const { reviewer, gameID } = await setupReview();
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
@@ -267,7 +267,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/reviews/" + user.accountName + "/" + game.gameID + "/myReaction")
+            .delete("/api/reviews/" + user.username + "/" + game.gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -277,7 +277,7 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -287,22 +287,22 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.liker).toBe(reactor.accountName);
+        expect(res.body.data.liker).toBe(reactor.username);
         expect(res.body.data.value).toBe(true);
 
         // like count drops back to 0
         const likesRes = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .expect(StatusCodes.OK);
 
         expect(likesRes.body.data).toBe(0);
@@ -313,22 +313,22 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.liker).toBe(reactor.accountName);
+        expect(res.body.data.liker).toBe(reactor.username);
         expect(res.body.data.value).toBe(false);
 
         // dislike count drops back to 0
         const dislikesRes = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .expect(StatusCodes.OK);
 
         expect(dislikesRes.body.data).toBe(0);
@@ -339,17 +339,17 @@ describe("DELETE /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -362,7 +362,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const { reviewer, gameID } = await setupReview();
 
         await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .expect(StatusCodes.UNAUTHORIZED);
     });
 
@@ -372,7 +372,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .get("/api/reviews/" + user.accountName + "/" + game.gameID + "/myReaction")
+            .get("/api/reviews/" + user.username + "/" + game.gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.NOT_FOUND);
     });
@@ -382,7 +382,7 @@ describe("GET /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.OK);
 
@@ -395,12 +395,12 @@ describe("GET /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.OK);
 
@@ -413,12 +413,12 @@ describe("GET /api/reviews/:reviewer/:reviewed/myReaction", () => {
         const reactor = await register(app, username2, displayName2, password2, email2);
 
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.OK);
 
@@ -432,12 +432,12 @@ describe("GET /api/reviews/:reviewer/:reviewed/myReaction", () => {
 
         // First like the review
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         let res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.OK);
 
@@ -445,12 +445,12 @@ describe("GET /api/reviews/:reviewer/:reviewed/myReaction", () => {
 
         // Then switch to dislike
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/dislikes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/dislikes")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.OK);
 
@@ -463,18 +463,18 @@ describe("GET /api/reviews/:reviewer/:reviewed/myReaction", () => {
 
         // Like the review
         await request(app)
-            .post("/api/reviews/" + reviewer.accountName + "/" + gameID + "/likes")
+            .post("/api/reviews/" + reviewer.username + "/" + gameID + "/likes")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         // Remove the reaction
         await request(app)
-            .delete("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .delete("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.ACCEPTED);
 
         const res = await request(app)
-            .get("/api/reviews/" + reviewer.accountName + "/" + gameID + "/myReaction")
+            .get("/api/reviews/" + reviewer.username + "/" + gameID + "/myReaction")
             .set("Authorization", "Bearer " + reactor.token)
             .expect(StatusCodes.OK);
 

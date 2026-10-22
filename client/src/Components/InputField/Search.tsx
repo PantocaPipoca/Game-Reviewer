@@ -257,29 +257,29 @@ function Search() {
                             !userError &&
                             userResults.slice(0, DROPDOWN_LIMIT).map((user) => (
                                 <Panel
-                                    key={user.accountName}
+                                    key={user.username}
                                     type="terciary"
                                     className={style.itemRow}
                                     direction="row"
                                     interactive
                                     onClick={() => {
-                                        navigate(`/user/${user.accountName}`);
+                                        navigate(`/user/${user.username}`);
                                         setIsFocused(false);
                                     }}
                                 >
                                     <img
                                         className={style.avatar}
                                         src={user.avatar ?? defaultPfp}
-                                        alt={user.accountName}
+                                        alt={user.username}
                                     />
                                     <div className={style.userInfo}>
                                         <Text className={style.name} variant="body">
-                                            {user.userData?.displayName || `@${user.accountName}`}
+                                            {user.userData?.displayName || `@${user.username}`}
                                         </Text>
                                         {user.userData?.displayName &&
-                                            user.userData.displayName !== user.accountName && (
+                                            user.userData.displayName !== user.username && (
                                                 <Text variant="small" color="var(--mutedText)">
-                                                    @{user.accountName}
+                                                    @{user.username}
                                                 </Text>
                                             )}
                                     </div>

@@ -101,7 +101,7 @@ function RegisterPage() {
         setLoading(true);
         try {
             const user: string | AuthResponse = await UserAPI.register({
-                accountName: userName,
+                username: userName,
                 displayName,
                 password,
                 email,

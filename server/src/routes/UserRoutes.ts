@@ -1,6 +1,6 @@
 ﻿import { Router } from "express";
 import multer from "multer";
-import { AccountController } from "../controllers/AccountController";
+import { AccountController } from "../controllers/UserController";
 import { ReviewController } from "../controllers/ReviewController";
 import { optionalAuth, auth } from "../utils/Auth";
 import { FollowerController } from "../controllers/FollowerController";
@@ -35,9 +35,9 @@ const upload = multer({
  *                  application/json:
  *                      schema:
  *                          type: object
- *                          required: [accountName, displayName, password, email]
+ *                          required: [username, displayName, password, email]
  *                          properties:
- *                              accountName:
+ *                              username:
  *                                  type: string
  *                              displayName:
  *                                  type: string
@@ -143,9 +143,9 @@ router.get("/validation", AccountController.validate);
  *                  application/json:
  *                      schema:
  *                          type: object
- *                          required: [accountName, password]
+ *                          required: [username, password]
  *                          properties:
- *                              accountName:
+ *                              username:
  *                                  type: string
  *                              password:
  *                                  type: string
@@ -367,8 +367,8 @@ router.get("/me", auth, AccountController.getCurrentUser);
  *  /users/me:
  *      put:
  *          tags: [Users]
- *          summary: Alters the currently logged in user account
- *          description: Alters the currently logged in user account
+ *          summary: Update the currently logged in user account
+ *          description: Updates the currently logged in user account
  *          security:
  *              - bearerAuth: []
  *          requestBody:
@@ -428,7 +428,7 @@ router.get("/me", auth, AccountController.getCurrentUser);
  *                          schema:
  *                              $ref: '#/components/schemas/Error'
  */
-router.put("/me", auth, AccountController.alter);
+router.put("/me", auth, AccountController.update);
 
 /**
  * @swagger

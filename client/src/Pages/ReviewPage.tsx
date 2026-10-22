@@ -64,7 +64,7 @@ async function makeComments(
             description: current.text,
             date: current.createdAt,
             id: current.id,
-            canModify: user !== undefined && current.commentator === user.accountName,
+            canModify: user !== undefined && current.commentator === user.username,
             isModifying: false,
         } as CommentCardProps);
     }
@@ -124,18 +124,18 @@ function ReviewPage() {
                 try {
                     const me: UserMe = await UserAPI.getMe();
                     console.log(me);
-                    setAuthUserName(me.accountName);
+                    setAuthUserName(me.username);
                     setAuthDisplayName(me.userData.displayName);
                     setAuthAvatar(me.avatar ?? undefined);
                     if (commentResult.status === "fulfilled") {
                         setComments(await makeComments(commentResult.value, reviewer!, reviewedNum, me));
                         writeComments = false;
                     }
-                    if (me.accountName === reviewer) {
+                    if (me.username === reviewer) {
                         setIsOwnReview(true);
                         setMyReview(reviewResult.status === "fulfilled" ? reviewResult.value : null);
                     } else {
-                        const ownReview = await ReviewAPI.get(me.accountName, reviewedNum);
+                        const ownReview = await ReviewAPI.get(me.username, reviewedNum);
                         setMyReview(ownReview);
                     }
                 } catch {

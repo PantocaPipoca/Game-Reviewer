@@ -105,10 +105,10 @@ export class GameController {
      */
     static getRecommendedGames = asyncHandler(async (req: AuthRequest, res: Response) => {
         const { amount, offset }: QueryBody = req.body;
-        const accountName = extractLoggedUser(req);
+        const username = extractLoggedUser(req);
         if (!isValidOffset(offset)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.OFFSET_INVALID);
         if (!isValidAmount(amount)) throw new AppError(StatusCodes.BAD_REQUEST, ErrorMessage.AMOUNT_INVALID);
-        const result = await GameService.getRecommendedGames(accountName, offset, amount);
+        const result = await GameService.getRecommendedGames(username, offset, amount);
         makeSuccess(res, StatusCodes.OK, result);
     });
 

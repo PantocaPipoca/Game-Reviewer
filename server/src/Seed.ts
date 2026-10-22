@@ -3,7 +3,7 @@
  * Run:
  *   BASE_URL=http://localhost:3000 AVATARS_DIR=./avatars npx tsx src/Seed.ts
  *
- * Avatar convention: place files named "<accountName>.png" (or .jpg/.jpeg/.webp) in AVATARS_DIR.
+ * Avatar convention: place files named "<username>.png" (or .jpg/.jpeg/.webp) in AVATARS_DIR.
  * If the file doesn't exist, the avatar step is silently skipped for that user.
  */
 
@@ -673,7 +673,7 @@ const ALL_GAME_IDS = [
 // ─── Persona Type ─────────────────────────────────────────────────────────────
 
 type Persona = {
-    accountName: string;
+    username: string;
     displayName: string;
     email: string;
     password: string;
@@ -689,7 +689,7 @@ type Persona = {
 const PERSONAS: Persona[] = [
     // ── 1. The Soulsborne Evangelist ──
     {
-        accountName: "soulsborn3r",
+        username: "soulsborn3r",
         displayName: "Soulsborn3r",
         email: "soulsborner@seed.dev",
         password: "Seed1234!",
@@ -720,7 +720,7 @@ const PERSONAS: Persona[] = [
 
     // ── 2. The Casual Enjoyer ──
     {
-        accountName: "casualgamer99",
+        username: "casualgamer99",
         displayName: "Casual Gamer 99",
         email: "casual99@seed.dev",
         password: "Seed1234!",
@@ -749,7 +749,7 @@ const PERSONAS: Persona[] = [
 
     // ── 3. The Retro Purist ──
     {
-        accountName: "retro_enjoyer",
+        username: "retro_enjoyer",
         displayName: "Retro Enjoyer",
         email: "retro@seed.dev",
         password: "Seed1234!",
@@ -784,7 +784,7 @@ const PERSONAS: Persona[] = [
 
     // ── 4. The Universal Hater ──
     {
-        accountName: "hater_guy",
+        username: "hater_guy",
         displayName: "Hater Guy",
         email: "hater@seed.dev",
         password: "Seed1234!",
@@ -801,7 +801,7 @@ const PERSONAS: Persona[] = [
 
     // ── 5. The Indie Champion ──
     {
-        accountName: "indie_lover",
+        username: "indie_lover",
         displayName: "Indie Lover",
         email: "indie@seed.dev",
         password: "Seed1234!",
@@ -828,7 +828,7 @@ const PERSONAS: Persona[] = [
 
     // ── 6. The 100% Completionist ──
     {
-        accountName: "completionist",
+        username: "completionist",
         displayName: "The Completionist",
         email: "complete@seed.dev",
         password: "Seed1234!",
@@ -860,7 +860,7 @@ const PERSONAS: Persona[] = [
 
     // ── 7. The FPS Veteran ──
     {
-        accountName: "fps_addict",
+        username: "fps_addict",
         displayName: "FPS Addict",
         email: "fps@seed.dev",
         password: "Seed1234!",
@@ -893,7 +893,7 @@ const PERSONAS: Persona[] = [
 
     // ── 8. The CRPG Master ──
     {
-        accountName: "rpg_master",
+        username: "rpg_master",
         displayName: "RPG Master",
         email: "rpg@seed.dev",
         password: "Seed1234!",
@@ -929,7 +929,7 @@ const PERSONAS: Persona[] = [
 
     // ── 9. The Minecraft Obsessive ──
     {
-        accountName: "toxic_fan",
+        username: "toxic_fan",
         displayName: "Toxic Fan",
         email: "toxic@seed.dev",
         password: "Seed1234!",
@@ -956,7 +956,7 @@ const PERSONAS: Persona[] = [
 
     // ── 10. The Balanced Critic ──
     {
-        accountName: "balanced_critic",
+        username: "balanced_critic",
         displayName: "Balanced Critic",
         email: "critic@seed.dev",
         password: "Seed1234!",
@@ -991,7 +991,7 @@ const PERSONAS: Persona[] = [
 
     // ── 11. The Horror Enthusiast ──
     {
-        accountName: "horror_enjoyer",
+        username: "horror_enjoyer",
         displayName: "Horror Enjoyer",
         email: "horror@seed.dev",
         password: "Seed1234!",
@@ -1026,7 +1026,7 @@ const PERSONAS: Persona[] = [
 
     // ── 12. The Grand Strategist ──
     {
-        accountName: "strategy_nerd",
+        username: "strategy_nerd",
         displayName: "Strategy Nerd",
         email: "strategy@seed.dev",
         password: "Seed1234!",
@@ -1065,7 +1065,7 @@ const PERSONAS: Persona[] = [
 
     // ── 13. The Narrative Seeker ──
     {
-        accountName: "narrative_lover",
+        username: "narrative_lover",
         displayName: "Narrative Lover",
         email: "narrative@seed.dev",
         password: "Seed1234!",
@@ -1115,7 +1115,7 @@ const PERSONAS: Persona[] = [
 
     // ── 14. The Lurker (no reviews, just follows and likes) ──
     {
-        accountName: "silent_watcher",
+        username: "silent_watcher",
         displayName: "Silent Watcher",
         email: "lurker@seed.dev",
         password: "Seed1234!",
@@ -1128,7 +1128,7 @@ const PERSONAS: Persona[] = [
 
     // ── 15. The New User (very few reviews, no followers yet) ──
     {
-        accountName: "newbie_gamer",
+        username: "newbie_gamer",
         displayName: "Newbie Gamer",
         email: "newbie@seed.dev",
         password: "Seed1234!",
@@ -1143,7 +1143,7 @@ const PERSONAS: Persona[] = [
 
     // ── 16. The Contrarian ──
     {
-        accountName: "contrarian_king",
+        username: "contrarian_king",
         displayName: "Contrarian King",
         email: "contrarian@seed.dev",
         password: "Seed1234!",
@@ -1192,7 +1192,7 @@ const PERSONAS: Persona[] = [
 
     // ── 17. The Chill Sandbox Player ──
     {
-        accountName: "sandbox_chill",
+        username: "sandbox_chill",
         displayName: "Sandbox Chill",
         email: "sandbox@seed.dev",
         password: "Seed1234!",
@@ -1232,7 +1232,7 @@ const PERSONAS: Persona[] = [
 
     // ── 18. The Fighting Game Player ──
     {
-        accountName: "fighting_main",
+        username: "fighting_main",
         displayName: "Fighting Main",
         email: "fighting@seed.dev",
         password: "Seed1234!",
@@ -1382,49 +1382,49 @@ function getReviewText(persona: Persona, gameID: number, score: number): string 
     const roll = Math.random();
 
     // Persona-specific overrides
-    if (persona.accountName === "soulsborn3r" && SOULS_GAMES.includes(gameID) && score >= 9) {
+    if (persona.username === "soulsborn3r" && SOULS_GAMES.includes(gameID) && score >= 9) {
         return pick(REVIEW_SOULSBORNE);
     }
-    if (persona.accountName === "indie_lover" && INDIE_GAMES.includes(gameID) && score >= 9) {
+    if (persona.username === "indie_lover" && INDIE_GAMES.includes(gameID) && score >= 9) {
         return pick(REVIEW_INDIE_CHAMPION);
     }
-    if (persona.accountName === "horror_enjoyer" && HORROR_GAMES.includes(gameID) && score >= 8) {
+    if (persona.username === "horror_enjoyer" && HORROR_GAMES.includes(gameID) && score >= 8) {
         return pick(REVIEW_HORROR);
     }
-    if (persona.accountName === "strategy_nerd" && STRATEGY_GAMES.includes(gameID) && score >= 8) {
+    if (persona.username === "strategy_nerd" && STRATEGY_GAMES.includes(gameID) && score >= 8) {
         return pick(REVIEW_STRATEGY);
     }
     if (
-        persona.accountName === "narrative_lover" &&
+        persona.username === "narrative_lover" &&
         (NARRATIVE_GAMES.includes(gameID) || [DISCO_ELYSIUM, OUTER_WILDS, UNDERTALE].includes(gameID)) &&
         score >= 8
     ) {
         return pick(REVIEW_NARRATIVE);
     }
-    if (persona.accountName === "contrarian_king") {
+    if (persona.username === "contrarian_king") {
         return pick(REVIEW_CONTRARIAN);
     }
-    if (persona.accountName === "completionist") {
+    if (persona.username === "completionist") {
         const hoursLine = `Logged ${rand(80, 300)} hours, completed every sidequest, found every collectible. Platinum/100%achieved. `;
         const base =
             score >= 8 ? pick(REVIEW_MEDIUM_HIGH) : score >= 5 ? pick(REVIEW_MEDIUM_MID) : pick(REVIEW_MEDIUM_LOW);
         return hoursLine + base;
     }
-    if (persona.accountName === "hater_guy") {
+    if (persona.username === "hater_guy") {
         if (roll < 0.5) return pick(REVIEW_SHORT_LOW);
         return pick(REVIEW_MEDIUM_LOW);
     }
-    if (persona.accountName === "toxic_fan") {
+    if (persona.username === "toxic_fan") {
         if (gameID === MINECRAFT)
             return "Nothing compares. Minecraft is the foundation of all gaming. Picasso of video games. The Sistine Chapel of interactive media. Steve is more culturally significant than half of human history. 10/10 no notes.";
         if (SANDBOX_GAMES.includes(gameID))
             return `It's okay. Not Minecraft, but okay. I'll give it a ${score}/10 because at least it lets you build things and not everything is about shooting people. Would be better with Steve as a playable character.`;
         return `Compared to Minecraft this is completely irrelevant. My Minecraft world has more hours invested in it than this entire franchise has had players. ${score}/10.`;
     }
-    if (persona.accountName === "balanced_critic") {
+    if (persona.username === "balanced_critic") {
         return roll < 0.4 ? pick(REVIEW_LONG_HIGH) : roll < 0.7 ? pick(REVIEW_LONG_MID) : pick(REVIEW_MEDIUM_HIGH);
     }
-    if (persona.accountName === "retro_enjoyer" && CLASSIC_GAMES.includes(gameID) && score >= 8) {
+    if (persona.username === "retro_enjoyer" && CLASSIC_GAMES.includes(gameID) && score >= 8) {
         return `This is what games were before the industry decided everything needed crafting mechanics, open worlds, and a battle pass. ${pick(REVIEW_MEDIUM_HIGH)}`;
     }
 
@@ -1515,27 +1515,27 @@ const COMMENTS_LONG = [
 function getCommentText(commenter: Persona, reviewerPersona: Persona | undefined, score: number): string {
     const roll = Math.random();
 
-    if (commenter.accountName === "soulsborn3r") {
+    if (commenter.username === "soulsborn3r") {
         return pick([...COMMENTS_SOULSBORNE, ...COMMENTS_AGREE, ...COMMENTS_NEUTRAL]);
     }
-    if (commenter.accountName === "toxic_fan") {
+    if (commenter.username === "toxic_fan") {
         return pick(COMMENTS_MINECRAFT_OBSESSED);
     }
-    if (commenter.accountName === "hater_guy") {
+    if (commenter.username === "hater_guy") {
         return pick([...COMMENTS_HATER, ...COMMENTS_DISAGREE]);
     }
-    if (commenter.accountName === "balanced_critic" || commenter.accountName === "narrative_lover") {
+    if (commenter.username === "balanced_critic" || commenter.username === "narrative_lover") {
         if (roll < 0.25) return pick(COMMENTS_LONG);
     }
-    if (commenter.accountName === "contrarian_king") {
+    if (commenter.username === "contrarian_king") {
         if (score >= 8) return pick(COMMENTS_DISAGREE);
         if (score <= 4) return pick(COMMENTS_AGREE); // agrees with negative reviews
         return pick(COMMENTS_NEUTRAL);
     }
-    if (commenter.accountName === "strategy_nerd") {
+    if (commenter.username === "strategy_nerd") {
         if (roll < 0.15) return pick(COMMENTS_LONG);
     }
-    if (commenter.accountName === "rpg_master") {
+    if (commenter.username === "rpg_master") {
         if (roll < 0.2) return pick(COMMENTS_LONG);
     }
     if (score >= 8 && commenter.likesBias === "likes_most") return pick(COMMENTS_AGREE);
@@ -1661,10 +1661,10 @@ type UserSession = {
 };
 
 async function registerAndLogin(persona: Persona): Promise<string | null> {
-    console.log(`  -> Registering ${persona.accountName}...`);
+    console.log(`  -> Registering ${persona.username}...`);
 
     const regRes = await api("POST", "/users", {
-        accountName: persona.accountName,
+        username: persona.username,
         displayName: persona.displayName,
         password: persona.password,
         email: persona.email,
@@ -1677,13 +1677,13 @@ async function registerAndLogin(persona: Persona): Promise<string | null> {
             return token;
         }
     } else if (regRes.status === 409) {
-        console.log(`     ${persona.accountName} already exists, logging in...`);
+        console.log(`     ${persona.username} already exists, logging in...`);
     } else {
         console.error(`     registration failed (${regRes.status}):`, JSON.stringify(regRes.data));
     }
 
     const loginRes = await api("POST", "/users/login", {
-        accountName: persona.accountName,
+        username: persona.username,
         password: persona.password,
     });
 
@@ -1708,24 +1708,24 @@ async function uploadAvatars(sessions: Map<string, UserSession>): Promise<void> 
     console.log(`\nuploading avatars from ${AVATARS_DIR}...`);
     const extensions = [".png", ".jpg", ".jpeg", ".webp"];
 
-    for (const [accountName, session] of sessions) {
+    for (const [username, session] of sessions) {
         let filePath: string | null = null;
         for (const ext of extensions) {
-            const candidate = path.join(AVATARS_DIR, `${accountName}${ext}`);
+            const candidate = path.join(AVATARS_DIR, `${username}${ext}`);
             if (fs.existsSync(candidate)) {
                 filePath = candidate;
                 break;
             }
         }
         if (!filePath) {
-            console.log(`  no avatar for ${accountName}, skipping.`);
+            console.log(`  no avatar for ${username}, skipping.`);
             continue;
         }
         const res = await apiMultipart("/users/me/avatar", filePath, session.token);
         if (res.ok) {
-            console.log(`  avatar uploaded for ${accountName}`);
+            console.log(`  avatar uploaded for ${username}`);
         } else {
-            console.error(`  avatar upload failed for ${accountName} (${res.status}):`, JSON.stringify(res.data));
+            console.error(`  avatar upload failed for ${username} (${res.status}):`, JSON.stringify(res.data));
         }
         await sleep(100);
     }
@@ -1735,7 +1735,7 @@ async function uploadAvatars(sessions: Map<string, UserSession>): Promise<void> 
 
 async function updateBios(sessions: Map<string, UserSession>): Promise<void> {
     console.log("\nupdating bios...");
-    for (const [accountName, session] of sessions) {
+    for (const [username, session] of sessions) {
         const persona = session.persona;
         if (!persona.bio) continue;
 
@@ -1759,9 +1759,9 @@ async function updateBios(sessions: Map<string, UserSession>): Promise<void> {
         );
 
         if (updateRes.ok) {
-            console.log(`  bio updated for ${accountName}`);
+            console.log(`  bio updated for ${username}`);
         } else {
-            console.error(`  bio update failed for ${accountName} (${updateRes.status})`);
+            console.error(`  bio update failed for ${username} (${updateRes.status})`);
         }
         await sleep(80);
     }
@@ -1799,42 +1799,42 @@ async function createReviews(sessions: Map<string, UserSession>): Promise<void> 
     const platformPool = ["PC", "PlayStation 5", "Xbox Series X", "Nintendo Switch", "PlayStation 4", "Steam Deck"];
 
     for (const persona of PERSONAS) {
-        const session = sessions.get(persona.accountName);
+        const session = sessions.get(persona.username);
         if (!session) {
-            console.log(`  no session for ${persona.accountName}, skipping.`);
+            console.log(`  no session for ${persona.username}, skipping.`);
             continue;
         }
 
         if (persona.reviewGames.length === 0) {
-            console.log(`  ${persona.accountName} has no review games, skipping.`);
+            console.log(`  ${persona.username} has no review games, skipping.`);
             continue;
         }
 
-        console.log(`\n  ${persona.accountName} (${persona.reviewGames.length} games)...`);
+        console.log(`\n  ${persona.username} (${persona.reviewGames.length} games)...`);
 
         for (const gameID of persona.reviewGames) {
             const score = persona.scoreFor(gameID);
             const text = getReviewText(persona, gameID, score);
 
             const hoursPlayed: number | undefined =
-                persona.accountName === "completionist"
+                persona.username === "completionist"
                     ? rand(80, 400)
-                    : persona.accountName === "strategy_nerd"
+                    : persona.username === "strategy_nerd"
                       ? rand(50, 500)
-                      : persona.accountName === "casualgamer99"
+                      : persona.username === "casualgamer99"
                         ? rand(5, 25)
-                        : persona.accountName === "newbie_gamer"
+                        : persona.username === "newbie_gamer"
                           ? rand(15, 60)
                           : Math.random() > 0.45
                             ? rand(2, 120)
                             : undefined;
 
             const platforms: string[] | undefined =
-                persona.accountName === "completionist"
+                persona.username === "completionist"
                     ? pickN(platformPool, rand(1, 3))
-                    : persona.accountName === "fps_addict"
+                    : persona.username === "fps_addict"
                       ? ["PC"]
-                      : persona.accountName === "fighting_main"
+                      : persona.username === "fighting_main"
                         ? [pick(["PC", "PlayStation 5"])]
                         : Math.random() > 0.55
                           ? [pick(platformPool)]
@@ -1849,7 +1849,7 @@ async function createReviews(sessions: Map<string, UserSession>): Promise<void> 
             if (res.ok) {
                 console.log(`    reviewed game ${gameID} (score: ${score})`);
             } else if (res.status === 409) {
-                console.log(`    game ${gameID} already reviewed by ${persona.accountName}`);
+                console.log(`    game ${gameID} already reviewed by ${persona.username}`);
             } else if (res.status === 404) {
                 console.log(`    game ${gameID} not found on igdb, skipping.`);
             } else {
@@ -1874,7 +1874,7 @@ async function fetchAllReviews(): Promise<ReviewRecord[]> {
     const all: ReviewRecord[] = [];
 
     for (const persona of PERSONAS) {
-        const res = await api("GET", `/users/id/${persona.accountName}/reviews`);
+        const res = await api("GET", `/users/id/${persona.username}/reviews`);
         if (res.ok && Array.isArray(res.data?.data)) {
             for (const r of res.data.data as ReviewRecord[]) {
                 all.push({ reviewer: r.reviewer, reviewed: r.reviewed, score: r.score });
@@ -1895,7 +1895,7 @@ async function createReactions(sessions: Map<string, UserSession>, reviews: Revi
     for (const persona of PERSONAS) {
         if (persona.commentActivity === "silent") continue;
 
-        const session = sessions.get(persona.accountName);
+        const session = sessions.get(persona.username);
         if (!session) continue;
 
         const maxReacts =
@@ -1908,7 +1908,7 @@ async function createReactions(sessions: Map<string, UserSession>, reviews: Revi
         const reviewsToReact = pickN(reviews, Math.min(reviews.length, maxReacts));
 
         for (const review of reviewsToReact) {
-            if (review.reviewer === persona.accountName) continue;
+            if (review.reviewer === persona.username) continue;
 
             let isLike: boolean;
             switch (persona.likesBias) {
@@ -1932,7 +1932,7 @@ async function createReactions(sessions: Map<string, UserSession>, reviews: Revi
 
             if (res.ok) {
                 console.log(
-                    `  ${persona.accountName} ${isLike ? "liked" : "disliked"} review by ${review.reviewer} (game ${review.reviewed})`
+                    `  ${persona.username} ${isLike ? "liked" : "disliked"} review by ${review.reviewer} (game ${review.reviewed})`
                 );
             }
 
@@ -1958,12 +1958,12 @@ async function createReactions(sessions: Map<string, UserSession>, reviews: Revi
 async function createComments(sessions: Map<string, UserSession>, reviews: ReviewRecord[]): Promise<void> {
     console.log("\ncreating comments...");
 
-    const personaMap = new Map(PERSONAS.map((p) => [p.accountName, p]));
+    const personaMap = new Map(PERSONAS.map((p) => [p.username, p]));
 
     for (const persona of PERSONAS) {
         if (persona.commentActivity === "silent") continue;
 
-        const session = sessions.get(persona.accountName);
+        const session = sessions.get(persona.username);
         if (!session) continue;
 
         const maxComments =
@@ -1975,40 +1975,40 @@ async function createComments(sessions: Map<string, UserSession>, reviews: Revie
 
         if (maxComments === 0) continue;
 
-        let reviewsToComment = reviews.filter((r) => r.reviewer !== persona.accountName);
+        let reviewsToComment = reviews.filter((r) => r.reviewer !== persona.username);
 
-        if (persona.accountName === "soulsborn3r") {
+        if (persona.username === "soulsborn3r") {
             const soulsReviews = reviewsToComment.filter(
                 (r) => SOULS_GAMES.includes(r.reviewed) || METROIDVANIA_GAMES.includes(r.reviewed)
             );
             reviewsToComment = [...soulsReviews, ...reviewsToComment].slice(0, maxComments * 3);
-        } else if (persona.accountName === "toxic_fan") {
+        } else if (persona.username === "toxic_fan") {
             const mcReviews = reviewsToComment.filter(
                 (r) => r.reviewed === MINECRAFT || SANDBOX_GAMES.includes(r.reviewed)
             );
             reviewsToComment = [...mcReviews, ...reviewsToComment].slice(0, maxComments * 3);
-        } else if (persona.accountName === "hater_guy") {
+        } else if (persona.username === "hater_guy") {
             const highScoreReviews = reviewsToComment.filter((r) => r.score >= 8);
             reviewsToComment = [...highScoreReviews, ...reviewsToComment].slice(0, maxComments * 2);
-        } else if (persona.accountName === "contrarian_king") {
+        } else if (persona.username === "contrarian_king") {
             const highScoreReviews = reviewsToComment.filter((r) => r.score >= 9);
             reviewsToComment = [...highScoreReviews, ...reviewsToComment].slice(0, maxComments * 2);
-        } else if (persona.accountName === "horror_enjoyer") {
+        } else if (persona.username === "horror_enjoyer") {
             const horrorReviews = reviewsToComment.filter((r) => HORROR_GAMES.includes(r.reviewed));
             reviewsToComment = [...horrorReviews, ...reviewsToComment].slice(0, maxComments * 2);
-        } else if (persona.accountName === "narrative_lover") {
+        } else if (persona.username === "narrative_lover") {
             const narrativeReviews = reviewsToComment.filter(
                 (r) =>
                     NARRATIVE_GAMES.includes(r.reviewed) ||
                     [DISCO_ELYSIUM, OUTER_WILDS, UNDERTALE, OMORI].includes(r.reviewed)
             );
             reviewsToComment = [...narrativeReviews, ...reviewsToComment].slice(0, maxComments * 2);
-        } else if (persona.accountName === "strategy_nerd") {
+        } else if (persona.username === "strategy_nerd") {
             const stratReviews = reviewsToComment.filter(
                 (r) => STRATEGY_GAMES.includes(r.reviewed) || SANDBOX_GAMES.includes(r.reviewed)
             );
             reviewsToComment = [...stratReviews, ...reviewsToComment].slice(0, maxComments * 2);
-        } else if (persona.accountName === "rpg_master") {
+        } else if (persona.username === "rpg_master") {
             const rpgReviews = reviewsToComment.filter((r) => RPG_GAMES.includes(r.reviewed));
             reviewsToComment = [...rpgReviews, ...reviewsToComment].slice(0, maxComments * 2);
         }
@@ -2028,7 +2028,7 @@ async function createComments(sessions: Map<string, UserSession>, reviews: Revie
 
             if (res.ok) {
                 console.log(
-                    `  ${persona.accountName} commented on ${review.reviewer}'s review (game ${review.reviewed})`
+                    `  ${persona.username} commented on ${review.reviewer}'s review (game ${review.reviewed})`
                 );
             }
 
@@ -2058,7 +2058,7 @@ async function main(): Promise<void> {
     for (const persona of PERSONAS) {
         const token = await registerAndLogin(persona);
         if (token) {
-            sessions.set(persona.accountName, { persona, token });
+            sessions.set(persona.username, { persona, token });
         }
         await sleep(200);
     }
@@ -2087,7 +2087,7 @@ async function main(): Promise<void> {
     console.log("\nseed done.\n");
     console.log("users:");
     for (const [name] of sessions) {
-        const persona = PERSONAS.find((p) => p.accountName === name)!;
+        const persona = PERSONAS.find((p) => p.username === name)!;
         console.log(`  ${name} / ${persona.email} / [REDACTED]`);
     }
 }

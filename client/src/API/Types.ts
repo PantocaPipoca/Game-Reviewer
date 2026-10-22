@@ -7,7 +7,7 @@ export type UserData = {
 };
 
 export type UserPublic = {
-    accountName: string;
+    username: string;
     avatar: string | null;
     isPrivate: boolean;
     createdAt: string;
@@ -15,13 +15,13 @@ export type UserPublic = {
 };
 
 export type UserPrivate = {
-    accountName: string;
+    username: string;
     avatar: string | null;
     isPrivate: boolean;
 };
 
 export type UserMe = {
-    accountName: string;
+    username: string;
     email: string;
     avatar: string | null;
     isPrivate: boolean;

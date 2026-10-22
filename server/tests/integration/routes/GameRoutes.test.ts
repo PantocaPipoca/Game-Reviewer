@@ -198,7 +198,7 @@ describe("GET /api/games/id/:gameID/reviews", () => {
         expect(res.body.status).toBe("success");
         expect(Array.isArray(res.body.data)).toBe(true);
         expect(res.body.data).toHaveLength(1);
-        expect(res.body.data[0].reviewer).toBe(user.accountName);
+        expect(res.body.data[0].reviewer).toBe(user.username);
         expect(res.body.data[0].reviewed).toBe(game.gameID);
         expect(res.body.data[0].score).toBe(9);
         expect(res.body.data[0].hoursPlayed).toBe(14);
@@ -256,12 +256,12 @@ describe("GET /api/games/id/:gameID/reviews", () => {
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .post("/api/users/id/" + privateUser.accountName + "/followers/")
+            .post("/api/users/id/" + privateUser.username + "/followers/")
             .set("Authorization", "Bearer " + viewer.token)
             .expect(StatusCodes.CREATED);
 
         await request(app)
-            .put("/api/users/me/followers/requests/received/" + viewer.accountName)
+            .put("/api/users/me/followers/requests/received/" + viewer.username)
             .set("Authorization", "Bearer " + privateUser.token)
             .expect(StatusCodes.ACCEPTED);
 
@@ -271,7 +271,7 @@ describe("GET /api/games/id/:gameID/reviews", () => {
             .expect(StatusCodes.OK);
 
         expect(res.body.data).toHaveLength(1);
-        expect(res.body.data[0].reviewer).toBe(privateUser.accountName);
+        expect(res.body.data[0].reviewer).toBe(privateUser.username);
     });
 });
 
@@ -413,7 +413,7 @@ describe("POST /api/games/id/:gameID/reviews", () => {
             .expect(StatusCodes.CREATED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.reviewer).toBe(user.accountName);
+        expect(res.body.data.reviewer).toBe(user.username);
         expect(res.body.data.reviewed).toBe(game.gameID);
         expect(res.body.data.text).toBe("great game");
         expect(res.body.data.score).toBe(8);
@@ -530,7 +530,7 @@ describe("PUT /api/games/id/:gameID/reviews", () => {
             .expect(StatusCodes.ACCEPTED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.reviewer).toBe(user.accountName);
+        expect(res.body.data.reviewer).toBe(user.username);
         expect(res.body.data.reviewed).toBe(game.gameID);
         expect(res.body.data.text).toBe("updated review");
         expect(res.body.data.score).toBe(7);
@@ -585,7 +585,7 @@ describe("DELETE /api/games/id/:gameID/reviews", () => {
             .expect(StatusCodes.ACCEPTED);
 
         expect(res.body.status).toBe("success");
-        expect(res.body.data.reviewer).toBe(user.accountName);
+        expect(res.body.data.reviewer).toBe(user.username);
         expect(res.body.data.reviewed).toBe(game.gameID);
     });
 

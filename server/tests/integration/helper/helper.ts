@@ -15,7 +15,7 @@ import { generateToken } from "../../../src/utils/Auth";
 // still takes in 'app' because too many calls to replace
 export async function register(
     app: Express,
-    accountName: UserPK,
+    username: UserPK,
     displayName: string,
     password: string,
     email: string
@@ -27,7 +27,7 @@ export async function register(
     };
 
     const user: UserFull = await UserRepository.insertUser({
-        accountName,
+        username,
         avatar: null,
         isPrivate: false,
         passwordHash: await bcrypt.hash(password, 10),
@@ -35,12 +35,12 @@ export async function register(
         email,
     });
 
-    await UserRepository.verify(user.accountName, user.emailValidation as number);
+    await UserRepository.verify(user.username, user.emailValidation as number);
 
-    const token = generateToken(user.accountName);
+    const token = generateToken(user.username);
 
     return {
-        accountName: user.accountName,
+        username: user.username,
         isPrivate: false,
         userData,
         createdAt: user.createdAt,
@@ -50,22 +50,22 @@ export async function register(
 
 // Username-email pair utility
 export interface UserMicro {
-    accountName: string;
+    username: string;
     email: string;
 }
 
 // Prepares a username and email
 export function makeSomeUser(): UserMicro {
-    const accountName: string = `svc_login_${Date.now()}`;
-    const email: string = `${accountName}@test.com`;
-    return { accountName, email } as UserMicro;
+    const username: string = `svc_login_${Date.now()}`;
+    const email: string = `${username}@test.com`;
+    return { username, email } as UserMicro;
 }
 
 // Short-hand for registering a user, for tests
 export async function quickRegisterUser(): Promise<string> {
     const user: UserMicro = makeSomeUser();
-    await fastCreateUserAndValidate(user.accountName);
-    return user.accountName;
+    await fastCreateUserAndValidate(user.username);
+    return user.username;
 }
 
 // Short-hand for creating a game, for tests
@@ -87,7 +87,7 @@ export async function createGame(): Promise<GameFull> {
 export function fastCreateUser(name: string) {
     return bcrypt.hash(name, 10).then((hash) => {
         return UserRepository.insertUser({
-            accountName: name,
+            username: name,
             passwordHash: hash,
             avatar: null,
             userData: {},
@@ -99,13 +99,13 @@ export function fastCreateUser(name: string) {
 
 export function fastCreateUserAndValidate(name: string) {
     return fastCreateUser(name).then((user) => {
-        return UserRepository.verify(user.accountName, user.emailValidation as number);
+        return UserRepository.verify(user.username, user.emailValidation as number);
     });
 }
 
 export function fastMakeUserPrivate(name: string) {
     return PRISMA.user.update({
-        where: { accountName: name },
+        where: { username: name },
         data: {
             isPrivate: true,
         },
